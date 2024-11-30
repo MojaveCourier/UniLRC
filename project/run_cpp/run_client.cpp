@@ -7,6 +7,7 @@
 
 int main(int argc, char **argv)
 {
+  // check the number of arguments
   if (argc != 13 && argc != 14)
   {
     std::cout << "./run_client partial_decoding encode_type singlestripe_placement_type multistripes_placement_type k l g_m stripe_num stage_x1 stage_x2 stage_x3 value_length" << std::endl;
@@ -14,6 +15,7 @@ int main(int argc, char **argv)
     exit(-1);
   }
 
+  // define the parameters
   bool partial_decoding;
   ECProject::EncodeType encode_type;
   ECProject::SingleStripePlacementType s_placement_type;
@@ -22,11 +24,15 @@ int main(int argc, char **argv)
   int stripe_num, value_length;
   int s_x1, s_x2, s_x3;
 
+  // get the current working directory
   char buff[256];
   getcwd(buff, 256);
+  // get the path of the executable file
   std::string cwf = std::string(argv[0]);
 
+  // get argv[1]: partial_decoding
   partial_decoding = (std::string(argv[1]) == "true");
+  // get argv[2]: encode_type
   if (std::string(argv[2]) == "Azure_LRC")
   {
     encode_type = ECProject::Azure_LRC;
@@ -40,6 +46,7 @@ int main(int argc, char **argv)
     std::cout << "error: unknown encode_type" << std::endl;
     exit(-1);
   }
+  // get argv[3]: singlestripe_placement_type
   if (std::string(argv[3]) == "Optimal")
   {
     s_placement_type = ECProject::Optimal;
@@ -49,6 +56,7 @@ int main(int argc, char **argv)
     std::cout << "error: unknown singlestripe_placement_type" << std::endl;
     exit(-1);
   }
+  // get argv[4]: multistripes_placement_type
   if (std::string(argv[4]) == "Ran")
   {
     m_placement_type = ECProject::Ran;
@@ -70,14 +78,23 @@ int main(int argc, char **argv)
     std::cout << "error: unknown singlestripe_placement_type" << std::endl;
     exit(-1);
   }
+  // get argv[5]: k
   k = std::stoi(std::string(argv[5]));
+  // get argv[6]: l
   l = std::stoi(std::string(argv[6]));
+  // calculate b
   b = std::ceil((double)k / (double)l);
+  // get argv[7]: g_m
   g_m = std::stoi(std::string(argv[7]));
+  // get argv[8]: stripe_num
   stripe_num = std::stoi(std::string(argv[8]));
+  // get argv[9]: stage_x1
   s_x1 = std::stoi(std::string(argv[9]));
+  // get argv[10]: stage_x2
   s_x2 = std::stoi(std::string(argv[10]));
+  // get argv[11]: stage_x3
   s_x3 = std::stoi(std::string(argv[11]));
+  // get argv[12]: value_length
   value_length = std::stoi(std::string(argv[12]));
 
   std::string client_ip = "0.0.0.0", coordinator_ip;

@@ -273,6 +273,7 @@ namespace ECProject
       try
       {
         // read the key and value in the socket sent by client
+        // initialize the socket of reading key and value
         asio::ip::tcp::socket socket_data(io_context);
         acceptor.accept(socket_data);
         asio::error_code error;
@@ -285,6 +286,7 @@ namespace ECProject
           v_buf[i] = '0';
         }
 
+        // read the key
         asio::read(socket_data, asio::buffer(buf_key, key.size()), error);
         if (error == asio::error::eof)
         {
@@ -299,6 +301,7 @@ namespace ECProject
           std::cout << "[Proxy" << m_self_cluster_id << "][SET]"
                     << "Check key " << buf_key.data() << std::endl;
         }
+
         // check the key
         bool flag = true;
         for (int i = 0; i < int(key.size()); i++)
@@ -315,6 +318,7 @@ namespace ECProject
             std::cout << "[Proxy" << m_self_cluster_id << "][SET]"
                       << "Read value of " << buf_key.data() << std::endl;
           }
+          // read the value
           asio::read(socket_data, asio::buffer(v_buf.data(), value_size_bytes), error);
         }
         asio::error_code ignore_ec;
@@ -323,6 +327,7 @@ namespace ECProject
 
         // set the blocks to the datanode
         char *buf = v_buf.data();
+        // define a lambda function to send to datanode
         auto send_to_datanode = [this](int j, int k, std::string block_key, char **data, char **coding, int block_size, std::pair<std::string, int> ip_and_port)
         {
           if (IF_DEBUG)
@@ -332,14 +337,18 @@ namespace ECProject
           }
           if (j < k)
           {
+            // send to data node
             SetToDatanode(block_key.c_str(), block_key.size(), data[j], block_size, ip_and_port.first.c_str(), ip_and_port.second, j + 2);
           }
           else
           {
+            // send to parity node
             SetToDatanode(block_key.c_str(), block_key.size(), coding[j - k], block_size, ip_and_port.first.c_str(), ip_and_port.second, j + 2);
           }
         };
+
         // calculate parity blocks
+        // initialize the area of parity blocks
         std::vector<char *> v_data(k);
         std::vector<char *> v_coding(g_m + l + 1);
         char **data = (char **)v_data.data();
@@ -370,6 +379,8 @@ namespace ECProject
           std::cout << "[Proxy" << m_self_cluster_id << "][SET]"
                     << "Distribute blocks to datanodes" << std::endl;
         }
+
+        // call the lambda function send_to_datanode to send data and parity blocks
         std::vector<std::thread> senders;
         for (int j = 0; j < send_num; j++)
         {
@@ -386,6 +397,8 @@ namespace ECProject
           std::cout << "[Proxy" << m_self_cluster_id << "][SET]"
                     << "Finish distributing blocks!" << std::endl;
         }
+
+        // report to coordinator
         coordinator_proto::CommitAbortKey commit_abort_key;
         coordinator_proto::ReplyFromCoordinator result;
         grpc::ClientContext context;
@@ -670,7 +683,8 @@ namespace ECProject
           senders[j].join();
         }
 
-        if (stripe_id != -1 || key != ""){
+        if (stripe_id != -1 || key != "")
+        {
           grpc::ClientContext c_context;
           coordinator_proto::CommitAbortKey commit_abort_key;
           coordinator_proto::ReplyFromCoordinator rep;
@@ -711,338 +725,330 @@ namespace ECProject
       const proxy_proto::mainRecalPlan *main_recal_plan,
       proxy_proto::RecalReply *response)
   {
-      int g_m, group_id, new_parity_num;
-      bool if_partial_decoding;
-      bool if_g_recal = main_recal_plan->type();
-      int block_size = main_recal_plan->block_size();
-      int stripe_id = main_recal_plan->stripe_id();
-      int k = main_recal_plan->k();
-      ECProject::EncodeType encode_type = (ECProject::EncodeType)main_recal_plan->encodetype();
-      std::string recal_type = "";
-      // for parity blocks
-      std::vector<std::string> p_datanode_ip;
-      std::vector<int> p_datanode_port;
-      std::vector<std::string> p_blockkeys;
-      // for help clusters
-      std::vector<proxy_proto::locationInfo> help_locations;
-      // for blocks in local datanodes
-      std::vector<std::string> l_datanode_ip;
-      std::vector<int> l_datanode_port;
-      std::vector<std::string> l_blockkeys;
-      std::vector<int> l_blockids;
-      // get the meta information
-      for (int i = 0; i < main_recal_plan->p_blockkeys_size(); i++)
+    int g_m, group_id, new_parity_num;
+    bool if_partial_decoding;
+    bool if_g_recal = main_recal_plan->type();
+    int block_size = main_recal_plan->block_size();
+    int stripe_id = main_recal_plan->stripe_id();
+    int k = main_recal_plan->k();
+    ECProject::EncodeType encode_type = (ECProject::EncodeType)main_recal_plan->encodetype();
+    std::string recal_type = "";
+    // for parity blocks
+    std::vector<std::string> p_datanode_ip;
+    std::vector<int> p_datanode_port;
+    std::vector<std::string> p_blockkeys;
+    // for help clusters
+    std::vector<proxy_proto::locationInfo> help_locations;
+    // for blocks in local datanodes
+    std::vector<std::string> l_datanode_ip;
+    std::vector<int> l_datanode_port;
+    std::vector<std::string> l_blockkeys;
+    std::vector<int> l_blockids;
+    // get the meta information
+    for (int i = 0; i < main_recal_plan->p_blockkeys_size(); i++)
+    {
+      p_datanode_ip.push_back(main_recal_plan->p_datanodeip(i));
+      p_datanode_port.push_back(main_recal_plan->p_datanodeport(i));
+      p_blockkeys.push_back(main_recal_plan->p_blockkeys(i));
+    }
+    if_partial_decoding = main_recal_plan->if_partial_decoding();
+    if (!if_g_recal)
+    {
+      m_mutex.lock();
+      m_merge_step_processing[1] = true;
+      m_mutex.unlock();
+      group_id = main_recal_plan->group_id();
+      new_parity_num = 1;
+      recal_type = "[Local]";
+    }
+    else if (if_g_recal)
+    {
+      m_mutex.lock();
+      m_merge_step_processing[0] = true;
+      m_mutex.unlock();
+      g_m = main_recal_plan->g_m();
+      new_parity_num = g_m;
+      recal_type = "[Global]";
+    }
+    for (int i = 0; i < main_recal_plan->clusters_size(); i++)
+    {
+      if (int(main_recal_plan->clusters(i).cluster_id()) != m_self_cluster_id)
       {
-        p_datanode_ip.push_back(main_recal_plan->p_datanodeip(i));
-        p_datanode_port.push_back(main_recal_plan->p_datanodeport(i));
-        p_blockkeys.push_back(main_recal_plan->p_blockkeys(i));
-      }
-      if_partial_decoding = main_recal_plan->if_partial_decoding();
-      if (!if_g_recal)
-      {
-        m_mutex.lock();
-        m_merge_step_processing[1] = true;
-        m_mutex.unlock();
-        group_id = main_recal_plan->group_id();
-        new_parity_num = 1;
-        recal_type = "[Local]";
-      }
-      else if (if_g_recal)
-      {
-        m_mutex.lock();
-        m_merge_step_processing[0] = true;
-        m_mutex.unlock();
-        g_m = main_recal_plan->g_m();
-        new_parity_num = g_m;
-        recal_type = "[Global]";
-      }
-      for (int i = 0; i < main_recal_plan->clusters_size(); i++)
-      {
-        if (int(main_recal_plan->clusters(i).cluster_id()) != m_self_cluster_id)
+        proxy_proto::locationInfo temp;
+        temp.set_cluster_id(main_recal_plan->clusters(i).cluster_id());
+        temp.set_proxy_ip(main_recal_plan->clusters(i).proxy_ip());
+        temp.set_proxy_port(main_recal_plan->clusters(i).proxy_port());
+        for (int j = 0; j < main_recal_plan->clusters(i).blockkeys_size(); j++)
         {
-          proxy_proto::locationInfo temp;
-          temp.set_cluster_id(main_recal_plan->clusters(i).cluster_id());
-          temp.set_proxy_ip(main_recal_plan->clusters(i).proxy_ip());
-          temp.set_proxy_port(main_recal_plan->clusters(i).proxy_port());
-          for (int j = 0; j < main_recal_plan->clusters(i).blockkeys_size(); j++)
-          {
-            temp.add_blockids(main_recal_plan->clusters(i).blockids(j));
-            temp.add_blockkeys(main_recal_plan->clusters(i).blockkeys(j));
-            temp.add_datanodeip(main_recal_plan->clusters(i).datanodeip(j));
-            temp.add_datanodeport(main_recal_plan->clusters(i).datanodeport(j));
-          }
-          help_locations.push_back(temp);
+          temp.add_blockids(main_recal_plan->clusters(i).blockids(j));
+          temp.add_blockkeys(main_recal_plan->clusters(i).blockkeys(j));
+          temp.add_datanodeip(main_recal_plan->clusters(i).datanodeip(j));
+          temp.add_datanodeport(main_recal_plan->clusters(i).datanodeport(j));
         }
-        else
+        help_locations.push_back(temp);
+      }
+      else
+      {
+        for (int j = 0; j < main_recal_plan->clusters(i).blockkeys_size(); j++)
         {
-          for (int j = 0; j < main_recal_plan->clusters(i).blockkeys_size(); j++)
-          {
-            l_blockids.push_back(main_recal_plan->clusters(i).blockids(j));
-            l_blockkeys.push_back(main_recal_plan->clusters(i).blockkeys(j));
-            l_datanode_ip.push_back(main_recal_plan->clusters(i).datanodeip(j));
-            l_datanode_port.push_back(main_recal_plan->clusters(i).datanodeport(j));
-          }
+          l_blockids.push_back(main_recal_plan->clusters(i).blockids(j));
+          l_blockkeys.push_back(main_recal_plan->clusters(i).blockkeys(j));
+          l_datanode_ip.push_back(main_recal_plan->clusters(i).datanodeip(j));
+          l_datanode_port.push_back(main_recal_plan->clusters(i).datanodeport(j));
         }
       }
-      
-      try
+    }
+
+    try
+    {
+      auto lock_ptr = std::make_shared<std::mutex>();
+      auto blocks_ptr = std::make_shared<std::vector<std::vector<char>>>();
+      auto blocks_key_ptr = std::make_shared<std::vector<std::string>>();
+      auto blocks_idx_ptr = std::make_shared<std::vector<int>>();
+      auto getFromNode = [this, blocks_ptr, blocks_key_ptr, blocks_idx_ptr, lock_ptr](int block_idx, std::string block_key, int block_size, std::string node_ip, int node_port) mutable
       {
-        auto lock_ptr = std::make_shared<std::mutex>();
-        auto blocks_ptr = std::make_shared<std::vector<std::vector<char>>>();
-        auto blocks_key_ptr = std::make_shared<std::vector<std::string>>();
-        auto blocks_idx_ptr = std::make_shared<std::vector<int>>();
-        auto getFromNode = [this, blocks_ptr, blocks_key_ptr, blocks_idx_ptr, lock_ptr](int block_idx, std::string block_key, int block_size, std::string node_ip, int node_port) mutable
+        std::vector<char> temp(block_size);
+        bool ret = GetFromDatanode(block_key.c_str(), block_key.size(), temp.data(), block_size, node_ip.c_str(), node_port, block_idx + 2);
+        if (!ret)
         {
-          std::vector<char> temp(block_size);
-          bool ret = GetFromDatanode(block_key.c_str(), block_key.size(), temp.data(), block_size, node_ip.c_str(), node_port, block_idx + 2);
-          if (!ret)
-          {
-            std::cout << "getFromNode !ret" << std::endl;
-            return;
-          }
-          lock_ptr->lock();
-          blocks_ptr->push_back(temp);
-          blocks_key_ptr->push_back(block_key);
-          blocks_idx_ptr->push_back(block_idx);
-          lock_ptr->unlock();
-        };
-
-        auto p_lock_ptr = std::make_shared<std::mutex>();
-        auto m_blocks_ptr = std::make_shared<std::vector<std::vector<char>>>();
-        auto m_blocks_idx_ptr = std::make_shared<std::vector<int>>();
-        auto h_blocks_ptr = std::make_shared<std::vector<std::vector<char>>>();
-        auto h_blocks_idx_ptr = std::make_shared<std::vector<int>>();
-        auto getFromProxy = [this, recal_type, p_lock_ptr, m_blocks_ptr, m_blocks_idx_ptr, h_blocks_ptr, h_blocks_idx_ptr, block_size, if_partial_decoding, new_parity_num](int block_key_size, std::shared_ptr<asio::ip::tcp::socket> socket_ptr) mutable
-        {
-          try
-          {
-            asio::error_code ec;
-            std::vector<unsigned char> int_buf(sizeof(int));
-            asio::read(*socket_ptr, asio::buffer(int_buf, int_buf.size()), ec);
-            int t_cluster_id = ECProject::bytes_to_int(int_buf);
-            if (IF_DEBUG)
-            {
-              std::cout << "\033[1;36m" << recal_type << "[Main Proxy " << m_self_cluster_id << "] Try to get data from the proxy in cluster " << t_cluster_id << "\033[0m" << std::endl;
-            }
-            if (if_partial_decoding)
-            {
-              p_lock_ptr->lock();
-              for (int j = 0; j < new_parity_num; j++)
-              {
-                std::vector<char> tmp_val(block_size);
-                asio::read(*socket_ptr, asio::buffer(tmp_val.data(), block_size), ec);
-                m_blocks_ptr->push_back(tmp_val);
-              }
-              m_blocks_idx_ptr->push_back(t_cluster_id);
-              p_lock_ptr->unlock();
-            }
-            else
-            {
-              std::vector<unsigned char> int_buf_num_of_blocks(sizeof(int));
-              asio::read(*socket_ptr, asio::buffer(int_buf_num_of_blocks, int_buf_num_of_blocks.size()), ec);
-              int block_num = ECProject::bytes_to_int(int_buf_num_of_blocks);
-              for (int j = 0; j < block_num; j++)
-              {
-                // std::vector<char> tmp_key(block_key_size);
-                std::vector<char> tmp_val(block_size);
-                std::vector<unsigned char> byte_block_id(sizeof(int));
-                asio::read(*socket_ptr, asio::buffer(byte_block_id, byte_block_id.size()), ec);
-                int block_idx = ECProject::bytes_to_int(byte_block_id);
-                // asio::read(*socket_ptr, asio::buffer(tmp_key.data(), block_key_size), ec);
-                asio::read(*socket_ptr, asio::buffer(tmp_val.data(), block_size), ec);
-                p_lock_ptr->lock();
-                h_blocks_ptr->push_back(tmp_val);
-                h_blocks_idx_ptr->push_back(block_idx);
-                p_lock_ptr->unlock();
-              }
-            }
-
-            if (IF_DEBUG)
-            {
-              std::cout << "\033[1;36m" << recal_type << "[Main Proxy " << m_self_cluster_id << "] Finish getting data from the proxy in cluster " << t_cluster_id << "\033[0m" << std::endl;
-            }
-          }
-          catch (const std::exception &e)
-          {
-            std::cerr << e.what() << '\n';
-          }
-        };
-
-        auto send_to_datanode = [this](int j, std::string block_key, char *data, int block_size, std::string s_node_ip, int s_node_port)
-        {
-          SetToDatanode(block_key.c_str(), block_key.size(), data, block_size, s_node_ip.c_str(), s_node_port, j + 2);
-        };
-
-        if (IF_DEBUG)
-        {
-          std::cout << recal_type << "[Main Proxy" << m_self_cluster_id << "] get blocks in local cluster!" << std::endl;
+          std::cout << "getFromNode !ret" << std::endl;
+          return;
         }
-        // get data blocks in local cluster
-        int l_block_num = int(l_blockkeys.size());
-        if (l_block_num > 0)
+        lock_ptr->lock();
+        blocks_ptr->push_back(temp);
+        blocks_key_ptr->push_back(block_key);
+        blocks_idx_ptr->push_back(block_idx);
+        lock_ptr->unlock();
+      };
+
+      auto p_lock_ptr = std::make_shared<std::mutex>();
+      auto m_blocks_ptr = std::make_shared<std::vector<std::vector<char>>>();
+      auto m_blocks_idx_ptr = std::make_shared<std::vector<int>>();
+      auto h_blocks_ptr = std::make_shared<std::vector<std::vector<char>>>();
+      auto h_blocks_idx_ptr = std::make_shared<std::vector<int>>();
+      auto getFromProxy = [this, recal_type, p_lock_ptr, m_blocks_ptr, m_blocks_idx_ptr, h_blocks_ptr, h_blocks_idx_ptr, block_size, if_partial_decoding, new_parity_num](int block_key_size, std::shared_ptr<asio::ip::tcp::socket> socket_ptr) mutable
+      {
+        try
         {
-          try
+          asio::error_code ec;
+          std::vector<unsigned char> int_buf(sizeof(int));
+          asio::read(*socket_ptr, asio::buffer(int_buf, int_buf.size()), ec);
+          int t_cluster_id = ECProject::bytes_to_int(int_buf);
+          if (IF_DEBUG)
           {
-            std::vector<std::thread> read_threads;
-            for (int j = 0; j < l_block_num; j++)
-            {
-              read_threads.push_back(std::thread(getFromNode, j, l_blockkeys[j], block_size, l_datanode_ip[j], l_datanode_port[j]));
-            }
-            for (int j = 0; j < l_block_num; j++)
-            {
-              read_threads[j].join();
-            }
+            std::cout << "\033[1;36m" << recal_type << "[Main Proxy " << m_self_cluster_id << "] Try to get data from the proxy in cluster " << t_cluster_id << "\033[0m" << std::endl;
           }
-          catch (const std::exception &e)
+          if (if_partial_decoding)
           {
-            std::cerr << e.what() << '\n';
-          }
-          if (l_block_num != int(blocks_ptr->size()))
-          {
-            std::cout << "[Help] can't get enough blocks!" << std::endl;
-          }
-          std::vector<char *> v_data(l_block_num);
-          std::vector<char *> v_coding(1);
-          char **data = (char **)v_data.data();
-          char **coding = (char **)v_coding.data();
-          std::vector<std::vector<char>> v_data_area(l_block_num, std::vector<char>(block_size));
-          for (int j = 0; j < l_block_num; j++)
-          {
-            data[j] = v_data_area[j].data();
-          }
-          for (int j = 0; j < l_block_num; j++)
-          {
-            int idx = (*blocks_idx_ptr)[j];
-            if (idx < l_block_num)
-            {
-              memcpy(data[idx], (*blocks_ptr)[j].data(), block_size);
-            }
-          }
-          if (if_partial_decoding) // partial encoding
-          {
-            std::vector<std::vector<char>> v_coding_area(new_parity_num, std::vector<char>(block_size));
-            for (int j = 0; j < new_parity_num; j++)
-            {
-              coding[j] = v_coding_area[j].data();
-            }
-            if(if_g_recal)
-            {
-              encode_partial_blocks_for_gr(k, new_parity_num, data, coding, block_size, blocks_idx_ptr, l_block_num, encode_type);
-            }
-            else
-            {
-              perform_addition(data, coding, block_size, l_block_num, new_parity_num);
-            }
-            
             p_lock_ptr->lock();
             for (int j = 0; j < new_parity_num; j++)
             {
-              m_blocks_ptr->push_back(v_coding_area[j]);
+              std::vector<char> tmp_val(block_size);
+              asio::read(*socket_ptr, asio::buffer(tmp_val.data(), block_size), ec);
+              m_blocks_ptr->push_back(tmp_val);
             }
-            m_blocks_idx_ptr->push_back(m_self_cluster_id);
+            m_blocks_idx_ptr->push_back(t_cluster_id);
             p_lock_ptr->unlock();
           }
           else
           {
-            for (int j = 0; j < l_block_num; j++)
+            std::vector<unsigned char> int_buf_num_of_blocks(sizeof(int));
+            asio::read(*socket_ptr, asio::buffer(int_buf_num_of_blocks, int_buf_num_of_blocks.size()), ec);
+            int block_num = ECProject::bytes_to_int(int_buf_num_of_blocks);
+            for (int j = 0; j < block_num; j++)
             {
+              // std::vector<char> tmp_key(block_key_size);
+              std::vector<char> tmp_val(block_size);
+              std::vector<unsigned char> byte_block_id(sizeof(int));
+              asio::read(*socket_ptr, asio::buffer(byte_block_id, byte_block_id.size()), ec);
+              int block_idx = ECProject::bytes_to_int(byte_block_id);
+              // asio::read(*socket_ptr, asio::buffer(tmp_key.data(), block_key_size), ec);
+              asio::read(*socket_ptr, asio::buffer(tmp_val.data(), block_size), ec);
               p_lock_ptr->lock();
-              h_blocks_idx_ptr->push_back((*blocks_idx_ptr)[j]);
-              h_blocks_ptr->push_back((*blocks_ptr)[j]);
+              h_blocks_ptr->push_back(tmp_val);
+              h_blocks_idx_ptr->push_back(block_idx);
               p_lock_ptr->unlock();
             }
           }
-        }
 
-        // get from proxy
-        int m_num = int(help_locations.size());
-        if (IF_DEBUG)
-        {
-          std::cout << recal_type << "[Main Proxy" << m_self_cluster_id << "] get data blocks from " << m_num << " helper proxy!" << std::endl;
-        }
-        try
-        {
-          std::vector<std::thread> read_p_threads;
-          for (int j = 0; j < m_num; j++)
+          if (IF_DEBUG)
           {
-            int t_blocks_num = help_locations[j].blockkeys_size();
-            int block_key_size = help_locations[0].blockkeys(0).size();
-            if (if_partial_decoding)
-            {
-              block_key_size = 0;
-              t_blocks_num = 1;
-            }
-            std::shared_ptr<asio::ip::tcp::socket> socket_ptr = std::make_shared<asio::ip::tcp::socket>(io_context);
-            acceptor.accept(*socket_ptr);
-            read_p_threads.push_back(std::thread(getFromProxy, block_key_size, socket_ptr));
-            if (!if_partial_decoding)
-            {
-              l_block_num += t_blocks_num;
-            }
-            if (IF_DEBUG)
-            {
-              std::cout << recal_type << "[Main Proxy" << m_self_cluster_id << "] cluster" << help_locations[j].cluster_id() << " block_key_size:" << block_key_size << " blocks_num:" << help_locations[j].blockkeys_size() << std::endl;
-            }
-          }
-          for (int j = 0; j < m_num; j++)
-          {
-            read_p_threads[j].join();
+            std::cout << "\033[1;36m" << recal_type << "[Main Proxy " << m_self_cluster_id << "] Finish getting data from the proxy in cluster " << t_cluster_id << "\033[0m" << std::endl;
           }
         }
         catch (const std::exception &e)
         {
           std::cerr << e.what() << '\n';
         }
-        if (l_block_num > 0)
+      };
+
+      auto send_to_datanode = [this](int j, std::string block_key, char *data, int block_size, std::string s_node_ip, int s_node_port)
+      {
+        SetToDatanode(block_key.c_str(), block_key.size(), data, block_size, s_node_ip.c_str(), s_node_port, j + 2);
+      };
+
+      if (IF_DEBUG)
+      {
+        std::cout << recal_type << "[Main Proxy" << m_self_cluster_id << "] get blocks in local cluster!" << std::endl;
+      }
+      // get data blocks in local cluster
+      int l_block_num = int(l_blockkeys.size());
+      if (l_block_num > 0)
+      {
+        try
         {
-          m_num += 1; // add local
-        }
-        if (IF_DEBUG)
-        {
-          std::cout << recal_type << "[Main Proxy" << m_self_cluster_id << "] recalculating new parity blocks!" << std::endl;
-        }
-        // encode
-        int count = l_block_num;
-        if (if_partial_decoding)
-        {
-          count = m_num * new_parity_num;
-        }
-        std::vector<char *> vt_data(count);
-        std::vector<char *> vt_coding(new_parity_num);
-        char **t_data = (char **)vt_data.data();
-        char **t_coding = (char **)vt_coding.data();
-        std::vector<std::vector<char>> vt_data_area(count, std::vector<char>(block_size));
-        std::vector<std::vector<char>> vt_coding_area(new_parity_num, std::vector<char>(block_size));
-        if (IF_DEBUG)
-        {
-          std::cout << recal_type << "[Main Proxy" << m_self_cluster_id << "] " << count << " " << m_blocks_ptr->size() << " " << h_blocks_ptr->size() << std::endl;
-        }
-        for (int j = 0; j < count; j++)
-        {
-          t_data[j] = vt_data_area[j].data();
-        }
-        for (int j = 0; j < new_parity_num; j++)
-        {
-          t_coding[j] = vt_coding_area[j].data();
-        }
-        if (if_partial_decoding)
-        {
-          if(if_g_recal)
+          std::vector<std::thread> read_threads;
+          for (int j = 0; j < l_block_num; j++)
           {
-            int index = 0;
-            for(int j = 0; j < m_num; j++)
-            {
-              for(int jj = 0; jj < new_parity_num; jj++)
-              {
-                memcpy(t_data[index++], (*m_blocks_ptr)[jj * new_parity_num + j].data(), block_size);
-              }
-            }
+            read_threads.push_back(std::thread(getFromNode, j, l_blockkeys[j], block_size, l_datanode_ip[j], l_datanode_port[j]));
+          }
+          for (int j = 0; j < l_block_num; j++)
+          {
+            read_threads[j].join();
+          }
+        }
+        catch (const std::exception &e)
+        {
+          std::cerr << e.what() << '\n';
+        }
+        if (l_block_num != int(blocks_ptr->size()))
+        {
+          std::cout << "[Help] can't get enough blocks!" << std::endl;
+        }
+        std::vector<char *> v_data(l_block_num);
+        std::vector<char *> v_coding(1);
+        char **data = (char **)v_data.data();
+        char **coding = (char **)v_coding.data();
+        std::vector<std::vector<char>> v_data_area(l_block_num, std::vector<char>(block_size));
+        for (int j = 0; j < l_block_num; j++)
+        {
+          data[j] = v_data_area[j].data();
+        }
+        for (int j = 0; j < l_block_num; j++)
+        {
+          int idx = (*blocks_idx_ptr)[j];
+          if (idx < l_block_num)
+          {
+            memcpy(data[idx], (*blocks_ptr)[j].data(), block_size);
+          }
+        }
+        if (if_partial_decoding) // partial encoding
+        {
+          std::vector<std::vector<char>> v_coding_area(new_parity_num, std::vector<char>(block_size));
+          for (int j = 0; j < new_parity_num; j++)
+          {
+            coding[j] = v_coding_area[j].data();
+          }
+          if (if_g_recal)
+          {
+            encode_partial_blocks_for_gr(k, new_parity_num, data, coding, block_size, blocks_idx_ptr, l_block_num, encode_type);
           }
           else
           {
-            for(int j = 0; j < count; j++)
+            perform_addition(data, coding, block_size, l_block_num, new_parity_num);
+          }
+
+          p_lock_ptr->lock();
+          for (int j = 0; j < new_parity_num; j++)
+          {
+            m_blocks_ptr->push_back(v_coding_area[j]);
+          }
+          m_blocks_idx_ptr->push_back(m_self_cluster_id);
+          p_lock_ptr->unlock();
+        }
+        else
+        {
+          for (int j = 0; j < l_block_num; j++)
+          {
+            p_lock_ptr->lock();
+            h_blocks_idx_ptr->push_back((*blocks_idx_ptr)[j]);
+            h_blocks_ptr->push_back((*blocks_ptr)[j]);
+            p_lock_ptr->unlock();
+          }
+        }
+      }
+
+      // get from proxy
+      int m_num = int(help_locations.size());
+      if (IF_DEBUG)
+      {
+        std::cout << recal_type << "[Main Proxy" << m_self_cluster_id << "] get data blocks from " << m_num << " helper proxy!" << std::endl;
+      }
+      try
+      {
+        std::vector<std::thread> read_p_threads;
+        for (int j = 0; j < m_num; j++)
+        {
+          int t_blocks_num = help_locations[j].blockkeys_size();
+          int block_key_size = help_locations[0].blockkeys(0).size();
+          if (if_partial_decoding)
+          {
+            block_key_size = 0;
+            t_blocks_num = 1;
+          }
+          std::shared_ptr<asio::ip::tcp::socket> socket_ptr = std::make_shared<asio::ip::tcp::socket>(io_context);
+          acceptor.accept(*socket_ptr);
+          read_p_threads.push_back(std::thread(getFromProxy, block_key_size, socket_ptr));
+          if (!if_partial_decoding)
+          {
+            l_block_num += t_blocks_num;
+          }
+          if (IF_DEBUG)
+          {
+            std::cout << recal_type << "[Main Proxy" << m_self_cluster_id << "] cluster" << help_locations[j].cluster_id() << " block_key_size:" << block_key_size << " blocks_num:" << help_locations[j].blockkeys_size() << std::endl;
+          }
+        }
+        for (int j = 0; j < m_num; j++)
+        {
+          read_p_threads[j].join();
+        }
+      }
+      catch (const std::exception &e)
+      {
+        std::cerr << e.what() << '\n';
+      }
+      if (l_block_num > 0)
+      {
+        m_num += 1; // add local
+      }
+      if (IF_DEBUG)
+      {
+        std::cout << recal_type << "[Main Proxy" << m_self_cluster_id << "] recalculating new parity blocks!" << std::endl;
+      }
+      // encode
+      int count = l_block_num;
+      if (if_partial_decoding)
+      {
+        count = m_num * new_parity_num;
+      }
+      std::vector<char *> vt_data(count);
+      std::vector<char *> vt_coding(new_parity_num);
+      char **t_data = (char **)vt_data.data();
+      char **t_coding = (char **)vt_coding.data();
+      std::vector<std::vector<char>> vt_data_area(count, std::vector<char>(block_size));
+      std::vector<std::vector<char>> vt_coding_area(new_parity_num, std::vector<char>(block_size));
+      if (IF_DEBUG)
+      {
+        std::cout << recal_type << "[Main Proxy" << m_self_cluster_id << "] " << count << " " << m_blocks_ptr->size() << " " << h_blocks_ptr->size() << std::endl;
+      }
+      for (int j = 0; j < count; j++)
+      {
+        t_data[j] = vt_data_area[j].data();
+      }
+      for (int j = 0; j < new_parity_num; j++)
+      {
+        t_coding[j] = vt_coding_area[j].data();
+      }
+      if (if_partial_decoding)
+      {
+        if (if_g_recal)
+        {
+          int index = 0;
+          for (int j = 0; j < m_num; j++)
+          {
+            for (int jj = 0; jj < new_parity_num; jj++)
             {
-              memcpy(t_data[j], (*m_blocks_ptr)[j].data(), block_size);
+              memcpy(t_data[index++], (*m_blocks_ptr)[jj * new_parity_num + j].data(), block_size);
             }
           }
         }
@@ -1050,88 +1056,102 @@ namespace ECProject
         {
           for (int j = 0; j < count; j++)
           {
-            memcpy(t_data[j], (*h_blocks_ptr)[j].data(), block_size);
+            memcpy(t_data[j], (*m_blocks_ptr)[j].data(), block_size);
           }
         }
-        // clear
-        blocks_ptr->clear();
-        blocks_key_ptr->clear();
-        blocks_idx_ptr->clear();
-        m_blocks_ptr->clear();
-        h_blocks_idx_ptr->clear();
-        m_blocks_idx_ptr->clear();
-        h_blocks_ptr->clear();
-        
-        if (IF_DEBUG)
+      }
+      else
+      {
+        for (int j = 0; j < count; j++)
         {
-          std::cout << recal_type << "[Main Proxy" << m_self_cluster_id << "] encoding!" << std::endl;
+          memcpy(t_data[j], (*h_blocks_ptr)[j].data(), block_size);
         }
-        try
+      }
+      // clear
+      blocks_ptr->clear();
+      blocks_key_ptr->clear();
+      blocks_idx_ptr->clear();
+      m_blocks_ptr->clear();
+      h_blocks_idx_ptr->clear();
+      m_blocks_idx_ptr->clear();
+      h_blocks_ptr->clear();
+
+      if (IF_DEBUG)
+      {
+        std::cout << recal_type << "[Main Proxy" << m_self_cluster_id << "] encoding!" << std::endl;
+      }
+      try
+      {
+        if (if_partial_decoding || !if_g_recal)
         {
-          if(if_partial_decoding || !if_g_recal)
+          perform_addition(t_data, t_coding, block_size, count, new_parity_num);
+        }
+        else
+        {
+          encode_partial_blocks_for_gr(k, g_m, t_data, t_coding, block_size, h_blocks_idx_ptr, count, encode_type);
+        }
+      }
+
+      catch (const std::exception &e)
+      {
+        std::cerr << e.what() << '\n';
+      }
+
+      // set
+      if (IF_DEBUG)
+      {
+        std::cout << recal_type << "[Main Proxy" << m_self_cluster_id << "] set new parity blocks!" << std::endl;
+      }
+      // int p_block_num = int(p_blockkeys.size());
+      try
+      {
+        std::vector<std::thread> set_threads;
+        for (int i = 0; i < new_parity_num; i++)
+        {
+          std::string new_id = "";
+          if (if_g_recal)
           {
-            perform_addition(t_data, t_coding, block_size, count, new_parity_num);
+            new_id = "Stripe" + std::to_string(stripe_id) + "_G" + std::to_string(i);
           }
           else
           {
-            encode_partial_blocks_for_gr(k, g_m, t_data, t_coding, block_size, h_blocks_idx_ptr, count, encode_type);
+            new_id = "Stripe" + std::to_string(stripe_id) + "_L" + std::to_string(group_id);
           }
-        }
-
-        catch (const std::exception &e)
-        {
-          std::cerr << e.what() << '\n';
-        }
-
-        // set
-        if (IF_DEBUG)
-        {
-          std::cout << recal_type << "[Main Proxy" << m_self_cluster_id << "] set new parity blocks!" << std::endl;
-        }
-        // int p_block_num = int(p_blockkeys.size());
-        try
-        {
-          std::vector<std::thread> set_threads;
-          for (int i = 0; i < new_parity_num; i++)
+          std::string s_node_ip = p_datanode_ip[i];
+          int s_node_port = p_datanode_port[i];
+          if (IF_DEBUG)
           {
-            std::string new_id = "";
-            if (if_g_recal){
-              new_id = "Stripe" + std::to_string(stripe_id) + "_G" + std::to_string(i);
-            }else{
-              new_id = "Stripe" + std::to_string(stripe_id) + "_L" + std::to_string(group_id);
-            }
-            std::string s_node_ip = p_datanode_ip[i];
-            int s_node_port = p_datanode_port[i];
-            if (IF_DEBUG)
-            {
-              std::cout << recal_type << "[Main Proxy" << m_self_cluster_id << "] set " << new_id << " to datanode " << s_node_port << std::endl;
-            }
-            set_threads.push_back(std::thread(send_to_datanode, i, new_id, t_coding[i], block_size, s_node_ip, s_node_port));
+            std::cout << recal_type << "[Main Proxy" << m_self_cluster_id << "] set " << new_id << " to datanode " << s_node_port << std::endl;
           }
-          for (int i = 0; i < new_parity_num; i++)
-          {
-            set_threads[i].join();
-          }
+          set_threads.push_back(std::thread(send_to_datanode, i, new_id, t_coding[i], block_size, s_node_ip, s_node_port));
         }
-        catch (const std::exception &e)
+        for (int i = 0; i < new_parity_num; i++)
         {
-          std::cerr << e.what() << '\n';
-        }
-        if (if_g_recal){
-          m_merge_step_processing[0] = false;
-          cv.notify_all();
-        }else{
-          m_merge_step_processing[1] = false;
-          cv.notify_all();
+          set_threads[i].join();
         }
       }
       catch (const std::exception &e)
       {
-        std::cout << "[Proxy" << m_self_cluster_id << "] error!" << std::endl;
         std::cerr << e.what() << '\n';
       }
+      if (if_g_recal)
+      {
+        m_merge_step_processing[0] = false;
+        cv.notify_all();
+      }
+      else
+      {
+        m_merge_step_processing[1] = false;
+        cv.notify_all();
+      }
+    }
+    catch (const std::exception &e)
+    {
+      std::cout << "[Proxy" << m_self_cluster_id << "] error!" << std::endl;
+      std::cerr << e.what() << '\n';
+    }
 
-      return grpc::Status::OK;
+    return grpc::Status::OK;
   }
 
   grpc::Status ProxyImpl::helpRecal(
@@ -1158,7 +1178,7 @@ namespace ECProject
       blockkeys.push_back(help_recal_plan->blockkeys(i));
       blockids.push_back(help_recal_plan->blockids(i));
     }
-    
+
     // get data from the datanode
     auto myLock_ptr = std::make_shared<std::mutex>();
     auto blocks_ptr = std::make_shared<std::vector<std::vector<char>>>();
@@ -1235,14 +1255,14 @@ namespace ECProject
       if (IF_DEBUG)
       {
         std::cout << "[Helper Proxy" << m_self_cluster_id << "] partial encoding!" << std::endl;
-        for(auto it = blocks_idx_ptr->begin(); it != blocks_idx_ptr->end(); it++)
+        for (auto it = blocks_idx_ptr->begin(); it != blocks_idx_ptr->end(); it++)
         {
-            std::cout << (*it) << " ";
+          std::cout << (*it) << " ";
         }
         std::cout << std::endl;
       }
-      
-      if(if_g_recal)
+
+      if (if_g_recal)
       {
         encode_partial_blocks_for_gr(k, parity_num, data, coding, block_size, blocks_idx_ptr, block_num, encode_type);
       }
@@ -1269,7 +1289,7 @@ namespace ECProject
     }
 
     int value_size = 0;
-    
+
     std::vector<unsigned char> int_buf_self_cluster_id = ECProject::int_to_bytes(m_self_cluster_id);
     asio::write(socket, asio::buffer(int_buf_self_cluster_id, int_buf_self_cluster_id.size()), error);
     if (!if_partial_decoding)
@@ -1277,8 +1297,8 @@ namespace ECProject
       std::vector<unsigned char> int_buf_num_of_blocks = ECProject::int_to_bytes(block_num);
       asio::write(socket, asio::buffer(int_buf_num_of_blocks, int_buf_num_of_blocks.size()), error);
       int j = 0;
-      for(auto it = blocks_idx_ptr->begin(); it != blocks_idx_ptr->end(); it++, j++)
-      { 
+      for (auto it = blocks_idx_ptr->begin(); it != blocks_idx_ptr->end(); it++, j++)
+      {
         // send index and value
         int block_idx = *it;
         std::vector<unsigned char> byte_block_idx = ECProject::int_to_bytes(block_idx);
@@ -1332,7 +1352,7 @@ namespace ECProject
       auto relocate_single_block = [this](int j, std::string block_key, int block_size, std::string src_node_ip, int src_node_port, std::string des_node_ip, int des_node_port)
       {
         bool ret = BlockRelocation(block_key.c_str(), block_size, src_node_ip.c_str(), src_node_port, des_node_ip.c_str(), des_node_port);
-        if(!ret)
+        if (!ret)
         {
           std::cout << "[Block Relocation] Relocate " << block_key << " Failed!" << std::endl;
         }
@@ -1355,7 +1375,7 @@ namespace ECProject
         // {
         //   senders[j].join();
         // }
-        
+
         m_merge_step_processing[2] = false;
         cv.notify_all();
       }
