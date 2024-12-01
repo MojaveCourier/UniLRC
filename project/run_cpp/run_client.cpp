@@ -107,6 +107,7 @@ int main(int argc, char **argv)
     coordinator_ip = client_ip;
   }
 
+  // test the connection between client and coordinator
   ECProject::Client client(client_ip, 44444, coordinator_ip + std::string(":55555"));
   std::cout << client.sayHelloToCoordinatorByGrpc("Client") << std::endl;
 
@@ -138,6 +139,7 @@ int main(int argc, char **argv)
     exit(-1);
   }
 
+  // set the parameters stored in the variable of m_encode_parameters in coordinator
   if (client.SetParameterByGrpc({partial_decoding, encode_type, s_placement_type, m_placement_type, k, l, g_m, b, x}))
   {
     std::cout << "set parameter successfully!" << std::endl;
@@ -186,39 +188,40 @@ int main(int argc, char **argv)
   std::cout << "[SET END]" << std::endl
             << std::endl;
 
-  // std::cout << "[GET BEGIN]" << std::endl;
-  // // get
-  // for (int i = 0; i < stripe_num; i++)
-  // {
-  //   std::string value;
-  //   std::string key = "Object" + std::to_string(i);
-  //   std::string targetdir = "./client_get/";
-  //   std::string writepath = targetdir + key;
-  //   // if (!std::filesystem::exists(std::filesystem::path{"./client_get/"}))
-  //   // {
-  //   //   std::filesystem::create_directory("./client_get/");
-  //   // }
-  //   if (access(targetdir.c_str(), 0) == -1)
-  //   {
-  //     mkdir(targetdir.c_str(), S_IRWXU);
-  //   }
-  //   client.get(key, value);
-  //   std::cout << "[run_client] value size " << value.size() << std::endl;
-  //   std::ofstream ofs(writepath, std::ios::binary | std::ios::out | std::ios::trunc);
-  //   ofs.write(value.c_str(), value.size());
-  //   ofs.flush();
-  //   ofs.close();
-  // }
-  // std::cout << "[GET END]" << std::endl
-  //           << std::endl;
+  // get
+  std::cout << "[GET BEGIN]" << std::endl;
+  for (int i = 0; i < stripe_num; i++)
+  {
+    std::string value;
+    std::string key = "Object" + std::to_string(i);
+    std::string targetdir = "./client_get/";
+    std::string writepath = targetdir + key;
+    // if (!std::filesystem::exists(std::filesystem::path{"./client_get/"}))
+    // {
+    //   std::filesystem::create_directory("./client_get/");
+    // }
+    if (access(targetdir.c_str(), 0) == -1)
+    {
+      mkdir(targetdir.c_str(), S_IRWXU);
+    }
+    client.get(key, value);
+    std::cout << "[run_client] value size " << value.size() << std::endl;
+    std::ofstream ofs(writepath, std::ios::binary | std::ios::out | std::ios::trunc);
+    ofs.write(value.c_str(), value.size());
+    ofs.flush();
+    ofs.close();
+  }
+  std::cout << "[GET END]" << std::endl
+            << std::endl;
 
-  // std::cout << "[DEL BEGIN]" << std::endl;
-  // for (int i = 0; i < stripe_num; i++)
-  // {
-  //   std::string key = "Object" + std::to_string(i);
-  //   client.delete_key(key);
-  // }
-  // std::cout << "[DEL END]" << std::endl;
+  // delete
+  std::cout << "[DEL BEGIN]" << std::endl;
+  for (int i = 0; i < stripe_num; i++)
+  {
+    std::string key = "Object" + std::to_string(i);
+    client.delete_key(key);
+  }
+  std::cout << "[DEL END]" << std::endl;
 
   // merge
   std::cout << "Number of stripes(objects): " << stripe_num << std::endl;

@@ -1311,8 +1311,10 @@ namespace ECProject
               // g_main_plan.add_p_blockkeys(t_block->block_key);
               // for local parity block recalculation of Optimal Cauchy LRC
               // find out the location of old global parities
-              if (encodetype == Optimal_Cauchy_LRC){
-                for (int t_gid = 0; t_gid < l; t_gid++){
+              if (encodetype == Optimal_Cauchy_LRC)
+              {
+                for (int t_gid = 0; t_gid < l; t_gid++)
+                {
                   if (parity_location[t_gid].find(g_cluster_id) == parity_location[t_gid].end())
                   {
                     Cluster &t_cluster = m_cluster_table[g_cluster_id];
@@ -1430,8 +1432,10 @@ namespace ECProject
           g_main_plan.add_p_datanodeport(g_node.node_port);
           g_main_plan.add_p_blockkeys(t_block_key);
           // for local parity block recalculation of Optimal Cauchy LRC, derive new global parities
-          if (encodetype == Optimal_Cauchy_LRC){
-            for (int t_gid = 0; t_gid < l; t_gid++){
+          if (encodetype == Optimal_Cauchy_LRC)
+          {
+            for (int t_gid = 0; t_gid < l; t_gid++)
+            {
               proxy_proto::locationInfo &t_location = parity_location[t_gid][g_cluster_id];
               t_location.add_datanodeip(g_node.node_ip);
               t_location.add_datanodeport(g_node.node_port);
@@ -2053,7 +2057,7 @@ namespace ECProject
           grpc::Status stat_c1 = m_proxy_ptrs[chosen_proxy_c1]->checkStep(&context_c1, ask_c1, &response_c1);
           if (stat_c1.ok() && response_c1.ifsuccess() && IF_DEBUG)
           {
-            std::cout << "[MERGE] local parity block recalculate success for Stripe" << l_stripe_id  << ", Group " << i << std::endl;
+            std::cout << "[MERGE] local parity block recalculate success for Stripe" << l_stripe_id << ", Group " << i << std::endl;
           }
         }
         gettimeofday(&l_end_time, NULL);
@@ -2074,7 +2078,6 @@ namespace ECProject
         {
           std::cout << "[MERGE] Delete old parity blocks success!" << std::endl;
         }
-
 
         // data block relocation
         if (int(block_to_move_key.size()) > 0)
@@ -2135,8 +2138,8 @@ namespace ECProject
         m_cur_stripe_id++;
         s_merge_group.push_back(l_stripe_id);
         stripe_cnt += num_of_stripes;
-        
-        std::cout << "[Merging Stage " << m_merge_degree + 1 << "] Process " << stripe_cnt << "/" << tot_stripe_num 
+
+        std::cout << "[Merging Stage " << m_merge_degree + 1 << "] Process " << stripe_cnt << "/" << tot_stripe_num
                   << "  lc:" << t_lc << " gc:" << t_gc << " dc:" << t_dc << std::endl;
       }
       new_merge_groups.push_back(s_merge_group);
