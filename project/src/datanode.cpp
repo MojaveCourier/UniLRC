@@ -37,18 +37,19 @@ namespace ECProject
                 asio::ip::tcp::socket socket(io_context);
                 acceptor.accept(socket);
                 asio::read(socket, asio::buffer(buf.data(), block_size), ec);
-                
+
                 asio::error_code ignore_ec;
                 socket.shutdown(asio::ip::tcp::socket::shutdown_both, ignore_ec);
                 socket.close(ignore_ec);
-                
+
                 std::string targetdir = "./storage/" + std::to_string(m_port) + "/";
                 std::string writepath = targetdir + block_key;
                 if (access(targetdir.c_str(), 0) == -1)
                 {
                     mkdir(targetdir.c_str(), S_IRWXU);
                 }
-                
+
+                // write the data to the disk using pagecache
                 std::ofstream ofs(writepath, std::ios::binary | std::ios::out | std::ios::trunc);
                 ofs.write(buf.data(), block_size);
                 if (IF_DEBUG)
@@ -80,7 +81,7 @@ namespace ECProject
                 }
 
                 asio::read(socket, asio::buffer(buf.data(), block_size), ec);
-                
+
                 asio::error_code ignore_ec;
                 socket.shutdown(asio::ip::tcp::socket::shutdown_both, ignore_ec);
                 socket.close(ignore_ec);
@@ -112,7 +113,7 @@ namespace ECProject
             {
                 std::cout << "[Datanode" << m_port << "][SET] ready to handle set!" << std::endl;
             }
-            if(ispull)
+            if (ispull)
             {
                 std::thread my_thread(handler2, block_key, block_size);
                 my_thread.join();
