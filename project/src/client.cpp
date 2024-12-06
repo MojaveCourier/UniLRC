@@ -290,34 +290,4 @@ namespace ECProject
     }
     return false;
   }
-
-  /*
-    Function: merge
-    1. send the merge request including the information of num_of_stripes_tomerge to the coordinator
-  */
-  double Client::merge(int num_of_stripes)
-  {
-    grpc::ClientContext context;
-    coordinator_proto::NumberOfStripesToMerge request;
-    request.set_num_of_stripes(num_of_stripes);
-    coordinator_proto::RepIfMerged reply;
-    grpc::Status status = m_coordinator_ptr->requestMerge(&context, request, &reply);
-    double cost = 0;
-    if (status.ok())
-    {
-      if (reply.ifmerged())
-      {
-        std::cout << ".-- Local parity block recalulation: " << reply.lc() << std::endl;
-        std::cout << "|-- Global parity block recalulation: " << reply.gc() << std::endl;
-        std::cout << "|-- Data block relocation: " << reply.dc() << std::endl;
-        cost = reply.lc() + reply.gc() + reply.dc();
-        // std::cout << "Stage cost: " << cost << std::endl;
-      }
-      else
-      {
-        std::cout << "[MERGE] merge failed!" << std::endl;
-      }
-    }
-    return cost;
-  }
 } // namespace ECProject

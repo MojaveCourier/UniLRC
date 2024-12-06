@@ -30,8 +30,6 @@ namespace ECProject
     bool delete_key(std::string key);
     bool delete_stripe(int stripe_id);
     bool delete_all_stripes();
-    // lrcwidestripe, merge
-    double merge(int num_of_stripes);
 
   private:
     std::unique_ptr<coordinator_proto::coordinatorService::Stub> m_coordinator_ptr;

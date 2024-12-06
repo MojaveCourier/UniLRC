@@ -53,30 +53,9 @@ namespace ECProject
         grpc::ServerContext *context,
         const proxy_proto::NodeAndBlock *node_and_block,
         proxy_proto::DelReply *response) override;
-    // lrcwidestripe, merge
-    // parity block recalculation
-    grpc::Status mainRecal(
-        grpc::ServerContext *context,
-        const proxy_proto::mainRecalPlan *main_recal_plan,
-        proxy_proto::RecalReply *response) override;
-    grpc::Status helpRecal(
-        grpc::ServerContext *context,
-        const proxy_proto::helpRecalPlan *help_recal_plan,
-        proxy_proto::RecalReply *response) override;
-    // block relocation
-    grpc::Status blockReloc(
-        grpc::ServerContext *context,
-        const proxy_proto::blockRelocPlan *block_reloc_plan,
-        proxy_proto::blockRelocReply *response) override;
-    // check
-    grpc::Status checkStep(
-        grpc::ServerContext *context,
-        const proxy_proto::AskIfSuccess *step,
-        proxy_proto::RepIfSuccess *response) override;
     bool SetToDatanode(const char *key, size_t key_length, const char *value, size_t value_length, const char *ip, int port, int offset);
     bool GetFromDatanode(const char *key, size_t key_length, char *value, size_t value_length, const char *ip, int port, int offset);
     bool DelInDatanode(std::string key, std::string node_ip_port);
-    bool BlockRelocation(const char *key, size_t value_length, const char *src_ip, int src_port, const char *des_ip, int des_port);
 
   private:
     std::mutex m_mutex;

@@ -27,18 +27,8 @@ service proxyService {
   rpc decodeAndGetObject(ObjectAndPlacement) returns (GetReply);
   // delete
   rpc deleteBlock(NodeAndBlock) returns (DelReply);
-
-  // lrcwidestripe, merge
-  // parity block recalculation
-  rpc mainRecal(mainRecalPlan) returns (RecalReply);
-  rpc helpRecal(helpRecalPlan) returns (RecalReply);
-  // block relocation
-  rpc blockReloc(blockRelocPlan) returns (blockRelocReply);
-
-  rpc checkStep(AskIfSuccess) returns (RepIfSuccess);
 }
 
-// lrcwidestripe, merge
 // parity block recalculation
 message locationInfo {
   int32 cluster_id = 1;

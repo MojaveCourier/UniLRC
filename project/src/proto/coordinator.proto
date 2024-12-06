@@ -34,8 +34,6 @@ service coordinatorService {
   // delete
   rpc delByKey(KeyFromClient) returns (RepIfDeling) {};
   rpc delByStripe(StripeIdFromClient) returns (RepIfDeling) {};
-  // lrcwidestripe, merge
-  rpc requestMerge(NumberOfStripesToMerge) returns (RepIfMerged) {};
 
   //other
   rpc listStripes(RequestToCoordinator) returns (RepStripeIds) {};

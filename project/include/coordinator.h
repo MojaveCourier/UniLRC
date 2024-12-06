@@ -64,11 +64,6 @@ namespace ECProject
         grpc::ServerContext *context,
         const coordinator_proto::StripeIdFromClient *stripeid,
         coordinator_proto::RepIfDeling *delReplyClient) override;
-    // merge
-    grpc::Status requestMerge(
-        grpc::ServerContext *context,
-        const coordinator_proto::NumberOfStripesToMerge *numofstripe,
-        coordinator_proto::RepIfMerged *mergeReplyClient) override;
     // other
     grpc::Status listStripes(
         grpc::ServerContext *context,
