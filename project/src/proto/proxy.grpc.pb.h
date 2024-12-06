@@ -83,37 +83,6 @@ class proxyService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DelReply>> PrepareAsyncdeleteBlock(::grpc::ClientContext* context, const ::proxy_proto::NodeAndBlock& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DelReply>>(PrepareAsyncdeleteBlockRaw(context, request, cq));
     }
-    // lrcwidestripe, merge
-    // parity block recalculation
-    virtual ::grpc::Status mainRecal(::grpc::ClientContext* context, const ::proxy_proto::mainRecalPlan& request, ::proxy_proto::RecalReply* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RecalReply>> AsyncmainRecal(::grpc::ClientContext* context, const ::proxy_proto::mainRecalPlan& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RecalReply>>(AsyncmainRecalRaw(context, request, cq));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RecalReply>> PrepareAsyncmainRecal(::grpc::ClientContext* context, const ::proxy_proto::mainRecalPlan& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RecalReply>>(PrepareAsyncmainRecalRaw(context, request, cq));
-    }
-    virtual ::grpc::Status helpRecal(::grpc::ClientContext* context, const ::proxy_proto::helpRecalPlan& request, ::proxy_proto::RecalReply* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RecalReply>> AsynchelpRecal(::grpc::ClientContext* context, const ::proxy_proto::helpRecalPlan& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RecalReply>>(AsynchelpRecalRaw(context, request, cq));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RecalReply>> PrepareAsynchelpRecal(::grpc::ClientContext* context, const ::proxy_proto::helpRecalPlan& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RecalReply>>(PrepareAsynchelpRecalRaw(context, request, cq));
-    }
-    // block relocation
-    virtual ::grpc::Status blockReloc(::grpc::ClientContext* context, const ::proxy_proto::blockRelocPlan& request, ::proxy_proto::blockRelocReply* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::blockRelocReply>> AsyncblockReloc(::grpc::ClientContext* context, const ::proxy_proto::blockRelocPlan& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::blockRelocReply>>(AsyncblockRelocRaw(context, request, cq));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::blockRelocReply>> PrepareAsyncblockReloc(::grpc::ClientContext* context, const ::proxy_proto::blockRelocPlan& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::blockRelocReply>>(PrepareAsyncblockRelocRaw(context, request, cq));
-    }
-    virtual ::grpc::Status checkStep(::grpc::ClientContext* context, const ::proxy_proto::AskIfSuccess& request, ::proxy_proto::RepIfSuccess* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RepIfSuccess>> AsynccheckStep(::grpc::ClientContext* context, const ::proxy_proto::AskIfSuccess& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RepIfSuccess>>(AsynccheckStepRaw(context, request, cq));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RepIfSuccess>> PrepareAsynccheckStep(::grpc::ClientContext* context, const ::proxy_proto::AskIfSuccess& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RepIfSuccess>>(PrepareAsynccheckStepRaw(context, request, cq));
-    }
     class async_interface {
      public:
       virtual ~async_interface() {}
@@ -129,17 +98,6 @@ class proxyService final {
       // delete
       virtual void deleteBlock(::grpc::ClientContext* context, const ::proxy_proto::NodeAndBlock* request, ::proxy_proto::DelReply* response, std::function<void(::grpc::Status)>) = 0;
       virtual void deleteBlock(::grpc::ClientContext* context, const ::proxy_proto::NodeAndBlock* request, ::proxy_proto::DelReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
-      // lrcwidestripe, merge
-      // parity block recalculation
-      virtual void mainRecal(::grpc::ClientContext* context, const ::proxy_proto::mainRecalPlan* request, ::proxy_proto::RecalReply* response, std::function<void(::grpc::Status)>) = 0;
-      virtual void mainRecal(::grpc::ClientContext* context, const ::proxy_proto::mainRecalPlan* request, ::proxy_proto::RecalReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
-      virtual void helpRecal(::grpc::ClientContext* context, const ::proxy_proto::helpRecalPlan* request, ::proxy_proto::RecalReply* response, std::function<void(::grpc::Status)>) = 0;
-      virtual void helpRecal(::grpc::ClientContext* context, const ::proxy_proto::helpRecalPlan* request, ::proxy_proto::RecalReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
-      // block relocation
-      virtual void blockReloc(::grpc::ClientContext* context, const ::proxy_proto::blockRelocPlan* request, ::proxy_proto::blockRelocReply* response, std::function<void(::grpc::Status)>) = 0;
-      virtual void blockReloc(::grpc::ClientContext* context, const ::proxy_proto::blockRelocPlan* request, ::proxy_proto::blockRelocReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
-      virtual void checkStep(::grpc::ClientContext* context, const ::proxy_proto::AskIfSuccess* request, ::proxy_proto::RepIfSuccess* response, std::function<void(::grpc::Status)>) = 0;
-      virtual void checkStep(::grpc::ClientContext* context, const ::proxy_proto::AskIfSuccess* request, ::proxy_proto::RepIfSuccess* response, ::grpc::ClientUnaryReactor* reactor) = 0;
     };
     typedef class async_interface experimental_async_interface;
     virtual class async_interface* async() { return nullptr; }
@@ -153,14 +111,6 @@ class proxyService final {
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>* PrepareAsyncdecodeAndGetObjectRaw(::grpc::ClientContext* context, const ::proxy_proto::ObjectAndPlacement& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DelReply>* AsyncdeleteBlockRaw(::grpc::ClientContext* context, const ::proxy_proto::NodeAndBlock& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DelReply>* PrepareAsyncdeleteBlockRaw(::grpc::ClientContext* context, const ::proxy_proto::NodeAndBlock& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RecalReply>* AsyncmainRecalRaw(::grpc::ClientContext* context, const ::proxy_proto::mainRecalPlan& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RecalReply>* PrepareAsyncmainRecalRaw(::grpc::ClientContext* context, const ::proxy_proto::mainRecalPlan& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RecalReply>* AsynchelpRecalRaw(::grpc::ClientContext* context, const ::proxy_proto::helpRecalPlan& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RecalReply>* PrepareAsynchelpRecalRaw(::grpc::ClientContext* context, const ::proxy_proto::helpRecalPlan& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::blockRelocReply>* AsyncblockRelocRaw(::grpc::ClientContext* context, const ::proxy_proto::blockRelocPlan& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::blockRelocReply>* PrepareAsyncblockRelocRaw(::grpc::ClientContext* context, const ::proxy_proto::blockRelocPlan& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RepIfSuccess>* AsynccheckStepRaw(::grpc::ClientContext* context, const ::proxy_proto::AskIfSuccess& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RepIfSuccess>* PrepareAsynccheckStepRaw(::grpc::ClientContext* context, const ::proxy_proto::AskIfSuccess& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
@@ -193,34 +143,6 @@ class proxyService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DelReply>> PrepareAsyncdeleteBlock(::grpc::ClientContext* context, const ::proxy_proto::NodeAndBlock& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DelReply>>(PrepareAsyncdeleteBlockRaw(context, request, cq));
     }
-    ::grpc::Status mainRecal(::grpc::ClientContext* context, const ::proxy_proto::mainRecalPlan& request, ::proxy_proto::RecalReply* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::RecalReply>> AsyncmainRecal(::grpc::ClientContext* context, const ::proxy_proto::mainRecalPlan& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::RecalReply>>(AsyncmainRecalRaw(context, request, cq));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::RecalReply>> PrepareAsyncmainRecal(::grpc::ClientContext* context, const ::proxy_proto::mainRecalPlan& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::RecalReply>>(PrepareAsyncmainRecalRaw(context, request, cq));
-    }
-    ::grpc::Status helpRecal(::grpc::ClientContext* context, const ::proxy_proto::helpRecalPlan& request, ::proxy_proto::RecalReply* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::RecalReply>> AsynchelpRecal(::grpc::ClientContext* context, const ::proxy_proto::helpRecalPlan& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::RecalReply>>(AsynchelpRecalRaw(context, request, cq));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::RecalReply>> PrepareAsynchelpRecal(::grpc::ClientContext* context, const ::proxy_proto::helpRecalPlan& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::RecalReply>>(PrepareAsynchelpRecalRaw(context, request, cq));
-    }
-    ::grpc::Status blockReloc(::grpc::ClientContext* context, const ::proxy_proto::blockRelocPlan& request, ::proxy_proto::blockRelocReply* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::blockRelocReply>> AsyncblockReloc(::grpc::ClientContext* context, const ::proxy_proto::blockRelocPlan& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::blockRelocReply>>(AsyncblockRelocRaw(context, request, cq));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::blockRelocReply>> PrepareAsyncblockReloc(::grpc::ClientContext* context, const ::proxy_proto::blockRelocPlan& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::blockRelocReply>>(PrepareAsyncblockRelocRaw(context, request, cq));
-    }
-    ::grpc::Status checkStep(::grpc::ClientContext* context, const ::proxy_proto::AskIfSuccess& request, ::proxy_proto::RepIfSuccess* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::RepIfSuccess>> AsynccheckStep(::grpc::ClientContext* context, const ::proxy_proto::AskIfSuccess& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::RepIfSuccess>>(AsynccheckStepRaw(context, request, cq));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::RepIfSuccess>> PrepareAsynccheckStep(::grpc::ClientContext* context, const ::proxy_proto::AskIfSuccess& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::RepIfSuccess>>(PrepareAsynccheckStepRaw(context, request, cq));
-    }
     class async final :
       public StubInterface::async_interface {
      public:
@@ -232,14 +154,6 @@ class proxyService final {
       void decodeAndGetObject(::grpc::ClientContext* context, const ::proxy_proto::ObjectAndPlacement* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) override;
       void deleteBlock(::grpc::ClientContext* context, const ::proxy_proto::NodeAndBlock* request, ::proxy_proto::DelReply* response, std::function<void(::grpc::Status)>) override;
       void deleteBlock(::grpc::ClientContext* context, const ::proxy_proto::NodeAndBlock* request, ::proxy_proto::DelReply* response, ::grpc::ClientUnaryReactor* reactor) override;
-      void mainRecal(::grpc::ClientContext* context, const ::proxy_proto::mainRecalPlan* request, ::proxy_proto::RecalReply* response, std::function<void(::grpc::Status)>) override;
-      void mainRecal(::grpc::ClientContext* context, const ::proxy_proto::mainRecalPlan* request, ::proxy_proto::RecalReply* response, ::grpc::ClientUnaryReactor* reactor) override;
-      void helpRecal(::grpc::ClientContext* context, const ::proxy_proto::helpRecalPlan* request, ::proxy_proto::RecalReply* response, std::function<void(::grpc::Status)>) override;
-      void helpRecal(::grpc::ClientContext* context, const ::proxy_proto::helpRecalPlan* request, ::proxy_proto::RecalReply* response, ::grpc::ClientUnaryReactor* reactor) override;
-      void blockReloc(::grpc::ClientContext* context, const ::proxy_proto::blockRelocPlan* request, ::proxy_proto::blockRelocReply* response, std::function<void(::grpc::Status)>) override;
-      void blockReloc(::grpc::ClientContext* context, const ::proxy_proto::blockRelocPlan* request, ::proxy_proto::blockRelocReply* response, ::grpc::ClientUnaryReactor* reactor) override;
-      void checkStep(::grpc::ClientContext* context, const ::proxy_proto::AskIfSuccess* request, ::proxy_proto::RepIfSuccess* response, std::function<void(::grpc::Status)>) override;
-      void checkStep(::grpc::ClientContext* context, const ::proxy_proto::AskIfSuccess* request, ::proxy_proto::RepIfSuccess* response, ::grpc::ClientUnaryReactor* reactor) override;
      private:
       friend class Stub;
       explicit async(Stub* stub): stub_(stub) { }
@@ -259,22 +173,10 @@ class proxyService final {
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* PrepareAsyncdecodeAndGetObjectRaw(::grpc::ClientContext* context, const ::proxy_proto::ObjectAndPlacement& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::DelReply>* AsyncdeleteBlockRaw(::grpc::ClientContext* context, const ::proxy_proto::NodeAndBlock& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::DelReply>* PrepareAsyncdeleteBlockRaw(::grpc::ClientContext* context, const ::proxy_proto::NodeAndBlock& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::proxy_proto::RecalReply>* AsyncmainRecalRaw(::grpc::ClientContext* context, const ::proxy_proto::mainRecalPlan& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::proxy_proto::RecalReply>* PrepareAsyncmainRecalRaw(::grpc::ClientContext* context, const ::proxy_proto::mainRecalPlan& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::proxy_proto::RecalReply>* AsynchelpRecalRaw(::grpc::ClientContext* context, const ::proxy_proto::helpRecalPlan& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::proxy_proto::RecalReply>* PrepareAsynchelpRecalRaw(::grpc::ClientContext* context, const ::proxy_proto::helpRecalPlan& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::proxy_proto::blockRelocReply>* AsyncblockRelocRaw(::grpc::ClientContext* context, const ::proxy_proto::blockRelocPlan& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::proxy_proto::blockRelocReply>* PrepareAsyncblockRelocRaw(::grpc::ClientContext* context, const ::proxy_proto::blockRelocPlan& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::proxy_proto::RepIfSuccess>* AsynccheckStepRaw(::grpc::ClientContext* context, const ::proxy_proto::AskIfSuccess& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::proxy_proto::RepIfSuccess>* PrepareAsynccheckStepRaw(::grpc::ClientContext* context, const ::proxy_proto::AskIfSuccess& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_checkalive_;
     const ::grpc::internal::RpcMethod rpcmethod_encodeAndSetObject_;
     const ::grpc::internal::RpcMethod rpcmethod_decodeAndGetObject_;
     const ::grpc::internal::RpcMethod rpcmethod_deleteBlock_;
-    const ::grpc::internal::RpcMethod rpcmethod_mainRecal_;
-    const ::grpc::internal::RpcMethod rpcmethod_helpRecal_;
-    const ::grpc::internal::RpcMethod rpcmethod_blockReloc_;
-    const ::grpc::internal::RpcMethod rpcmethod_checkStep_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -290,13 +192,6 @@ class proxyService final {
     virtual ::grpc::Status decodeAndGetObject(::grpc::ServerContext* context, const ::proxy_proto::ObjectAndPlacement* request, ::proxy_proto::GetReply* response);
     // delete
     virtual ::grpc::Status deleteBlock(::grpc::ServerContext* context, const ::proxy_proto::NodeAndBlock* request, ::proxy_proto::DelReply* response);
-    // lrcwidestripe, merge
-    // parity block recalculation
-    virtual ::grpc::Status mainRecal(::grpc::ServerContext* context, const ::proxy_proto::mainRecalPlan* request, ::proxy_proto::RecalReply* response);
-    virtual ::grpc::Status helpRecal(::grpc::ServerContext* context, const ::proxy_proto::helpRecalPlan* request, ::proxy_proto::RecalReply* response);
-    // block relocation
-    virtual ::grpc::Status blockReloc(::grpc::ServerContext* context, const ::proxy_proto::blockRelocPlan* request, ::proxy_proto::blockRelocReply* response);
-    virtual ::grpc::Status checkStep(::grpc::ServerContext* context, const ::proxy_proto::AskIfSuccess* request, ::proxy_proto::RepIfSuccess* response);
   };
   template <class BaseClass>
   class WithAsyncMethod_checkalive : public BaseClass {
@@ -378,87 +273,7 @@ class proxyService final {
       ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  template <class BaseClass>
-  class WithAsyncMethod_mainRecal : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithAsyncMethod_mainRecal() {
-      ::grpc::Service::MarkMethodAsync(4);
-    }
-    ~WithAsyncMethod_mainRecal() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status mainRecal(::grpc::ServerContext* /*context*/, const ::proxy_proto::mainRecalPlan* /*request*/, ::proxy_proto::RecalReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    void RequestmainRecal(::grpc::ServerContext* context, ::proxy_proto::mainRecalPlan* request, ::grpc::ServerAsyncResponseWriter< ::proxy_proto::RecalReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(4, context, request, response, new_call_cq, notification_cq, tag);
-    }
-  };
-  template <class BaseClass>
-  class WithAsyncMethod_helpRecal : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithAsyncMethod_helpRecal() {
-      ::grpc::Service::MarkMethodAsync(5);
-    }
-    ~WithAsyncMethod_helpRecal() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status helpRecal(::grpc::ServerContext* /*context*/, const ::proxy_proto::helpRecalPlan* /*request*/, ::proxy_proto::RecalReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    void RequesthelpRecal(::grpc::ServerContext* context, ::proxy_proto::helpRecalPlan* request, ::grpc::ServerAsyncResponseWriter< ::proxy_proto::RecalReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(5, context, request, response, new_call_cq, notification_cq, tag);
-    }
-  };
-  template <class BaseClass>
-  class WithAsyncMethod_blockReloc : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithAsyncMethod_blockReloc() {
-      ::grpc::Service::MarkMethodAsync(6);
-    }
-    ~WithAsyncMethod_blockReloc() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status blockReloc(::grpc::ServerContext* /*context*/, const ::proxy_proto::blockRelocPlan* /*request*/, ::proxy_proto::blockRelocReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    void RequestblockReloc(::grpc::ServerContext* context, ::proxy_proto::blockRelocPlan* request, ::grpc::ServerAsyncResponseWriter< ::proxy_proto::blockRelocReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(6, context, request, response, new_call_cq, notification_cq, tag);
-    }
-  };
-  template <class BaseClass>
-  class WithAsyncMethod_checkStep : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithAsyncMethod_checkStep() {
-      ::grpc::Service::MarkMethodAsync(7);
-    }
-    ~WithAsyncMethod_checkStep() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status checkStep(::grpc::ServerContext* /*context*/, const ::proxy_proto::AskIfSuccess* /*request*/, ::proxy_proto::RepIfSuccess* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    void RequestcheckStep(::grpc::ServerContext* context, ::proxy_proto::AskIfSuccess* request, ::grpc::ServerAsyncResponseWriter< ::proxy_proto::RepIfSuccess>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(7, context, request, response, new_call_cq, notification_cq, tag);
-    }
-  };
-  typedef WithAsyncMethod_checkalive<WithAsyncMethod_encodeAndSetObject<WithAsyncMethod_decodeAndGetObject<WithAsyncMethod_deleteBlock<WithAsyncMethod_mainRecal<WithAsyncMethod_helpRecal<WithAsyncMethod_blockReloc<WithAsyncMethod_checkStep<Service > > > > > > > > AsyncService;
+  typedef WithAsyncMethod_checkalive<WithAsyncMethod_encodeAndSetObject<WithAsyncMethod_decodeAndGetObject<WithAsyncMethod_deleteBlock<Service > > > > AsyncService;
   template <class BaseClass>
   class WithCallbackMethod_checkalive : public BaseClass {
    private:
@@ -567,115 +382,7 @@ class proxyService final {
     virtual ::grpc::ServerUnaryReactor* deleteBlock(
       ::grpc::CallbackServerContext* /*context*/, const ::proxy_proto::NodeAndBlock* /*request*/, ::proxy_proto::DelReply* /*response*/)  { return nullptr; }
   };
-  template <class BaseClass>
-  class WithCallbackMethod_mainRecal : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithCallbackMethod_mainRecal() {
-      ::grpc::Service::MarkMethodCallback(4,
-          new ::grpc::internal::CallbackUnaryHandler< ::proxy_proto::mainRecalPlan, ::proxy_proto::RecalReply>(
-            [this](
-                   ::grpc::CallbackServerContext* context, const ::proxy_proto::mainRecalPlan* request, ::proxy_proto::RecalReply* response) { return this->mainRecal(context, request, response); }));}
-    void SetMessageAllocatorFor_mainRecal(
-        ::grpc::MessageAllocator< ::proxy_proto::mainRecalPlan, ::proxy_proto::RecalReply>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(4);
-      static_cast<::grpc::internal::CallbackUnaryHandler< ::proxy_proto::mainRecalPlan, ::proxy_proto::RecalReply>*>(handler)
-              ->SetMessageAllocator(allocator);
-    }
-    ~WithCallbackMethod_mainRecal() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status mainRecal(::grpc::ServerContext* /*context*/, const ::proxy_proto::mainRecalPlan* /*request*/, ::proxy_proto::RecalReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    virtual ::grpc::ServerUnaryReactor* mainRecal(
-      ::grpc::CallbackServerContext* /*context*/, const ::proxy_proto::mainRecalPlan* /*request*/, ::proxy_proto::RecalReply* /*response*/)  { return nullptr; }
-  };
-  template <class BaseClass>
-  class WithCallbackMethod_helpRecal : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithCallbackMethod_helpRecal() {
-      ::grpc::Service::MarkMethodCallback(5,
-          new ::grpc::internal::CallbackUnaryHandler< ::proxy_proto::helpRecalPlan, ::proxy_proto::RecalReply>(
-            [this](
-                   ::grpc::CallbackServerContext* context, const ::proxy_proto::helpRecalPlan* request, ::proxy_proto::RecalReply* response) { return this->helpRecal(context, request, response); }));}
-    void SetMessageAllocatorFor_helpRecal(
-        ::grpc::MessageAllocator< ::proxy_proto::helpRecalPlan, ::proxy_proto::RecalReply>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(5);
-      static_cast<::grpc::internal::CallbackUnaryHandler< ::proxy_proto::helpRecalPlan, ::proxy_proto::RecalReply>*>(handler)
-              ->SetMessageAllocator(allocator);
-    }
-    ~WithCallbackMethod_helpRecal() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status helpRecal(::grpc::ServerContext* /*context*/, const ::proxy_proto::helpRecalPlan* /*request*/, ::proxy_proto::RecalReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    virtual ::grpc::ServerUnaryReactor* helpRecal(
-      ::grpc::CallbackServerContext* /*context*/, const ::proxy_proto::helpRecalPlan* /*request*/, ::proxy_proto::RecalReply* /*response*/)  { return nullptr; }
-  };
-  template <class BaseClass>
-  class WithCallbackMethod_blockReloc : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithCallbackMethod_blockReloc() {
-      ::grpc::Service::MarkMethodCallback(6,
-          new ::grpc::internal::CallbackUnaryHandler< ::proxy_proto::blockRelocPlan, ::proxy_proto::blockRelocReply>(
-            [this](
-                   ::grpc::CallbackServerContext* context, const ::proxy_proto::blockRelocPlan* request, ::proxy_proto::blockRelocReply* response) { return this->blockReloc(context, request, response); }));}
-    void SetMessageAllocatorFor_blockReloc(
-        ::grpc::MessageAllocator< ::proxy_proto::blockRelocPlan, ::proxy_proto::blockRelocReply>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(6);
-      static_cast<::grpc::internal::CallbackUnaryHandler< ::proxy_proto::blockRelocPlan, ::proxy_proto::blockRelocReply>*>(handler)
-              ->SetMessageAllocator(allocator);
-    }
-    ~WithCallbackMethod_blockReloc() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status blockReloc(::grpc::ServerContext* /*context*/, const ::proxy_proto::blockRelocPlan* /*request*/, ::proxy_proto::blockRelocReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    virtual ::grpc::ServerUnaryReactor* blockReloc(
-      ::grpc::CallbackServerContext* /*context*/, const ::proxy_proto::blockRelocPlan* /*request*/, ::proxy_proto::blockRelocReply* /*response*/)  { return nullptr; }
-  };
-  template <class BaseClass>
-  class WithCallbackMethod_checkStep : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithCallbackMethod_checkStep() {
-      ::grpc::Service::MarkMethodCallback(7,
-          new ::grpc::internal::CallbackUnaryHandler< ::proxy_proto::AskIfSuccess, ::proxy_proto::RepIfSuccess>(
-            [this](
-                   ::grpc::CallbackServerContext* context, const ::proxy_proto::AskIfSuccess* request, ::proxy_proto::RepIfSuccess* response) { return this->checkStep(context, request, response); }));}
-    void SetMessageAllocatorFor_checkStep(
-        ::grpc::MessageAllocator< ::proxy_proto::AskIfSuccess, ::proxy_proto::RepIfSuccess>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(7);
-      static_cast<::grpc::internal::CallbackUnaryHandler< ::proxy_proto::AskIfSuccess, ::proxy_proto::RepIfSuccess>*>(handler)
-              ->SetMessageAllocator(allocator);
-    }
-    ~WithCallbackMethod_checkStep() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status checkStep(::grpc::ServerContext* /*context*/, const ::proxy_proto::AskIfSuccess* /*request*/, ::proxy_proto::RepIfSuccess* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    virtual ::grpc::ServerUnaryReactor* checkStep(
-      ::grpc::CallbackServerContext* /*context*/, const ::proxy_proto::AskIfSuccess* /*request*/, ::proxy_proto::RepIfSuccess* /*response*/)  { return nullptr; }
-  };
-  typedef WithCallbackMethod_checkalive<WithCallbackMethod_encodeAndSetObject<WithCallbackMethod_decodeAndGetObject<WithCallbackMethod_deleteBlock<WithCallbackMethod_mainRecal<WithCallbackMethod_helpRecal<WithCallbackMethod_blockReloc<WithCallbackMethod_checkStep<Service > > > > > > > > CallbackService;
+  typedef WithCallbackMethod_checkalive<WithCallbackMethod_encodeAndSetObject<WithCallbackMethod_decodeAndGetObject<WithCallbackMethod_deleteBlock<Service > > > > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_checkalive : public BaseClass {
@@ -741,74 +448,6 @@ class proxyService final {
     }
     // disable synchronous version of this method
     ::grpc::Status deleteBlock(::grpc::ServerContext* /*context*/, const ::proxy_proto::NodeAndBlock* /*request*/, ::proxy_proto::DelReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-  };
-  template <class BaseClass>
-  class WithGenericMethod_mainRecal : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithGenericMethod_mainRecal() {
-      ::grpc::Service::MarkMethodGeneric(4);
-    }
-    ~WithGenericMethod_mainRecal() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status mainRecal(::grpc::ServerContext* /*context*/, const ::proxy_proto::mainRecalPlan* /*request*/, ::proxy_proto::RecalReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-  };
-  template <class BaseClass>
-  class WithGenericMethod_helpRecal : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithGenericMethod_helpRecal() {
-      ::grpc::Service::MarkMethodGeneric(5);
-    }
-    ~WithGenericMethod_helpRecal() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status helpRecal(::grpc::ServerContext* /*context*/, const ::proxy_proto::helpRecalPlan* /*request*/, ::proxy_proto::RecalReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-  };
-  template <class BaseClass>
-  class WithGenericMethod_blockReloc : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithGenericMethod_blockReloc() {
-      ::grpc::Service::MarkMethodGeneric(6);
-    }
-    ~WithGenericMethod_blockReloc() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status blockReloc(::grpc::ServerContext* /*context*/, const ::proxy_proto::blockRelocPlan* /*request*/, ::proxy_proto::blockRelocReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-  };
-  template <class BaseClass>
-  class WithGenericMethod_checkStep : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithGenericMethod_checkStep() {
-      ::grpc::Service::MarkMethodGeneric(7);
-    }
-    ~WithGenericMethod_checkStep() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status checkStep(::grpc::ServerContext* /*context*/, const ::proxy_proto::AskIfSuccess* /*request*/, ::proxy_proto::RepIfSuccess* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -891,86 +530,6 @@ class proxyService final {
     }
     void RequestdeleteBlock(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
-    }
-  };
-  template <class BaseClass>
-  class WithRawMethod_mainRecal : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithRawMethod_mainRecal() {
-      ::grpc::Service::MarkMethodRaw(4);
-    }
-    ~WithRawMethod_mainRecal() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status mainRecal(::grpc::ServerContext* /*context*/, const ::proxy_proto::mainRecalPlan* /*request*/, ::proxy_proto::RecalReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    void RequestmainRecal(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(4, context, request, response, new_call_cq, notification_cq, tag);
-    }
-  };
-  template <class BaseClass>
-  class WithRawMethod_helpRecal : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithRawMethod_helpRecal() {
-      ::grpc::Service::MarkMethodRaw(5);
-    }
-    ~WithRawMethod_helpRecal() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status helpRecal(::grpc::ServerContext* /*context*/, const ::proxy_proto::helpRecalPlan* /*request*/, ::proxy_proto::RecalReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    void RequesthelpRecal(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(5, context, request, response, new_call_cq, notification_cq, tag);
-    }
-  };
-  template <class BaseClass>
-  class WithRawMethod_blockReloc : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithRawMethod_blockReloc() {
-      ::grpc::Service::MarkMethodRaw(6);
-    }
-    ~WithRawMethod_blockReloc() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status blockReloc(::grpc::ServerContext* /*context*/, const ::proxy_proto::blockRelocPlan* /*request*/, ::proxy_proto::blockRelocReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    void RequestblockReloc(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(6, context, request, response, new_call_cq, notification_cq, tag);
-    }
-  };
-  template <class BaseClass>
-  class WithRawMethod_checkStep : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithRawMethod_checkStep() {
-      ::grpc::Service::MarkMethodRaw(7);
-    }
-    ~WithRawMethod_checkStep() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status checkStep(::grpc::ServerContext* /*context*/, const ::proxy_proto::AskIfSuccess* /*request*/, ::proxy_proto::RepIfSuccess* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    void RequestcheckStep(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(7, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1059,94 +618,6 @@ class proxyService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     virtual ::grpc::ServerUnaryReactor* deleteBlock(
-      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
-  };
-  template <class BaseClass>
-  class WithRawCallbackMethod_mainRecal : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithRawCallbackMethod_mainRecal() {
-      ::grpc::Service::MarkMethodRawCallback(4,
-          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
-            [this](
-                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->mainRecal(context, request, response); }));
-    }
-    ~WithRawCallbackMethod_mainRecal() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status mainRecal(::grpc::ServerContext* /*context*/, const ::proxy_proto::mainRecalPlan* /*request*/, ::proxy_proto::RecalReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    virtual ::grpc::ServerUnaryReactor* mainRecal(
-      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
-  };
-  template <class BaseClass>
-  class WithRawCallbackMethod_helpRecal : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithRawCallbackMethod_helpRecal() {
-      ::grpc::Service::MarkMethodRawCallback(5,
-          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
-            [this](
-                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->helpRecal(context, request, response); }));
-    }
-    ~WithRawCallbackMethod_helpRecal() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status helpRecal(::grpc::ServerContext* /*context*/, const ::proxy_proto::helpRecalPlan* /*request*/, ::proxy_proto::RecalReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    virtual ::grpc::ServerUnaryReactor* helpRecal(
-      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
-  };
-  template <class BaseClass>
-  class WithRawCallbackMethod_blockReloc : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithRawCallbackMethod_blockReloc() {
-      ::grpc::Service::MarkMethodRawCallback(6,
-          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
-            [this](
-                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->blockReloc(context, request, response); }));
-    }
-    ~WithRawCallbackMethod_blockReloc() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status blockReloc(::grpc::ServerContext* /*context*/, const ::proxy_proto::blockRelocPlan* /*request*/, ::proxy_proto::blockRelocReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    virtual ::grpc::ServerUnaryReactor* blockReloc(
-      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
-  };
-  template <class BaseClass>
-  class WithRawCallbackMethod_checkStep : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithRawCallbackMethod_checkStep() {
-      ::grpc::Service::MarkMethodRawCallback(7,
-          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
-            [this](
-                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->checkStep(context, request, response); }));
-    }
-    ~WithRawCallbackMethod_checkStep() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status checkStep(::grpc::ServerContext* /*context*/, const ::proxy_proto::AskIfSuccess* /*request*/, ::proxy_proto::RepIfSuccess* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    virtual ::grpc::ServerUnaryReactor* checkStep(
       ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
@@ -1257,117 +728,9 @@ class proxyService final {
     // replace default version of method with streamed unary
     virtual ::grpc::Status StreameddeleteBlock(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proxy_proto::NodeAndBlock,::proxy_proto::DelReply>* server_unary_streamer) = 0;
   };
-  template <class BaseClass>
-  class WithStreamedUnaryMethod_mainRecal : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithStreamedUnaryMethod_mainRecal() {
-      ::grpc::Service::MarkMethodStreamed(4,
-        new ::grpc::internal::StreamedUnaryHandler<
-          ::proxy_proto::mainRecalPlan, ::proxy_proto::RecalReply>(
-            [this](::grpc::ServerContext* context,
-                   ::grpc::ServerUnaryStreamer<
-                     ::proxy_proto::mainRecalPlan, ::proxy_proto::RecalReply>* streamer) {
-                       return this->StreamedmainRecal(context,
-                         streamer);
-                  }));
-    }
-    ~WithStreamedUnaryMethod_mainRecal() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable regular version of this method
-    ::grpc::Status mainRecal(::grpc::ServerContext* /*context*/, const ::proxy_proto::mainRecalPlan* /*request*/, ::proxy_proto::RecalReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    // replace default version of method with streamed unary
-    virtual ::grpc::Status StreamedmainRecal(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proxy_proto::mainRecalPlan,::proxy_proto::RecalReply>* server_unary_streamer) = 0;
-  };
-  template <class BaseClass>
-  class WithStreamedUnaryMethod_helpRecal : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithStreamedUnaryMethod_helpRecal() {
-      ::grpc::Service::MarkMethodStreamed(5,
-        new ::grpc::internal::StreamedUnaryHandler<
-          ::proxy_proto::helpRecalPlan, ::proxy_proto::RecalReply>(
-            [this](::grpc::ServerContext* context,
-                   ::grpc::ServerUnaryStreamer<
-                     ::proxy_proto::helpRecalPlan, ::proxy_proto::RecalReply>* streamer) {
-                       return this->StreamedhelpRecal(context,
-                         streamer);
-                  }));
-    }
-    ~WithStreamedUnaryMethod_helpRecal() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable regular version of this method
-    ::grpc::Status helpRecal(::grpc::ServerContext* /*context*/, const ::proxy_proto::helpRecalPlan* /*request*/, ::proxy_proto::RecalReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    // replace default version of method with streamed unary
-    virtual ::grpc::Status StreamedhelpRecal(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proxy_proto::helpRecalPlan,::proxy_proto::RecalReply>* server_unary_streamer) = 0;
-  };
-  template <class BaseClass>
-  class WithStreamedUnaryMethod_blockReloc : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithStreamedUnaryMethod_blockReloc() {
-      ::grpc::Service::MarkMethodStreamed(6,
-        new ::grpc::internal::StreamedUnaryHandler<
-          ::proxy_proto::blockRelocPlan, ::proxy_proto::blockRelocReply>(
-            [this](::grpc::ServerContext* context,
-                   ::grpc::ServerUnaryStreamer<
-                     ::proxy_proto::blockRelocPlan, ::proxy_proto::blockRelocReply>* streamer) {
-                       return this->StreamedblockReloc(context,
-                         streamer);
-                  }));
-    }
-    ~WithStreamedUnaryMethod_blockReloc() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable regular version of this method
-    ::grpc::Status blockReloc(::grpc::ServerContext* /*context*/, const ::proxy_proto::blockRelocPlan* /*request*/, ::proxy_proto::blockRelocReply* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    // replace default version of method with streamed unary
-    virtual ::grpc::Status StreamedblockReloc(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proxy_proto::blockRelocPlan,::proxy_proto::blockRelocReply>* server_unary_streamer) = 0;
-  };
-  template <class BaseClass>
-  class WithStreamedUnaryMethod_checkStep : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithStreamedUnaryMethod_checkStep() {
-      ::grpc::Service::MarkMethodStreamed(7,
-        new ::grpc::internal::StreamedUnaryHandler<
-          ::proxy_proto::AskIfSuccess, ::proxy_proto::RepIfSuccess>(
-            [this](::grpc::ServerContext* context,
-                   ::grpc::ServerUnaryStreamer<
-                     ::proxy_proto::AskIfSuccess, ::proxy_proto::RepIfSuccess>* streamer) {
-                       return this->StreamedcheckStep(context,
-                         streamer);
-                  }));
-    }
-    ~WithStreamedUnaryMethod_checkStep() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable regular version of this method
-    ::grpc::Status checkStep(::grpc::ServerContext* /*context*/, const ::proxy_proto::AskIfSuccess* /*request*/, ::proxy_proto::RepIfSuccess* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    // replace default version of method with streamed unary
-    virtual ::grpc::Status StreamedcheckStep(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proxy_proto::AskIfSuccess,::proxy_proto::RepIfSuccess>* server_unary_streamer) = 0;
-  };
-  typedef WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_encodeAndSetObject<WithStreamedUnaryMethod_decodeAndGetObject<WithStreamedUnaryMethod_deleteBlock<WithStreamedUnaryMethod_mainRecal<WithStreamedUnaryMethod_helpRecal<WithStreamedUnaryMethod_blockReloc<WithStreamedUnaryMethod_checkStep<Service > > > > > > > > StreamedUnaryService;
+  typedef WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_encodeAndSetObject<WithStreamedUnaryMethod_decodeAndGetObject<WithStreamedUnaryMethod_deleteBlock<Service > > > > StreamedUnaryService;
   typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_encodeAndSetObject<WithStreamedUnaryMethod_decodeAndGetObject<WithStreamedUnaryMethod_deleteBlock<WithStreamedUnaryMethod_mainRecal<WithStreamedUnaryMethod_helpRecal<WithStreamedUnaryMethod_blockReloc<WithStreamedUnaryMethod_checkStep<Service > > > > > > > > StreamedService;
+  typedef WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_encodeAndSetObject<WithStreamedUnaryMethod_decodeAndGetObject<WithStreamedUnaryMethod_deleteBlock<Service > > > > StreamedService;
 };
 
 }  // namespace proxy_proto

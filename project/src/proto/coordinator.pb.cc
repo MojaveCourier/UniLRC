@@ -479,7 +479,7 @@ const char descriptor_table_protodef_coordinator_2eproto[] PROTOBUF_SECTION_VARI
   "\"0\n\026NumberOfStripesToMerge\022\026\n\016num_of_str"
   "ipes\030\001 \001(\005\"C\n\013RepIfMerged\022\020\n\010ifmerged\030\001 "
   "\001(\010\022\n\n\002lc\030\002 \001(\001\022\n\n\002gc\030\003 \001(\001\022\n\n\002dc\030\004 \001(\001\""
-  "\"\n\014RepStripeIds\022\022\n\nstripe_ids\030\001 \003(\0052\221\010\n\022"
+  "\"\n\014RepStripeIds\022\022\n\nstripe_ids\030\001 \003(\0052\264\007\n\022"
   "coordinatorService\022k\n\025sayHelloToCoordina"
   "tor\022\'.coordinator_proto.RequestToCoordin"
   "ator\032\'.coordinator_proto.ReplyFromCoordi"
@@ -501,16 +501,13 @@ const char descriptor_table_protodef_coordinator_2eproto[] PROTOBUF_SECTION_VARI
   "KeyFromClient\032\036.coordinator_proto.RepIfD"
   "eling\"\000\022V\n\013delByStripe\022%.coordinator_pro"
   "to.StripeIdFromClient\032\036.coordinator_prot"
-  "o.RepIfDeling\"\000\022[\n\014requestMerge\022).coordi"
-  "nator_proto.NumberOfStripesToMerge\032\036.coo"
-  "rdinator_proto.RepIfMerged\"\000\022Y\n\013listStri"
-  "pes\022\'.coordinator_proto.RequestToCoordin"
-  "ator\032\037.coordinator_proto.RepStripeIds\"\000b"
-  "\006proto3"
+  "o.RepIfDeling\"\000\022Y\n\013listStripes\022\'.coordin"
+  "ator_proto.RequestToCoordinator\032\037.coordi"
+  "nator_proto.RepStripeIds\"\000b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_coordinator_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_coordinator_2eproto = {
-    false, false, 2167, descriptor_table_protodef_coordinator_2eproto,
+    false, false, 2074, descriptor_table_protodef_coordinator_2eproto,
     "coordinator.proto",
     &descriptor_table_coordinator_2eproto_once, nullptr, 0, 17,
     schemas, file_default_instances, TableStruct_coordinator_2eproto::offsets,

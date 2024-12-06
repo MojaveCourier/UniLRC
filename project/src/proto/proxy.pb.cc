@@ -515,7 +515,7 @@ const char descriptor_table_protodef_proxy_2eproto[] PROTOBUF_SECTION_VARIABLE(p
   "(\005\022\022\n\nblock_size\030\013 \001(\005\022\023\n\013encode_type\030\014 "
   "\001(\005\022\020\n\010clientip\030\r \001(\t\022\022\n\nclientport\030\016 \001("
   "\005\"\034\n\010SetReply\022\020\n\010ifcommit\030\001 \001(\010\"\036\n\010GetRe"
-  "ply\022\022\n\ngetsuccess\030\001 \001(\0102\301\004\n\014proxyService"
+  "ply\022\022\n\ngetsuccess\030\001 \001(\0102\261\002\n\014proxyService"
   "\022D\n\ncheckalive\022\032.proxy_proto.CheckaliveC"
   "MD\032\032.proxy_proto.RequestResult\022L\n\022encode"
   "AndSetObject\022\037.proxy_proto.ObjectAndPlac"
@@ -523,18 +523,11 @@ const char descriptor_table_protodef_proxy_2eproto[] PROTOBUF_SECTION_VARIABLE(p
   "dGetObject\022\037.proxy_proto.ObjectAndPlacem"
   "ent\032\025.proxy_proto.GetReply\022\?\n\013deleteBloc"
   "k\022\031.proxy_proto.NodeAndBlock\032\025.proxy_pro"
-  "to.DelReply\022@\n\tmainRecal\022\032.proxy_proto.m"
-  "ainRecalPlan\032\027.proxy_proto.RecalReply\022@\n"
-  "\thelpRecal\022\032.proxy_proto.helpRecalPlan\032\027"
-  ".proxy_proto.RecalReply\022G\n\nblockReloc\022\033."
-  "proxy_proto.blockRelocPlan\032\034.proxy_proto"
-  ".blockRelocReply\022A\n\tcheckStep\022\031.proxy_pr"
-  "oto.AskIfSuccess\032\031.proxy_proto.RepIfSucc"
-  "essb\006proto3"
+  "to.DelReplyb\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_proxy_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_proxy_2eproto = {
-    false, false, 2131, descriptor_table_protodef_proxy_2eproto,
+    false, false, 1859, descriptor_table_protodef_proxy_2eproto,
     "proxy.proto",
     &descriptor_table_proxy_2eproto_once, nullptr, 0, 15,
     schemas, file_default_instances, TableStruct_proxy_2eproto::offsets,

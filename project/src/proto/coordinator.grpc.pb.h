@@ -119,14 +119,6 @@ class coordinatorService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfDeling>> PrepareAsyncdelByStripe(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdFromClient& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfDeling>>(PrepareAsyncdelByStripeRaw(context, request, cq));
     }
-    // lrcwidestripe, merge
-    virtual ::grpc::Status requestMerge(::grpc::ClientContext* context, const ::coordinator_proto::NumberOfStripesToMerge& request, ::coordinator_proto::RepIfMerged* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfMerged>> AsyncrequestMerge(::grpc::ClientContext* context, const ::coordinator_proto::NumberOfStripesToMerge& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfMerged>>(AsyncrequestMergeRaw(context, request, cq));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfMerged>> PrepareAsyncrequestMerge(::grpc::ClientContext* context, const ::coordinator_proto::NumberOfStripesToMerge& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfMerged>>(PrepareAsyncrequestMergeRaw(context, request, cq));
-    }
     // other
     virtual ::grpc::Status listStripes(::grpc::ClientContext* context, const ::coordinator_proto::RequestToCoordinator& request, ::coordinator_proto::RepStripeIds* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepStripeIds>> AsynclistStripes(::grpc::ClientContext* context, const ::coordinator_proto::RequestToCoordinator& request, ::grpc::CompletionQueue* cq) {
@@ -161,9 +153,6 @@ class coordinatorService final {
       virtual void delByKey(::grpc::ClientContext* context, const ::coordinator_proto::KeyFromClient* request, ::coordinator_proto::RepIfDeling* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       virtual void delByStripe(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdFromClient* request, ::coordinator_proto::RepIfDeling* response, std::function<void(::grpc::Status)>) = 0;
       virtual void delByStripe(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdFromClient* request, ::coordinator_proto::RepIfDeling* response, ::grpc::ClientUnaryReactor* reactor) = 0;
-      // lrcwidestripe, merge
-      virtual void requestMerge(::grpc::ClientContext* context, const ::coordinator_proto::NumberOfStripesToMerge* request, ::coordinator_proto::RepIfMerged* response, std::function<void(::grpc::Status)>) = 0;
-      virtual void requestMerge(::grpc::ClientContext* context, const ::coordinator_proto::NumberOfStripesToMerge* request, ::coordinator_proto::RepIfMerged* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       // other
       virtual void listStripes(::grpc::ClientContext* context, const ::coordinator_proto::RequestToCoordinator* request, ::coordinator_proto::RepStripeIds* response, std::function<void(::grpc::Status)>) = 0;
       virtual void listStripes(::grpc::ClientContext* context, const ::coordinator_proto::RequestToCoordinator* request, ::coordinator_proto::RepStripeIds* response, ::grpc::ClientUnaryReactor* reactor) = 0;
@@ -190,8 +179,6 @@ class coordinatorService final {
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfDeling>* PrepareAsyncdelByKeyRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyFromClient& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfDeling>* AsyncdelByStripeRaw(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdFromClient& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfDeling>* PrepareAsyncdelByStripeRaw(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdFromClient& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfMerged>* AsyncrequestMergeRaw(::grpc::ClientContext* context, const ::coordinator_proto::NumberOfStripesToMerge& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfMerged>* PrepareAsyncrequestMergeRaw(::grpc::ClientContext* context, const ::coordinator_proto::NumberOfStripesToMerge& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepStripeIds>* AsynclistStripesRaw(::grpc::ClientContext* context, const ::coordinator_proto::RequestToCoordinator& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepStripeIds>* PrepareAsynclistStripesRaw(::grpc::ClientContext* context, const ::coordinator_proto::RequestToCoordinator& request, ::grpc::CompletionQueue* cq) = 0;
   };
@@ -261,13 +248,6 @@ class coordinatorService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfDeling>> PrepareAsyncdelByStripe(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdFromClient& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfDeling>>(PrepareAsyncdelByStripeRaw(context, request, cq));
     }
-    ::grpc::Status requestMerge(::grpc::ClientContext* context, const ::coordinator_proto::NumberOfStripesToMerge& request, ::coordinator_proto::RepIfMerged* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfMerged>> AsyncrequestMerge(::grpc::ClientContext* context, const ::coordinator_proto::NumberOfStripesToMerge& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfMerged>>(AsyncrequestMergeRaw(context, request, cq));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfMerged>> PrepareAsyncrequestMerge(::grpc::ClientContext* context, const ::coordinator_proto::NumberOfStripesToMerge& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfMerged>>(PrepareAsyncrequestMergeRaw(context, request, cq));
-    }
     ::grpc::Status listStripes(::grpc::ClientContext* context, const ::coordinator_proto::RequestToCoordinator& request, ::coordinator_proto::RepStripeIds* response) override;
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepStripeIds>> AsynclistStripes(::grpc::ClientContext* context, const ::coordinator_proto::RequestToCoordinator& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepStripeIds>>(AsynclistStripesRaw(context, request, cq));
@@ -296,8 +276,6 @@ class coordinatorService final {
       void delByKey(::grpc::ClientContext* context, const ::coordinator_proto::KeyFromClient* request, ::coordinator_proto::RepIfDeling* response, ::grpc::ClientUnaryReactor* reactor) override;
       void delByStripe(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdFromClient* request, ::coordinator_proto::RepIfDeling* response, std::function<void(::grpc::Status)>) override;
       void delByStripe(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdFromClient* request, ::coordinator_proto::RepIfDeling* response, ::grpc::ClientUnaryReactor* reactor) override;
-      void requestMerge(::grpc::ClientContext* context, const ::coordinator_proto::NumberOfStripesToMerge* request, ::coordinator_proto::RepIfMerged* response, std::function<void(::grpc::Status)>) override;
-      void requestMerge(::grpc::ClientContext* context, const ::coordinator_proto::NumberOfStripesToMerge* request, ::coordinator_proto::RepIfMerged* response, ::grpc::ClientUnaryReactor* reactor) override;
       void listStripes(::grpc::ClientContext* context, const ::coordinator_proto::RequestToCoordinator* request, ::coordinator_proto::RepStripeIds* response, std::function<void(::grpc::Status)>) override;
       void listStripes(::grpc::ClientContext* context, const ::coordinator_proto::RequestToCoordinator* request, ::coordinator_proto::RepStripeIds* response, ::grpc::ClientUnaryReactor* reactor) override;
      private:
@@ -329,8 +307,6 @@ class coordinatorService final {
     ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfDeling>* PrepareAsyncdelByKeyRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyFromClient& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfDeling>* AsyncdelByStripeRaw(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdFromClient& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfDeling>* PrepareAsyncdelByStripeRaw(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdFromClient& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfMerged>* AsyncrequestMergeRaw(::grpc::ClientContext* context, const ::coordinator_proto::NumberOfStripesToMerge& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfMerged>* PrepareAsyncrequestMergeRaw(::grpc::ClientContext* context, const ::coordinator_proto::NumberOfStripesToMerge& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepStripeIds>* AsynclistStripesRaw(::grpc::ClientContext* context, const ::coordinator_proto::RequestToCoordinator& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepStripeIds>* PrepareAsynclistStripesRaw(::grpc::ClientContext* context, const ::coordinator_proto::RequestToCoordinator& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_sayHelloToCoordinator_;
@@ -342,7 +318,6 @@ class coordinatorService final {
     const ::grpc::internal::RpcMethod rpcmethod_getValue_;
     const ::grpc::internal::RpcMethod rpcmethod_delByKey_;
     const ::grpc::internal::RpcMethod rpcmethod_delByStripe_;
-    const ::grpc::internal::RpcMethod rpcmethod_requestMerge_;
     const ::grpc::internal::RpcMethod rpcmethod_listStripes_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
@@ -365,8 +340,6 @@ class coordinatorService final {
     // delete
     virtual ::grpc::Status delByKey(::grpc::ServerContext* context, const ::coordinator_proto::KeyFromClient* request, ::coordinator_proto::RepIfDeling* response);
     virtual ::grpc::Status delByStripe(::grpc::ServerContext* context, const ::coordinator_proto::StripeIdFromClient* request, ::coordinator_proto::RepIfDeling* response);
-    // lrcwidestripe, merge
-    virtual ::grpc::Status requestMerge(::grpc::ServerContext* context, const ::coordinator_proto::NumberOfStripesToMerge* request, ::coordinator_proto::RepIfMerged* response);
     // other
     virtual ::grpc::Status listStripes(::grpc::ServerContext* context, const ::coordinator_proto::RequestToCoordinator* request, ::coordinator_proto::RepStripeIds* response);
   };
@@ -551,32 +524,12 @@ class coordinatorService final {
     }
   };
   template <class BaseClass>
-  class WithAsyncMethod_requestMerge : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithAsyncMethod_requestMerge() {
-      ::grpc::Service::MarkMethodAsync(9);
-    }
-    ~WithAsyncMethod_requestMerge() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status requestMerge(::grpc::ServerContext* /*context*/, const ::coordinator_proto::NumberOfStripesToMerge* /*request*/, ::coordinator_proto::RepIfMerged* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    void RequestrequestMerge(::grpc::ServerContext* context, ::coordinator_proto::NumberOfStripesToMerge* request, ::grpc::ServerAsyncResponseWriter< ::coordinator_proto::RepIfMerged>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(9, context, request, response, new_call_cq, notification_cq, tag);
-    }
-  };
-  template <class BaseClass>
   class WithAsyncMethod_listStripes : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_listStripes() {
-      ::grpc::Service::MarkMethodAsync(10);
+      ::grpc::Service::MarkMethodAsync(9);
     }
     ~WithAsyncMethod_listStripes() override {
       BaseClassMustBeDerivedFromService(this);
@@ -587,10 +540,10 @@ class coordinatorService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestlistStripes(::grpc::ServerContext* context, ::coordinator_proto::RequestToCoordinator* request, ::grpc::ServerAsyncResponseWriter< ::coordinator_proto::RepStripeIds>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(10, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(9, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_sayHelloToCoordinator<WithAsyncMethod_checkalive<WithAsyncMethod_setParameter<WithAsyncMethod_uploadOriginKeyValue<WithAsyncMethod_reportCommitAbort<WithAsyncMethod_checkCommitAbort<WithAsyncMethod_getValue<WithAsyncMethod_delByKey<WithAsyncMethod_delByStripe<WithAsyncMethod_requestMerge<WithAsyncMethod_listStripes<Service > > > > > > > > > > > AsyncService;
+  typedef WithAsyncMethod_sayHelloToCoordinator<WithAsyncMethod_checkalive<WithAsyncMethod_setParameter<WithAsyncMethod_uploadOriginKeyValue<WithAsyncMethod_reportCommitAbort<WithAsyncMethod_checkCommitAbort<WithAsyncMethod_getValue<WithAsyncMethod_delByKey<WithAsyncMethod_delByStripe<WithAsyncMethod_listStripes<Service > > > > > > > > > > AsyncService;
   template <class BaseClass>
   class WithCallbackMethod_sayHelloToCoordinator : public BaseClass {
    private:
@@ -835,45 +788,18 @@ class coordinatorService final {
       ::grpc::CallbackServerContext* /*context*/, const ::coordinator_proto::StripeIdFromClient* /*request*/, ::coordinator_proto::RepIfDeling* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
-  class WithCallbackMethod_requestMerge : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithCallbackMethod_requestMerge() {
-      ::grpc::Service::MarkMethodCallback(9,
-          new ::grpc::internal::CallbackUnaryHandler< ::coordinator_proto::NumberOfStripesToMerge, ::coordinator_proto::RepIfMerged>(
-            [this](
-                   ::grpc::CallbackServerContext* context, const ::coordinator_proto::NumberOfStripesToMerge* request, ::coordinator_proto::RepIfMerged* response) { return this->requestMerge(context, request, response); }));}
-    void SetMessageAllocatorFor_requestMerge(
-        ::grpc::MessageAllocator< ::coordinator_proto::NumberOfStripesToMerge, ::coordinator_proto::RepIfMerged>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(9);
-      static_cast<::grpc::internal::CallbackUnaryHandler< ::coordinator_proto::NumberOfStripesToMerge, ::coordinator_proto::RepIfMerged>*>(handler)
-              ->SetMessageAllocator(allocator);
-    }
-    ~WithCallbackMethod_requestMerge() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status requestMerge(::grpc::ServerContext* /*context*/, const ::coordinator_proto::NumberOfStripesToMerge* /*request*/, ::coordinator_proto::RepIfMerged* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    virtual ::grpc::ServerUnaryReactor* requestMerge(
-      ::grpc::CallbackServerContext* /*context*/, const ::coordinator_proto::NumberOfStripesToMerge* /*request*/, ::coordinator_proto::RepIfMerged* /*response*/)  { return nullptr; }
-  };
-  template <class BaseClass>
   class WithCallbackMethod_listStripes : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_listStripes() {
-      ::grpc::Service::MarkMethodCallback(10,
+      ::grpc::Service::MarkMethodCallback(9,
           new ::grpc::internal::CallbackUnaryHandler< ::coordinator_proto::RequestToCoordinator, ::coordinator_proto::RepStripeIds>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::coordinator_proto::RequestToCoordinator* request, ::coordinator_proto::RepStripeIds* response) { return this->listStripes(context, request, response); }));}
     void SetMessageAllocatorFor_listStripes(
         ::grpc::MessageAllocator< ::coordinator_proto::RequestToCoordinator, ::coordinator_proto::RepStripeIds>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(10);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(9);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::coordinator_proto::RequestToCoordinator, ::coordinator_proto::RepStripeIds>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -888,7 +814,7 @@ class coordinatorService final {
     virtual ::grpc::ServerUnaryReactor* listStripes(
       ::grpc::CallbackServerContext* /*context*/, const ::coordinator_proto::RequestToCoordinator* /*request*/, ::coordinator_proto::RepStripeIds* /*response*/)  { return nullptr; }
   };
-  typedef WithCallbackMethod_sayHelloToCoordinator<WithCallbackMethod_checkalive<WithCallbackMethod_setParameter<WithCallbackMethod_uploadOriginKeyValue<WithCallbackMethod_reportCommitAbort<WithCallbackMethod_checkCommitAbort<WithCallbackMethod_getValue<WithCallbackMethod_delByKey<WithCallbackMethod_delByStripe<WithCallbackMethod_requestMerge<WithCallbackMethod_listStripes<Service > > > > > > > > > > > CallbackService;
+  typedef WithCallbackMethod_sayHelloToCoordinator<WithCallbackMethod_checkalive<WithCallbackMethod_setParameter<WithCallbackMethod_uploadOriginKeyValue<WithCallbackMethod_reportCommitAbort<WithCallbackMethod_checkCommitAbort<WithCallbackMethod_getValue<WithCallbackMethod_delByKey<WithCallbackMethod_delByStripe<WithCallbackMethod_listStripes<Service > > > > > > > > > > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_sayHelloToCoordinator : public BaseClass {
@@ -1044,29 +970,12 @@ class coordinatorService final {
     }
   };
   template <class BaseClass>
-  class WithGenericMethod_requestMerge : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithGenericMethod_requestMerge() {
-      ::grpc::Service::MarkMethodGeneric(9);
-    }
-    ~WithGenericMethod_requestMerge() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status requestMerge(::grpc::ServerContext* /*context*/, const ::coordinator_proto::NumberOfStripesToMerge* /*request*/, ::coordinator_proto::RepIfMerged* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-  };
-  template <class BaseClass>
   class WithGenericMethod_listStripes : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_listStripes() {
-      ::grpc::Service::MarkMethodGeneric(10);
+      ::grpc::Service::MarkMethodGeneric(9);
     }
     ~WithGenericMethod_listStripes() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1258,32 +1167,12 @@ class coordinatorService final {
     }
   };
   template <class BaseClass>
-  class WithRawMethod_requestMerge : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithRawMethod_requestMerge() {
-      ::grpc::Service::MarkMethodRaw(9);
-    }
-    ~WithRawMethod_requestMerge() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status requestMerge(::grpc::ServerContext* /*context*/, const ::coordinator_proto::NumberOfStripesToMerge* /*request*/, ::coordinator_proto::RepIfMerged* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    void RequestrequestMerge(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(9, context, request, response, new_call_cq, notification_cq, tag);
-    }
-  };
-  template <class BaseClass>
   class WithRawMethod_listStripes : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_listStripes() {
-      ::grpc::Service::MarkMethodRaw(10);
+      ::grpc::Service::MarkMethodRaw(9);
     }
     ~WithRawMethod_listStripes() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1294,7 +1183,7 @@ class coordinatorService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestlistStripes(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(10, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(9, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1496,34 +1385,12 @@ class coordinatorService final {
       ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
-  class WithRawCallbackMethod_requestMerge : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithRawCallbackMethod_requestMerge() {
-      ::grpc::Service::MarkMethodRawCallback(9,
-          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
-            [this](
-                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->requestMerge(context, request, response); }));
-    }
-    ~WithRawCallbackMethod_requestMerge() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable synchronous version of this method
-    ::grpc::Status requestMerge(::grpc::ServerContext* /*context*/, const ::coordinator_proto::NumberOfStripesToMerge* /*request*/, ::coordinator_proto::RepIfMerged* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    virtual ::grpc::ServerUnaryReactor* requestMerge(
-      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
-  };
-  template <class BaseClass>
   class WithRawCallbackMethod_listStripes : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_listStripes() {
-      ::grpc::Service::MarkMethodRawCallback(10,
+      ::grpc::Service::MarkMethodRawCallback(9,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->listStripes(context, request, response); }));
@@ -1783,39 +1650,12 @@ class coordinatorService final {
     virtual ::grpc::Status StreameddelByStripe(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::coordinator_proto::StripeIdFromClient,::coordinator_proto::RepIfDeling>* server_unary_streamer) = 0;
   };
   template <class BaseClass>
-  class WithStreamedUnaryMethod_requestMerge : public BaseClass {
-   private:
-    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
-   public:
-    WithStreamedUnaryMethod_requestMerge() {
-      ::grpc::Service::MarkMethodStreamed(9,
-        new ::grpc::internal::StreamedUnaryHandler<
-          ::coordinator_proto::NumberOfStripesToMerge, ::coordinator_proto::RepIfMerged>(
-            [this](::grpc::ServerContext* context,
-                   ::grpc::ServerUnaryStreamer<
-                     ::coordinator_proto::NumberOfStripesToMerge, ::coordinator_proto::RepIfMerged>* streamer) {
-                       return this->StreamedrequestMerge(context,
-                         streamer);
-                  }));
-    }
-    ~WithStreamedUnaryMethod_requestMerge() override {
-      BaseClassMustBeDerivedFromService(this);
-    }
-    // disable regular version of this method
-    ::grpc::Status requestMerge(::grpc::ServerContext* /*context*/, const ::coordinator_proto::NumberOfStripesToMerge* /*request*/, ::coordinator_proto::RepIfMerged* /*response*/) override {
-      abort();
-      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-    }
-    // replace default version of method with streamed unary
-    virtual ::grpc::Status StreamedrequestMerge(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::coordinator_proto::NumberOfStripesToMerge,::coordinator_proto::RepIfMerged>* server_unary_streamer) = 0;
-  };
-  template <class BaseClass>
   class WithStreamedUnaryMethod_listStripes : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_listStripes() {
-      ::grpc::Service::MarkMethodStreamed(10,
+      ::grpc::Service::MarkMethodStreamed(9,
         new ::grpc::internal::StreamedUnaryHandler<
           ::coordinator_proto::RequestToCoordinator, ::coordinator_proto::RepStripeIds>(
             [this](::grpc::ServerContext* context,
@@ -1836,9 +1676,9 @@ class coordinatorService final {
     // replace default version of method with streamed unary
     virtual ::grpc::Status StreamedlistStripes(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::coordinator_proto::RequestToCoordinator,::coordinator_proto::RepStripeIds>* server_unary_streamer) = 0;
   };
-  typedef WithStreamedUnaryMethod_sayHelloToCoordinator<WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_setParameter<WithStreamedUnaryMethod_uploadOriginKeyValue<WithStreamedUnaryMethod_reportCommitAbort<WithStreamedUnaryMethod_checkCommitAbort<WithStreamedUnaryMethod_getValue<WithStreamedUnaryMethod_delByKey<WithStreamedUnaryMethod_delByStripe<WithStreamedUnaryMethod_requestMerge<WithStreamedUnaryMethod_listStripes<Service > > > > > > > > > > > StreamedUnaryService;
+  typedef WithStreamedUnaryMethod_sayHelloToCoordinator<WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_setParameter<WithStreamedUnaryMethod_uploadOriginKeyValue<WithStreamedUnaryMethod_reportCommitAbort<WithStreamedUnaryMethod_checkCommitAbort<WithStreamedUnaryMethod_getValue<WithStreamedUnaryMethod_delByKey<WithStreamedUnaryMethod_delByStripe<WithStreamedUnaryMethod_listStripes<Service > > > > > > > > > > StreamedUnaryService;
   typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_sayHelloToCoordinator<WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_setParameter<WithStreamedUnaryMethod_uploadOriginKeyValue<WithStreamedUnaryMethod_reportCommitAbort<WithStreamedUnaryMethod_checkCommitAbort<WithStreamedUnaryMethod_getValue<WithStreamedUnaryMethod_delByKey<WithStreamedUnaryMethod_delByStripe<WithStreamedUnaryMethod_requestMerge<WithStreamedUnaryMethod_listStripes<Service > > > > > > > > > > > StreamedService;
+  typedef WithStreamedUnaryMethod_sayHelloToCoordinator<WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_setParameter<WithStreamedUnaryMethod_uploadOriginKeyValue<WithStreamedUnaryMethod_reportCommitAbort<WithStreamedUnaryMethod_checkCommitAbort<WithStreamedUnaryMethod_getValue<WithStreamedUnaryMethod_delByKey<WithStreamedUnaryMethod_delByStripe<WithStreamedUnaryMethod_listStripes<Service > > > > > > > > > > StreamedService;
 };
 
 }  // namespace coordinator_proto
