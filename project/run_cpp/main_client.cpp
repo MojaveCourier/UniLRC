@@ -4,7 +4,8 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include "meta_definition.h"
+#include "config.h"
+
 
 int main(int argc, char **argv)
 {

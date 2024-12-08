@@ -1,0 +1,35 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#include "devcommon.h"
+
+namespace ECProject
+{
+class Config
+  {
+  private:
+    static Config *instance;
+    Config();
+
+  public:
+    static Config *getInstance();
+
+    void printConfigs() const;
+
+    uint32_t UnitSize = 8 * 1024;
+    uint32_t BlockSize = 1024 * 1024;
+    uint8_t alpha = 2;
+    uint8_t z = 2;
+    uint32_t n = alpha * z * z + z;
+    uint32_t k = alpha * z * z - alpha * z;
+    uint32_t r = alpha * z;
+    uint32_t DataBlockNumPerGroup = k / z;
+    uint32_t GlobalParityBlockNumPerGroup = r / z;
+    // default DatanodeNumPerCluster: two times of local group number
+    uint32_t DatanodeNumPerCluster = 2 * n / z;
+    // default ClusterNum: two times of z
+    uint8_t ClusterNum = 2 * z;
+  };
+}
+
+#endif // CONFIG_H

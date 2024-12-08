@@ -102,56 +102,6 @@ namespace ECProject
     int b_datapergroup;
     int x_stripepermergegroup; // the product of xi
   } ECSchema;
-
-  class Config
-  {
-  private:
-    static Config *instance;
-    Config()
-    {
-      printConfigs();
-    }
-
-  public:
-    static Config *getInstance()
-    {
-      if (instance == nullptr)
-      {
-        instance = new Config();
-      }
-      return instance;
-    }
-
-    void printConfigs() const
-    {
-      std::cout << "Configuration Parameters:" << std::endl;
-      std::cout << "  UnitSize: " << UnitSize << " bytes" << std::endl;
-      std::cout << "  BlockSize: " << BlockSize << " bytes" << std::endl;
-      std::cout << "  alpha: " << (int)alpha << std::endl;
-      std::cout << "  z: " << (int)z << std::endl;
-      std::cout << "  n: " << n << std::endl;
-      std::cout << "  k: " << k << std::endl;
-      std::cout << "  r: " << r << std::endl;
-      std::cout << "  DataBlockNumPerGroup: " << DataBlockNumPerGroup << " blocks/group" << std::endl;
-      std::cout << "  GlobalParityBlockNumPerGroup: " << GlobalParityBlockNumPerGroup << " blocks/group" << std::endl;
-      std::cout << "  DatanodeNumPerCluster: " << DatanodeNumPerCluster << " nodes/cluster" << std::endl;
-      std::cout << "  ClusterNum: " << (int)ClusterNum << " clusters" << std::endl;
-    }
-
-    uint32_t UnitSize = 8 * 1024;
-    uint32_t BlockSize = 1024 * 1024;
-    uint8_t alpha = 2;
-    uint8_t z = 2;
-    uint32_t n = alpha * z * z + z;
-    uint32_t k = alpha * z * z - alpha * z;
-    uint32_t r = alpha * z;
-    uint32_t DataBlockNumPerGroup = k / z;
-    uint32_t GlobalParityBlockNumPerGroup = r / z;
-    // default DatanodeNumPerCluster: two times of local group number
-    uint32_t DatanodeNumPerCluster = 2 * n / z;
-    // default ClusterNum: two times of z
-    uint8_t ClusterNum = 2 * z;
-  };
 } // namespace ECProject
 
 #endif // META_DEFINITION

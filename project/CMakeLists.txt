@@ -105,6 +105,7 @@ foreach (_target
             ${CMAKE_CURRENT_SOURCE_DIR}/src/tinyxml2.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/src/datanode.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/src/lrc.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/config.cpp
             #${_target}.cpp
             )
     target_link_libraries(${_target}
