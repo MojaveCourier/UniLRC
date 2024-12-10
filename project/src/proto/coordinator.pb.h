@@ -57,9 +57,6 @@ extern KeyAndClientIPDefaultTypeInternal _KeyAndClientIP_default_instance_;
 class KeyFromClient;
 struct KeyFromClientDefaultTypeInternal;
 extern KeyFromClientDefaultTypeInternal _KeyFromClient_default_instance_;
-class NumberOfStripesToMerge;
-struct NumberOfStripesToMergeDefaultTypeInternal;
-extern NumberOfStripesToMergeDefaultTypeInternal _NumberOfStripesToMerge_default_instance_;
 class Parameter;
 struct ParameterDefaultTypeInternal;
 extern ParameterDefaultTypeInternal _Parameter_default_instance_;
@@ -69,9 +66,6 @@ extern RepIfDelingDefaultTypeInternal _RepIfDeling_default_instance_;
 class RepIfGetSuccess;
 struct RepIfGetSuccessDefaultTypeInternal;
 extern RepIfGetSuccessDefaultTypeInternal _RepIfGetSuccess_default_instance_;
-class RepIfMerged;
-struct RepIfMergedDefaultTypeInternal;
-extern RepIfMergedDefaultTypeInternal _RepIfMerged_default_instance_;
 class RepIfSetParaSuccess;
 struct RepIfSetParaSuccessDefaultTypeInternal;
 extern RepIfSetParaSuccessDefaultTypeInternal _RepIfSetParaSuccess_default_instance_;
@@ -87,6 +81,9 @@ extern ReplyFromCoordinatorDefaultTypeInternal _ReplyFromCoordinator_default_ins
 class ReplyProxyIPPort;
 struct ReplyProxyIPPortDefaultTypeInternal;
 extern ReplyProxyIPPortDefaultTypeInternal _ReplyProxyIPPort_default_instance_;
+class ReplyProxyIPsPorts;
+struct ReplyProxyIPsPortsDefaultTypeInternal;
+extern ReplyProxyIPsPortsDefaultTypeInternal _ReplyProxyIPsPorts_default_instance_;
 class RequestProxyIPPort;
 struct RequestProxyIPPortDefaultTypeInternal;
 extern RequestProxyIPPortDefaultTypeInternal _RequestProxyIPPort_default_instance_;
@@ -102,16 +99,15 @@ template<> ::coordinator_proto::AskIfSuccess* Arena::CreateMaybeMessage<::coordi
 template<> ::coordinator_proto::CommitAbortKey* Arena::CreateMaybeMessage<::coordinator_proto::CommitAbortKey>(Arena*);
 template<> ::coordinator_proto::KeyAndClientIP* Arena::CreateMaybeMessage<::coordinator_proto::KeyAndClientIP>(Arena*);
 template<> ::coordinator_proto::KeyFromClient* Arena::CreateMaybeMessage<::coordinator_proto::KeyFromClient>(Arena*);
-template<> ::coordinator_proto::NumberOfStripesToMerge* Arena::CreateMaybeMessage<::coordinator_proto::NumberOfStripesToMerge>(Arena*);
 template<> ::coordinator_proto::Parameter* Arena::CreateMaybeMessage<::coordinator_proto::Parameter>(Arena*);
 template<> ::coordinator_proto::RepIfDeling* Arena::CreateMaybeMessage<::coordinator_proto::RepIfDeling>(Arena*);
 template<> ::coordinator_proto::RepIfGetSuccess* Arena::CreateMaybeMessage<::coordinator_proto::RepIfGetSuccess>(Arena*);
-template<> ::coordinator_proto::RepIfMerged* Arena::CreateMaybeMessage<::coordinator_proto::RepIfMerged>(Arena*);
 template<> ::coordinator_proto::RepIfSetParaSuccess* Arena::CreateMaybeMessage<::coordinator_proto::RepIfSetParaSuccess>(Arena*);
 template<> ::coordinator_proto::RepIfSuccess* Arena::CreateMaybeMessage<::coordinator_proto::RepIfSuccess>(Arena*);
 template<> ::coordinator_proto::RepStripeIds* Arena::CreateMaybeMessage<::coordinator_proto::RepStripeIds>(Arena*);
 template<> ::coordinator_proto::ReplyFromCoordinator* Arena::CreateMaybeMessage<::coordinator_proto::ReplyFromCoordinator>(Arena*);
 template<> ::coordinator_proto::ReplyProxyIPPort* Arena::CreateMaybeMessage<::coordinator_proto::ReplyProxyIPPort>(Arena*);
+template<> ::coordinator_proto::ReplyProxyIPsPorts* Arena::CreateMaybeMessage<::coordinator_proto::ReplyProxyIPsPorts>(Arena*);
 template<> ::coordinator_proto::RequestProxyIPPort* Arena::CreateMaybeMessage<::coordinator_proto::RequestProxyIPPort>(Arena*);
 template<> ::coordinator_proto::RequestToCoordinator* Arena::CreateMaybeMessage<::coordinator_proto::RequestToCoordinator>(Arena*);
 template<> ::coordinator_proto::StripeIdFromClient* Arena::CreateMaybeMessage<::coordinator_proto::StripeIdFromClient>(Arena*);
@@ -1324,6 +1320,194 @@ class CommitAbortKey final :
 };
 // -------------------------------------------------------------------
 
+class ReplyProxyIPsPorts final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:coordinator_proto.ReplyProxyIPsPorts) */ {
+ public:
+  inline ReplyProxyIPsPorts() : ReplyProxyIPsPorts(nullptr) {}
+  ~ReplyProxyIPsPorts() override;
+  explicit PROTOBUF_CONSTEXPR ReplyProxyIPsPorts(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  ReplyProxyIPsPorts(const ReplyProxyIPsPorts& from);
+  ReplyProxyIPsPorts(ReplyProxyIPsPorts&& from) noexcept
+    : ReplyProxyIPsPorts() {
+    *this = ::std::move(from);
+  }
+
+  inline ReplyProxyIPsPorts& operator=(const ReplyProxyIPsPorts& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ReplyProxyIPsPorts& operator=(ReplyProxyIPsPorts&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ReplyProxyIPsPorts& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ReplyProxyIPsPorts* internal_default_instance() {
+    return reinterpret_cast<const ReplyProxyIPsPorts*>(
+               &_ReplyProxyIPsPorts_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    7;
+
+  friend void swap(ReplyProxyIPsPorts& a, ReplyProxyIPsPorts& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ReplyProxyIPsPorts* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ReplyProxyIPsPorts* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  ReplyProxyIPsPorts* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<ReplyProxyIPsPorts>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const ReplyProxyIPsPorts& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const ReplyProxyIPsPorts& from) {
+    ReplyProxyIPsPorts::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(ReplyProxyIPsPorts* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "coordinator_proto.ReplyProxyIPsPorts";
+  }
+  protected:
+  explicit ReplyProxyIPsPorts(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kProxyipsFieldNumber = 1,
+    kProxyportsFieldNumber = 2,
+  };
+  // repeated string proxyips = 1;
+  int proxyips_size() const;
+  private:
+  int _internal_proxyips_size() const;
+  public:
+  void clear_proxyips();
+  const std::string& proxyips(int index) const;
+  std::string* mutable_proxyips(int index);
+  void set_proxyips(int index, const std::string& value);
+  void set_proxyips(int index, std::string&& value);
+  void set_proxyips(int index, const char* value);
+  void set_proxyips(int index, const char* value, size_t size);
+  std::string* add_proxyips();
+  void add_proxyips(const std::string& value);
+  void add_proxyips(std::string&& value);
+  void add_proxyips(const char* value);
+  void add_proxyips(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& proxyips() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_proxyips();
+  private:
+  const std::string& _internal_proxyips(int index) const;
+  std::string* _internal_add_proxyips();
+  public:
+
+  // repeated int32 proxyports = 2;
+  int proxyports_size() const;
+  private:
+  int _internal_proxyports_size() const;
+  public:
+  void clear_proxyports();
+  private:
+  int32_t _internal_proxyports(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      _internal_proxyports() const;
+  void _internal_add_proxyports(int32_t value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      _internal_mutable_proxyports();
+  public:
+  int32_t proxyports(int index) const;
+  void set_proxyports(int index, int32_t value);
+  void add_proxyports(int32_t value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      proxyports() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      mutable_proxyports();
+
+  // @@protoc_insertion_point(class_scope:coordinator_proto.ReplyProxyIPsPorts)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> proxyips_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > proxyports_;
+    mutable std::atomic<int> _proxyports_cached_byte_size_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_coordinator_2eproto;
+};
+// -------------------------------------------------------------------
+
 class AskIfSuccess final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:coordinator_proto.AskIfSuccess) */ {
  public:
@@ -1372,7 +1556,7 @@ class AskIfSuccess final :
                &_AskIfSuccess_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    7;
+    8;
 
   friend void swap(AskIfSuccess& a, AskIfSuccess& b) {
     a.Swap(&b);
@@ -1547,7 +1731,7 @@ class RepIfSuccess final :
                &_RepIfSuccess_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    8;
+    9;
 
   friend void swap(RepIfSuccess& a, RepIfSuccess& b) {
     a.Swap(&b);
@@ -1695,7 +1879,7 @@ class KeyAndClientIP final :
                &_KeyAndClientIP_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    9;
+    10;
 
   friend void swap(KeyAndClientIP& a, KeyAndClientIP& b) {
     a.Swap(&b);
@@ -1875,7 +2059,7 @@ class RepIfGetSuccess final :
                &_RepIfGetSuccess_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    10;
+    11;
 
   friend void swap(RepIfGetSuccess& a, RepIfGetSuccess& b) {
     a.Swap(&b);
@@ -2034,7 +2218,7 @@ class KeyFromClient final :
                &_KeyFromClient_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    11;
+    12;
 
   friend void swap(KeyFromClient& a, KeyFromClient& b) {
     a.Swap(&b);
@@ -2187,7 +2371,7 @@ class StripeIdFromClient final :
                &_StripeIdFromClient_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    12;
+    13;
 
   friend void swap(StripeIdFromClient& a, StripeIdFromClient& b) {
     a.Swap(&b);
@@ -2335,7 +2519,7 @@ class RepIfDeling final :
                &_RepIfDeling_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    13;
+    14;
 
   friend void swap(RepIfDeling& a, RepIfDeling& b) {
     a.Swap(&b);
@@ -2435,335 +2619,6 @@ class RepIfDeling final :
 };
 // -------------------------------------------------------------------
 
-class NumberOfStripesToMerge final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:coordinator_proto.NumberOfStripesToMerge) */ {
- public:
-  inline NumberOfStripesToMerge() : NumberOfStripesToMerge(nullptr) {}
-  ~NumberOfStripesToMerge() override;
-  explicit PROTOBUF_CONSTEXPR NumberOfStripesToMerge(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
-
-  NumberOfStripesToMerge(const NumberOfStripesToMerge& from);
-  NumberOfStripesToMerge(NumberOfStripesToMerge&& from) noexcept
-    : NumberOfStripesToMerge() {
-    *this = ::std::move(from);
-  }
-
-  inline NumberOfStripesToMerge& operator=(const NumberOfStripesToMerge& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline NumberOfStripesToMerge& operator=(NumberOfStripesToMerge&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
-  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
-        && GetOwningArena() != nullptr
-  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
-    ) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const NumberOfStripesToMerge& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const NumberOfStripesToMerge* internal_default_instance() {
-    return reinterpret_cast<const NumberOfStripesToMerge*>(
-               &_NumberOfStripesToMerge_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    14;
-
-  friend void swap(NumberOfStripesToMerge& a, NumberOfStripesToMerge& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(NumberOfStripesToMerge* other) {
-    if (other == this) return;
-  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
-   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
-  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
-      InternalSwap(other);
-    } else {
-      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(NumberOfStripesToMerge* other) {
-    if (other == this) return;
-    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  NumberOfStripesToMerge* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<NumberOfStripesToMerge>(arena);
-  }
-  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const NumberOfStripesToMerge& from);
-  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom( const NumberOfStripesToMerge& from) {
-    NumberOfStripesToMerge::MergeImpl(*this, from);
-  }
-  private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
-  public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
-  void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(NumberOfStripesToMerge* other);
-
-  private:
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "coordinator_proto.NumberOfStripesToMerge";
-  }
-  protected:
-  explicit NumberOfStripesToMerge(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
-  public:
-
-  static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kNumOfStripesFieldNumber = 1,
-  };
-  // int32 num_of_stripes = 1;
-  void clear_num_of_stripes();
-  int32_t num_of_stripes() const;
-  void set_num_of_stripes(int32_t value);
-  private:
-  int32_t _internal_num_of_stripes() const;
-  void _internal_set_num_of_stripes(int32_t value);
-  public:
-
-  // @@protoc_insertion_point(class_scope:coordinator_proto.NumberOfStripesToMerge)
- private:
-  class _Internal;
-
-  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
-  typedef void InternalArenaConstructable_;
-  typedef void DestructorSkippable_;
-  struct Impl_ {
-    int32_t num_of_stripes_;
-    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_coordinator_2eproto;
-};
-// -------------------------------------------------------------------
-
-class RepIfMerged final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:coordinator_proto.RepIfMerged) */ {
- public:
-  inline RepIfMerged() : RepIfMerged(nullptr) {}
-  ~RepIfMerged() override;
-  explicit PROTOBUF_CONSTEXPR RepIfMerged(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
-
-  RepIfMerged(const RepIfMerged& from);
-  RepIfMerged(RepIfMerged&& from) noexcept
-    : RepIfMerged() {
-    *this = ::std::move(from);
-  }
-
-  inline RepIfMerged& operator=(const RepIfMerged& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline RepIfMerged& operator=(RepIfMerged&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
-  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
-        && GetOwningArena() != nullptr
-  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
-    ) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const RepIfMerged& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const RepIfMerged* internal_default_instance() {
-    return reinterpret_cast<const RepIfMerged*>(
-               &_RepIfMerged_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    15;
-
-  friend void swap(RepIfMerged& a, RepIfMerged& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(RepIfMerged* other) {
-    if (other == this) return;
-  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
-   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
-  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
-      InternalSwap(other);
-    } else {
-      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(RepIfMerged* other) {
-    if (other == this) return;
-    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  RepIfMerged* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<RepIfMerged>(arena);
-  }
-  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const RepIfMerged& from);
-  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom( const RepIfMerged& from) {
-    RepIfMerged::MergeImpl(*this, from);
-  }
-  private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
-  public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
-  void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(RepIfMerged* other);
-
-  private:
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "coordinator_proto.RepIfMerged";
-  }
-  protected:
-  explicit RepIfMerged(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
-  public:
-
-  static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kLcFieldNumber = 2,
-    kGcFieldNumber = 3,
-    kDcFieldNumber = 4,
-    kIfmergedFieldNumber = 1,
-  };
-  // double lc = 2;
-  void clear_lc();
-  double lc() const;
-  void set_lc(double value);
-  private:
-  double _internal_lc() const;
-  void _internal_set_lc(double value);
-  public:
-
-  // double gc = 3;
-  void clear_gc();
-  double gc() const;
-  void set_gc(double value);
-  private:
-  double _internal_gc() const;
-  void _internal_set_gc(double value);
-  public:
-
-  // double dc = 4;
-  void clear_dc();
-  double dc() const;
-  void set_dc(double value);
-  private:
-  double _internal_dc() const;
-  void _internal_set_dc(double value);
-  public:
-
-  // bool ifmerged = 1;
-  void clear_ifmerged();
-  bool ifmerged() const;
-  void set_ifmerged(bool value);
-  private:
-  bool _internal_ifmerged() const;
-  void _internal_set_ifmerged(bool value);
-  public:
-
-  // @@protoc_insertion_point(class_scope:coordinator_proto.RepIfMerged)
- private:
-  class _Internal;
-
-  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
-  typedef void InternalArenaConstructable_;
-  typedef void DestructorSkippable_;
-  struct Impl_ {
-    double lc_;
-    double gc_;
-    double dc_;
-    bool ifmerged_;
-    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_coordinator_2eproto;
-};
-// -------------------------------------------------------------------
-
 class RepStripeIds final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:coordinator_proto.RepStripeIds) */ {
  public:
@@ -2812,7 +2667,7 @@ class RepStripeIds final :
                &_RepStripeIds_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    16;
+    15;
 
   friend void swap(RepStripeIds& a, RepStripeIds& b) {
     a.Swap(&b);
@@ -3511,6 +3366,132 @@ inline void CommitAbortKey::set_stripe_id(int32_t value) {
 
 // -------------------------------------------------------------------
 
+// ReplyProxyIPsPorts
+
+// repeated string proxyips = 1;
+inline int ReplyProxyIPsPorts::_internal_proxyips_size() const {
+  return _impl_.proxyips_.size();
+}
+inline int ReplyProxyIPsPorts::proxyips_size() const {
+  return _internal_proxyips_size();
+}
+inline void ReplyProxyIPsPorts::clear_proxyips() {
+  _impl_.proxyips_.Clear();
+}
+inline std::string* ReplyProxyIPsPorts::add_proxyips() {
+  std::string* _s = _internal_add_proxyips();
+  // @@protoc_insertion_point(field_add_mutable:coordinator_proto.ReplyProxyIPsPorts.proxyips)
+  return _s;
+}
+inline const std::string& ReplyProxyIPsPorts::_internal_proxyips(int index) const {
+  return _impl_.proxyips_.Get(index);
+}
+inline const std::string& ReplyProxyIPsPorts::proxyips(int index) const {
+  // @@protoc_insertion_point(field_get:coordinator_proto.ReplyProxyIPsPorts.proxyips)
+  return _internal_proxyips(index);
+}
+inline std::string* ReplyProxyIPsPorts::mutable_proxyips(int index) {
+  // @@protoc_insertion_point(field_mutable:coordinator_proto.ReplyProxyIPsPorts.proxyips)
+  return _impl_.proxyips_.Mutable(index);
+}
+inline void ReplyProxyIPsPorts::set_proxyips(int index, const std::string& value) {
+  _impl_.proxyips_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set:coordinator_proto.ReplyProxyIPsPorts.proxyips)
+}
+inline void ReplyProxyIPsPorts::set_proxyips(int index, std::string&& value) {
+  _impl_.proxyips_.Mutable(index)->assign(std::move(value));
+  // @@protoc_insertion_point(field_set:coordinator_proto.ReplyProxyIPsPorts.proxyips)
+}
+inline void ReplyProxyIPsPorts::set_proxyips(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.proxyips_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:coordinator_proto.ReplyProxyIPsPorts.proxyips)
+}
+inline void ReplyProxyIPsPorts::set_proxyips(int index, const char* value, size_t size) {
+  _impl_.proxyips_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:coordinator_proto.ReplyProxyIPsPorts.proxyips)
+}
+inline std::string* ReplyProxyIPsPorts::_internal_add_proxyips() {
+  return _impl_.proxyips_.Add();
+}
+inline void ReplyProxyIPsPorts::add_proxyips(const std::string& value) {
+  _impl_.proxyips_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:coordinator_proto.ReplyProxyIPsPorts.proxyips)
+}
+inline void ReplyProxyIPsPorts::add_proxyips(std::string&& value) {
+  _impl_.proxyips_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:coordinator_proto.ReplyProxyIPsPorts.proxyips)
+}
+inline void ReplyProxyIPsPorts::add_proxyips(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.proxyips_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:coordinator_proto.ReplyProxyIPsPorts.proxyips)
+}
+inline void ReplyProxyIPsPorts::add_proxyips(const char* value, size_t size) {
+  _impl_.proxyips_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:coordinator_proto.ReplyProxyIPsPorts.proxyips)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+ReplyProxyIPsPorts::proxyips() const {
+  // @@protoc_insertion_point(field_list:coordinator_proto.ReplyProxyIPsPorts.proxyips)
+  return _impl_.proxyips_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+ReplyProxyIPsPorts::mutable_proxyips() {
+  // @@protoc_insertion_point(field_mutable_list:coordinator_proto.ReplyProxyIPsPorts.proxyips)
+  return &_impl_.proxyips_;
+}
+
+// repeated int32 proxyports = 2;
+inline int ReplyProxyIPsPorts::_internal_proxyports_size() const {
+  return _impl_.proxyports_.size();
+}
+inline int ReplyProxyIPsPorts::proxyports_size() const {
+  return _internal_proxyports_size();
+}
+inline void ReplyProxyIPsPorts::clear_proxyports() {
+  _impl_.proxyports_.Clear();
+}
+inline int32_t ReplyProxyIPsPorts::_internal_proxyports(int index) const {
+  return _impl_.proxyports_.Get(index);
+}
+inline int32_t ReplyProxyIPsPorts::proxyports(int index) const {
+  // @@protoc_insertion_point(field_get:coordinator_proto.ReplyProxyIPsPorts.proxyports)
+  return _internal_proxyports(index);
+}
+inline void ReplyProxyIPsPorts::set_proxyports(int index, int32_t value) {
+  _impl_.proxyports_.Set(index, value);
+  // @@protoc_insertion_point(field_set:coordinator_proto.ReplyProxyIPsPorts.proxyports)
+}
+inline void ReplyProxyIPsPorts::_internal_add_proxyports(int32_t value) {
+  _impl_.proxyports_.Add(value);
+}
+inline void ReplyProxyIPsPorts::add_proxyports(int32_t value) {
+  _internal_add_proxyports(value);
+  // @@protoc_insertion_point(field_add:coordinator_proto.ReplyProxyIPsPorts.proxyports)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+ReplyProxyIPsPorts::_internal_proxyports() const {
+  return _impl_.proxyports_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+ReplyProxyIPsPorts::proxyports() const {
+  // @@protoc_insertion_point(field_list:coordinator_proto.ReplyProxyIPsPorts.proxyports)
+  return _internal_proxyports();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+ReplyProxyIPsPorts::_internal_mutable_proxyports() {
+  return &_impl_.proxyports_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+ReplyProxyIPsPorts::mutable_proxyports() {
+  // @@protoc_insertion_point(field_mutable_list:coordinator_proto.ReplyProxyIPsPorts.proxyports)
+  return _internal_mutable_proxyports();
+}
+
+// -------------------------------------------------------------------
+
 // AskIfSuccess
 
 // string key = 1;
@@ -3899,114 +3880,6 @@ inline void RepIfDeling::set_ifdeling(bool value) {
 
 // -------------------------------------------------------------------
 
-// NumberOfStripesToMerge
-
-// int32 num_of_stripes = 1;
-inline void NumberOfStripesToMerge::clear_num_of_stripes() {
-  _impl_.num_of_stripes_ = 0;
-}
-inline int32_t NumberOfStripesToMerge::_internal_num_of_stripes() const {
-  return _impl_.num_of_stripes_;
-}
-inline int32_t NumberOfStripesToMerge::num_of_stripes() const {
-  // @@protoc_insertion_point(field_get:coordinator_proto.NumberOfStripesToMerge.num_of_stripes)
-  return _internal_num_of_stripes();
-}
-inline void NumberOfStripesToMerge::_internal_set_num_of_stripes(int32_t value) {
-  
-  _impl_.num_of_stripes_ = value;
-}
-inline void NumberOfStripesToMerge::set_num_of_stripes(int32_t value) {
-  _internal_set_num_of_stripes(value);
-  // @@protoc_insertion_point(field_set:coordinator_proto.NumberOfStripesToMerge.num_of_stripes)
-}
-
-// -------------------------------------------------------------------
-
-// RepIfMerged
-
-// bool ifmerged = 1;
-inline void RepIfMerged::clear_ifmerged() {
-  _impl_.ifmerged_ = false;
-}
-inline bool RepIfMerged::_internal_ifmerged() const {
-  return _impl_.ifmerged_;
-}
-inline bool RepIfMerged::ifmerged() const {
-  // @@protoc_insertion_point(field_get:coordinator_proto.RepIfMerged.ifmerged)
-  return _internal_ifmerged();
-}
-inline void RepIfMerged::_internal_set_ifmerged(bool value) {
-  
-  _impl_.ifmerged_ = value;
-}
-inline void RepIfMerged::set_ifmerged(bool value) {
-  _internal_set_ifmerged(value);
-  // @@protoc_insertion_point(field_set:coordinator_proto.RepIfMerged.ifmerged)
-}
-
-// double lc = 2;
-inline void RepIfMerged::clear_lc() {
-  _impl_.lc_ = 0;
-}
-inline double RepIfMerged::_internal_lc() const {
-  return _impl_.lc_;
-}
-inline double RepIfMerged::lc() const {
-  // @@protoc_insertion_point(field_get:coordinator_proto.RepIfMerged.lc)
-  return _internal_lc();
-}
-inline void RepIfMerged::_internal_set_lc(double value) {
-  
-  _impl_.lc_ = value;
-}
-inline void RepIfMerged::set_lc(double value) {
-  _internal_set_lc(value);
-  // @@protoc_insertion_point(field_set:coordinator_proto.RepIfMerged.lc)
-}
-
-// double gc = 3;
-inline void RepIfMerged::clear_gc() {
-  _impl_.gc_ = 0;
-}
-inline double RepIfMerged::_internal_gc() const {
-  return _impl_.gc_;
-}
-inline double RepIfMerged::gc() const {
-  // @@protoc_insertion_point(field_get:coordinator_proto.RepIfMerged.gc)
-  return _internal_gc();
-}
-inline void RepIfMerged::_internal_set_gc(double value) {
-  
-  _impl_.gc_ = value;
-}
-inline void RepIfMerged::set_gc(double value) {
-  _internal_set_gc(value);
-  // @@protoc_insertion_point(field_set:coordinator_proto.RepIfMerged.gc)
-}
-
-// double dc = 4;
-inline void RepIfMerged::clear_dc() {
-  _impl_.dc_ = 0;
-}
-inline double RepIfMerged::_internal_dc() const {
-  return _impl_.dc_;
-}
-inline double RepIfMerged::dc() const {
-  // @@protoc_insertion_point(field_get:coordinator_proto.RepIfMerged.dc)
-  return _internal_dc();
-}
-inline void RepIfMerged::_internal_set_dc(double value) {
-  
-  _impl_.dc_ = value;
-}
-inline void RepIfMerged::set_dc(double value) {
-  _internal_set_dc(value);
-  // @@protoc_insertion_point(field_set:coordinator_proto.RepIfMerged.dc)
-}
-
-// -------------------------------------------------------------------
-
 // RepStripeIds
 
 // repeated int32 stripe_ids = 1;
@@ -4059,8 +3932,6 @@ RepStripeIds::mutable_stripe_ids() {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
-// -------------------------------------------------------------------
-
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

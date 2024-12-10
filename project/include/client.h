@@ -10,6 +10,7 @@
 #include "meta_definition.h"
 #include <grpcpp/grpcpp.h>
 #include <asio.hpp>
+#include "config.h"
 namespace ECProject
 {
   class Client
@@ -37,7 +38,7 @@ namespace ECProject
     }
 
     std::string sayHelloToCoordinatorByGrpc(std::string hello);
-    bool append(std::value);
+    bool append(std::string value);
     bool set(std::string key, std::string value);
     bool SetParameterByGrpc(ECSchema input_ecschema);
     bool get(std::string key, std::string &value);

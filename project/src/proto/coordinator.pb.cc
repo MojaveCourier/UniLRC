@@ -125,6 +125,21 @@ struct CommitAbortKeyDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 CommitAbortKeyDefaultTypeInternal _CommitAbortKey_default_instance_;
+PROTOBUF_CONSTEXPR ReplyProxyIPsPorts::ReplyProxyIPsPorts(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.proxyips_)*/{}
+  , /*decltype(_impl_.proxyports_)*/{}
+  , /*decltype(_impl_._proxyports_cached_byte_size_)*/{0}
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct ReplyProxyIPsPortsDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR ReplyProxyIPsPortsDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~ReplyProxyIPsPortsDefaultTypeInternal() {}
+  union {
+    ReplyProxyIPsPorts _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ReplyProxyIPsPortsDefaultTypeInternal _ReplyProxyIPsPorts_default_instance_;
 PROTOBUF_CONSTEXPR AskIfSuccess::AskIfSuccess(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.key_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
@@ -221,35 +236,6 @@ struct RepIfDelingDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 RepIfDelingDefaultTypeInternal _RepIfDeling_default_instance_;
-PROTOBUF_CONSTEXPR NumberOfStripesToMerge::NumberOfStripesToMerge(
-    ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.num_of_stripes_)*/0
-  , /*decltype(_impl_._cached_size_)*/{}} {}
-struct NumberOfStripesToMergeDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR NumberOfStripesToMergeDefaultTypeInternal()
-      : _instance(::_pbi::ConstantInitialized{}) {}
-  ~NumberOfStripesToMergeDefaultTypeInternal() {}
-  union {
-    NumberOfStripesToMerge _instance;
-  };
-};
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 NumberOfStripesToMergeDefaultTypeInternal _NumberOfStripesToMerge_default_instance_;
-PROTOBUF_CONSTEXPR RepIfMerged::RepIfMerged(
-    ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.lc_)*/0
-  , /*decltype(_impl_.gc_)*/0
-  , /*decltype(_impl_.dc_)*/0
-  , /*decltype(_impl_.ifmerged_)*/false
-  , /*decltype(_impl_._cached_size_)*/{}} {}
-struct RepIfMergedDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR RepIfMergedDefaultTypeInternal()
-      : _instance(::_pbi::ConstantInitialized{}) {}
-  ~RepIfMergedDefaultTypeInternal() {}
-  union {
-    RepIfMerged _instance;
-  };
-};
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 RepIfMergedDefaultTypeInternal _RepIfMerged_default_instance_;
 PROTOBUF_CONSTEXPR RepStripeIds::RepStripeIds(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.stripe_ids_)*/{}
@@ -265,7 +251,7 @@ struct RepStripeIdsDefaultTypeInternal {
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 RepStripeIdsDefaultTypeInternal _RepStripeIds_default_instance_;
 }  // namespace coordinator_proto
-static ::_pb::Metadata file_level_metadata_coordinator_2eproto[17];
+static ::_pb::Metadata file_level_metadata_coordinator_2eproto[16];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_coordinator_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_coordinator_2eproto = nullptr;
 
@@ -333,6 +319,14 @@ const uint32_t TableStruct_coordinator_2eproto::offsets[] PROTOBUF_SECTION_VARIA
   PROTOBUF_FIELD_OFFSET(::coordinator_proto::CommitAbortKey, _impl_.opp_),
   PROTOBUF_FIELD_OFFSET(::coordinator_proto::CommitAbortKey, _impl_.stripe_id_),
   ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::coordinator_proto::ReplyProxyIPsPorts, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::coordinator_proto::ReplyProxyIPsPorts, _impl_.proxyips_),
+  PROTOBUF_FIELD_OFFSET(::coordinator_proto::ReplyProxyIPsPorts, _impl_.proxyports_),
+  ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::coordinator_proto::AskIfSuccess, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
@@ -387,23 +381,6 @@ const uint32_t TableStruct_coordinator_2eproto::offsets[] PROTOBUF_SECTION_VARIA
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::coordinator_proto::RepIfDeling, _impl_.ifdeling_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::coordinator_proto::NumberOfStripesToMerge, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::coordinator_proto::NumberOfStripesToMerge, _impl_.num_of_stripes_),
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::coordinator_proto::RepIfMerged, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::coordinator_proto::RepIfMerged, _impl_.ifmerged_),
-  PROTOBUF_FIELD_OFFSET(::coordinator_proto::RepIfMerged, _impl_.lc_),
-  PROTOBUF_FIELD_OFFSET(::coordinator_proto::RepIfMerged, _impl_.gc_),
-  PROTOBUF_FIELD_OFFSET(::coordinator_proto::RepIfMerged, _impl_.dc_),
-  ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::coordinator_proto::RepStripeIds, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
@@ -419,16 +396,15 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 36, -1, -1, sizeof(::coordinator_proto::RequestProxyIPPort)},
   { 44, -1, -1, sizeof(::coordinator_proto::ReplyProxyIPPort)},
   { 52, -1, -1, sizeof(::coordinator_proto::CommitAbortKey)},
-  { 62, -1, -1, sizeof(::coordinator_proto::AskIfSuccess)},
-  { 71, -1, -1, sizeof(::coordinator_proto::RepIfSuccess)},
-  { 78, -1, -1, sizeof(::coordinator_proto::KeyAndClientIP)},
-  { 87, -1, -1, sizeof(::coordinator_proto::RepIfGetSuccess)},
-  { 95, -1, -1, sizeof(::coordinator_proto::KeyFromClient)},
-  { 102, -1, -1, sizeof(::coordinator_proto::StripeIdFromClient)},
-  { 109, -1, -1, sizeof(::coordinator_proto::RepIfDeling)},
-  { 116, -1, -1, sizeof(::coordinator_proto::NumberOfStripesToMerge)},
-  { 123, -1, -1, sizeof(::coordinator_proto::RepIfMerged)},
-  { 133, -1, -1, sizeof(::coordinator_proto::RepStripeIds)},
+  { 62, -1, -1, sizeof(::coordinator_proto::ReplyProxyIPsPorts)},
+  { 70, -1, -1, sizeof(::coordinator_proto::AskIfSuccess)},
+  { 79, -1, -1, sizeof(::coordinator_proto::RepIfSuccess)},
+  { 86, -1, -1, sizeof(::coordinator_proto::KeyAndClientIP)},
+  { 95, -1, -1, sizeof(::coordinator_proto::RepIfGetSuccess)},
+  { 103, -1, -1, sizeof(::coordinator_proto::KeyFromClient)},
+  { 110, -1, -1, sizeof(::coordinator_proto::StripeIdFromClient)},
+  { 117, -1, -1, sizeof(::coordinator_proto::RepIfDeling)},
+  { 124, -1, -1, sizeof(::coordinator_proto::RepStripeIds)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -439,6 +415,7 @@ static const ::_pb::Message* const file_default_instances[] = {
   &::coordinator_proto::_RequestProxyIPPort_default_instance_._instance,
   &::coordinator_proto::_ReplyProxyIPPort_default_instance_._instance,
   &::coordinator_proto::_CommitAbortKey_default_instance_._instance,
+  &::coordinator_proto::_ReplyProxyIPsPorts_default_instance_._instance,
   &::coordinator_proto::_AskIfSuccess_default_instance_._instance,
   &::coordinator_proto::_RepIfSuccess_default_instance_._instance,
   &::coordinator_proto::_KeyAndClientIP_default_instance_._instance,
@@ -446,8 +423,6 @@ static const ::_pb::Message* const file_default_instances[] = {
   &::coordinator_proto::_KeyFromClient_default_instance_._instance,
   &::coordinator_proto::_StripeIdFromClient_default_instance_._instance,
   &::coordinator_proto::_RepIfDeling_default_instance_._instance,
-  &::coordinator_proto::_NumberOfStripesToMerge_default_instance_._instance,
-  &::coordinator_proto::_RepIfMerged_default_instance_._instance,
   &::coordinator_proto::_RepStripeIds_default_instance_._instance,
 };
 
@@ -467,49 +442,50 @@ const char descriptor_table_protodef_coordinator_2eproto[] PROTOBUF_SECTION_VARI
   "(\005\"6\n\020ReplyProxyIPPort\022\017\n\007proxyip\030\001 \001(\t\022"
   "\021\n\tproxyport\030\002 \001(\005\"W\n\016CommitAbortKey\022\013\n\003"
   "key\030\001 \001(\t\022\030\n\020ifcommitmetadata\030\002 \001(\010\022\013\n\003o"
-  "pp\030\003 \001(\005\022\021\n\tstripe_id\030\004 \001(\005\";\n\014AskIfSucc"
-  "ess\022\013\n\003key\030\001 \001(\t\022\013\n\003opp\030\002 \001(\005\022\021\n\tstripe_"
-  "id\030\003 \001(\005\" \n\014RepIfSuccess\022\020\n\010ifcommit\030\001 \001"
-  "(\010\"C\n\016KeyAndClientIP\022\013\n\003key\030\001 \001(\t\022\020\n\010cli"
-  "entip\030\002 \001(\t\022\022\n\nclientport\030\003 \001(\005\"\?\n\017RepIf"
-  "GetSuccess\022\024\n\014ifgetsuccess\030\001 \001(\010\022\026\n\016valu"
-  "esizebytes\030\002 \001(\005\"\034\n\rKeyFromClient\022\013\n\003key"
-  "\030\001 \001(\t\"\'\n\022StripeIdFromClient\022\021\n\tstripe_i"
-  "d\030\001 \001(\005\"\037\n\013RepIfDeling\022\020\n\010ifdeling\030\001 \001(\010"
-  "\"0\n\026NumberOfStripesToMerge\022\026\n\016num_of_str"
-  "ipes\030\001 \001(\005\"C\n\013RepIfMerged\022\020\n\010ifmerged\030\001 "
-  "\001(\010\022\n\n\002lc\030\002 \001(\001\022\n\n\002gc\030\003 \001(\001\022\n\n\002dc\030\004 \001(\001\""
-  "\"\n\014RepStripeIds\022\022\n\nstripe_ids\030\001 \003(\0052\264\007\n\022"
-  "coordinatorService\022k\n\025sayHelloToCoordina"
-  "tor\022\'.coordinator_proto.RequestToCoordin"
-  "ator\032\'.coordinator_proto.ReplyFromCoordi"
-  "nator\"\000\022`\n\ncheckalive\022\'.coordinator_prot"
-  "o.RequestToCoordinator\032\'.coordinator_pro"
-  "to.ReplyFromCoordinator\"\000\022V\n\014setParamete"
-  "r\022\034.coordinator_proto.Parameter\032&.coordi"
-  "nator_proto.RepIfSetParaSuccess\"\000\022d\n\024upl"
-  "oadOriginKeyValue\022%.coordinator_proto.Re"
-  "questProxyIPPort\032#.coordinator_proto.Rep"
-  "lyProxyIPPort\"\000\022a\n\021reportCommitAbort\022!.c"
-  "oordinator_proto.CommitAbortKey\032\'.coordi"
-  "nator_proto.ReplyFromCoordinator\"\000\022V\n\020ch"
-  "eckCommitAbort\022\037.coordinator_proto.AskIf"
-  "Success\032\037.coordinator_proto.RepIfSuccess"
-  "\"\000\022S\n\010getValue\022!.coordinator_proto.KeyAn"
-  "dClientIP\032\".coordinator_proto.RepIfGetSu"
-  "ccess\"\000\022N\n\010delByKey\022 .coordinator_proto."
-  "KeyFromClient\032\036.coordinator_proto.RepIfD"
-  "eling\"\000\022V\n\013delByStripe\022%.coordinator_pro"
-  "to.StripeIdFromClient\032\036.coordinator_prot"
-  "o.RepIfDeling\"\000\022Y\n\013listStripes\022\'.coordin"
-  "ator_proto.RequestToCoordinator\032\037.coordi"
-  "nator_proto.RepStripeIds\"\000b\006proto3"
+  "pp\030\003 \001(\005\022\021\n\tstripe_id\030\004 \001(\005\":\n\022ReplyProx"
+  "yIPsPorts\022\020\n\010proxyips\030\001 \003(\t\022\022\n\nproxyport"
+  "s\030\002 \003(\005\";\n\014AskIfSuccess\022\013\n\003key\030\001 \001(\t\022\013\n\003"
+  "opp\030\002 \001(\005\022\021\n\tstripe_id\030\003 \001(\005\" \n\014RepIfSuc"
+  "cess\022\020\n\010ifcommit\030\001 \001(\010\"C\n\016KeyAndClientIP"
+  "\022\013\n\003key\030\001 \001(\t\022\020\n\010clientip\030\002 \001(\t\022\022\n\nclien"
+  "tport\030\003 \001(\005\"\?\n\017RepIfGetSuccess\022\024\n\014ifgets"
+  "uccess\030\001 \001(\010\022\026\n\016valuesizebytes\030\002 \001(\005\"\034\n\r"
+  "KeyFromClient\022\013\n\003key\030\001 \001(\t\"\'\n\022StripeIdFr"
+  "omClient\022\021\n\tstripe_id\030\001 \001(\005\"\037\n\013RepIfDeli"
+  "ng\022\020\n\010ifdeling\030\001 \001(\010\"\"\n\014RepStripeIds\022\022\n\n"
+  "stripe_ids\030\001 \003(\0052\231\010\n\022coordinatorService\022"
+  "k\n\025sayHelloToCoordinator\022\'.coordinator_p"
+  "roto.RequestToCoordinator\032\'.coordinator_"
+  "proto.ReplyFromCoordinator\"\000\022`\n\ncheckali"
+  "ve\022\'.coordinator_proto.RequestToCoordina"
+  "tor\032\'.coordinator_proto.ReplyFromCoordin"
+  "ator\"\000\022V\n\014setParameter\022\034.coordinator_pro"
+  "to.Parameter\032&.coordinator_proto.RepIfSe"
+  "tParaSuccess\"\000\022d\n\024uploadOriginKeyValue\022%"
+  ".coordinator_proto.RequestProxyIPPort\032#."
+  "coordinator_proto.ReplyProxyIPPort\"\000\022a\n\021"
+  "reportCommitAbort\022!.coordinator_proto.Co"
+  "mmitAbortKey\032\'.coordinator_proto.ReplyFr"
+  "omCoordinator\"\000\022V\n\020checkCommitAbort\022\037.co"
+  "ordinator_proto.AskIfSuccess\032\037.coordinat"
+  "or_proto.RepIfSuccess\"\000\022c\n\021uploadAppendV"
+  "alue\022%.coordinator_proto.RequestProxyIPP"
+  "ort\032%.coordinator_proto.ReplyProxyIPsPor"
+  "ts\"\000\022S\n\010getValue\022!.coordinator_proto.Key"
+  "AndClientIP\032\".coordinator_proto.RepIfGet"
+  "Success\"\000\022N\n\010delByKey\022 .coordinator_prot"
+  "o.KeyFromClient\032\036.coordinator_proto.RepI"
+  "fDeling\"\000\022V\n\013delByStripe\022%.coordinator_p"
+  "roto.StripeIdFromClient\032\036.coordinator_pr"
+  "oto.RepIfDeling\"\000\022Y\n\013listStripes\022\'.coord"
+  "inator_proto.RequestToCoordinator\032\037.coor"
+  "dinator_proto.RepStripeIds\"\000b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_coordinator_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_coordinator_2eproto = {
-    false, false, 2074, descriptor_table_protodef_coordinator_2eproto,
+    false, false, 2116, descriptor_table_protodef_coordinator_2eproto,
     "coordinator.proto",
-    &descriptor_table_coordinator_2eproto_once, nullptr, 0, 17,
+    &descriptor_table_coordinator_2eproto_once, nullptr, 0, 16,
     schemas, file_default_instances, TableStruct_coordinator_2eproto::offsets,
     file_level_metadata_coordinator_2eproto, file_level_enum_descriptors_coordinator_2eproto,
     file_level_service_descriptors_coordinator_2eproto,
@@ -2234,6 +2210,238 @@ void CommitAbortKey::InternalSwap(CommitAbortKey* other) {
 
 // ===================================================================
 
+class ReplyProxyIPsPorts::_Internal {
+ public:
+};
+
+ReplyProxyIPsPorts::ReplyProxyIPsPorts(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:coordinator_proto.ReplyProxyIPsPorts)
+}
+ReplyProxyIPsPorts::ReplyProxyIPsPorts(const ReplyProxyIPsPorts& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  ReplyProxyIPsPorts* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.proxyips_){from._impl_.proxyips_}
+    , decltype(_impl_.proxyports_){from._impl_.proxyports_}
+    , /*decltype(_impl_._proxyports_cached_byte_size_)*/{0}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:coordinator_proto.ReplyProxyIPsPorts)
+}
+
+inline void ReplyProxyIPsPorts::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.proxyips_){arena}
+    , decltype(_impl_.proxyports_){arena}
+    , /*decltype(_impl_._proxyports_cached_byte_size_)*/{0}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+}
+
+ReplyProxyIPsPorts::~ReplyProxyIPsPorts() {
+  // @@protoc_insertion_point(destructor:coordinator_proto.ReplyProxyIPsPorts)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void ReplyProxyIPsPorts::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.proxyips_.~RepeatedPtrField();
+  _impl_.proxyports_.~RepeatedField();
+}
+
+void ReplyProxyIPsPorts::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void ReplyProxyIPsPorts::Clear() {
+// @@protoc_insertion_point(message_clear_start:coordinator_proto.ReplyProxyIPsPorts)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.proxyips_.Clear();
+  _impl_.proxyports_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* ReplyProxyIPsPorts::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // repeated string proxyips = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            auto str = _internal_add_proxyips();
+            ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+            CHK_(ptr);
+            CHK_(::_pbi::VerifyUTF8(str, "coordinator_proto.ReplyProxyIPsPorts.proxyips"));
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated int32 proxyports = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_proxyports(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<uint8_t>(tag) == 16) {
+          _internal_add_proxyports(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* ReplyProxyIPsPorts::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:coordinator_proto.ReplyProxyIPsPorts)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // repeated string proxyips = 1;
+  for (int i = 0, n = this->_internal_proxyips_size(); i < n; i++) {
+    const auto& s = this->_internal_proxyips(i);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      s.data(), static_cast<int>(s.length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "coordinator_proto.ReplyProxyIPsPorts.proxyips");
+    target = stream->WriteString(1, s, target);
+  }
+
+  // repeated int32 proxyports = 2;
+  {
+    int byte_size = _impl_._proxyports_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteInt32Packed(
+          2, _internal_proxyports(), byte_size, target);
+    }
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:coordinator_proto.ReplyProxyIPsPorts)
+  return target;
+}
+
+size_t ReplyProxyIPsPorts::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:coordinator_proto.ReplyProxyIPsPorts)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated string proxyips = 1;
+  total_size += 1 *
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(_impl_.proxyips_.size());
+  for (int i = 0, n = _impl_.proxyips_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      _impl_.proxyips_.Get(i));
+  }
+
+  // repeated int32 proxyports = 2;
+  {
+    size_t data_size = ::_pbi::WireFormatLite::
+      Int32Size(this->_impl_.proxyports_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::_pbi::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    }
+    int cached_size = ::_pbi::ToCachedSize(data_size);
+    _impl_._proxyports_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ReplyProxyIPsPorts::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    ReplyProxyIPsPorts::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ReplyProxyIPsPorts::GetClassData() const { return &_class_data_; }
+
+
+void ReplyProxyIPsPorts::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<ReplyProxyIPsPorts*>(&to_msg);
+  auto& from = static_cast<const ReplyProxyIPsPorts&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:coordinator_proto.ReplyProxyIPsPorts)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  _this->_impl_.proxyips_.MergeFrom(from._impl_.proxyips_);
+  _this->_impl_.proxyports_.MergeFrom(from._impl_.proxyports_);
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void ReplyProxyIPsPorts::CopyFrom(const ReplyProxyIPsPorts& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:coordinator_proto.ReplyProxyIPsPorts)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ReplyProxyIPsPorts::IsInitialized() const {
+  return true;
+}
+
+void ReplyProxyIPsPorts::InternalSwap(ReplyProxyIPsPorts* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  _impl_.proxyips_.InternalSwap(&other->_impl_.proxyips_);
+  _impl_.proxyports_.InternalSwap(&other->_impl_.proxyports_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata ReplyProxyIPsPorts::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_coordinator_2eproto_getter, &descriptor_table_coordinator_2eproto_once,
+      file_level_metadata_coordinator_2eproto[7]);
+}
+
+// ===================================================================
+
 class AskIfSuccess::_Internal {
  public:
 };
@@ -2492,7 +2700,7 @@ void AskIfSuccess::InternalSwap(AskIfSuccess* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata AskIfSuccess::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_coordinator_2eproto_getter, &descriptor_table_coordinator_2eproto_once,
-      file_level_metadata_coordinator_2eproto[7]);
+      file_level_metadata_coordinator_2eproto[8]);
 }
 
 // ===================================================================
@@ -2670,7 +2878,7 @@ void RepIfSuccess::InternalSwap(RepIfSuccess* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata RepIfSuccess::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_coordinator_2eproto_getter, &descriptor_table_coordinator_2eproto_once,
-      file_level_metadata_coordinator_2eproto[8]);
+      file_level_metadata_coordinator_2eproto[9]);
 }
 
 // ===================================================================
@@ -2950,7 +3158,7 @@ void KeyAndClientIP::InternalSwap(KeyAndClientIP* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata KeyAndClientIP::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_coordinator_2eproto_getter, &descriptor_table_coordinator_2eproto_once,
-      file_level_metadata_coordinator_2eproto[9]);
+      file_level_metadata_coordinator_2eproto[10]);
 }
 
 // ===================================================================
@@ -3161,7 +3369,7 @@ void RepIfGetSuccess::InternalSwap(RepIfGetSuccess* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata RepIfGetSuccess::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_coordinator_2eproto_getter, &descriptor_table_coordinator_2eproto_once,
-      file_level_metadata_coordinator_2eproto[10]);
+      file_level_metadata_coordinator_2eproto[11]);
 }
 
 // ===================================================================
@@ -3364,7 +3572,7 @@ void KeyFromClient::InternalSwap(KeyFromClient* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata KeyFromClient::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_coordinator_2eproto_getter, &descriptor_table_coordinator_2eproto_once,
-      file_level_metadata_coordinator_2eproto[11]);
+      file_level_metadata_coordinator_2eproto[12]);
 }
 
 // ===================================================================
@@ -3542,7 +3750,7 @@ void StripeIdFromClient::InternalSwap(StripeIdFromClient* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata StripeIdFromClient::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_coordinator_2eproto_getter, &descriptor_table_coordinator_2eproto_once,
-      file_level_metadata_coordinator_2eproto[12]);
+      file_level_metadata_coordinator_2eproto[13]);
 }
 
 // ===================================================================
@@ -3720,480 +3928,7 @@ void RepIfDeling::InternalSwap(RepIfDeling* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata RepIfDeling::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_coordinator_2eproto_getter, &descriptor_table_coordinator_2eproto_once,
-      file_level_metadata_coordinator_2eproto[13]);
-}
-
-// ===================================================================
-
-class NumberOfStripesToMerge::_Internal {
- public:
-};
-
-NumberOfStripesToMerge::NumberOfStripesToMerge(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                         bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
-  SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:coordinator_proto.NumberOfStripesToMerge)
-}
-NumberOfStripesToMerge::NumberOfStripesToMerge(const NumberOfStripesToMerge& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message() {
-  NumberOfStripesToMerge* const _this = this; (void)_this;
-  new (&_impl_) Impl_{
-      decltype(_impl_.num_of_stripes_){}
-    , /*decltype(_impl_._cached_size_)*/{}};
-
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  _this->_impl_.num_of_stripes_ = from._impl_.num_of_stripes_;
-  // @@protoc_insertion_point(copy_constructor:coordinator_proto.NumberOfStripesToMerge)
-}
-
-inline void NumberOfStripesToMerge::SharedCtor(
-    ::_pb::Arena* arena, bool is_message_owned) {
-  (void)arena;
-  (void)is_message_owned;
-  new (&_impl_) Impl_{
-      decltype(_impl_.num_of_stripes_){0}
-    , /*decltype(_impl_._cached_size_)*/{}
-  };
-}
-
-NumberOfStripesToMerge::~NumberOfStripesToMerge() {
-  // @@protoc_insertion_point(destructor:coordinator_proto.NumberOfStripesToMerge)
-  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
-  (void)arena;
-    return;
-  }
-  SharedDtor();
-}
-
-inline void NumberOfStripesToMerge::SharedDtor() {
-  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-}
-
-void NumberOfStripesToMerge::SetCachedSize(int size) const {
-  _impl_._cached_size_.Set(size);
-}
-
-void NumberOfStripesToMerge::Clear() {
-// @@protoc_insertion_point(message_clear_start:coordinator_proto.NumberOfStripesToMerge)
-  uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  _impl_.num_of_stripes_ = 0;
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-}
-
-const char* NumberOfStripesToMerge::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    uint32_t tag;
-    ptr = ::_pbi::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
-      // int32 num_of_stripes = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
-          _impl_.num_of_stripes_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
-          CHK_(ptr);
-        } else
-          goto handle_unusual;
-        continue;
-      default:
-        goto handle_unusual;
-    }  // switch
-  handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
-      CHK_(ptr);
-      ctx->SetLastTag(tag);
-      goto message_done;
-    }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
-    CHK_(ptr != nullptr);
-  }  // while
-message_done:
-  return ptr;
-failure:
-  ptr = nullptr;
-  goto message_done;
-#undef CHK_
-}
-
-uint8_t* NumberOfStripesToMerge::_InternalSerialize(
-    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:coordinator_proto.NumberOfStripesToMerge)
-  uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // int32 num_of_stripes = 1;
-  if (this->_internal_num_of_stripes() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_num_of_stripes(), target);
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:coordinator_proto.NumberOfStripesToMerge)
-  return target;
-}
-
-size_t NumberOfStripesToMerge::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:coordinator_proto.NumberOfStripesToMerge)
-  size_t total_size = 0;
-
-  uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  // int32 num_of_stripes = 1;
-  if (this->_internal_num_of_stripes() != 0) {
-    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_num_of_stripes());
-  }
-
-  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
-}
-
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData NumberOfStripesToMerge::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
-    NumberOfStripesToMerge::MergeImpl
-};
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*NumberOfStripesToMerge::GetClassData() const { return &_class_data_; }
-
-
-void NumberOfStripesToMerge::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
-  auto* const _this = static_cast<NumberOfStripesToMerge*>(&to_msg);
-  auto& from = static_cast<const NumberOfStripesToMerge&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:coordinator_proto.NumberOfStripesToMerge)
-  GOOGLE_DCHECK_NE(&from, _this);
-  uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  if (from._internal_num_of_stripes() != 0) {
-    _this->_internal_set_num_of_stripes(from._internal_num_of_stripes());
-  }
-  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-}
-
-void NumberOfStripesToMerge::CopyFrom(const NumberOfStripesToMerge& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:coordinator_proto.NumberOfStripesToMerge)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool NumberOfStripesToMerge::IsInitialized() const {
-  return true;
-}
-
-void NumberOfStripesToMerge::InternalSwap(NumberOfStripesToMerge* other) {
-  using std::swap;
-  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  swap(_impl_.num_of_stripes_, other->_impl_.num_of_stripes_);
-}
-
-::PROTOBUF_NAMESPACE_ID::Metadata NumberOfStripesToMerge::GetMetadata() const {
-  return ::_pbi::AssignDescriptors(
-      &descriptor_table_coordinator_2eproto_getter, &descriptor_table_coordinator_2eproto_once,
       file_level_metadata_coordinator_2eproto[14]);
-}
-
-// ===================================================================
-
-class RepIfMerged::_Internal {
- public:
-};
-
-RepIfMerged::RepIfMerged(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                         bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
-  SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:coordinator_proto.RepIfMerged)
-}
-RepIfMerged::RepIfMerged(const RepIfMerged& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message() {
-  RepIfMerged* const _this = this; (void)_this;
-  new (&_impl_) Impl_{
-      decltype(_impl_.lc_){}
-    , decltype(_impl_.gc_){}
-    , decltype(_impl_.dc_){}
-    , decltype(_impl_.ifmerged_){}
-    , /*decltype(_impl_._cached_size_)*/{}};
-
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  ::memcpy(&_impl_.lc_, &from._impl_.lc_,
-    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.ifmerged_) -
-    reinterpret_cast<char*>(&_impl_.lc_)) + sizeof(_impl_.ifmerged_));
-  // @@protoc_insertion_point(copy_constructor:coordinator_proto.RepIfMerged)
-}
-
-inline void RepIfMerged::SharedCtor(
-    ::_pb::Arena* arena, bool is_message_owned) {
-  (void)arena;
-  (void)is_message_owned;
-  new (&_impl_) Impl_{
-      decltype(_impl_.lc_){0}
-    , decltype(_impl_.gc_){0}
-    , decltype(_impl_.dc_){0}
-    , decltype(_impl_.ifmerged_){false}
-    , /*decltype(_impl_._cached_size_)*/{}
-  };
-}
-
-RepIfMerged::~RepIfMerged() {
-  // @@protoc_insertion_point(destructor:coordinator_proto.RepIfMerged)
-  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
-  (void)arena;
-    return;
-  }
-  SharedDtor();
-}
-
-inline void RepIfMerged::SharedDtor() {
-  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-}
-
-void RepIfMerged::SetCachedSize(int size) const {
-  _impl_._cached_size_.Set(size);
-}
-
-void RepIfMerged::Clear() {
-// @@protoc_insertion_point(message_clear_start:coordinator_proto.RepIfMerged)
-  uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  ::memset(&_impl_.lc_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&_impl_.ifmerged_) -
-      reinterpret_cast<char*>(&_impl_.lc_)) + sizeof(_impl_.ifmerged_));
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-}
-
-const char* RepIfMerged::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    uint32_t tag;
-    ptr = ::_pbi::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
-      // bool ifmerged = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
-          _impl_.ifmerged_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
-          CHK_(ptr);
-        } else
-          goto handle_unusual;
-        continue;
-      // double lc = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 17)) {
-          _impl_.lc_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr);
-          ptr += sizeof(double);
-        } else
-          goto handle_unusual;
-        continue;
-      // double gc = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 25)) {
-          _impl_.gc_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr);
-          ptr += sizeof(double);
-        } else
-          goto handle_unusual;
-        continue;
-      // double dc = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 33)) {
-          _impl_.dc_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr);
-          ptr += sizeof(double);
-        } else
-          goto handle_unusual;
-        continue;
-      default:
-        goto handle_unusual;
-    }  // switch
-  handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
-      CHK_(ptr);
-      ctx->SetLastTag(tag);
-      goto message_done;
-    }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
-    CHK_(ptr != nullptr);
-  }  // while
-message_done:
-  return ptr;
-failure:
-  ptr = nullptr;
-  goto message_done;
-#undef CHK_
-}
-
-uint8_t* RepIfMerged::_InternalSerialize(
-    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:coordinator_proto.RepIfMerged)
-  uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // bool ifmerged = 1;
-  if (this->_internal_ifmerged() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteBoolToArray(1, this->_internal_ifmerged(), target);
-  }
-
-  // double lc = 2;
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_lc = this->_internal_lc();
-  uint64_t raw_lc;
-  memcpy(&raw_lc, &tmp_lc, sizeof(tmp_lc));
-  if (raw_lc != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteDoubleToArray(2, this->_internal_lc(), target);
-  }
-
-  // double gc = 3;
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_gc = this->_internal_gc();
-  uint64_t raw_gc;
-  memcpy(&raw_gc, &tmp_gc, sizeof(tmp_gc));
-  if (raw_gc != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteDoubleToArray(3, this->_internal_gc(), target);
-  }
-
-  // double dc = 4;
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_dc = this->_internal_dc();
-  uint64_t raw_dc;
-  memcpy(&raw_dc, &tmp_dc, sizeof(tmp_dc));
-  if (raw_dc != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteDoubleToArray(4, this->_internal_dc(), target);
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:coordinator_proto.RepIfMerged)
-  return target;
-}
-
-size_t RepIfMerged::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:coordinator_proto.RepIfMerged)
-  size_t total_size = 0;
-
-  uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  // double lc = 2;
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_lc = this->_internal_lc();
-  uint64_t raw_lc;
-  memcpy(&raw_lc, &tmp_lc, sizeof(tmp_lc));
-  if (raw_lc != 0) {
-    total_size += 1 + 8;
-  }
-
-  // double gc = 3;
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_gc = this->_internal_gc();
-  uint64_t raw_gc;
-  memcpy(&raw_gc, &tmp_gc, sizeof(tmp_gc));
-  if (raw_gc != 0) {
-    total_size += 1 + 8;
-  }
-
-  // double dc = 4;
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_dc = this->_internal_dc();
-  uint64_t raw_dc;
-  memcpy(&raw_dc, &tmp_dc, sizeof(tmp_dc));
-  if (raw_dc != 0) {
-    total_size += 1 + 8;
-  }
-
-  // bool ifmerged = 1;
-  if (this->_internal_ifmerged() != 0) {
-    total_size += 1 + 1;
-  }
-
-  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
-}
-
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData RepIfMerged::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
-    RepIfMerged::MergeImpl
-};
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*RepIfMerged::GetClassData() const { return &_class_data_; }
-
-
-void RepIfMerged::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
-  auto* const _this = static_cast<RepIfMerged*>(&to_msg);
-  auto& from = static_cast<const RepIfMerged&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:coordinator_proto.RepIfMerged)
-  GOOGLE_DCHECK_NE(&from, _this);
-  uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_lc = from._internal_lc();
-  uint64_t raw_lc;
-  memcpy(&raw_lc, &tmp_lc, sizeof(tmp_lc));
-  if (raw_lc != 0) {
-    _this->_internal_set_lc(from._internal_lc());
-  }
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_gc = from._internal_gc();
-  uint64_t raw_gc;
-  memcpy(&raw_gc, &tmp_gc, sizeof(tmp_gc));
-  if (raw_gc != 0) {
-    _this->_internal_set_gc(from._internal_gc());
-  }
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_dc = from._internal_dc();
-  uint64_t raw_dc;
-  memcpy(&raw_dc, &tmp_dc, sizeof(tmp_dc));
-  if (raw_dc != 0) {
-    _this->_internal_set_dc(from._internal_dc());
-  }
-  if (from._internal_ifmerged() != 0) {
-    _this->_internal_set_ifmerged(from._internal_ifmerged());
-  }
-  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-}
-
-void RepIfMerged::CopyFrom(const RepIfMerged& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:coordinator_proto.RepIfMerged)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool RepIfMerged::IsInitialized() const {
-  return true;
-}
-
-void RepIfMerged::InternalSwap(RepIfMerged* other) {
-  using std::swap;
-  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(RepIfMerged, _impl_.ifmerged_)
-      + sizeof(RepIfMerged::_impl_.ifmerged_)
-      - PROTOBUF_FIELD_OFFSET(RepIfMerged, _impl_.lc_)>(
-          reinterpret_cast<char*>(&_impl_.lc_),
-          reinterpret_cast<char*>(&other->_impl_.lc_));
-}
-
-::PROTOBUF_NAMESPACE_ID::Metadata RepIfMerged::GetMetadata() const {
-  return ::_pbi::AssignDescriptors(
-      &descriptor_table_coordinator_2eproto_getter, &descriptor_table_coordinator_2eproto_once,
-      file_level_metadata_coordinator_2eproto[15]);
 }
 
 // ===================================================================
@@ -4386,7 +4121,7 @@ void RepStripeIds::InternalSwap(RepStripeIds* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata RepStripeIds::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_coordinator_2eproto_getter, &descriptor_table_coordinator_2eproto_once,
-      file_level_metadata_coordinator_2eproto[16]);
+      file_level_metadata_coordinator_2eproto[15]);
 }
 
 // @@protoc_insertion_point(namespace_scope)
@@ -4420,6 +4155,10 @@ template<> PROTOBUF_NOINLINE ::coordinator_proto::CommitAbortKey*
 Arena::CreateMaybeMessage< ::coordinator_proto::CommitAbortKey >(Arena* arena) {
   return Arena::CreateMessageInternal< ::coordinator_proto::CommitAbortKey >(arena);
 }
+template<> PROTOBUF_NOINLINE ::coordinator_proto::ReplyProxyIPsPorts*
+Arena::CreateMaybeMessage< ::coordinator_proto::ReplyProxyIPsPorts >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::coordinator_proto::ReplyProxyIPsPorts >(arena);
+}
 template<> PROTOBUF_NOINLINE ::coordinator_proto::AskIfSuccess*
 Arena::CreateMaybeMessage< ::coordinator_proto::AskIfSuccess >(Arena* arena) {
   return Arena::CreateMessageInternal< ::coordinator_proto::AskIfSuccess >(arena);
@@ -4447,14 +4186,6 @@ Arena::CreateMaybeMessage< ::coordinator_proto::StripeIdFromClient >(Arena* aren
 template<> PROTOBUF_NOINLINE ::coordinator_proto::RepIfDeling*
 Arena::CreateMaybeMessage< ::coordinator_proto::RepIfDeling >(Arena* arena) {
   return Arena::CreateMessageInternal< ::coordinator_proto::RepIfDeling >(arena);
-}
-template<> PROTOBUF_NOINLINE ::coordinator_proto::NumberOfStripesToMerge*
-Arena::CreateMaybeMessage< ::coordinator_proto::NumberOfStripesToMerge >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::coordinator_proto::NumberOfStripesToMerge >(arena);
-}
-template<> PROTOBUF_NOINLINE ::coordinator_proto::RepIfMerged*
-Arena::CreateMaybeMessage< ::coordinator_proto::RepIfMerged >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::coordinator_proto::RepIfMerged >(arena);
 }
 template<> PROTOBUF_NOINLINE ::coordinator_proto::RepStripeIds*
 Arena::CreateMaybeMessage< ::coordinator_proto::RepStripeIds >(Arena* arena) {

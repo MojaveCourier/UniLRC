@@ -4,6 +4,6 @@
     <BlockSize>1048576</BlockSize>
     <alpha>2</alpha>
     <z>2</z>
-    <DatanodeNumPerCluster>5</DatanodeNumPerCluster>
-    <ClusterNum>4</ClusterNum>
+    <!-- <DatanodeNumPerCluster>5</DatanodeNumPerCluster>
+    <ClusterNum>4</ClusterNum> -->
 </Configuration>

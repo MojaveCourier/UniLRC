@@ -9,6 +9,7 @@ namespace ECProject
   Config::Config(const std::string &configPath)
   {
     loadConfig(configPath);
+    printConfigs();
     validateConfig();
   }
 

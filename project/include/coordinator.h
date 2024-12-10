@@ -25,7 +25,7 @@ namespace ECProject
       m_cur_cluster_id = 0;
       m_cur_stripe_id = 0;
     }
-    ~CoordinatorImpl(){};
+    ~CoordinatorImpl() {};
     grpc::Status setParameter(
         grpc::ServerContext *context,
         const coordinator_proto::Parameter *parameter,
@@ -42,7 +42,7 @@ namespace ECProject
     grpc::Status uploadOriginKeyValue(
         grpc::ServerContext *context,
         const coordinator_proto::RequestProxyIPPort *keyValueSize,
-        coordinator_proto::ReplyProxyIPsPorts *proxyIPPort) override;
+        coordinator_proto::ReplyProxyIPPort *proxyIPPort) override;
     grpc::Status reportCommitAbort(
         grpc::ServerContext *context,
         const coordinator_proto::CommitAbortKey *commit_abortkey,
@@ -55,7 +55,7 @@ namespace ECProject
     grpc::Status uploadAppendValue(
         grpc::ServerContext *context,
         const coordinator_proto::RequestProxyIPPort *keyValueSize,
-        coordinator_proto::ReplyProxyIPPort *proxyIPPort) override;
+        coordinator_proto::ReplyProxyIPsPorts *proxyIPPort) override;
     // get
     grpc::Status getValue(
         grpc::ServerContext *context,

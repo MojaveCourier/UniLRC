@@ -148,12 +148,12 @@ namespace ECProject
     }
     else
     {
-      std::vector<std::string> proxy_ips = reply.proxyips();
-      std::vector<int> proxy_ports = reply.proxyports();
-      for (int i = 0; i < proxy_ips.size(); i++)
-      {
-        std::cout << "[APPEND] " << m_clientID << " append to proxy_address:" << proxy_ips[i] << ":" << proxy_ports[i] << std::endl;
-      }
+      // std::vector<std::string> proxy_ips = reply.proxyips();
+      // std::vector<int> proxy_ports = reply.proxyports();
+      // for (int i = 0; i < proxy_ips.size(); i++)
+      // {
+      //   std::cout << "[APPEND] " << m_clientID << " append to proxy_address:" << proxy_ips[i] << ":" << proxy_ports[i] << std::endl;
+      // }
     }
     return false;
   }
