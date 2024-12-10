@@ -10,6 +10,8 @@
 #include <mutex>
 #include <thread>
 #include <condition_variable>
+#include <config.h>
+
 // #define IF_DEBUG true
 #define IF_DEBUG false
 namespace ECProject
@@ -22,7 +24,6 @@ namespace ECProject
     {
       m_cur_cluster_id = 0;
       m_cur_stripe_id = 0;
-      m_merge_degree = 0;
     }
     ~CoordinatorImpl(){};
     grpc::Status setParameter(
@@ -41,7 +42,7 @@ namespace ECProject
     grpc::Status uploadOriginKeyValue(
         grpc::ServerContext *context,
         const coordinator_proto::RequestProxyIPPort *keyValueSize,
-        coordinator_proto::ReplyProxyIPPort *proxyIPPort) override;
+        coordinator_proto::ReplyProxyIPsPorts *proxyIPPort) override;
     grpc::Status reportCommitAbort(
         grpc::ServerContext *context,
         const coordinator_proto::CommitAbortKey *commit_abortkey,
@@ -50,6 +51,11 @@ namespace ECProject
         grpc::ServerContext *context,
         const coordinator_proto::AskIfSuccess *key_opp,
         coordinator_proto::RepIfSuccess *reply) override;
+    // append
+    grpc::Status uploadAppendValue(
+        grpc::ServerContext *context,
+        const coordinator_proto::RequestProxyIPPort *keyValueSize,
+        coordinator_proto::ReplyProxyIPPort *proxyIPPort) override;
     // get
     grpc::Status getValue(
         grpc::ServerContext *context,
@@ -81,6 +87,8 @@ namespace ECProject
     int count_block_num(char type, int cluster_id, int stripe_id, int group_id);
     bool find_block(char type, int cluster_id, int stripe_id);
 
+    ECProject::Config *m_sys_config;
+
   private:
     std::mutex m_mutex;
     std::condition_variable cv;
@@ -99,8 +107,9 @@ namespace ECProject
     // merge groups, for DIS and OPT, the stripes from the same group object to the selected placement scheme
     std::vector<std::vector<int>> m_merge_groups;
     std::vector<int> m_free_clusters;
-    int m_merge_degree = 0;
     int m_agg_start_cid = 0;
+
+    std::map<std::string, StripeOffset> m_cur_offset_table;
   };
 
   class Coordinator
@@ -114,6 +123,16 @@ namespace ECProject
     {
       m_coordinatorImpl.init_clusterinfo(m_clusterinfo_path);
       m_coordinatorImpl.init_proxyinfo();
+    };
+    Coordinator(
+        std::string m_coordinator_ip_port,
+        std::string m_clusterinfo_path, std::string sys_config_path)
+        : m_coordinator_ip_port{m_coordinator_ip_port},
+          m_clusterinfo_path{m_clusterinfo_path}
+    {
+      m_coordinatorImpl.init_clusterinfo(m_clusterinfo_path);
+      m_coordinatorImpl.init_proxyinfo();
+      m_coordinatorImpl.m_sys_config = ECProject::Config::getInstance(sys_config_path);
     };
     // Coordinator
     void Run()

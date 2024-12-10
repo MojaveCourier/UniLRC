@@ -128,6 +128,36 @@ namespace ECProject
     return false;
   }
   /*
+    Function: append
+    1. send the append request including the information of the value to the coordinator
+    2. get the address of proxy
+    3. send the value to the proxy by socket
+  */
+  bool Client::append(std::string value)
+  {
+    grpc::ClientContext get_proxy_ip_port;
+    coordinator_proto::RequestProxyIPPort request;
+    coordinator_proto::ReplyProxyIPsPorts reply;
+    request.set_key(m_clientID);
+    request.set_valuesizebytes(value.size());
+    grpc::Status status = m_coordinator_ptr->uploadAppendValue(&get_proxy_ip_port, request, &reply);
+    if (!status.ok())
+    {
+      std::cout << "[APPEND] upload data failed!" << std::endl;
+      return false;
+    }
+    else
+    {
+      std::vector<std::string> proxy_ips = reply.proxyips();
+      std::vector<int> proxy_ports = reply.proxyports();
+      for (int i = 0; i < proxy_ips.size(); i++)
+      {
+        std::cout << "[APPEND] " << m_clientID << " append to proxy_address:" << proxy_ips[i] << ":" << proxy_ports[i] << std::endl;
+      }
+    }
+    return false;
+  }
+  /*
     Function: get
     1. send the get request including the information of key and clientipport to the coordinator
     2. accept the value transferred from the proxy

@@ -83,6 +83,14 @@ namespace ECProject
     int map2stripe;
   } ObjectInfo;
 
+  typedef struct StripeOffset
+  {
+    int stripe_id;
+    // range: [0, k*blockSize)
+    // stripe organization
+    uint64_t offset;
+  } StripeOffset;
+
   typedef struct ECSchema
   {
     ECSchema() = default;

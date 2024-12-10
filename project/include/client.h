@@ -22,8 +22,22 @@ namespace ECProject
     {
       auto channel = grpc::CreateChannel(m_coordinatorIpPort, grpc::InsecureChannelCredentials());
       m_coordinator_ptr = coordinator_proto::coordinatorService::NewStub(channel);
+      m_clientID = ClientIP + ":" + std::to_string(ClientPort);
     }
+
+    Client(std::string ClientIP, int ClientPort, std::string CoordinatorIpPort, std::string config_path) : m_coordinatorIpPort(CoordinatorIpPort),
+                                                                                                           m_clientIPForGet(ClientIP),
+                                                                                                           m_clientPortForGet(ClientPort),
+                                                                                                           acceptor(io_context, asio::ip::tcp::endpoint(asio::ip::address::from_string(ClientIP.c_str()), m_clientPortForGet))
+    {
+      auto channel = grpc::CreateChannel(m_coordinatorIpPort, grpc::InsecureChannelCredentials());
+      m_coordinator_ptr = coordinator_proto::coordinatorService::NewStub(channel);
+      m_clientID = ClientIP + ":" + std::to_string(ClientPort);
+      m_sys_config = ECProject::Config::getInstance(config_path);
+    }
+
     std::string sayHelloToCoordinatorByGrpc(std::string hello);
+    bool append(std::value);
     bool set(std::string key, std::string value);
     bool SetParameterByGrpc(ECSchema input_ecschema);
     bool get(std::string key, std::string &value);
@@ -36,8 +50,12 @@ namespace ECProject
     std::string m_coordinatorIpPort;
     std::string m_clientIPForGet;
     int m_clientPortForGet;
+    std::string m_clientID;
     asio::io_context io_context;
     asio::ip::tcp::acceptor acceptor;
+
+    uint64_t m_append_offset = 0;
+    ECProject::Config *m_sys_config;
   };
 
 } // namespace ECProject

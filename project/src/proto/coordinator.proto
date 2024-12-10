@@ -29,6 +29,8 @@ service coordinatorService {
   rpc uploadOriginKeyValue (RequestProxyIPPort) returns (ReplyProxyIPPort) {};
   rpc reportCommitAbort (CommitAbortKey) returns (ReplyFromCoordinator) {}; //from proxy
   rpc checkCommitAbort (AskIfSuccess) returns (RepIfSuccess) {};  //from client
+  // append
+  rpc uploadAppendValue (RequestProxyIPPort) returns (ReplyProxyIPsPorts) {};
   // get
   rpc getValue(KeyAndClientIP) returns (RepIfGetSuccess) {};
   // delete
@@ -83,6 +85,12 @@ message CommitAbortKey {
   int32 stripe_id = 4;
 }
 
+// append
+message ReplyProxyIPsPorts {
+  repeated string proxyips = 1;
+  repeated int32 proxyports = 2;
+}
+
 // set, del, merge
 message AskIfSuccess {
   string key = 1;
@@ -116,18 +124,6 @@ message StripeIdFromClient {
 
 message RepIfDeling {
   bool ifdeling = 1;
-}
-
-// merge
-message NumberOfStripesToMerge {
-  int32 num_of_stripes = 1;
-}
-
-message RepIfMerged {
-  bool ifmerged = 1;
-  double lc = 2;
-  double gc = 3;
-  double dc = 4;
 }
 
 message RepStripeIds {

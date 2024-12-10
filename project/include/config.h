@@ -5,16 +5,17 @@
 
 namespace ECProject
 {
-class Config
+  class Config
   {
   private:
     static Config *instance;
-    Config();
+    Config(const std::string &configPath);
 
   public:
-    static Config *getInstance();
-
+    static Config *getInstance(const std::string &configPath);
+    void loadConfig(const std::string &configPath);
     void printConfigs() const;
+    void validateConfig() const;
 
     uint32_t UnitSize = 8 * 1024;
     uint32_t BlockSize = 1024 * 1024;
@@ -25,10 +26,8 @@ class Config
     uint32_t r = alpha * z;
     uint32_t DataBlockNumPerGroup = k / z;
     uint32_t GlobalParityBlockNumPerGroup = r / z;
-    // default DatanodeNumPerCluster: two times of local group number
-    uint32_t DatanodeNumPerCluster = 2 * n / z;
-    // default ClusterNum: two times of z
-    uint8_t ClusterNum = 2 * z;
+    uint32_t DatanodeNumPerCluster = 0;
+    uint8_t ClusterNum = 0;
   };
 }
 

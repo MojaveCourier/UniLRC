@@ -67,7 +67,6 @@ namespace ECProject
     m_stripe_table.clear();
     m_merge_groups.clear();
     m_free_clusters.clear();
-    m_merge_degree = 0;
     m_agg_start_cid = 0;
     std::cout << "setParameter success" << std::endl;
     return grpc::Status::OK;
@@ -153,6 +152,37 @@ namespace ECProject
     {
       std::cout << "[SET] Send object placement failed!" << std::endl;
     }
+
+    return grpc::Status::OK;
+  }
+
+  grpc::Status CoordinatorImpl::uploadAppendValue(
+      grpc::ServerContext *context,
+      const coordinator_proto::RequestProxyIPPort *keyValueSize,
+      coordinator_proto::ReplyProxyIPsPorts *proxyIPPort)
+  {
+    std::string clientID = keyValueSize->key();
+    int appendSizeBytes = keyValueSize->valuesizebytes();
+    m_mutex.lock();
+    m_object_commit_table.erase(clientID);
+    m_mutex.unlock();
+
+    // 1. record metadata:
+    StripeOffset curStripeOffset;
+    if (m_cur_offset_table.find(clientID) == m_cur_offset_table.end())
+    {
+      // first append
+      curStripeOffset.stripe_id = m_cur_stripe_id++;
+      curStripeOffset.offset = 0;
+    }
+    else
+    {
+      curStripeOffset = m_cur_offset_table[clientID];
+    }
+
+    // 2. generate data placement
+
+    // 3. notify proxies to receive data
 
     return grpc::Status::OK;
   }
