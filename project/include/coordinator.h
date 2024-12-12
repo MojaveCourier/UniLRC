@@ -88,28 +88,27 @@ namespace ECProject
     bool find_block(char type, int cluster_id, int stripe_id);
 
     ECProject::Config *m_sys_config;
+    int m_cur_cluster_id = 0;
+    int m_cur_stripe_id = 0;
+    std::unordered_map<std::string, ObjectInfo> m_object_commit_table;
+    std::unordered_map<std::string, ObjectInfo> m_object_updating_table;
+    std::map<int, Cluster> m_cluster_table;
+    std::map<int, Node> m_node_table;
+    std::map<int, Stripe> m_stripe_table;
+    std::map<std::string, StripeOffset> m_cur_offset_table;
 
   private:
     std::mutex m_mutex;
     std::condition_variable cv;
-    int m_cur_cluster_id = 0;
-    int m_cur_stripe_id = 0;
     std::map<std::string, std::unique_ptr<proxy_proto::proxyService::Stub>>
         m_proxy_ptrs;
     ECSchema m_encode_parameters;
-    std::unordered_map<std::string, ObjectInfo> m_object_commit_table;
-    std::unordered_map<std::string, ObjectInfo> m_object_updating_table;
     std::vector<int> m_stripe_deleting_table;
-    std::map<int, Cluster> m_cluster_table;
-    std::map<int, Node> m_node_table;
-    std::map<int, Stripe> m_stripe_table;
     int m_num_of_Clusters;
     // merge groups, for DIS and OPT, the stripes from the same group object to the selected placement scheme
     std::vector<std::vector<int>> m_merge_groups;
     std::vector<int> m_free_clusters;
     int m_agg_start_cid = 0;
-
-    std::map<std::string, StripeOffset> m_cur_offset_table;
   };
 
   class Coordinator
@@ -133,6 +132,25 @@ namespace ECProject
       m_coordinatorImpl.init_clusterinfo(m_clusterinfo_path);
       m_coordinatorImpl.init_proxyinfo();
       m_coordinatorImpl.m_sys_config = ECProject::Config::getInstance(sys_config_path);
+
+      // initializing
+      m_coordinatorImpl.m_cur_cluster_id = 0;
+      m_coordinatorImpl.m_cur_stripe_id = 0;
+      m_coordinatorImpl.m_object_commit_table.clear();
+      m_coordinatorImpl.m_object_updating_table.clear();
+      for (auto it = m_coordinatorImpl.m_cluster_table.begin(); it != m_coordinatorImpl.m_cluster_table.end(); it++)
+      {
+        Cluster &t_cluster = it->second;
+        t_cluster.blocks.clear();
+        t_cluster.stripes.clear();
+      }
+      for (auto it = m_coordinatorImpl.m_node_table.begin(); it != m_coordinatorImpl.m_node_table.end(); it++)
+      {
+        Node &t_node = it->second;
+        t_node.stripes.clear();
+      }
+      m_coordinatorImpl.m_stripe_table.clear();
+      m_coordinatorImpl.m_cur_offset_table.clear();
     };
     // Coordinator
     void Run()
