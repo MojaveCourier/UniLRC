@@ -156,6 +156,63 @@ namespace ECProject
     return grpc::Status::OK;
   }
 
+  void CoordinatorImpl::initializeStripeDataPlacement(Stripe *stripe)
+  {
+    // range 0~k-1: data blocks
+    // range k~k+r-1: global parity blocks
+    // range k+r~k+r+z-1: local parity blocks
+    Block *blocks_info = new Block[stripe->n];
+    // a stripe is only created by a single client
+    assert(stripe->object_keys.size() == 1);
+    // choose a cluster: round robin
+    int t_cluster_id = stripe->stripe_id % m_sys_config->ClusterNum;
+    for (int i = 0; i < stripe->n; i++)
+    {
+      blocks_info[i].block_size = m_sys_config->BlockSize;
+      blocks_info[i].map2stripe = stripe->stripe_id;
+      blocks_info[i].map2key = stripe->object_keys[0];
+      if (i < stripe->k)
+      {
+        std::string tmp = "_D";
+        if (i < 10)
+          tmp = "_D0";
+        blocks_info[i].block_key = stripe->object_keys[0] + tmp + std::to_string(i);
+        blocks_info[i].block_id = i;
+        blocks_info[i].block_type = 'D';
+        blocks_info[i].map2group = int(i / (stripe->k / stripe->z));
+      }
+      else if (i >= stripe->k && i < stripe->k + stripe->r)
+      {
+        std::string tmp = "_G";
+        if (i < 10)
+          tmp = "_G0";
+        blocks_info[i].block_key = stripe->object_keys[0] + tmp + std::to_string(i - stripe->k);
+        blocks_info[i].block_id = i;
+        blocks_info[i].block_type = 'G';
+        blocks_info[i].map2group = int((i - stripe->k) / (stripe->r / stripe->z));
+      }
+      else
+      {
+        std::string tmp = "_L";
+        if (i < 10)
+          tmp = "_L0";
+        blocks_info[i].block_key = stripe->object_keys[0] + tmp + std::to_string(i - stripe->k - stripe->r);
+        blocks_info[i].block_id = i;
+        blocks_info[i].block_type = 'L';
+        blocks_info[i].map2group = int((i - stripe->k - stripe->r) / (stripe->z / stripe->z));
+      }
+      blocks_info[i].map2cluster = (t_cluster_id + blocks_info[i].map2group) % m_sys_config->ClusterNum;
+      int t_node_id = randomly_select_a_node(blocks_info[i].map2cluster, stripe->stripe_id);
+      blocks_info[i].map2node = t_node_id;
+      update_stripe_info_in_node(t_node_id, stripe->stripe_id, i);
+      m_cluster_table[blocks_info[i].map2cluster].blocks.push_back(&blocks_info[i]);
+      m_cluster_table[blocks_info[i].map2cluster].stripes.insert(stripe->stripe_id);
+      stripe->blocks.push_back(&blocks_info[i]);
+      stripe->place2clusters.insert(blocks_info[i].map2cluster);
+    }
+  }
+
+  // Only processing the appending within a single stripe
   grpc::Status CoordinatorImpl::uploadAppendValue(
       grpc::ServerContext *context,
       const coordinator_proto::RequestProxyIPPort *keyValueSize,
@@ -167,7 +224,7 @@ namespace ECProject
     m_object_commit_table.erase(clientID);
     m_mutex.unlock();
 
-    // 1. record metadata:
+    // 1. record metadata
     StripeOffset curStripeOffset;
     if (m_cur_offset_table.find(clientID) == m_cur_offset_table.end())
     {
@@ -181,6 +238,26 @@ namespace ECProject
     }
 
     // 2. generate data placement
+    Stripe *stripe = nullptr;
+    if (curStripeOffset.offset == 0)
+    {
+      // first append
+      Stripe t_stripe;
+      t_stripe.stripe_id = curStripeOffset.stripe_id;
+      t_stripe.n = m_sys_config->n;
+      t_stripe.k = m_sys_config->k;
+      t_stripe.r = m_sys_config->r;
+      t_stripe.z = m_sys_config->z;
+      t_stripe.object_keys.push_back(clientID);
+      initializeStripeDataPlacement(&t_stripe);
+      m_stripe_table[t_stripe.stripe_id] = t_stripe;
+      stripe = &m_stripe_table[t_stripe.stripe_id];
+    }
+    else
+    {
+      // append to the existing stripe
+      stripe = &m_stripe_table[curStripeOffset.stripe_id];
+    }
 
     // 3. notify proxies to receive data
 
@@ -573,6 +650,7 @@ namespace ECProject
     return grpc::Status::OK;
   }
 
+  // Check the connnection to all proxies of all clusters
   bool CoordinatorImpl::init_proxyinfo()
   {
     for (auto cur = m_cluster_table.begin(); cur != m_cluster_table.end(); cur++)
@@ -646,6 +724,8 @@ namespace ECProject
     return r_cluster_id;
   }
 
+  // randomly select a node in the selected cluster
+  // with the constraint that the node has not been selected for the same stripe
   int CoordinatorImpl::randomly_select_a_node(int cluster_id, int stripe_id)
   {
     std::random_device rd;
@@ -659,7 +739,16 @@ namespace ECProject
     return r_node_id;
   }
 
-  void CoordinatorImpl::update_stripe_info_in_node(bool add_or_sub, int t_node_id, int stripe_id)
+  void CoordinatorImpl::update_stripe_info_in_node(int t_node_id, int stripe_id, int index)
+  {
+    assert(m_node_table[t_node_id].stripes.find(stripe_id) == m_node_table[t_node_id].stripes.end() && "The node has been selected for the stripe");
+    m_node_table[t_node_id].stripes[stripe_id] = index;
+  }
+
+  // maintain the block number of the stripe in the node
+  // TODO: Still don't konw why the stripe_block_num is start from 1
+  void
+  CoordinatorImpl::update_stripe_info_in_node(bool add_or_sub, int t_node_id, int stripe_id)
   {
     int stripe_block_num = 1;
     if (m_node_table[t_node_id].stripes.find(stripe_id) != m_node_table[t_node_id].stripes.end())

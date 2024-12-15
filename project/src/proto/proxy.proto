@@ -137,6 +137,16 @@ message ObjectAndPlacement{
   string clientip = 13;
   int32 clientport = 14;
 }
+
+// append
+message AppendStripeDataPlacement{
+  int32 stripe_id = 1;
+  repeated string datanodeip = 2;
+  repeated int32 datanodeport = 3;
+  repeated string blockkeys = 4;
+  repeated int32 blockids = 5;
+}
+
 message SetReply {
   bool ifcommit = 1;
 }

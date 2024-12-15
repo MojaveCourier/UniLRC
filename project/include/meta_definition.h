@@ -37,6 +37,7 @@ namespace ECProject
     char block_type;
     int block_size;
     int map2group, map2stripe, map2cluster, map2node;
+    // belong to which client
     std::string map2key;
     Block(int block_id, const std::string block_key, char block_type, int block_size, int map2group,
           int map2stripe, int map2cluster, int map2node, const std::string map2key)
@@ -75,6 +76,8 @@ namespace ECProject
     std::vector<int> object_sizes;
     std::vector<Block *> blocks;
     std::unordered_set<int> place2clusters;
+
+    int n, r, z;
   } Stripe;
 
   typedef struct ObjectInfo

@@ -87,6 +87,9 @@ namespace ECProject
     int count_block_num(char type, int cluster_id, int stripe_id, int group_id);
     bool find_block(char type, int cluster_id, int stripe_id);
 
+    void initializeStripeDataPlacement(Stripe *stripe);
+    void update_stripe_info_in_node(int t_node_id, int stripe_id, int index);
+
     ECProject::Config *m_sys_config;
     int m_cur_cluster_id = 0;
     int m_cur_stripe_id = 0;
