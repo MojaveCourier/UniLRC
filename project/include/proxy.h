@@ -12,6 +12,7 @@
 #include <grpcpp/grpcpp.h>
 #include <thread>
 #include <semaphore.h>
+#include <config.h>
 #define IF_DEBUG true
 // #define IF_DEBUG false
 namespace ECProject
@@ -33,7 +34,7 @@ namespace ECProject
       m_port = std::stoi(proxy_ip_port.substr(proxy_ip_port.find(':') + 1, proxy_ip_port.size()));
       std::cout << "Cluster id:" << m_self_cluster_id << std::endl;
     }
-    ~ProxyImpl(){};
+    ~ProxyImpl() {};
     grpc::Status checkalive(
         grpc::ServerContext *context,
         const proxy_proto::CheckaliveCMD *request,
@@ -42,6 +43,11 @@ namespace ECProject
     grpc::Status encodeAndSetObject(
         grpc::ServerContext *context,
         const proxy_proto::ObjectAndPlacement *object_and_placement,
+        proxy_proto::SetReply *response) override;
+    // append
+    grpc::Status scheduleAppend2Datanode(
+        grpc::ServerContext *context,
+        const proxy_proto::AppendStripeDataPlacement *append_stripe_data_placement,
         proxy_proto::SetReply *response) override;
     // decode and get
     grpc::Status decodeAndGetObject(
@@ -56,6 +62,8 @@ namespace ECProject
     bool SetToDatanode(const char *key, size_t key_length, const char *value, size_t value_length, const char *ip, int port, int offset);
     bool GetFromDatanode(const char *key, size_t key_length, char *value, size_t value_length, const char *ip, int port, int offset);
     bool DelInDatanode(std::string key, std::string node_ip_port);
+
+    ECProject::Config *m_sys_config;
 
   private:
     std::mutex m_mutex;
@@ -79,7 +87,13 @@ namespace ECProject
   class Proxy
   {
   public:
-    Proxy(std::string proxy_ip_port, std::string config_path, std::string coordinator_address) : proxy_ip_port(proxy_ip_port), m_proxyImpl_ptr(proxy_ip_port, config_path, coordinator_address) {}
+    Proxy(std::string proxy_ip_port, std::string config_path, std::string coordinator_address) : proxy_ip_port(proxy_ip_port), m_proxyImpl_ptr(proxy_ip_port, config_path, coordinator_address)
+    {
+    }
+    Proxy(std::string proxy_ip_port, std::string config_path, std::string coordinator_address, std::string sys_config_path) : proxy_ip_port(proxy_ip_port), m_proxyImpl_ptr(proxy_ip_port, config_path, coordinator_address)
+    {
+      m_proxyImpl_ptr.m_sys_config = ECProject::Config::getInstance(sys_config_path);
+    }
     void Run()
     {
       grpc::EnableDefaultHealthCheckService(true);

@@ -27,6 +27,8 @@ service proxyService {
   rpc decodeAndGetObject(ObjectAndPlacement) returns (GetReply);
   // delete
   rpc deleteBlock(NodeAndBlock) returns (DelReply);
+  // append
+  rpc scheduleAppend2Datanode(AppendStripeDataPlacement) returns (SetReply);
 }
 
 // parity block recalculation
@@ -141,10 +143,12 @@ message ObjectAndPlacement{
 // append
 message AppendStripeDataPlacement{
   int32 stripe_id = 1;
-  repeated string datanodeip = 2;
-  repeated int32 datanodeport = 3;
-  repeated string blockkeys = 4;
-  repeated int32 blockids = 5;
+  int32 append_size = 2;
+  repeated string datanodeip = 3;
+  repeated int32 datanodeport = 4;
+  repeated string blockkeys = 5;
+  repeated int32 blockids = 6;
+  repeated int32 offsets = 7;
 }
 
 message SetReply {

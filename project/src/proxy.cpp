@@ -85,6 +85,11 @@ namespace ECProject
     return grpc::Status::OK;
   }
 
+  // bool ProxyImpl::AppendToDatanode(const char *key, size_t key_length, const char *value, size_t value_length, const char *ip, int port, int offset)
+  // {
+  //   return true;
+  // }
+
   bool ProxyImpl::SetToDatanode(const char *key, size_t key_length, const char *value, size_t value_length, const char *ip, int port, int offset)
   {
     try
@@ -202,6 +207,56 @@ namespace ECProject
     }
 
     return true;
+  }
+
+  grpc::Status ProxyImpl::scheduleAppend2Datanode(
+      grpc::ServerContext *context,
+      const proxy_proto::AppendStripeDataPlacement *append_stripe_data_placement,
+      proxy_proto::SetReply *response)
+  {
+    int stripe_id = append_stripe_data_placement->stripe_id();
+    int append_size = append_stripe_data_placement->append_size();
+    std::vector<std::pair<std::string, std::pair<std::string, int>>> keys_nodes;
+    for (int i = 0; i < append_stripe_data_placement->datanodeip_size(); i++)
+    {
+      keys_nodes.push_back(std::make_pair(append_stripe_data_placement->blockkeys(i), std::make_pair(append_stripe_data_placement->datanodeip(i), append_stripe_data_placement->datanodeport(i))));
+    }
+    auto append_and_save = [this, stripe_id, keys_nodes, append_size]() mutable
+    {
+      try
+      {
+        asio::ip::tcp::socket socket_data(io_context);
+        acceptor.accept(socket_data);
+        asio::error_code error;
+
+        std::vector<char> append_buf(append_size, 0);
+        asio::read(socket_data, asio::buffer(append_buf.data(), append_size), error);
+        if (error == asio::error::eof)
+        {
+          std::cout << "error == asio::error::eof" << std::endl;
+        }
+        else if (error)
+        {
+          throw asio::system_error(error);
+        }
+
+        std::cout << "[Proxy" << m_self_cluster_id << "][Append]"
+                  << "Append data " << append_buf.data() << std::endl;
+        asio::error_code ignore_ec;
+        socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
+        socket_data.close(ignore_ec);
+
+        // TODO: implement AppendToDatanode First
+        auto append_to_datanode = [this](int j) {};
+      }
+      catch (std::exception &e)
+      {
+        std::cout << "exception in append_and_save" << std::endl;
+        std::cout << e.what() << std::endl;
+      }
+    };
+
+    return grpc::Status::OK;
   }
 
   grpc::Status ProxyImpl::encodeAndSetObject(

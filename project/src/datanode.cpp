@@ -16,6 +16,69 @@ namespace ECProject
         return grpc::Status::OK;
     }
 
+    grpc::Status DatanodeImpl::handleAppend(
+        grpc::ServerContext *context,
+        const datanode_proto::AppendInfo *append_info,
+        datanode_proto::RequestResult *response)
+    {
+        std::string block_key = append_info->block_key();
+        int append_size = append_info->append_size();
+        int append_offset = append_info->append_offset();
+        // std::string proxy_ip = append_info->proxy_ip();
+        // int proxy_port = append_info->proxy_port();
+
+        // append_offset must be the physical offset of the block
+        auto dataBlockHandler = [this](std::string block_key, int append_size, int append_offset) mutable
+        {
+            try
+            {
+                std::vector<char> buf(append_size);
+                // only send data
+                asio::error_code ec;
+                asio::ip::tcp::socket socket(io_context);
+                acceptor.accept(socket);
+                asio::read(socket, asio::buffer(buf.data(), append_size), ec);
+
+                asio::error_code ignore_ec;
+                socket.shutdown(asio::ip::tcp::socket::shutdown_both, ignore_ec);
+                socket.close(ignore_ec);
+
+                std::string targetdir = "./storage/" + std::to_string(m_port) + "/";
+                std::string writepath = targetdir + block_key;
+                if (access(targetdir.c_str(), 0) == -1)
+                {
+                    mkdir(targetdir.c_str(), S_IRWXU);
+                }
+
+                if (append_size == 0)
+                {
+                    assert(access(writepath.c_str(), 0) == -1 && "File already exists with append_offset == 0!");
+                    // Create new file if append_size is 0
+                    std::ofstream create_file(writepath, std::ios::binary | std::ios::out | std::ios::trunc);
+                    create_file.close();
+                }
+
+                // Open file in append mode
+                // write the data to the disk using pagecache
+                std::ofstream append_file(writepath, std::ios::binary | std::ios::out | std::ios::app);
+                // Append data from buffer to end of file
+                append_file.write(buf.data(), append_size);
+                if (IF_DEBUG)
+                {
+                    std::cout << "[Datanode" << m_port << "][Append] successfully append " << block_key << " with " << append_size << " bytes" << std::endl;
+                }
+                append_file.flush();
+                append_file.close();
+            }
+            catch (const std::exception &e)
+            {
+                std::cerr << e.what() << '\n';
+            }
+        };
+
+        return grpc::Status::OK;
+    }
+
     grpc::Status DatanodeImpl::handleSet(
         grpc::ServerContext *context,
         const datanode_proto::SetInfo *set_info,

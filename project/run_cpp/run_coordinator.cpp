@@ -12,8 +12,10 @@ int main(int argc, char **argv)
   getcwd(buff, 256);
   std::string cwf = std::string(argv[0]);
   std::string config_path = std::string(buff) + cwf.substr(1, cwf.rfind('/') - 1) + "/../../config/clusterInformation.xml";
-  std::cout << "Current working directory: " << config_path << std::endl;
-  ECProject::Coordinator coordinator(coordinator_ip + ":55555", config_path);
+  std::string sys_config_path = std::string(buff) + cwf.substr(1, cwf.rfind('/') - 1) + "/../../config/parameterConfiguration.xml";
+  std::cout << "Cluster config path: " << config_path << std::endl;
+  std::cout << "Sys config path: " << sys_config_path << std::endl;
+  ECProject::Coordinator coordinator(coordinator_ip + ":55555", config_path, sys_config_path);
   coordinator.Run();
   return 0;
 }

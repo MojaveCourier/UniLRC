@@ -21,7 +21,7 @@ namespace ECProject
             m_port = std::stoi(datanode_ip_port.substr(datanode_ip_port.find(':') + 1, datanode_ip_port.size()));
             m_download_port = m_port + 20;
         }
-        ~DatanodeImpl(){};
+        ~DatanodeImpl() {};
         grpc::Status checkalive(
             grpc::ServerContext *context,
             const datanode_proto::CheckaliveCMD *request,
@@ -30,6 +30,11 @@ namespace ECProject
         grpc::Status handleSet(
             grpc::ServerContext *context,
             const datanode_proto::SetInfo *set_info,
+            datanode_proto::RequestResult *response) override;
+        // append
+        grpc::Status handleAppend(
+            grpc::ServerContext *context,
+            const datanode_proto::AppendInfo *append_info,
             datanode_proto::RequestResult *response) override;
         // get
         grpc::Status handleGet(

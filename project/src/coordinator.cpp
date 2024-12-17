@@ -260,6 +260,8 @@ namespace ECProject
     }
 
     // 3. notify proxies to receive data
+    grpc::ClientContext cont;
+    // need multiple proxies to receive data, so need multiple threads
 
     return grpc::Status::OK;
   }

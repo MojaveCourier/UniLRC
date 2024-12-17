@@ -45,6 +45,9 @@ struct TableStruct_proxy_2eproto {
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_proxy_2eproto;
 namespace proxy_proto {
+class AppendStripeDataPlacement;
+struct AppendStripeDataPlacementDefaultTypeInternal;
+extern AppendStripeDataPlacementDefaultTypeInternal _AppendStripeDataPlacement_default_instance_;
 class AskIfSuccess;
 struct AskIfSuccessDefaultTypeInternal;
 extern AskIfSuccessDefaultTypeInternal _AskIfSuccess_default_instance_;
@@ -92,6 +95,7 @@ struct mainRecalPlanDefaultTypeInternal;
 extern mainRecalPlanDefaultTypeInternal _mainRecalPlan_default_instance_;
 }  // namespace proxy_proto
 PROTOBUF_NAMESPACE_OPEN
+template<> ::proxy_proto::AppendStripeDataPlacement* Arena::CreateMaybeMessage<::proxy_proto::AppendStripeDataPlacement>(Arena*);
 template<> ::proxy_proto::AskIfSuccess* Arena::CreateMaybeMessage<::proxy_proto::AskIfSuccess>(Arena*);
 template<> ::proxy_proto::CheckaliveCMD* Arena::CreateMaybeMessage<::proxy_proto::CheckaliveCMD>(Arena*);
 template<> ::proxy_proto::DelReply* Arena::CreateMaybeMessage<::proxy_proto::DelReply>(Arena*);
@@ -2981,6 +2985,292 @@ class ObjectAndPlacement final :
 };
 // -------------------------------------------------------------------
 
+class AppendStripeDataPlacement final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:proxy_proto.AppendStripeDataPlacement) */ {
+ public:
+  inline AppendStripeDataPlacement() : AppendStripeDataPlacement(nullptr) {}
+  ~AppendStripeDataPlacement() override;
+  explicit PROTOBUF_CONSTEXPR AppendStripeDataPlacement(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  AppendStripeDataPlacement(const AppendStripeDataPlacement& from);
+  AppendStripeDataPlacement(AppendStripeDataPlacement&& from) noexcept
+    : AppendStripeDataPlacement() {
+    *this = ::std::move(from);
+  }
+
+  inline AppendStripeDataPlacement& operator=(const AppendStripeDataPlacement& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline AppendStripeDataPlacement& operator=(AppendStripeDataPlacement&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const AppendStripeDataPlacement& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const AppendStripeDataPlacement* internal_default_instance() {
+    return reinterpret_cast<const AppendStripeDataPlacement*>(
+               &_AppendStripeDataPlacement_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    13;
+
+  friend void swap(AppendStripeDataPlacement& a, AppendStripeDataPlacement& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(AppendStripeDataPlacement* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(AppendStripeDataPlacement* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  AppendStripeDataPlacement* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<AppendStripeDataPlacement>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const AppendStripeDataPlacement& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const AppendStripeDataPlacement& from) {
+    AppendStripeDataPlacement::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(AppendStripeDataPlacement* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "proxy_proto.AppendStripeDataPlacement";
+  }
+  protected:
+  explicit AppendStripeDataPlacement(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kDatanodeipFieldNumber = 3,
+    kDatanodeportFieldNumber = 4,
+    kBlockkeysFieldNumber = 5,
+    kBlockidsFieldNumber = 6,
+    kOffsetsFieldNumber = 7,
+    kStripeIdFieldNumber = 1,
+    kAppendSizeFieldNumber = 2,
+  };
+  // repeated string datanodeip = 3;
+  int datanodeip_size() const;
+  private:
+  int _internal_datanodeip_size() const;
+  public:
+  void clear_datanodeip();
+  const std::string& datanodeip(int index) const;
+  std::string* mutable_datanodeip(int index);
+  void set_datanodeip(int index, const std::string& value);
+  void set_datanodeip(int index, std::string&& value);
+  void set_datanodeip(int index, const char* value);
+  void set_datanodeip(int index, const char* value, size_t size);
+  std::string* add_datanodeip();
+  void add_datanodeip(const std::string& value);
+  void add_datanodeip(std::string&& value);
+  void add_datanodeip(const char* value);
+  void add_datanodeip(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& datanodeip() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_datanodeip();
+  private:
+  const std::string& _internal_datanodeip(int index) const;
+  std::string* _internal_add_datanodeip();
+  public:
+
+  // repeated int32 datanodeport = 4;
+  int datanodeport_size() const;
+  private:
+  int _internal_datanodeport_size() const;
+  public:
+  void clear_datanodeport();
+  private:
+  int32_t _internal_datanodeport(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      _internal_datanodeport() const;
+  void _internal_add_datanodeport(int32_t value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      _internal_mutable_datanodeport();
+  public:
+  int32_t datanodeport(int index) const;
+  void set_datanodeport(int index, int32_t value);
+  void add_datanodeport(int32_t value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      datanodeport() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      mutable_datanodeport();
+
+  // repeated string blockkeys = 5;
+  int blockkeys_size() const;
+  private:
+  int _internal_blockkeys_size() const;
+  public:
+  void clear_blockkeys();
+  const std::string& blockkeys(int index) const;
+  std::string* mutable_blockkeys(int index);
+  void set_blockkeys(int index, const std::string& value);
+  void set_blockkeys(int index, std::string&& value);
+  void set_blockkeys(int index, const char* value);
+  void set_blockkeys(int index, const char* value, size_t size);
+  std::string* add_blockkeys();
+  void add_blockkeys(const std::string& value);
+  void add_blockkeys(std::string&& value);
+  void add_blockkeys(const char* value);
+  void add_blockkeys(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& blockkeys() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_blockkeys();
+  private:
+  const std::string& _internal_blockkeys(int index) const;
+  std::string* _internal_add_blockkeys();
+  public:
+
+  // repeated int32 blockids = 6;
+  int blockids_size() const;
+  private:
+  int _internal_blockids_size() const;
+  public:
+  void clear_blockids();
+  private:
+  int32_t _internal_blockids(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      _internal_blockids() const;
+  void _internal_add_blockids(int32_t value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      _internal_mutable_blockids();
+  public:
+  int32_t blockids(int index) const;
+  void set_blockids(int index, int32_t value);
+  void add_blockids(int32_t value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      blockids() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      mutable_blockids();
+
+  // repeated int32 offsets = 7;
+  int offsets_size() const;
+  private:
+  int _internal_offsets_size() const;
+  public:
+  void clear_offsets();
+  private:
+  int32_t _internal_offsets(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      _internal_offsets() const;
+  void _internal_add_offsets(int32_t value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      _internal_mutable_offsets();
+  public:
+  int32_t offsets(int index) const;
+  void set_offsets(int index, int32_t value);
+  void add_offsets(int32_t value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      offsets() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      mutable_offsets();
+
+  // int32 stripe_id = 1;
+  void clear_stripe_id();
+  int32_t stripe_id() const;
+  void set_stripe_id(int32_t value);
+  private:
+  int32_t _internal_stripe_id() const;
+  void _internal_set_stripe_id(int32_t value);
+  public:
+
+  // int32 append_size = 2;
+  void clear_append_size();
+  int32_t append_size() const;
+  void set_append_size(int32_t value);
+  private:
+  int32_t _internal_append_size() const;
+  void _internal_set_append_size(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:proxy_proto.AppendStripeDataPlacement)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> datanodeip_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > datanodeport_;
+    mutable std::atomic<int> _datanodeport_cached_byte_size_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> blockkeys_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > blockids_;
+    mutable std::atomic<int> _blockids_cached_byte_size_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > offsets_;
+    mutable std::atomic<int> _offsets_cached_byte_size_;
+    int32_t stripe_id_;
+    int32_t append_size_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_proxy_2eproto;
+};
+// -------------------------------------------------------------------
+
 class SetReply final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:proxy_proto.SetReply) */ {
  public:
@@ -3029,7 +3319,7 @@ class SetReply final :
                &_SetReply_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    13;
+    14;
 
   friend void swap(SetReply& a, SetReply& b) {
     a.Swap(&b);
@@ -3177,7 +3467,7 @@ class GetReply final :
                &_GetReply_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    14;
+    15;
 
   friend void swap(GetReply& a, GetReply& b) {
     a.Swap(&b);
@@ -5861,6 +6151,341 @@ inline void ObjectAndPlacement::set_clientport(int32_t value) {
 
 // -------------------------------------------------------------------
 
+// AppendStripeDataPlacement
+
+// int32 stripe_id = 1;
+inline void AppendStripeDataPlacement::clear_stripe_id() {
+  _impl_.stripe_id_ = 0;
+}
+inline int32_t AppendStripeDataPlacement::_internal_stripe_id() const {
+  return _impl_.stripe_id_;
+}
+inline int32_t AppendStripeDataPlacement::stripe_id() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.AppendStripeDataPlacement.stripe_id)
+  return _internal_stripe_id();
+}
+inline void AppendStripeDataPlacement::_internal_set_stripe_id(int32_t value) {
+  
+  _impl_.stripe_id_ = value;
+}
+inline void AppendStripeDataPlacement::set_stripe_id(int32_t value) {
+  _internal_set_stripe_id(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.AppendStripeDataPlacement.stripe_id)
+}
+
+// int32 append_size = 2;
+inline void AppendStripeDataPlacement::clear_append_size() {
+  _impl_.append_size_ = 0;
+}
+inline int32_t AppendStripeDataPlacement::_internal_append_size() const {
+  return _impl_.append_size_;
+}
+inline int32_t AppendStripeDataPlacement::append_size() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.AppendStripeDataPlacement.append_size)
+  return _internal_append_size();
+}
+inline void AppendStripeDataPlacement::_internal_set_append_size(int32_t value) {
+  
+  _impl_.append_size_ = value;
+}
+inline void AppendStripeDataPlacement::set_append_size(int32_t value) {
+  _internal_set_append_size(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.AppendStripeDataPlacement.append_size)
+}
+
+// repeated string datanodeip = 3;
+inline int AppendStripeDataPlacement::_internal_datanodeip_size() const {
+  return _impl_.datanodeip_.size();
+}
+inline int AppendStripeDataPlacement::datanodeip_size() const {
+  return _internal_datanodeip_size();
+}
+inline void AppendStripeDataPlacement::clear_datanodeip() {
+  _impl_.datanodeip_.Clear();
+}
+inline std::string* AppendStripeDataPlacement::add_datanodeip() {
+  std::string* _s = _internal_add_datanodeip();
+  // @@protoc_insertion_point(field_add_mutable:proxy_proto.AppendStripeDataPlacement.datanodeip)
+  return _s;
+}
+inline const std::string& AppendStripeDataPlacement::_internal_datanodeip(int index) const {
+  return _impl_.datanodeip_.Get(index);
+}
+inline const std::string& AppendStripeDataPlacement::datanodeip(int index) const {
+  // @@protoc_insertion_point(field_get:proxy_proto.AppendStripeDataPlacement.datanodeip)
+  return _internal_datanodeip(index);
+}
+inline std::string* AppendStripeDataPlacement::mutable_datanodeip(int index) {
+  // @@protoc_insertion_point(field_mutable:proxy_proto.AppendStripeDataPlacement.datanodeip)
+  return _impl_.datanodeip_.Mutable(index);
+}
+inline void AppendStripeDataPlacement::set_datanodeip(int index, const std::string& value) {
+  _impl_.datanodeip_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.AppendStripeDataPlacement.datanodeip)
+}
+inline void AppendStripeDataPlacement::set_datanodeip(int index, std::string&& value) {
+  _impl_.datanodeip_.Mutable(index)->assign(std::move(value));
+  // @@protoc_insertion_point(field_set:proxy_proto.AppendStripeDataPlacement.datanodeip)
+}
+inline void AppendStripeDataPlacement::set_datanodeip(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.datanodeip_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:proxy_proto.AppendStripeDataPlacement.datanodeip)
+}
+inline void AppendStripeDataPlacement::set_datanodeip(int index, const char* value, size_t size) {
+  _impl_.datanodeip_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:proxy_proto.AppendStripeDataPlacement.datanodeip)
+}
+inline std::string* AppendStripeDataPlacement::_internal_add_datanodeip() {
+  return _impl_.datanodeip_.Add();
+}
+inline void AppendStripeDataPlacement::add_datanodeip(const std::string& value) {
+  _impl_.datanodeip_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:proxy_proto.AppendStripeDataPlacement.datanodeip)
+}
+inline void AppendStripeDataPlacement::add_datanodeip(std::string&& value) {
+  _impl_.datanodeip_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:proxy_proto.AppendStripeDataPlacement.datanodeip)
+}
+inline void AppendStripeDataPlacement::add_datanodeip(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.datanodeip_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:proxy_proto.AppendStripeDataPlacement.datanodeip)
+}
+inline void AppendStripeDataPlacement::add_datanodeip(const char* value, size_t size) {
+  _impl_.datanodeip_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:proxy_proto.AppendStripeDataPlacement.datanodeip)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+AppendStripeDataPlacement::datanodeip() const {
+  // @@protoc_insertion_point(field_list:proxy_proto.AppendStripeDataPlacement.datanodeip)
+  return _impl_.datanodeip_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+AppendStripeDataPlacement::mutable_datanodeip() {
+  // @@protoc_insertion_point(field_mutable_list:proxy_proto.AppendStripeDataPlacement.datanodeip)
+  return &_impl_.datanodeip_;
+}
+
+// repeated int32 datanodeport = 4;
+inline int AppendStripeDataPlacement::_internal_datanodeport_size() const {
+  return _impl_.datanodeport_.size();
+}
+inline int AppendStripeDataPlacement::datanodeport_size() const {
+  return _internal_datanodeport_size();
+}
+inline void AppendStripeDataPlacement::clear_datanodeport() {
+  _impl_.datanodeport_.Clear();
+}
+inline int32_t AppendStripeDataPlacement::_internal_datanodeport(int index) const {
+  return _impl_.datanodeport_.Get(index);
+}
+inline int32_t AppendStripeDataPlacement::datanodeport(int index) const {
+  // @@protoc_insertion_point(field_get:proxy_proto.AppendStripeDataPlacement.datanodeport)
+  return _internal_datanodeport(index);
+}
+inline void AppendStripeDataPlacement::set_datanodeport(int index, int32_t value) {
+  _impl_.datanodeport_.Set(index, value);
+  // @@protoc_insertion_point(field_set:proxy_proto.AppendStripeDataPlacement.datanodeport)
+}
+inline void AppendStripeDataPlacement::_internal_add_datanodeport(int32_t value) {
+  _impl_.datanodeport_.Add(value);
+}
+inline void AppendStripeDataPlacement::add_datanodeport(int32_t value) {
+  _internal_add_datanodeport(value);
+  // @@protoc_insertion_point(field_add:proxy_proto.AppendStripeDataPlacement.datanodeport)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+AppendStripeDataPlacement::_internal_datanodeport() const {
+  return _impl_.datanodeport_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+AppendStripeDataPlacement::datanodeport() const {
+  // @@protoc_insertion_point(field_list:proxy_proto.AppendStripeDataPlacement.datanodeport)
+  return _internal_datanodeport();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+AppendStripeDataPlacement::_internal_mutable_datanodeport() {
+  return &_impl_.datanodeport_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+AppendStripeDataPlacement::mutable_datanodeport() {
+  // @@protoc_insertion_point(field_mutable_list:proxy_proto.AppendStripeDataPlacement.datanodeport)
+  return _internal_mutable_datanodeport();
+}
+
+// repeated string blockkeys = 5;
+inline int AppendStripeDataPlacement::_internal_blockkeys_size() const {
+  return _impl_.blockkeys_.size();
+}
+inline int AppendStripeDataPlacement::blockkeys_size() const {
+  return _internal_blockkeys_size();
+}
+inline void AppendStripeDataPlacement::clear_blockkeys() {
+  _impl_.blockkeys_.Clear();
+}
+inline std::string* AppendStripeDataPlacement::add_blockkeys() {
+  std::string* _s = _internal_add_blockkeys();
+  // @@protoc_insertion_point(field_add_mutable:proxy_proto.AppendStripeDataPlacement.blockkeys)
+  return _s;
+}
+inline const std::string& AppendStripeDataPlacement::_internal_blockkeys(int index) const {
+  return _impl_.blockkeys_.Get(index);
+}
+inline const std::string& AppendStripeDataPlacement::blockkeys(int index) const {
+  // @@protoc_insertion_point(field_get:proxy_proto.AppendStripeDataPlacement.blockkeys)
+  return _internal_blockkeys(index);
+}
+inline std::string* AppendStripeDataPlacement::mutable_blockkeys(int index) {
+  // @@protoc_insertion_point(field_mutable:proxy_proto.AppendStripeDataPlacement.blockkeys)
+  return _impl_.blockkeys_.Mutable(index);
+}
+inline void AppendStripeDataPlacement::set_blockkeys(int index, const std::string& value) {
+  _impl_.blockkeys_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.AppendStripeDataPlacement.blockkeys)
+}
+inline void AppendStripeDataPlacement::set_blockkeys(int index, std::string&& value) {
+  _impl_.blockkeys_.Mutable(index)->assign(std::move(value));
+  // @@protoc_insertion_point(field_set:proxy_proto.AppendStripeDataPlacement.blockkeys)
+}
+inline void AppendStripeDataPlacement::set_blockkeys(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.blockkeys_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:proxy_proto.AppendStripeDataPlacement.blockkeys)
+}
+inline void AppendStripeDataPlacement::set_blockkeys(int index, const char* value, size_t size) {
+  _impl_.blockkeys_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:proxy_proto.AppendStripeDataPlacement.blockkeys)
+}
+inline std::string* AppendStripeDataPlacement::_internal_add_blockkeys() {
+  return _impl_.blockkeys_.Add();
+}
+inline void AppendStripeDataPlacement::add_blockkeys(const std::string& value) {
+  _impl_.blockkeys_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:proxy_proto.AppendStripeDataPlacement.blockkeys)
+}
+inline void AppendStripeDataPlacement::add_blockkeys(std::string&& value) {
+  _impl_.blockkeys_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:proxy_proto.AppendStripeDataPlacement.blockkeys)
+}
+inline void AppendStripeDataPlacement::add_blockkeys(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.blockkeys_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:proxy_proto.AppendStripeDataPlacement.blockkeys)
+}
+inline void AppendStripeDataPlacement::add_blockkeys(const char* value, size_t size) {
+  _impl_.blockkeys_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:proxy_proto.AppendStripeDataPlacement.blockkeys)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+AppendStripeDataPlacement::blockkeys() const {
+  // @@protoc_insertion_point(field_list:proxy_proto.AppendStripeDataPlacement.blockkeys)
+  return _impl_.blockkeys_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+AppendStripeDataPlacement::mutable_blockkeys() {
+  // @@protoc_insertion_point(field_mutable_list:proxy_proto.AppendStripeDataPlacement.blockkeys)
+  return &_impl_.blockkeys_;
+}
+
+// repeated int32 blockids = 6;
+inline int AppendStripeDataPlacement::_internal_blockids_size() const {
+  return _impl_.blockids_.size();
+}
+inline int AppendStripeDataPlacement::blockids_size() const {
+  return _internal_blockids_size();
+}
+inline void AppendStripeDataPlacement::clear_blockids() {
+  _impl_.blockids_.Clear();
+}
+inline int32_t AppendStripeDataPlacement::_internal_blockids(int index) const {
+  return _impl_.blockids_.Get(index);
+}
+inline int32_t AppendStripeDataPlacement::blockids(int index) const {
+  // @@protoc_insertion_point(field_get:proxy_proto.AppendStripeDataPlacement.blockids)
+  return _internal_blockids(index);
+}
+inline void AppendStripeDataPlacement::set_blockids(int index, int32_t value) {
+  _impl_.blockids_.Set(index, value);
+  // @@protoc_insertion_point(field_set:proxy_proto.AppendStripeDataPlacement.blockids)
+}
+inline void AppendStripeDataPlacement::_internal_add_blockids(int32_t value) {
+  _impl_.blockids_.Add(value);
+}
+inline void AppendStripeDataPlacement::add_blockids(int32_t value) {
+  _internal_add_blockids(value);
+  // @@protoc_insertion_point(field_add:proxy_proto.AppendStripeDataPlacement.blockids)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+AppendStripeDataPlacement::_internal_blockids() const {
+  return _impl_.blockids_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+AppendStripeDataPlacement::blockids() const {
+  // @@protoc_insertion_point(field_list:proxy_proto.AppendStripeDataPlacement.blockids)
+  return _internal_blockids();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+AppendStripeDataPlacement::_internal_mutable_blockids() {
+  return &_impl_.blockids_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+AppendStripeDataPlacement::mutable_blockids() {
+  // @@protoc_insertion_point(field_mutable_list:proxy_proto.AppendStripeDataPlacement.blockids)
+  return _internal_mutable_blockids();
+}
+
+// repeated int32 offsets = 7;
+inline int AppendStripeDataPlacement::_internal_offsets_size() const {
+  return _impl_.offsets_.size();
+}
+inline int AppendStripeDataPlacement::offsets_size() const {
+  return _internal_offsets_size();
+}
+inline void AppendStripeDataPlacement::clear_offsets() {
+  _impl_.offsets_.Clear();
+}
+inline int32_t AppendStripeDataPlacement::_internal_offsets(int index) const {
+  return _impl_.offsets_.Get(index);
+}
+inline int32_t AppendStripeDataPlacement::offsets(int index) const {
+  // @@protoc_insertion_point(field_get:proxy_proto.AppendStripeDataPlacement.offsets)
+  return _internal_offsets(index);
+}
+inline void AppendStripeDataPlacement::set_offsets(int index, int32_t value) {
+  _impl_.offsets_.Set(index, value);
+  // @@protoc_insertion_point(field_set:proxy_proto.AppendStripeDataPlacement.offsets)
+}
+inline void AppendStripeDataPlacement::_internal_add_offsets(int32_t value) {
+  _impl_.offsets_.Add(value);
+}
+inline void AppendStripeDataPlacement::add_offsets(int32_t value) {
+  _internal_add_offsets(value);
+  // @@protoc_insertion_point(field_add:proxy_proto.AppendStripeDataPlacement.offsets)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+AppendStripeDataPlacement::_internal_offsets() const {
+  return _impl_.offsets_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+AppendStripeDataPlacement::offsets() const {
+  // @@protoc_insertion_point(field_list:proxy_proto.AppendStripeDataPlacement.offsets)
+  return _internal_offsets();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+AppendStripeDataPlacement::_internal_mutable_offsets() {
+  return &_impl_.offsets_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+AppendStripeDataPlacement::mutable_offsets() {
+  // @@protoc_insertion_point(field_mutable_list:proxy_proto.AppendStripeDataPlacement.offsets)
+  return _internal_mutable_offsets();
+}
+
+// -------------------------------------------------------------------
+
 // SetReply
 
 // bool ifcommit = 1;
@@ -5910,6 +6535,8 @@ inline void GetReply::set_getsuccess(bool value) {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

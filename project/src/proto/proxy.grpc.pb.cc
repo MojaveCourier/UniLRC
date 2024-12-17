@@ -26,6 +26,7 @@ static const char* proxyService_method_names[] = {
   "/proxy_proto.proxyService/encodeAndSetObject",
   "/proxy_proto.proxyService/decodeAndGetObject",
   "/proxy_proto.proxyService/deleteBlock",
+  "/proxy_proto.proxyService/scheduleAppend2Datanode",
 };
 
 std::unique_ptr< proxyService::Stub> proxyService::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -39,6 +40,7 @@ proxyService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& chann
   , rpcmethod_encodeAndSetObject_(proxyService_method_names[1], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_decodeAndGetObject_(proxyService_method_names[2], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_deleteBlock_(proxyService_method_names[3], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_scheduleAppend2Datanode_(proxyService_method_names[4], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
 ::grpc::Status proxyService::Stub::checkalive(::grpc::ClientContext* context, const ::proxy_proto::CheckaliveCMD& request, ::proxy_proto::RequestResult* response) {
@@ -133,6 +135,29 @@ void proxyService::Stub::async::deleteBlock(::grpc::ClientContext* context, cons
   return result;
 }
 
+::grpc::Status proxyService::Stub::scheduleAppend2Datanode(::grpc::ClientContext* context, const ::proxy_proto::AppendStripeDataPlacement& request, ::proxy_proto::SetReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::proxy_proto::AppendStripeDataPlacement, ::proxy_proto::SetReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_scheduleAppend2Datanode_, context, request, response);
+}
+
+void proxyService::Stub::async::scheduleAppend2Datanode(::grpc::ClientContext* context, const ::proxy_proto::AppendStripeDataPlacement* request, ::proxy_proto::SetReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::proxy_proto::AppendStripeDataPlacement, ::proxy_proto::SetReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_scheduleAppend2Datanode_, context, request, response, std::move(f));
+}
+
+void proxyService::Stub::async::scheduleAppend2Datanode(::grpc::ClientContext* context, const ::proxy_proto::AppendStripeDataPlacement* request, ::proxy_proto::SetReply* response, ::grpc::ClientUnaryReactor* reactor) {
+  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_scheduleAppend2Datanode_, context, request, response, reactor);
+}
+
+::grpc::ClientAsyncResponseReader< ::proxy_proto::SetReply>* proxyService::Stub::PrepareAsyncscheduleAppend2DatanodeRaw(::grpc::ClientContext* context, const ::proxy_proto::AppendStripeDataPlacement& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::proxy_proto::SetReply, ::proxy_proto::AppendStripeDataPlacement, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_scheduleAppend2Datanode_, context, request);
+}
+
+::grpc::ClientAsyncResponseReader< ::proxy_proto::SetReply>* proxyService::Stub::AsyncscheduleAppend2DatanodeRaw(::grpc::ClientContext* context, const ::proxy_proto::AppendStripeDataPlacement& request, ::grpc::CompletionQueue* cq) {
+  auto* result =
+    this->PrepareAsyncscheduleAppend2DatanodeRaw(context, request, cq);
+  result->StartCall();
+  return result;
+}
+
 proxyService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       proxyService_method_names[0],
@@ -174,6 +199,16 @@ proxyService::Service::Service() {
              ::proxy_proto::DelReply* resp) {
                return service->deleteBlock(ctx, req, resp);
              }, this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      proxyService_method_names[4],
+      ::grpc::internal::RpcMethod::NORMAL_RPC,
+      new ::grpc::internal::RpcMethodHandler< proxyService::Service, ::proxy_proto::AppendStripeDataPlacement, ::proxy_proto::SetReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+          [](proxyService::Service* service,
+             ::grpc::ServerContext* ctx,
+             const ::proxy_proto::AppendStripeDataPlacement* req,
+             ::proxy_proto::SetReply* resp) {
+               return service->scheduleAppend2Datanode(ctx, req, resp);
+             }, this)));
 }
 
 proxyService::Service::~Service() {
@@ -201,6 +236,13 @@ proxyService::Service::~Service() {
 }
 
 ::grpc::Status proxyService::Service::deleteBlock(::grpc::ServerContext* context, const ::proxy_proto::NodeAndBlock* request, ::proxy_proto::DelReply* response) {
+  (void) context;
+  (void) request;
+  (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status proxyService::Service::scheduleAppend2Datanode(::grpc::ServerContext* context, const ::proxy_proto::AppendStripeDataPlacement* request, ::proxy_proto::SetReply* response) {
   (void) context;
   (void) request;
   (void) response;

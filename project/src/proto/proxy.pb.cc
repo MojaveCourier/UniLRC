@@ -251,6 +251,28 @@ struct ObjectAndPlacementDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ObjectAndPlacementDefaultTypeInternal _ObjectAndPlacement_default_instance_;
+PROTOBUF_CONSTEXPR AppendStripeDataPlacement::AppendStripeDataPlacement(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.datanodeip_)*/{}
+  , /*decltype(_impl_.datanodeport_)*/{}
+  , /*decltype(_impl_._datanodeport_cached_byte_size_)*/{0}
+  , /*decltype(_impl_.blockkeys_)*/{}
+  , /*decltype(_impl_.blockids_)*/{}
+  , /*decltype(_impl_._blockids_cached_byte_size_)*/{0}
+  , /*decltype(_impl_.offsets_)*/{}
+  , /*decltype(_impl_._offsets_cached_byte_size_)*/{0}
+  , /*decltype(_impl_.stripe_id_)*/0
+  , /*decltype(_impl_.append_size_)*/0
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct AppendStripeDataPlacementDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR AppendStripeDataPlacementDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~AppendStripeDataPlacementDefaultTypeInternal() {}
+  union {
+    AppendStripeDataPlacement _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 AppendStripeDataPlacementDefaultTypeInternal _AppendStripeDataPlacement_default_instance_;
 PROTOBUF_CONSTEXPR SetReply::SetReply(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.ifcommit_)*/false
@@ -278,7 +300,7 @@ struct GetReplyDefaultTypeInternal {
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetReplyDefaultTypeInternal _GetReply_default_instance_;
 }  // namespace proxy_proto
-static ::_pb::Metadata file_level_metadata_proxy_2eproto[15];
+static ::_pb::Metadata file_level_metadata_proxy_2eproto[16];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_proxy_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_proxy_2eproto = nullptr;
 
@@ -426,6 +448,19 @@ const uint32_t TableStruct_proxy_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(pr
   PROTOBUF_FIELD_OFFSET(::proxy_proto::ObjectAndPlacement, _impl_.clientip_),
   PROTOBUF_FIELD_OFFSET(::proxy_proto::ObjectAndPlacement, _impl_.clientport_),
   ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::AppendStripeDataPlacement, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::AppendStripeDataPlacement, _impl_.stripe_id_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::AppendStripeDataPlacement, _impl_.append_size_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::AppendStripeDataPlacement, _impl_.datanodeip_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::AppendStripeDataPlacement, _impl_.datanodeport_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::AppendStripeDataPlacement, _impl_.blockkeys_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::AppendStripeDataPlacement, _impl_.blockids_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::AppendStripeDataPlacement, _impl_.offsets_),
+  ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::proxy_proto::SetReply, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
@@ -454,8 +489,9 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 108, -1, -1, sizeof(::proxy_proto::CheckaliveCMD)},
   { 115, -1, -1, sizeof(::proxy_proto::RequestResult)},
   { 122, -1, -1, sizeof(::proxy_proto::ObjectAndPlacement)},
-  { 142, -1, -1, sizeof(::proxy_proto::SetReply)},
-  { 149, -1, -1, sizeof(::proxy_proto::GetReply)},
+  { 142, -1, -1, sizeof(::proxy_proto::AppendStripeDataPlacement)},
+  { 155, -1, -1, sizeof(::proxy_proto::SetReply)},
+  { 162, -1, -1, sizeof(::proxy_proto::GetReply)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -472,6 +508,7 @@ static const ::_pb::Message* const file_default_instances[] = {
   &::proxy_proto::_CheckaliveCMD_default_instance_._instance,
   &::proxy_proto::_RequestResult_default_instance_._instance,
   &::proxy_proto::_ObjectAndPlacement_default_instance_._instance,
+  &::proxy_proto::_AppendStripeDataPlacement_default_instance_._instance,
   &::proxy_proto::_SetReply_default_instance_._instance,
   &::proxy_proto::_GetReply_default_instance_._instance,
 };
@@ -514,22 +551,28 @@ const char descriptor_table_protodef_proxy_2eproto[] PROTOBUF_SECTION_VARIABLE(p
   "\010 \003(\005\022\021\n\tblockkeys\030\t \003(\t\022\020\n\010blockids\030\n \003"
   "(\005\022\022\n\nblock_size\030\013 \001(\005\022\023\n\013encode_type\030\014 "
   "\001(\005\022\020\n\010clientip\030\r \001(\t\022\022\n\nclientport\030\016 \001("
-  "\005\"\034\n\010SetReply\022\020\n\010ifcommit\030\001 \001(\010\"\036\n\010GetRe"
-  "ply\022\022\n\ngetsuccess\030\001 \001(\0102\261\002\n\014proxyService"
-  "\022D\n\ncheckalive\022\032.proxy_proto.CheckaliveC"
-  "MD\032\032.proxy_proto.RequestResult\022L\n\022encode"
-  "AndSetObject\022\037.proxy_proto.ObjectAndPlac"
-  "ement\032\025.proxy_proto.SetReply\022L\n\022decodeAn"
-  "dGetObject\022\037.proxy_proto.ObjectAndPlacem"
-  "ent\032\025.proxy_proto.GetReply\022\?\n\013deleteBloc"
-  "k\022\031.proxy_proto.NodeAndBlock\032\025.proxy_pro"
-  "to.DelReplyb\006proto3"
+  "\005\"\243\001\n\031AppendStripeDataPlacement\022\021\n\tstrip"
+  "e_id\030\001 \001(\005\022\023\n\013append_size\030\002 \001(\005\022\022\n\ndatan"
+  "odeip\030\003 \003(\t\022\024\n\014datanodeport\030\004 \003(\005\022\021\n\tblo"
+  "ckkeys\030\005 \003(\t\022\020\n\010blockids\030\006 \003(\005\022\017\n\007offset"
+  "s\030\007 \003(\005\"\034\n\010SetReply\022\020\n\010ifcommit\030\001 \001(\010\"\036\n"
+  "\010GetReply\022\022\n\ngetsuccess\030\001 \001(\0102\213\003\n\014proxyS"
+  "ervice\022D\n\ncheckalive\022\032.proxy_proto.Check"
+  "aliveCMD\032\032.proxy_proto.RequestResult\022L\n\022"
+  "encodeAndSetObject\022\037.proxy_proto.ObjectA"
+  "ndPlacement\032\025.proxy_proto.SetReply\022L\n\022de"
+  "codeAndGetObject\022\037.proxy_proto.ObjectAnd"
+  "Placement\032\025.proxy_proto.GetReply\022\?\n\013dele"
+  "teBlock\022\031.proxy_proto.NodeAndBlock\032\025.pro"
+  "xy_proto.DelReply\022X\n\027scheduleAppend2Data"
+  "node\022&.proxy_proto.AppendStripeDataPlace"
+  "ment\032\025.proxy_proto.SetReplyb\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_proxy_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_proxy_2eproto = {
-    false, false, 1859, descriptor_table_protodef_proxy_2eproto,
+    false, false, 2115, descriptor_table_protodef_proxy_2eproto,
     "proxy.proto",
-    &descriptor_table_proxy_2eproto_once, nullptr, 0, 15,
+    &descriptor_table_proxy_2eproto_once, nullptr, 0, 16,
     schemas, file_default_instances, TableStruct_proxy_2eproto::offsets,
     file_level_metadata_proxy_2eproto, file_level_enum_descriptors_proxy_2eproto,
     file_level_service_descriptors_proxy_2eproto,
@@ -4716,6 +4759,421 @@ void ObjectAndPlacement::InternalSwap(ObjectAndPlacement* other) {
 
 // ===================================================================
 
+class AppendStripeDataPlacement::_Internal {
+ public:
+};
+
+AppendStripeDataPlacement::AppendStripeDataPlacement(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:proxy_proto.AppendStripeDataPlacement)
+}
+AppendStripeDataPlacement::AppendStripeDataPlacement(const AppendStripeDataPlacement& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  AppendStripeDataPlacement* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.datanodeip_){from._impl_.datanodeip_}
+    , decltype(_impl_.datanodeport_){from._impl_.datanodeport_}
+    , /*decltype(_impl_._datanodeport_cached_byte_size_)*/{0}
+    , decltype(_impl_.blockkeys_){from._impl_.blockkeys_}
+    , decltype(_impl_.blockids_){from._impl_.blockids_}
+    , /*decltype(_impl_._blockids_cached_byte_size_)*/{0}
+    , decltype(_impl_.offsets_){from._impl_.offsets_}
+    , /*decltype(_impl_._offsets_cached_byte_size_)*/{0}
+    , decltype(_impl_.stripe_id_){}
+    , decltype(_impl_.append_size_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ::memcpy(&_impl_.stripe_id_, &from._impl_.stripe_id_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.append_size_) -
+    reinterpret_cast<char*>(&_impl_.stripe_id_)) + sizeof(_impl_.append_size_));
+  // @@protoc_insertion_point(copy_constructor:proxy_proto.AppendStripeDataPlacement)
+}
+
+inline void AppendStripeDataPlacement::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.datanodeip_){arena}
+    , decltype(_impl_.datanodeport_){arena}
+    , /*decltype(_impl_._datanodeport_cached_byte_size_)*/{0}
+    , decltype(_impl_.blockkeys_){arena}
+    , decltype(_impl_.blockids_){arena}
+    , /*decltype(_impl_._blockids_cached_byte_size_)*/{0}
+    , decltype(_impl_.offsets_){arena}
+    , /*decltype(_impl_._offsets_cached_byte_size_)*/{0}
+    , decltype(_impl_.stripe_id_){0}
+    , decltype(_impl_.append_size_){0}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+}
+
+AppendStripeDataPlacement::~AppendStripeDataPlacement() {
+  // @@protoc_insertion_point(destructor:proxy_proto.AppendStripeDataPlacement)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void AppendStripeDataPlacement::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.datanodeip_.~RepeatedPtrField();
+  _impl_.datanodeport_.~RepeatedField();
+  _impl_.blockkeys_.~RepeatedPtrField();
+  _impl_.blockids_.~RepeatedField();
+  _impl_.offsets_.~RepeatedField();
+}
+
+void AppendStripeDataPlacement::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void AppendStripeDataPlacement::Clear() {
+// @@protoc_insertion_point(message_clear_start:proxy_proto.AppendStripeDataPlacement)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.datanodeip_.Clear();
+  _impl_.datanodeport_.Clear();
+  _impl_.blockkeys_.Clear();
+  _impl_.blockids_.Clear();
+  _impl_.offsets_.Clear();
+  ::memset(&_impl_.stripe_id_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.append_size_) -
+      reinterpret_cast<char*>(&_impl_.stripe_id_)) + sizeof(_impl_.append_size_));
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* AppendStripeDataPlacement::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // int32 stripe_id = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.stripe_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // int32 append_size = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          _impl_.append_size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated string datanodeip = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            auto str = _internal_add_datanodeip();
+            ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+            CHK_(ptr);
+            CHK_(::_pbi::VerifyUTF8(str, "proxy_proto.AppendStripeDataPlacement.datanodeip"));
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated int32 datanodeport = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_datanodeport(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<uint8_t>(tag) == 32) {
+          _internal_add_datanodeport(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated string blockkeys = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            auto str = _internal_add_blockkeys();
+            ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+            CHK_(ptr);
+            CHK_(::_pbi::VerifyUTF8(str, "proxy_proto.AppendStripeDataPlacement.blockkeys"));
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<42>(ptr));
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated int32 blockids = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_blockids(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<uint8_t>(tag) == 48) {
+          _internal_add_blockids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated int32 offsets = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_offsets(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<uint8_t>(tag) == 56) {
+          _internal_add_offsets(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* AppendStripeDataPlacement::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:proxy_proto.AppendStripeDataPlacement)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // int32 stripe_id = 1;
+  if (this->_internal_stripe_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_stripe_id(), target);
+  }
+
+  // int32 append_size = 2;
+  if (this->_internal_append_size() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(2, this->_internal_append_size(), target);
+  }
+
+  // repeated string datanodeip = 3;
+  for (int i = 0, n = this->_internal_datanodeip_size(); i < n; i++) {
+    const auto& s = this->_internal_datanodeip(i);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      s.data(), static_cast<int>(s.length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "proxy_proto.AppendStripeDataPlacement.datanodeip");
+    target = stream->WriteString(3, s, target);
+  }
+
+  // repeated int32 datanodeport = 4;
+  {
+    int byte_size = _impl_._datanodeport_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteInt32Packed(
+          4, _internal_datanodeport(), byte_size, target);
+    }
+  }
+
+  // repeated string blockkeys = 5;
+  for (int i = 0, n = this->_internal_blockkeys_size(); i < n; i++) {
+    const auto& s = this->_internal_blockkeys(i);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      s.data(), static_cast<int>(s.length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "proxy_proto.AppendStripeDataPlacement.blockkeys");
+    target = stream->WriteString(5, s, target);
+  }
+
+  // repeated int32 blockids = 6;
+  {
+    int byte_size = _impl_._blockids_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteInt32Packed(
+          6, _internal_blockids(), byte_size, target);
+    }
+  }
+
+  // repeated int32 offsets = 7;
+  {
+    int byte_size = _impl_._offsets_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteInt32Packed(
+          7, _internal_offsets(), byte_size, target);
+    }
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:proxy_proto.AppendStripeDataPlacement)
+  return target;
+}
+
+size_t AppendStripeDataPlacement::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:proxy_proto.AppendStripeDataPlacement)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated string datanodeip = 3;
+  total_size += 1 *
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(_impl_.datanodeip_.size());
+  for (int i = 0, n = _impl_.datanodeip_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      _impl_.datanodeip_.Get(i));
+  }
+
+  // repeated int32 datanodeport = 4;
+  {
+    size_t data_size = ::_pbi::WireFormatLite::
+      Int32Size(this->_impl_.datanodeport_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::_pbi::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    }
+    int cached_size = ::_pbi::ToCachedSize(data_size);
+    _impl_._datanodeport_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
+  }
+
+  // repeated string blockkeys = 5;
+  total_size += 1 *
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(_impl_.blockkeys_.size());
+  for (int i = 0, n = _impl_.blockkeys_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      _impl_.blockkeys_.Get(i));
+  }
+
+  // repeated int32 blockids = 6;
+  {
+    size_t data_size = ::_pbi::WireFormatLite::
+      Int32Size(this->_impl_.blockids_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::_pbi::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    }
+    int cached_size = ::_pbi::ToCachedSize(data_size);
+    _impl_._blockids_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
+  }
+
+  // repeated int32 offsets = 7;
+  {
+    size_t data_size = ::_pbi::WireFormatLite::
+      Int32Size(this->_impl_.offsets_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::_pbi::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    }
+    int cached_size = ::_pbi::ToCachedSize(data_size);
+    _impl_._offsets_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
+  }
+
+  // int32 stripe_id = 1;
+  if (this->_internal_stripe_id() != 0) {
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_stripe_id());
+  }
+
+  // int32 append_size = 2;
+  if (this->_internal_append_size() != 0) {
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_append_size());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData AppendStripeDataPlacement::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    AppendStripeDataPlacement::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*AppendStripeDataPlacement::GetClassData() const { return &_class_data_; }
+
+
+void AppendStripeDataPlacement::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<AppendStripeDataPlacement*>(&to_msg);
+  auto& from = static_cast<const AppendStripeDataPlacement&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:proxy_proto.AppendStripeDataPlacement)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  _this->_impl_.datanodeip_.MergeFrom(from._impl_.datanodeip_);
+  _this->_impl_.datanodeport_.MergeFrom(from._impl_.datanodeport_);
+  _this->_impl_.blockkeys_.MergeFrom(from._impl_.blockkeys_);
+  _this->_impl_.blockids_.MergeFrom(from._impl_.blockids_);
+  _this->_impl_.offsets_.MergeFrom(from._impl_.offsets_);
+  if (from._internal_stripe_id() != 0) {
+    _this->_internal_set_stripe_id(from._internal_stripe_id());
+  }
+  if (from._internal_append_size() != 0) {
+    _this->_internal_set_append_size(from._internal_append_size());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void AppendStripeDataPlacement::CopyFrom(const AppendStripeDataPlacement& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:proxy_proto.AppendStripeDataPlacement)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool AppendStripeDataPlacement::IsInitialized() const {
+  return true;
+}
+
+void AppendStripeDataPlacement::InternalSwap(AppendStripeDataPlacement* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  _impl_.datanodeip_.InternalSwap(&other->_impl_.datanodeip_);
+  _impl_.datanodeport_.InternalSwap(&other->_impl_.datanodeport_);
+  _impl_.blockkeys_.InternalSwap(&other->_impl_.blockkeys_);
+  _impl_.blockids_.InternalSwap(&other->_impl_.blockids_);
+  _impl_.offsets_.InternalSwap(&other->_impl_.offsets_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(AppendStripeDataPlacement, _impl_.append_size_)
+      + sizeof(AppendStripeDataPlacement::_impl_.append_size_)
+      - PROTOBUF_FIELD_OFFSET(AppendStripeDataPlacement, _impl_.stripe_id_)>(
+          reinterpret_cast<char*>(&_impl_.stripe_id_),
+          reinterpret_cast<char*>(&other->_impl_.stripe_id_));
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata AppendStripeDataPlacement::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_proxy_2eproto_getter, &descriptor_table_proxy_2eproto_once,
+      file_level_metadata_proxy_2eproto[13]);
+}
+
+// ===================================================================
+
 class SetReply::_Internal {
  public:
 };
@@ -4889,7 +5347,7 @@ void SetReply::InternalSwap(SetReply* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata SetReply::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_proxy_2eproto_getter, &descriptor_table_proxy_2eproto_once,
-      file_level_metadata_proxy_2eproto[13]);
+      file_level_metadata_proxy_2eproto[14]);
 }
 
 // ===================================================================
@@ -5067,7 +5525,7 @@ void GetReply::InternalSwap(GetReply* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata GetReply::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_proxy_2eproto_getter, &descriptor_table_proxy_2eproto_once,
-      file_level_metadata_proxy_2eproto[14]);
+      file_level_metadata_proxy_2eproto[15]);
 }
 
 // @@protoc_insertion_point(namespace_scope)
@@ -5124,6 +5582,10 @@ Arena::CreateMaybeMessage< ::proxy_proto::RequestResult >(Arena* arena) {
 template<> PROTOBUF_NOINLINE ::proxy_proto::ObjectAndPlacement*
 Arena::CreateMaybeMessage< ::proxy_proto::ObjectAndPlacement >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proxy_proto::ObjectAndPlacement >(arena);
+}
+template<> PROTOBUF_NOINLINE ::proxy_proto::AppendStripeDataPlacement*
+Arena::CreateMaybeMessage< ::proxy_proto::AppendStripeDataPlacement >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::proxy_proto::AppendStripeDataPlacement >(arena);
 }
 template<> PROTOBUF_NOINLINE ::proxy_proto::SetReply*
 Arena::CreateMaybeMessage< ::proxy_proto::SetReply >(Arena* arena) {
