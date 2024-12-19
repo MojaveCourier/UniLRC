@@ -85,10 +85,48 @@ namespace ECProject
     return grpc::Status::OK;
   }
 
-  // bool ProxyImpl::AppendToDatanode(const char *key, size_t key_length, const char *value, size_t value_length, const char *ip, int port, int offset)
-  // {
-  //   return true;
-  // }
+  // append_offset is the physical offset of the data block
+  bool ProxyImpl::AppendToDatanode(const char *block_key, int block_id, size_t append_size, const char *append_buf, int append_offset, const char *ip, int port)
+  {
+    try
+    {
+      grpc::ClientContext context;
+      datanode_proto::AppendInfo append_info;
+      datanode_proto::RequestResult result;
+      append_info.set_block_key(std::string(block_key));
+      append_info.set_block_id(block_id);
+      append_info.set_append_size(append_size);
+      append_info.set_append_offset(append_offset);
+      std::string node_ip_port = std::string(ip) + ":" + std::to_string(port);
+      grpc::Status stat = m_datanode_ptrs[node_ip_port]->handleAppend(&context, append_info, &result);
+
+      asio::error_code error;
+      asio::io_context io_context;
+      asio::ip::tcp::socket socket(io_context);
+      asio::ip::tcp::resolver resolver(io_context);
+      asio::error_code con_error;
+      asio::connect(socket, resolver.resolve({std::string(ip), std::to_string(port + ECProject::PORT_SHIFT)}), con_error);
+      if (!con_error && IF_DEBUG)
+      {
+        std::cout << "Connect to " << ip << ":" << port + ECProject::PORT_SHIFT << " success!" << std::endl;
+      }
+      asio::write(socket, asio::buffer(append_buf, append_size), error);
+      asio::error_code ignore_ec;
+      socket.shutdown(asio::ip::tcp::socket::shutdown_both, ignore_ec);
+      socket.close(ignore_ec);
+      if (IF_DEBUG)
+      {
+        std::cout << "[Proxy" << m_self_cluster_id << "][Append]"
+                  << "Append to " << block_key << " with length of " << append_size << std::endl;
+      }
+    }
+    catch (const std::exception &e)
+    {
+      std::cerr << e.what() << '\n';
+    }
+
+    return true;
+  }
 
   bool ProxyImpl::SetToDatanode(const char *key, size_t key_length, const char *value, size_t value_length, const char *ip, int port, int offset)
   {
@@ -110,10 +148,10 @@ namespace ECProject
       asio::ip::tcp::socket socket(io_context);
       asio::ip::tcp::resolver resolver(io_context);
       asio::error_code con_error;
-      asio::connect(socket, resolver.resolve({std::string(ip), std::to_string(port + 20)}), con_error);
+      asio::connect(socket, resolver.resolve({std::string(ip), std::to_string(port + ECProject::PORT_SHIFT)}), con_error);
       if (!con_error && IF_DEBUG)
       {
-        std::cout << "Connect to " << ip << ":" << port + 20 << " success!" << std::endl;
+        std::cout << "Connect to " << ip << ":" << port + ECProject::PORT_SHIFT << " success!" << std::endl;
       }
 
       asio::write(socket, asio::buffer(value, value_length), error);
@@ -165,7 +203,7 @@ namespace ECProject
       asio::io_context io_context;
       asio::ip::tcp::resolver resolver(io_context);
       asio::ip::tcp::socket socket(io_context);
-      asio::connect(socket, resolver.resolve({std::string(ip), std::to_string(port + 20)}));
+      asio::connect(socket, resolver.resolve({std::string(ip), std::to_string(port + ECProject::PORT_SHIFT)}));
       asio::error_code ec;
       asio::read(socket, asio::buffer(buf, value_length), ec);
       asio::error_code ignore_ec;
@@ -247,7 +285,16 @@ namespace ECProject
         socket_data.close(ignore_ec);
 
         // TODO: implement AppendToDatanode First
-        auto append_to_datanode = [this](int j) {};
+        auto append_to_datanode = [this](int j)
+        {
+          std::string block_key = keys_nodes[j].first;
+          std::pair<std::string, int> &ip_and_port = keys_nodes[j].second;
+          AppendToDatanode(block_key.c_str(), j, append_size, append_buf.data(), j, ip_and_port.first.c_str(), ip_and_port.second);
+        };
+        for (int j = 0; j < keys_nodes.size(); j++)
+        {
+          append_to_datanode(j);
+        }
       }
       catch (std::exception &e)
       {

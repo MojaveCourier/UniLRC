@@ -7,6 +7,9 @@
 #include <grpcpp/grpcpp.h>
 #include <asio.hpp>
 #include <string>
+#include <vector>
+#include "meta_definition.h"
+#include "config.h"
 #define IF_DEBUG true
 // #define IF_DEBUG false
 namespace ECProject
@@ -15,11 +18,11 @@ namespace ECProject
         : public datanode_proto::datanodeService::Service
     {
     public:
-        DatanodeImpl(std::string datanode_ip_port) : datanode_ip_port(datanode_ip_port), acceptor(io_context, asio::ip::tcp::endpoint(asio::ip::address::from_string(datanode_ip_port.substr(0, datanode_ip_port.find(':')).c_str()), 20 + std::stoi(datanode_ip_port.substr(datanode_ip_port.find(':') + 1, datanode_ip_port.size()))))
+        DatanodeImpl(std::string datanode_ip_port) : datanode_ip_port(datanode_ip_port), acceptor(io_context, asio::ip::tcp::endpoint(asio::ip::address::from_string(datanode_ip_port.substr(0, datanode_ip_port.find(':')).c_str()), ECProject::PORT_SHIFT + std::stoi(datanode_ip_port.substr(datanode_ip_port.find(':') + 1, datanode_ip_port.size()))))
         {
             m_ip = datanode_ip_port.substr(0, datanode_ip_port.find(':'));
             m_port = std::stoi(datanode_ip_port.substr(datanode_ip_port.find(':') + 1, datanode_ip_port.size()));
-            m_download_port = m_port + 20;
+            m_download_port = m_port + ECProject::PORT_SHIFT;
         }
         ~DatanodeImpl() {};
         grpc::Status checkalive(
@@ -36,6 +39,11 @@ namespace ECProject
             grpc::ServerContext *context,
             const datanode_proto::AppendInfo *append_info,
             datanode_proto::RequestResult *response) override;
+        // merge parity
+        grpc::Status handleMergeParity(
+            grpc::ServerContext *context,
+            const datanode_proto::MergeParityInfo *merge_parity_info,
+            datanode_proto::RequestResult *response) override;
         // get
         grpc::Status handleGet(
             grpc::ServerContext *context,
@@ -46,6 +54,10 @@ namespace ECProject
             grpc::ServerContext *context,
             const datanode_proto::DelInfo *del_info,
             datanode_proto::RequestResult *response) override;
+
+        void serialize(const std::string &filename, const ParitySlice &slice);
+        std::vector<ParitySlice> deserialize(const std::string &filename);
+        ECProject::Config *m_sys_config;
 
     private:
         std::string datanode_ip_port;
@@ -61,6 +73,11 @@ namespace ECProject
     {
     public:
         DataNode(std::string datanode_ip_port) : datanode_ip_port(datanode_ip_port), m_datanodeImpl_ptr(datanode_ip_port) {}
+        DataNode(std::string datanode_ip_port, std::string sys_config_path) : datanode_ip_port(datanode_ip_port), m_datanodeImpl_ptr(datanode_ip_port)
+        {
+            m_datanodeImpl_ptr.m_sys_config = ECProject::Config::getInstance(sys_config_path);
+        }
+
         void Run()
         {
             grpc::EnableDefaultHealthCheckService(true);

@@ -64,6 +64,7 @@ namespace ECProject
     bool DelInDatanode(std::string key, std::string node_ip_port);
 
     ECProject::Config *m_sys_config;
+    bool AppendToDatanode(const char *block_key, int block_id, size_t append_size, const char *append_buf, int append_offset, const char *ip, int port);
 
   private:
     std::mutex m_mutex;

@@ -57,6 +57,9 @@ extern DelInfoDefaultTypeInternal _DelInfo_default_instance_;
 class GetInfo;
 struct GetInfoDefaultTypeInternal;
 extern GetInfoDefaultTypeInternal _GetInfo_default_instance_;
+class MergeParityInfo;
+struct MergeParityInfoDefaultTypeInternal;
+extern MergeParityInfoDefaultTypeInternal _MergeParityInfo_default_instance_;
 class RequestResult;
 struct RequestResultDefaultTypeInternal;
 extern RequestResultDefaultTypeInternal _RequestResult_default_instance_;
@@ -69,6 +72,7 @@ template<> ::datanode_proto::AppendInfo* Arena::CreateMaybeMessage<::datanode_pr
 template<> ::datanode_proto::CheckaliveCMD* Arena::CreateMaybeMessage<::datanode_proto::CheckaliveCMD>(Arena*);
 template<> ::datanode_proto::DelInfo* Arena::CreateMaybeMessage<::datanode_proto::DelInfo>(Arena*);
 template<> ::datanode_proto::GetInfo* Arena::CreateMaybeMessage<::datanode_proto::GetInfo>(Arena*);
+template<> ::datanode_proto::MergeParityInfo* Arena::CreateMaybeMessage<::datanode_proto::MergeParityInfo>(Arena*);
 template<> ::datanode_proto::RequestResult* Arena::CreateMaybeMessage<::datanode_proto::RequestResult>(Arena*);
 template<> ::datanode_proto::SetInfo* Arena::CreateMaybeMessage<::datanode_proto::SetInfo>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
@@ -723,11 +727,9 @@ class AppendInfo final :
 
   enum : int {
     kBlockKeyFieldNumber = 1,
-    kProxyIpFieldNumber = 3,
     kBlockIdFieldNumber = 2,
-    kProxyPortFieldNumber = 4,
-    kAppendSizeFieldNumber = 5,
-    kAppendOffsetFieldNumber = 6,
+    kAppendSizeFieldNumber = 3,
+    kAppendOffsetFieldNumber = 4,
   };
   // string block_key = 1;
   void clear_block_key();
@@ -743,20 +745,6 @@ class AppendInfo final :
   std::string* _internal_mutable_block_key();
   public:
 
-  // string proxy_ip = 3;
-  void clear_proxy_ip();
-  const std::string& proxy_ip() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
-  void set_proxy_ip(ArgT0&& arg0, ArgT... args);
-  std::string* mutable_proxy_ip();
-  PROTOBUF_NODISCARD std::string* release_proxy_ip();
-  void set_allocated_proxy_ip(std::string* proxy_ip);
-  private:
-  const std::string& _internal_proxy_ip() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_proxy_ip(const std::string& value);
-  std::string* _internal_mutable_proxy_ip();
-  public:
-
   // int32 block_id = 2;
   void clear_block_id();
   int32_t block_id() const;
@@ -766,16 +754,7 @@ class AppendInfo final :
   void _internal_set_block_id(int32_t value);
   public:
 
-  // int32 proxy_port = 4;
-  void clear_proxy_port();
-  int32_t proxy_port() const;
-  void set_proxy_port(int32_t value);
-  private:
-  int32_t _internal_proxy_port() const;
-  void _internal_set_proxy_port(int32_t value);
-  public:
-
-  // int32 append_size = 5;
+  // int32 append_size = 3;
   void clear_append_size();
   int32_t append_size() const;
   void set_append_size(int32_t value);
@@ -784,7 +763,7 @@ class AppendInfo final :
   void _internal_set_append_size(int32_t value);
   public:
 
-  // int32 append_offset = 6;
+  // int32 append_offset = 4;
   void clear_append_offset();
   int32_t append_offset() const;
   void set_append_offset(int32_t value);
@@ -802,11 +781,173 @@ class AppendInfo final :
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr block_key_;
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr proxy_ip_;
     int32_t block_id_;
-    int32_t proxy_port_;
     int32_t append_size_;
     int32_t append_offset_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_datanode_2eproto;
+};
+// -------------------------------------------------------------------
+
+class MergeParityInfo final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:datanode_proto.MergeParityInfo) */ {
+ public:
+  inline MergeParityInfo() : MergeParityInfo(nullptr) {}
+  ~MergeParityInfo() override;
+  explicit PROTOBUF_CONSTEXPR MergeParityInfo(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  MergeParityInfo(const MergeParityInfo& from);
+  MergeParityInfo(MergeParityInfo&& from) noexcept
+    : MergeParityInfo() {
+    *this = ::std::move(from);
+  }
+
+  inline MergeParityInfo& operator=(const MergeParityInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline MergeParityInfo& operator=(MergeParityInfo&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const MergeParityInfo& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const MergeParityInfo* internal_default_instance() {
+    return reinterpret_cast<const MergeParityInfo*>(
+               &_MergeParityInfo_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    4;
+
+  friend void swap(MergeParityInfo& a, MergeParityInfo& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(MergeParityInfo* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(MergeParityInfo* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  MergeParityInfo* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<MergeParityInfo>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const MergeParityInfo& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const MergeParityInfo& from) {
+    MergeParityInfo::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(MergeParityInfo* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "datanode_proto.MergeParityInfo";
+  }
+  protected:
+  explicit MergeParityInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kBlockKeyFieldNumber = 1,
+    kBlockIdFieldNumber = 2,
+  };
+  // string block_key = 1;
+  void clear_block_key();
+  const std::string& block_key() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_block_key(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_block_key();
+  PROTOBUF_NODISCARD std::string* release_block_key();
+  void set_allocated_block_key(std::string* block_key);
+  private:
+  const std::string& _internal_block_key() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_block_key(const std::string& value);
+  std::string* _internal_mutable_block_key();
+  public:
+
+  // int32 block_id = 2;
+  void clear_block_id();
+  int32_t block_id() const;
+  void set_block_id(int32_t value);
+  private:
+  int32_t _internal_block_id() const;
+  void _internal_set_block_id(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:datanode_proto.MergeParityInfo)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr block_key_;
+    int32_t block_id_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -862,7 +1003,7 @@ class GetInfo final :
                &_GetInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    5;
 
   friend void swap(GetInfo& a, GetInfo& b) {
     a.Swap(&b);
@@ -1064,7 +1205,7 @@ class DelInfo final :
                &_DelInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    6;
 
   friend void swap(DelInfo& a, DelInfo& b) {
     a.Swap(&b);
@@ -1530,77 +1671,7 @@ inline void AppendInfo::set_block_id(int32_t value) {
   // @@protoc_insertion_point(field_set:datanode_proto.AppendInfo.block_id)
 }
 
-// string proxy_ip = 3;
-inline void AppendInfo::clear_proxy_ip() {
-  _impl_.proxy_ip_.ClearToEmpty();
-}
-inline const std::string& AppendInfo::proxy_ip() const {
-  // @@protoc_insertion_point(field_get:datanode_proto.AppendInfo.proxy_ip)
-  return _internal_proxy_ip();
-}
-template <typename ArgT0, typename... ArgT>
-inline PROTOBUF_ALWAYS_INLINE
-void AppendInfo::set_proxy_ip(ArgT0&& arg0, ArgT... args) {
- 
- _impl_.proxy_ip_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:datanode_proto.AppendInfo.proxy_ip)
-}
-inline std::string* AppendInfo::mutable_proxy_ip() {
-  std::string* _s = _internal_mutable_proxy_ip();
-  // @@protoc_insertion_point(field_mutable:datanode_proto.AppendInfo.proxy_ip)
-  return _s;
-}
-inline const std::string& AppendInfo::_internal_proxy_ip() const {
-  return _impl_.proxy_ip_.Get();
-}
-inline void AppendInfo::_internal_set_proxy_ip(const std::string& value) {
-  
-  _impl_.proxy_ip_.Set(value, GetArenaForAllocation());
-}
-inline std::string* AppendInfo::_internal_mutable_proxy_ip() {
-  
-  return _impl_.proxy_ip_.Mutable(GetArenaForAllocation());
-}
-inline std::string* AppendInfo::release_proxy_ip() {
-  // @@protoc_insertion_point(field_release:datanode_proto.AppendInfo.proxy_ip)
-  return _impl_.proxy_ip_.Release();
-}
-inline void AppendInfo::set_allocated_proxy_ip(std::string* proxy_ip) {
-  if (proxy_ip != nullptr) {
-    
-  } else {
-    
-  }
-  _impl_.proxy_ip_.SetAllocated(proxy_ip, GetArenaForAllocation());
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (_impl_.proxy_ip_.IsDefault()) {
-    _impl_.proxy_ip_.Set("", GetArenaForAllocation());
-  }
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:datanode_proto.AppendInfo.proxy_ip)
-}
-
-// int32 proxy_port = 4;
-inline void AppendInfo::clear_proxy_port() {
-  _impl_.proxy_port_ = 0;
-}
-inline int32_t AppendInfo::_internal_proxy_port() const {
-  return _impl_.proxy_port_;
-}
-inline int32_t AppendInfo::proxy_port() const {
-  // @@protoc_insertion_point(field_get:datanode_proto.AppendInfo.proxy_port)
-  return _internal_proxy_port();
-}
-inline void AppendInfo::_internal_set_proxy_port(int32_t value) {
-  
-  _impl_.proxy_port_ = value;
-}
-inline void AppendInfo::set_proxy_port(int32_t value) {
-  _internal_set_proxy_port(value);
-  // @@protoc_insertion_point(field_set:datanode_proto.AppendInfo.proxy_port)
-}
-
-// int32 append_size = 5;
+// int32 append_size = 3;
 inline void AppendInfo::clear_append_size() {
   _impl_.append_size_ = 0;
 }
@@ -1620,7 +1691,7 @@ inline void AppendInfo::set_append_size(int32_t value) {
   // @@protoc_insertion_point(field_set:datanode_proto.AppendInfo.append_size)
 }
 
-// int32 append_offset = 6;
+// int32 append_offset = 4;
 inline void AppendInfo::clear_append_offset() {
   _impl_.append_offset_ = 0;
 }
@@ -1638,6 +1709,80 @@ inline void AppendInfo::_internal_set_append_offset(int32_t value) {
 inline void AppendInfo::set_append_offset(int32_t value) {
   _internal_set_append_offset(value);
   // @@protoc_insertion_point(field_set:datanode_proto.AppendInfo.append_offset)
+}
+
+// -------------------------------------------------------------------
+
+// MergeParityInfo
+
+// string block_key = 1;
+inline void MergeParityInfo::clear_block_key() {
+  _impl_.block_key_.ClearToEmpty();
+}
+inline const std::string& MergeParityInfo::block_key() const {
+  // @@protoc_insertion_point(field_get:datanode_proto.MergeParityInfo.block_key)
+  return _internal_block_key();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void MergeParityInfo::set_block_key(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.block_key_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:datanode_proto.MergeParityInfo.block_key)
+}
+inline std::string* MergeParityInfo::mutable_block_key() {
+  std::string* _s = _internal_mutable_block_key();
+  // @@protoc_insertion_point(field_mutable:datanode_proto.MergeParityInfo.block_key)
+  return _s;
+}
+inline const std::string& MergeParityInfo::_internal_block_key() const {
+  return _impl_.block_key_.Get();
+}
+inline void MergeParityInfo::_internal_set_block_key(const std::string& value) {
+  
+  _impl_.block_key_.Set(value, GetArenaForAllocation());
+}
+inline std::string* MergeParityInfo::_internal_mutable_block_key() {
+  
+  return _impl_.block_key_.Mutable(GetArenaForAllocation());
+}
+inline std::string* MergeParityInfo::release_block_key() {
+  // @@protoc_insertion_point(field_release:datanode_proto.MergeParityInfo.block_key)
+  return _impl_.block_key_.Release();
+}
+inline void MergeParityInfo::set_allocated_block_key(std::string* block_key) {
+  if (block_key != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.block_key_.SetAllocated(block_key, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.block_key_.IsDefault()) {
+    _impl_.block_key_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:datanode_proto.MergeParityInfo.block_key)
+}
+
+// int32 block_id = 2;
+inline void MergeParityInfo::clear_block_id() {
+  _impl_.block_id_ = 0;
+}
+inline int32_t MergeParityInfo::_internal_block_id() const {
+  return _impl_.block_id_;
+}
+inline int32_t MergeParityInfo::block_id() const {
+  // @@protoc_insertion_point(field_get:datanode_proto.MergeParityInfo.block_id)
+  return _internal_block_id();
+}
+inline void MergeParityInfo::_internal_set_block_id(int32_t value) {
+  
+  _impl_.block_id_ = value;
+}
+inline void MergeParityInfo::set_block_id(int32_t value) {
+  _internal_set_block_id(value);
+  // @@protoc_insertion_point(field_set:datanode_proto.MergeParityInfo.block_id)
 }
 
 // -------------------------------------------------------------------
@@ -1861,6 +2006,8 @@ inline void DelInfo::set_allocated_block_key(std::string* block_key) {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

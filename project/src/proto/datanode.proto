@@ -24,6 +24,8 @@ service datanodeService {
   rpc handleSet(SetInfo) returns(RequestResult);
   // append
   rpc handleAppend(AppendInfo) returns(RequestResult);
+  // merge parity
+  rpc handleMergeParity(MergeParityInfo) returns(RequestResult);
   // get
   rpc handleGet(GetInfo) returns(RequestResult);
   // delete
@@ -53,10 +55,13 @@ message SetInfo {
 message AppendInfo {
     string block_key = 1;
     int32 block_id = 2;
-    string proxy_ip = 3;
-    int32 proxy_port = 4;
-    int32 append_size = 5;
-    int32 append_offset = 6;
+    int32 append_size = 3;
+    int32 append_offset = 4;
+}
+
+message MergeParityInfo {
+    string block_key = 1;
+    int32 block_id = 2;
 }
 
 message GetInfo {

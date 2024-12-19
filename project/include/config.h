@@ -5,6 +5,8 @@
 
 namespace ECProject
 {
+  const int PORT_SHIFT = 20;
+
   class Config
   {
   private:

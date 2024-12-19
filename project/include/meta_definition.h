@@ -94,6 +94,47 @@ namespace ECProject
     uint64_t offset;
   } StripeOffset;
 
+  typedef struct ParitySlice
+  {
+    int offset;
+    int size;
+    char *slice_ptr;
+
+    ParitySlice() : offset(0), size(0), slice_ptr(nullptr) {}
+    // the slice_ptr must be allocated on heap, otherwise will cause failure free
+    explicit ParitySlice(int offset, int size, char *data)
+        : offset(offset), size(size), slice_ptr(data) {}
+
+    ~ParitySlice()
+    {
+      delete[] slice_ptr;
+    }
+
+    // 禁止复制构造函数和赋值运算符
+    ParitySlice(const ParitySlice &) = delete;
+    ParitySlice &operator=(const ParitySlice &) = delete;
+
+    // 允许移动构造函数和赋值运算符
+    ParitySlice(ParitySlice &&other) noexcept
+        : offset(other.offset), size(other.size), slice_ptr(other.slice_ptr)
+    {
+      other.slice_ptr = nullptr;
+    }
+
+    ParitySlice &operator=(ParitySlice &&other) noexcept
+    {
+      if (this != &other)
+      {
+        delete[] slice_ptr;
+        offset = other.offset;
+        size = other.size;
+        slice_ptr = other.slice_ptr;
+        other.slice_ptr = nullptr;
+      }
+      return *this;
+    }
+  } ParitySlice;
+
   typedef struct ECSchema
   {
     ECSchema() = default;

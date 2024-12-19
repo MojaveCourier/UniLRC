@@ -75,6 +75,14 @@ class datanodeService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::datanode_proto::RequestResult>> PrepareAsynchandleAppend(::grpc::ClientContext* context, const ::datanode_proto::AppendInfo& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::datanode_proto::RequestResult>>(PrepareAsynchandleAppendRaw(context, request, cq));
     }
+    // merge parity
+    virtual ::grpc::Status handleMergeParity(::grpc::ClientContext* context, const ::datanode_proto::MergeParityInfo& request, ::datanode_proto::RequestResult* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::datanode_proto::RequestResult>> AsynchandleMergeParity(::grpc::ClientContext* context, const ::datanode_proto::MergeParityInfo& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::datanode_proto::RequestResult>>(AsynchandleMergeParityRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::datanode_proto::RequestResult>> PrepareAsynchandleMergeParity(::grpc::ClientContext* context, const ::datanode_proto::MergeParityInfo& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::datanode_proto::RequestResult>>(PrepareAsynchandleMergeParityRaw(context, request, cq));
+    }
     // get
     virtual ::grpc::Status handleGet(::grpc::ClientContext* context, const ::datanode_proto::GetInfo& request, ::datanode_proto::RequestResult* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::datanode_proto::RequestResult>> AsynchandleGet(::grpc::ClientContext* context, const ::datanode_proto::GetInfo& request, ::grpc::CompletionQueue* cq) {
@@ -103,6 +111,9 @@ class datanodeService final {
       // append
       virtual void handleAppend(::grpc::ClientContext* context, const ::datanode_proto::AppendInfo* request, ::datanode_proto::RequestResult* response, std::function<void(::grpc::Status)>) = 0;
       virtual void handleAppend(::grpc::ClientContext* context, const ::datanode_proto::AppendInfo* request, ::datanode_proto::RequestResult* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      // merge parity
+      virtual void handleMergeParity(::grpc::ClientContext* context, const ::datanode_proto::MergeParityInfo* request, ::datanode_proto::RequestResult* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void handleMergeParity(::grpc::ClientContext* context, const ::datanode_proto::MergeParityInfo* request, ::datanode_proto::RequestResult* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       // get
       virtual void handleGet(::grpc::ClientContext* context, const ::datanode_proto::GetInfo* request, ::datanode_proto::RequestResult* response, std::function<void(::grpc::Status)>) = 0;
       virtual void handleGet(::grpc::ClientContext* context, const ::datanode_proto::GetInfo* request, ::datanode_proto::RequestResult* response, ::grpc::ClientUnaryReactor* reactor) = 0;
@@ -120,6 +131,8 @@ class datanodeService final {
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::datanode_proto::RequestResult>* PrepareAsynchandleSetRaw(::grpc::ClientContext* context, const ::datanode_proto::SetInfo& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::datanode_proto::RequestResult>* AsynchandleAppendRaw(::grpc::ClientContext* context, const ::datanode_proto::AppendInfo& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::datanode_proto::RequestResult>* PrepareAsynchandleAppendRaw(::grpc::ClientContext* context, const ::datanode_proto::AppendInfo& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::datanode_proto::RequestResult>* AsynchandleMergeParityRaw(::grpc::ClientContext* context, const ::datanode_proto::MergeParityInfo& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::datanode_proto::RequestResult>* PrepareAsynchandleMergeParityRaw(::grpc::ClientContext* context, const ::datanode_proto::MergeParityInfo& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::datanode_proto::RequestResult>* AsynchandleGetRaw(::grpc::ClientContext* context, const ::datanode_proto::GetInfo& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::datanode_proto::RequestResult>* PrepareAsynchandleGetRaw(::grpc::ClientContext* context, const ::datanode_proto::GetInfo& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::datanode_proto::RequestResult>* AsynchandleDeleteRaw(::grpc::ClientContext* context, const ::datanode_proto::DelInfo& request, ::grpc::CompletionQueue* cq) = 0;
@@ -149,6 +162,13 @@ class datanodeService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::datanode_proto::RequestResult>> PrepareAsynchandleAppend(::grpc::ClientContext* context, const ::datanode_proto::AppendInfo& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::datanode_proto::RequestResult>>(PrepareAsynchandleAppendRaw(context, request, cq));
     }
+    ::grpc::Status handleMergeParity(::grpc::ClientContext* context, const ::datanode_proto::MergeParityInfo& request, ::datanode_proto::RequestResult* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::datanode_proto::RequestResult>> AsynchandleMergeParity(::grpc::ClientContext* context, const ::datanode_proto::MergeParityInfo& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::datanode_proto::RequestResult>>(AsynchandleMergeParityRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::datanode_proto::RequestResult>> PrepareAsynchandleMergeParity(::grpc::ClientContext* context, const ::datanode_proto::MergeParityInfo& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::datanode_proto::RequestResult>>(PrepareAsynchandleMergeParityRaw(context, request, cq));
+    }
     ::grpc::Status handleGet(::grpc::ClientContext* context, const ::datanode_proto::GetInfo& request, ::datanode_proto::RequestResult* response) override;
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::datanode_proto::RequestResult>> AsynchandleGet(::grpc::ClientContext* context, const ::datanode_proto::GetInfo& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::datanode_proto::RequestResult>>(AsynchandleGetRaw(context, request, cq));
@@ -172,6 +192,8 @@ class datanodeService final {
       void handleSet(::grpc::ClientContext* context, const ::datanode_proto::SetInfo* request, ::datanode_proto::RequestResult* response, ::grpc::ClientUnaryReactor* reactor) override;
       void handleAppend(::grpc::ClientContext* context, const ::datanode_proto::AppendInfo* request, ::datanode_proto::RequestResult* response, std::function<void(::grpc::Status)>) override;
       void handleAppend(::grpc::ClientContext* context, const ::datanode_proto::AppendInfo* request, ::datanode_proto::RequestResult* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void handleMergeParity(::grpc::ClientContext* context, const ::datanode_proto::MergeParityInfo* request, ::datanode_proto::RequestResult* response, std::function<void(::grpc::Status)>) override;
+      void handleMergeParity(::grpc::ClientContext* context, const ::datanode_proto::MergeParityInfo* request, ::datanode_proto::RequestResult* response, ::grpc::ClientUnaryReactor* reactor) override;
       void handleGet(::grpc::ClientContext* context, const ::datanode_proto::GetInfo* request, ::datanode_proto::RequestResult* response, std::function<void(::grpc::Status)>) override;
       void handleGet(::grpc::ClientContext* context, const ::datanode_proto::GetInfo* request, ::datanode_proto::RequestResult* response, ::grpc::ClientUnaryReactor* reactor) override;
       void handleDelete(::grpc::ClientContext* context, const ::datanode_proto::DelInfo* request, ::datanode_proto::RequestResult* response, std::function<void(::grpc::Status)>) override;
@@ -193,6 +215,8 @@ class datanodeService final {
     ::grpc::ClientAsyncResponseReader< ::datanode_proto::RequestResult>* PrepareAsynchandleSetRaw(::grpc::ClientContext* context, const ::datanode_proto::SetInfo& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::datanode_proto::RequestResult>* AsynchandleAppendRaw(::grpc::ClientContext* context, const ::datanode_proto::AppendInfo& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::datanode_proto::RequestResult>* PrepareAsynchandleAppendRaw(::grpc::ClientContext* context, const ::datanode_proto::AppendInfo& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::datanode_proto::RequestResult>* AsynchandleMergeParityRaw(::grpc::ClientContext* context, const ::datanode_proto::MergeParityInfo& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::datanode_proto::RequestResult>* PrepareAsynchandleMergeParityRaw(::grpc::ClientContext* context, const ::datanode_proto::MergeParityInfo& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::datanode_proto::RequestResult>* AsynchandleGetRaw(::grpc::ClientContext* context, const ::datanode_proto::GetInfo& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::datanode_proto::RequestResult>* PrepareAsynchandleGetRaw(::grpc::ClientContext* context, const ::datanode_proto::GetInfo& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::datanode_proto::RequestResult>* AsynchandleDeleteRaw(::grpc::ClientContext* context, const ::datanode_proto::DelInfo& request, ::grpc::CompletionQueue* cq) override;
@@ -200,6 +224,7 @@ class datanodeService final {
     const ::grpc::internal::RpcMethod rpcmethod_checkalive_;
     const ::grpc::internal::RpcMethod rpcmethod_handleSet_;
     const ::grpc::internal::RpcMethod rpcmethod_handleAppend_;
+    const ::grpc::internal::RpcMethod rpcmethod_handleMergeParity_;
     const ::grpc::internal::RpcMethod rpcmethod_handleGet_;
     const ::grpc::internal::RpcMethod rpcmethod_handleDelete_;
   };
@@ -215,6 +240,8 @@ class datanodeService final {
     virtual ::grpc::Status handleSet(::grpc::ServerContext* context, const ::datanode_proto::SetInfo* request, ::datanode_proto::RequestResult* response);
     // append
     virtual ::grpc::Status handleAppend(::grpc::ServerContext* context, const ::datanode_proto::AppendInfo* request, ::datanode_proto::RequestResult* response);
+    // merge parity
+    virtual ::grpc::Status handleMergeParity(::grpc::ServerContext* context, const ::datanode_proto::MergeParityInfo* request, ::datanode_proto::RequestResult* response);
     // get
     virtual ::grpc::Status handleGet(::grpc::ServerContext* context, const ::datanode_proto::GetInfo* request, ::datanode_proto::RequestResult* response);
     // delete
@@ -281,12 +308,32 @@ class datanodeService final {
     }
   };
   template <class BaseClass>
+  class WithAsyncMethod_handleMergeParity : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithAsyncMethod_handleMergeParity() {
+      ::grpc::Service::MarkMethodAsync(3);
+    }
+    ~WithAsyncMethod_handleMergeParity() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status handleMergeParity(::grpc::ServerContext* /*context*/, const ::datanode_proto::MergeParityInfo* /*request*/, ::datanode_proto::RequestResult* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequesthandleMergeParity(::grpc::ServerContext* context, ::datanode_proto::MergeParityInfo* request, ::grpc::ServerAsyncResponseWriter< ::datanode_proto::RequestResult>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
   class WithAsyncMethod_handleGet : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_handleGet() {
-      ::grpc::Service::MarkMethodAsync(3);
+      ::grpc::Service::MarkMethodAsync(4);
     }
     ~WithAsyncMethod_handleGet() override {
       BaseClassMustBeDerivedFromService(this);
@@ -297,7 +344,7 @@ class datanodeService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequesthandleGet(::grpc::ServerContext* context, ::datanode_proto::GetInfo* request, ::grpc::ServerAsyncResponseWriter< ::datanode_proto::RequestResult>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(4, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -306,7 +353,7 @@ class datanodeService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_handleDelete() {
-      ::grpc::Service::MarkMethodAsync(4);
+      ::grpc::Service::MarkMethodAsync(5);
     }
     ~WithAsyncMethod_handleDelete() override {
       BaseClassMustBeDerivedFromService(this);
@@ -317,10 +364,10 @@ class datanodeService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequesthandleDelete(::grpc::ServerContext* context, ::datanode_proto::DelInfo* request, ::grpc::ServerAsyncResponseWriter< ::datanode_proto::RequestResult>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(4, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(5, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_checkalive<WithAsyncMethod_handleSet<WithAsyncMethod_handleAppend<WithAsyncMethod_handleGet<WithAsyncMethod_handleDelete<Service > > > > > AsyncService;
+  typedef WithAsyncMethod_checkalive<WithAsyncMethod_handleSet<WithAsyncMethod_handleAppend<WithAsyncMethod_handleMergeParity<WithAsyncMethod_handleGet<WithAsyncMethod_handleDelete<Service > > > > > > AsyncService;
   template <class BaseClass>
   class WithCallbackMethod_checkalive : public BaseClass {
    private:
@@ -403,18 +450,45 @@ class datanodeService final {
       ::grpc::CallbackServerContext* /*context*/, const ::datanode_proto::AppendInfo* /*request*/, ::datanode_proto::RequestResult* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
+  class WithCallbackMethod_handleMergeParity : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithCallbackMethod_handleMergeParity() {
+      ::grpc::Service::MarkMethodCallback(3,
+          new ::grpc::internal::CallbackUnaryHandler< ::datanode_proto::MergeParityInfo, ::datanode_proto::RequestResult>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::datanode_proto::MergeParityInfo* request, ::datanode_proto::RequestResult* response) { return this->handleMergeParity(context, request, response); }));}
+    void SetMessageAllocatorFor_handleMergeParity(
+        ::grpc::MessageAllocator< ::datanode_proto::MergeParityInfo, ::datanode_proto::RequestResult>* allocator) {
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(3);
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::datanode_proto::MergeParityInfo, ::datanode_proto::RequestResult>*>(handler)
+              ->SetMessageAllocator(allocator);
+    }
+    ~WithCallbackMethod_handleMergeParity() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status handleMergeParity(::grpc::ServerContext* /*context*/, const ::datanode_proto::MergeParityInfo* /*request*/, ::datanode_proto::RequestResult* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* handleMergeParity(
+      ::grpc::CallbackServerContext* /*context*/, const ::datanode_proto::MergeParityInfo* /*request*/, ::datanode_proto::RequestResult* /*response*/)  { return nullptr; }
+  };
+  template <class BaseClass>
   class WithCallbackMethod_handleGet : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_handleGet() {
-      ::grpc::Service::MarkMethodCallback(3,
+      ::grpc::Service::MarkMethodCallback(4,
           new ::grpc::internal::CallbackUnaryHandler< ::datanode_proto::GetInfo, ::datanode_proto::RequestResult>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::datanode_proto::GetInfo* request, ::datanode_proto::RequestResult* response) { return this->handleGet(context, request, response); }));}
     void SetMessageAllocatorFor_handleGet(
         ::grpc::MessageAllocator< ::datanode_proto::GetInfo, ::datanode_proto::RequestResult>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(3);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(4);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::datanode_proto::GetInfo, ::datanode_proto::RequestResult>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -435,13 +509,13 @@ class datanodeService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_handleDelete() {
-      ::grpc::Service::MarkMethodCallback(4,
+      ::grpc::Service::MarkMethodCallback(5,
           new ::grpc::internal::CallbackUnaryHandler< ::datanode_proto::DelInfo, ::datanode_proto::RequestResult>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::datanode_proto::DelInfo* request, ::datanode_proto::RequestResult* response) { return this->handleDelete(context, request, response); }));}
     void SetMessageAllocatorFor_handleDelete(
         ::grpc::MessageAllocator< ::datanode_proto::DelInfo, ::datanode_proto::RequestResult>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(4);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(5);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::datanode_proto::DelInfo, ::datanode_proto::RequestResult>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -456,7 +530,7 @@ class datanodeService final {
     virtual ::grpc::ServerUnaryReactor* handleDelete(
       ::grpc::CallbackServerContext* /*context*/, const ::datanode_proto::DelInfo* /*request*/, ::datanode_proto::RequestResult* /*response*/)  { return nullptr; }
   };
-  typedef WithCallbackMethod_checkalive<WithCallbackMethod_handleSet<WithCallbackMethod_handleAppend<WithCallbackMethod_handleGet<WithCallbackMethod_handleDelete<Service > > > > > CallbackService;
+  typedef WithCallbackMethod_checkalive<WithCallbackMethod_handleSet<WithCallbackMethod_handleAppend<WithCallbackMethod_handleMergeParity<WithCallbackMethod_handleGet<WithCallbackMethod_handleDelete<Service > > > > > > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_checkalive : public BaseClass {
@@ -510,12 +584,29 @@ class datanodeService final {
     }
   };
   template <class BaseClass>
+  class WithGenericMethod_handleMergeParity : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithGenericMethod_handleMergeParity() {
+      ::grpc::Service::MarkMethodGeneric(3);
+    }
+    ~WithGenericMethod_handleMergeParity() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status handleMergeParity(::grpc::ServerContext* /*context*/, const ::datanode_proto::MergeParityInfo* /*request*/, ::datanode_proto::RequestResult* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
   class WithGenericMethod_handleGet : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_handleGet() {
-      ::grpc::Service::MarkMethodGeneric(3);
+      ::grpc::Service::MarkMethodGeneric(4);
     }
     ~WithGenericMethod_handleGet() override {
       BaseClassMustBeDerivedFromService(this);
@@ -532,7 +623,7 @@ class datanodeService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_handleDelete() {
-      ::grpc::Service::MarkMethodGeneric(4);
+      ::grpc::Service::MarkMethodGeneric(5);
     }
     ~WithGenericMethod_handleDelete() override {
       BaseClassMustBeDerivedFromService(this);
@@ -604,12 +695,32 @@ class datanodeService final {
     }
   };
   template <class BaseClass>
+  class WithRawMethod_handleMergeParity : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawMethod_handleMergeParity() {
+      ::grpc::Service::MarkMethodRaw(3);
+    }
+    ~WithRawMethod_handleMergeParity() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status handleMergeParity(::grpc::ServerContext* /*context*/, const ::datanode_proto::MergeParityInfo* /*request*/, ::datanode_proto::RequestResult* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequesthandleMergeParity(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
   class WithRawMethod_handleGet : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_handleGet() {
-      ::grpc::Service::MarkMethodRaw(3);
+      ::grpc::Service::MarkMethodRaw(4);
     }
     ~WithRawMethod_handleGet() override {
       BaseClassMustBeDerivedFromService(this);
@@ -620,7 +731,7 @@ class datanodeService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequesthandleGet(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(4, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -629,7 +740,7 @@ class datanodeService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_handleDelete() {
-      ::grpc::Service::MarkMethodRaw(4);
+      ::grpc::Service::MarkMethodRaw(5);
     }
     ~WithRawMethod_handleDelete() override {
       BaseClassMustBeDerivedFromService(this);
@@ -640,7 +751,7 @@ class datanodeService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequesthandleDelete(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(4, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(5, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -710,12 +821,34 @@ class datanodeService final {
       ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
+  class WithRawCallbackMethod_handleMergeParity : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawCallbackMethod_handleMergeParity() {
+      ::grpc::Service::MarkMethodRawCallback(3,
+          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->handleMergeParity(context, request, response); }));
+    }
+    ~WithRawCallbackMethod_handleMergeParity() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status handleMergeParity(::grpc::ServerContext* /*context*/, const ::datanode_proto::MergeParityInfo* /*request*/, ::datanode_proto::RequestResult* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* handleMergeParity(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
+  };
+  template <class BaseClass>
   class WithRawCallbackMethod_handleGet : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_handleGet() {
-      ::grpc::Service::MarkMethodRawCallback(3,
+      ::grpc::Service::MarkMethodRawCallback(4,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->handleGet(context, request, response); }));
@@ -737,7 +870,7 @@ class datanodeService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_handleDelete() {
-      ::grpc::Service::MarkMethodRawCallback(4,
+      ::grpc::Service::MarkMethodRawCallback(5,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->handleDelete(context, request, response); }));
@@ -835,12 +968,39 @@ class datanodeService final {
     virtual ::grpc::Status StreamedhandleAppend(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::datanode_proto::AppendInfo,::datanode_proto::RequestResult>* server_unary_streamer) = 0;
   };
   template <class BaseClass>
+  class WithStreamedUnaryMethod_handleMergeParity : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithStreamedUnaryMethod_handleMergeParity() {
+      ::grpc::Service::MarkMethodStreamed(3,
+        new ::grpc::internal::StreamedUnaryHandler<
+          ::datanode_proto::MergeParityInfo, ::datanode_proto::RequestResult>(
+            [this](::grpc::ServerContext* context,
+                   ::grpc::ServerUnaryStreamer<
+                     ::datanode_proto::MergeParityInfo, ::datanode_proto::RequestResult>* streamer) {
+                       return this->StreamedhandleMergeParity(context,
+                         streamer);
+                  }));
+    }
+    ~WithStreamedUnaryMethod_handleMergeParity() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable regular version of this method
+    ::grpc::Status handleMergeParity(::grpc::ServerContext* /*context*/, const ::datanode_proto::MergeParityInfo* /*request*/, ::datanode_proto::RequestResult* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    // replace default version of method with streamed unary
+    virtual ::grpc::Status StreamedhandleMergeParity(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::datanode_proto::MergeParityInfo,::datanode_proto::RequestResult>* server_unary_streamer) = 0;
+  };
+  template <class BaseClass>
   class WithStreamedUnaryMethod_handleGet : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_handleGet() {
-      ::grpc::Service::MarkMethodStreamed(3,
+      ::grpc::Service::MarkMethodStreamed(4,
         new ::grpc::internal::StreamedUnaryHandler<
           ::datanode_proto::GetInfo, ::datanode_proto::RequestResult>(
             [this](::grpc::ServerContext* context,
@@ -867,7 +1027,7 @@ class datanodeService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_handleDelete() {
-      ::grpc::Service::MarkMethodStreamed(4,
+      ::grpc::Service::MarkMethodStreamed(5,
         new ::grpc::internal::StreamedUnaryHandler<
           ::datanode_proto::DelInfo, ::datanode_proto::RequestResult>(
             [this](::grpc::ServerContext* context,
@@ -888,9 +1048,9 @@ class datanodeService final {
     // replace default version of method with streamed unary
     virtual ::grpc::Status StreamedhandleDelete(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::datanode_proto::DelInfo,::datanode_proto::RequestResult>* server_unary_streamer) = 0;
   };
-  typedef WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_handleSet<WithStreamedUnaryMethod_handleAppend<WithStreamedUnaryMethod_handleGet<WithStreamedUnaryMethod_handleDelete<Service > > > > > StreamedUnaryService;
+  typedef WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_handleSet<WithStreamedUnaryMethod_handleAppend<WithStreamedUnaryMethod_handleMergeParity<WithStreamedUnaryMethod_handleGet<WithStreamedUnaryMethod_handleDelete<Service > > > > > > StreamedUnaryService;
   typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_handleSet<WithStreamedUnaryMethod_handleAppend<WithStreamedUnaryMethod_handleGet<WithStreamedUnaryMethod_handleDelete<Service > > > > > StreamedService;
+  typedef WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_handleSet<WithStreamedUnaryMethod_handleAppend<WithStreamedUnaryMethod_handleMergeParity<WithStreamedUnaryMethod_handleGet<WithStreamedUnaryMethod_handleDelete<Service > > > > > > StreamedService;
 };
 
 }  // namespace datanode_proto
