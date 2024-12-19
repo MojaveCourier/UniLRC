@@ -226,7 +226,7 @@ namespace ECProject
                 {
                     for (size_t i = 0; i < slice.size; i++)
                     {
-                        assert();
+                        assert(slice.offset + i < m_sys_config->BlockSize && "Parity slice.offset + i >= m_sys_config->BlockSize!");
                         mergedBuf[slice.offset + i] ^= slice.slice_ptr[i];
                     }
                 }
