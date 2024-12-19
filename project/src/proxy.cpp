@@ -285,16 +285,16 @@ namespace ECProject
         socket_data.close(ignore_ec);
 
         // TODO: implement AppendToDatanode First
-        auto append_to_datanode = [this](int j)
-        {
-          std::string block_key = keys_nodes[j].first;
-          std::pair<std::string, int> &ip_and_port = keys_nodes[j].second;
-          AppendToDatanode(block_key.c_str(), j, append_size, append_buf.data(), j, ip_and_port.first.c_str(), ip_and_port.second);
-        };
-        for (int j = 0; j < keys_nodes.size(); j++)
-        {
-          append_to_datanode(j);
-        }
+        // auto append_to_datanode = [this](int j)
+        // {
+        //   std::string block_key = keys_nodes[j].first;
+        //   std::pair<std::string, int> &ip_and_port = keys_nodes[j].second;
+        //   AppendToDatanode(block_key.c_str(), j, append_size, append_buf.data(), j, ip_and_port.first.c_str(), ip_and_port.second);
+        // };
+        // for (int j = 0; j < keys_nodes.size(); j++)
+        // {
+        //   append_to_datanode(j);
+        // }
       }
       catch (std::exception &e)
       {

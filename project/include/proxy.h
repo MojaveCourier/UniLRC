@@ -13,6 +13,7 @@
 #include <thread>
 #include <semaphore.h>
 #include <config.h>
+#include <toolbox.h>
 #define IF_DEBUG true
 // #define IF_DEBUG false
 namespace ECProject
@@ -27,9 +28,6 @@ namespace ECProject
     {
       init_coordinator();
       init_datanodes(config_path);
-      m_merge_step_processing[0] = false;
-      m_merge_step_processing[1] = false;
-      m_merge_step_processing[2] = false;
       m_ip = proxy_ip_port.substr(0, proxy_ip_port.find(':'));
       m_port = std::stoi(proxy_ip_port.substr(proxy_ip_port.find(':') + 1, proxy_ip_port.size()));
       std::cout << "Cluster id:" << m_self_cluster_id << std::endl;
@@ -65,11 +63,11 @@ namespace ECProject
 
     ECProject::Config *m_sys_config;
     bool AppendToDatanode(const char *block_key, int block_id, size_t append_size, const char *append_buf, int append_offset, const char *ip, int port);
+    ECProject::ToolBox *m_toolbox;
 
   private:
     std::mutex m_mutex;
     std::condition_variable cv;
-    bool m_merge_step_processing[3];
     bool init_coordinator();
     bool init_datanodes(std::string datanodeinfo_path);
     std::unique_ptr<coordinator_proto::coordinatorService::Stub> m_coordinator_ptr;
@@ -94,6 +92,7 @@ namespace ECProject
     Proxy(std::string proxy_ip_port, std::string config_path, std::string coordinator_address, std::string sys_config_path) : proxy_ip_port(proxy_ip_port), m_proxyImpl_ptr(proxy_ip_port, config_path, coordinator_address)
     {
       m_proxyImpl_ptr.m_sys_config = ECProject::Config::getInstance(sys_config_path);
+      m_proxyImpl_ptr.m_toolbox = ECProject::ToolBox::getInstance();
     }
     void Run()
     {

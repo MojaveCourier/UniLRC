@@ -3111,6 +3111,7 @@ class AppendStripeDataPlacement final :
     kBlockkeysFieldNumber = 5,
     kBlockidsFieldNumber = 6,
     kOffsetsFieldNumber = 7,
+    kSizesFieldNumber = 8,
     kStripeIdFieldNumber = 1,
     kAppendSizeFieldNumber = 2,
   };
@@ -3228,6 +3229,28 @@ class AppendStripeDataPlacement final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
       mutable_offsets();
 
+  // repeated int32 sizes = 8;
+  int sizes_size() const;
+  private:
+  int _internal_sizes_size() const;
+  public:
+  void clear_sizes();
+  private:
+  int32_t _internal_sizes(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      _internal_sizes() const;
+  void _internal_add_sizes(int32_t value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      _internal_mutable_sizes();
+  public:
+  int32_t sizes(int index) const;
+  void set_sizes(int index, int32_t value);
+  void add_sizes(int32_t value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      sizes() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      mutable_sizes();
+
   // int32 stripe_id = 1;
   void clear_stripe_id();
   int32_t stripe_id() const;
@@ -3262,6 +3285,8 @@ class AppendStripeDataPlacement final :
     mutable std::atomic<int> _blockids_cached_byte_size_;
     ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > offsets_;
     mutable std::atomic<int> _offsets_cached_byte_size_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > sizes_;
+    mutable std::atomic<int> _sizes_cached_byte_size_;
     int32_t stripe_id_;
     int32_t append_size_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -6482,6 +6507,53 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
 AppendStripeDataPlacement::mutable_offsets() {
   // @@protoc_insertion_point(field_mutable_list:proxy_proto.AppendStripeDataPlacement.offsets)
   return _internal_mutable_offsets();
+}
+
+// repeated int32 sizes = 8;
+inline int AppendStripeDataPlacement::_internal_sizes_size() const {
+  return _impl_.sizes_.size();
+}
+inline int AppendStripeDataPlacement::sizes_size() const {
+  return _internal_sizes_size();
+}
+inline void AppendStripeDataPlacement::clear_sizes() {
+  _impl_.sizes_.Clear();
+}
+inline int32_t AppendStripeDataPlacement::_internal_sizes(int index) const {
+  return _impl_.sizes_.Get(index);
+}
+inline int32_t AppendStripeDataPlacement::sizes(int index) const {
+  // @@protoc_insertion_point(field_get:proxy_proto.AppendStripeDataPlacement.sizes)
+  return _internal_sizes(index);
+}
+inline void AppendStripeDataPlacement::set_sizes(int index, int32_t value) {
+  _impl_.sizes_.Set(index, value);
+  // @@protoc_insertion_point(field_set:proxy_proto.AppendStripeDataPlacement.sizes)
+}
+inline void AppendStripeDataPlacement::_internal_add_sizes(int32_t value) {
+  _impl_.sizes_.Add(value);
+}
+inline void AppendStripeDataPlacement::add_sizes(int32_t value) {
+  _internal_add_sizes(value);
+  // @@protoc_insertion_point(field_add:proxy_proto.AppendStripeDataPlacement.sizes)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+AppendStripeDataPlacement::_internal_sizes() const {
+  return _impl_.sizes_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+AppendStripeDataPlacement::sizes() const {
+  // @@protoc_insertion_point(field_list:proxy_proto.AppendStripeDataPlacement.sizes)
+  return _internal_sizes();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+AppendStripeDataPlacement::_internal_mutable_sizes() {
+  return &_impl_.sizes_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+AppendStripeDataPlacement::mutable_sizes() {
+  // @@protoc_insertion_point(field_mutable_list:proxy_proto.AppendStripeDataPlacement.sizes)
+  return _internal_mutable_sizes();
 }
 
 // -------------------------------------------------------------------
