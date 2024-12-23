@@ -212,6 +212,85 @@ namespace ECProject
     }
   }
 
+  int CoordinatorImpl::getClusterAppendSize(Stripe *stripe, const std::map<int, std::pair<int, int>> &block_to_slice_sizes, int curr_group_id)
+  {
+    int cluster_append_size = 0;
+    for (int i = curr_group_id * stripe->k / stripe->z; i < (curr_group_id + 1) * stripe->k / stripe->z; i++)
+    {
+      if (block_to_slice_sizes.find(i) != block_to_slice_sizes.end())
+        cluster_append_size += block_to_slice_sizes.at(i).first;
+    }
+    return cluster_append_size;
+  }
+
+  std::vector<proxy_proto::AppendStripeDataPlacement> CoordinatorImpl::generateAppendPlan(Stripe *stripe, int curr_logical_offset, int append_size, int unit_size)
+  {
+    std::vector<proxy_proto::AppendStripeDataPlacement> append_plans;
+    int remain_size = stripe->k * m_sys_config->BlockSize - curr_logical_offset;
+    assert(remain_size >= append_size && "append size is larger than the remaining size of the stripe!");
+
+    int curr_group_id = (curr_logical_offset / (unit_size * stripe->k / stripe->z)) % stripe->z;
+    int curr_block_id = (curr_logical_offset / unit_size) % stripe->k;
+    // 计算需要多少个完整的unit
+    int num_units = (curr_logical_offset + append_size) / unit_size - curr_logical_offset / unit_size + 1;
+    int num_groups = std::min((curr_logical_offset + append_size) / (unit_size * stripe->k / stripe->z) - curr_logical_offset / (unit_size * stripe->k / stripe->z) + 1, stripe->z);
+
+    // key: block_id, value: (slice_size, physical_offset)
+    std::map<int, std::pair<int, int>> block_to_slice_sizes;
+    int tmp_size = append_size;
+    int tmp_offset = curr_logical_offset;
+    while (tmp_size > 0)
+    {
+      int sub_slice_size = unit_size;
+      // first slice
+      if (tmp_size == append_size && curr_logical_offset % unit_size != 0)
+      {
+        sub_slice_size = std::min(unit_size - curr_logical_offset % unit_size, append_size);
+      }
+      else
+      {
+        sub_slice_size = std::min(unit_size, append_size);
+      }
+      if (block_to_slice_sizes.find(curr_block_id) == block_to_slice_sizes.end())
+      {
+        block_to_slice_sizes[curr_block_id].first = sub_slice_size;
+        block_to_slice_sizes[curr_block_id].second = tmp_offset % unit_size + unit_size * (tmp_offset / (stripe->k * unit_size));
+      }
+      else
+      {
+        block_to_slice_sizes[curr_block_id].first += sub_slice_size;
+      }
+      curr_block_id = (curr_block_id + 1) % stripe->k;
+      tmp_size -= sub_slice_size;
+      tmp_offset += sub_slice_size;
+    }
+
+    while (num_groups > 0)
+    {
+      proxy_proto::AppendStripeDataPlacement plan;
+      plan.set_key(m_toolbox->gen_append_key(stripe->stripe_id, curr_group_id));
+      plan.set_cluster_id(curr_group_id);
+      plan.set_stripe_id(stripe->stripe_id);
+      plan.set_append_size(getClusterAppendSize(stripe, block_to_slice_sizes, curr_group_id));
+      for (int i = curr_group_id * stripe->k / stripe->z; i < (curr_group_id + 1) * stripe->k / stripe->z; i++)
+      {
+        if (block_to_slice_sizes.find(i) != block_to_slice_sizes.end())
+        {
+          plan.add_datanodeip(m_node_table[stripe->blocks[i]->map2node].node_ip);
+          plan.add_datanodeport(m_node_table[stripe->blocks[i]->map2node].node_port);
+          plan.add_blockkeys(stripe->blocks[i]->block_key);
+          plan.add_blockids(stripe->blocks[i]->block_id);
+          plan.add_offsets(block_to_slice_sizes.at(i).second);
+          plan.add_sizes(block_to_slice_sizes.at(i).first);
+        }
+      }
+      append_plans.push_back(plan);
+      num_groups--;
+    }
+
+    return append_plans;
+  }
+
   // Only processing the appending within a single stripe
   grpc::Status CoordinatorImpl::uploadAppendValue(
       grpc::ServerContext *context,
@@ -221,6 +300,7 @@ namespace ECProject
     std::string clientID = keyValueSize->key();
     int appendSizeBytes = keyValueSize->valuesizebytes();
     m_mutex.lock();
+    // TODO: verify whether use clientID or not
     m_object_commit_table.erase(clientID);
     m_mutex.unlock();
 
@@ -258,6 +338,8 @@ namespace ECProject
       // append to the existing stripe
       stripe = &m_stripe_table[curStripeOffset.stripe_id];
     }
+
+    std::vector<proxy_proto::AppendStripeDataPlacement> append_plans = generateAppendPlan(stripe, curStripeOffset.offset, appendSizeBytes, m_sys_config->BlockSize);
 
     // 3. notify proxies to receive data
     grpc::ClientContext cont;
@@ -472,7 +554,7 @@ namespace ECProject
     {
       if (commit_abortkey->ifcommitmetadata())
       {
-        if (opp == SET)
+        if (opp == SET || opp == APPEND)
         {
           m_object_commit_table[key] = m_object_updating_table[key];
           cv.notify_all();

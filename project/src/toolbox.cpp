@@ -28,6 +28,21 @@ namespace ECProject
     return result;
   }
 
+  std::vector<char *> ToolBox::splitCharPointer(const char *str, const proxy_proto::AppendStripeDataPlacement *append_stripe_data_placement)
+  {
+    std::vector<size_t> sizes;
+    for (int i = 0; i < append_stripe_data_placement->sizes_size(); i++)
+    {
+      sizes.push_back(append_stripe_data_placement->sizes(i));
+    }
+    return splitCharPointer(str, append_stripe_data_placement->append_size(), sizes);
+  }
+
+  std::string ToolBox::gen_append_key(int stripe_id, int cluster_id)
+  {
+    return std::to_string(cluster_id) + "_" + std::to_string(stripe_id);
+  }
+
   bool ToolBox::random_generate_kv(std::string &key, std::string &value,
                                    int key_length, int value_length)
   {

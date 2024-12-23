@@ -9,7 +9,8 @@ namespace ECProject
     GET,
     DEL,
     REPAIR,
-    MERGE
+    MERGE,
+    APPEND
   };
   enum EncodeType
   {

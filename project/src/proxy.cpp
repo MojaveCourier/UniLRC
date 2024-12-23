@@ -85,8 +85,8 @@ namespace ECProject
     return grpc::Status::OK;
   }
 
-  // append_offset is the physical offset of the data block
-  bool ProxyImpl::AppendToDatanode(const char *block_key, int block_id, size_t append_size, const char *append_buf, int append_offset, const char *ip, int port)
+  // slice_offset is the physical offset of the data block
+  bool ProxyImpl::AppendToDatanode(const char *block_key, int block_id, size_t slice_size, const char *slice_buf, int slice_offset, const char *ip, int port)
   {
     try
     {
@@ -95,8 +95,8 @@ namespace ECProject
       datanode_proto::RequestResult result;
       append_info.set_block_key(std::string(block_key));
       append_info.set_block_id(block_id);
-      append_info.set_append_size(append_size);
-      append_info.set_append_offset(append_offset);
+      append_info.set_append_size(slice_size);
+      append_info.set_append_offset(slice_offset);
       std::string node_ip_port = std::string(ip) + ":" + std::to_string(port);
       grpc::Status stat = m_datanode_ptrs[node_ip_port]->handleAppend(&context, append_info, &result);
 
@@ -110,14 +110,14 @@ namespace ECProject
       {
         std::cout << "Connect to " << ip << ":" << port + ECProject::PORT_SHIFT << " success!" << std::endl;
       }
-      asio::write(socket, asio::buffer(append_buf, append_size), error);
+      asio::write(socket, asio::buffer(slice_buf, slice_size), error);
       asio::error_code ignore_ec;
       socket.shutdown(asio::ip::tcp::socket::shutdown_both, ignore_ec);
       socket.close(ignore_ec);
       if (IF_DEBUG)
       {
         std::cout << "[Proxy" << m_self_cluster_id << "][Append]"
-                  << "Append to " << block_key << " with length of " << append_size << std::endl;
+                  << "Append to " << block_key << " with length of " << slice_size << std::endl;
       }
     }
     catch (const std::exception &e)
@@ -253,13 +253,12 @@ namespace ECProject
       proxy_proto::SetReply *response)
   {
     int stripe_id = append_stripe_data_placement->stripe_id();
+    // sum of all append slices allocated to this proxy
     int append_size = append_stripe_data_placement->append_size();
-    std::vector<std::pair<std::string, std::pair<std::string, int>>> keys_nodes;
-    for (int i = 0; i < append_stripe_data_placement->datanodeip_size(); i++)
-    {
-      keys_nodes.push_back(std::make_pair(append_stripe_data_placement->blockkeys(i), std::make_pair(append_stripe_data_placement->datanodeip(i), append_stripe_data_placement->datanodeport(i))));
-    }
-    auto append_and_save = [this, stripe_id, keys_nodes, append_size]() mutable
+    // number of slices allocated to this proxy
+    int slice_num = append_stripe_data_placement->blockkeys_size();
+
+    auto append_and_save = [this, stripe_id, append_size, slice_num, append_stripe_data_placement]() mutable
     {
       try
       {
@@ -278,23 +277,65 @@ namespace ECProject
           throw asio::system_error(error);
         }
 
-        std::cout << "[Proxy" << m_self_cluster_id << "][Append]"
-                  << "Append data " << append_buf.data() << std::endl;
+        if (IF_DEBUG)
+        {
+          std::cout << "[Proxy" << m_self_cluster_id << "][Append]"
+                    << "Append to Stripe " << stripe_id << " with length of " << append_size << std::endl;
+        }
+
         asio::error_code ignore_ec;
         socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
         socket_data.close(ignore_ec);
 
-        // TODO: implement AppendToDatanode First
-        // auto append_to_datanode = [this](int j)
-        // {
-        //   std::string block_key = keys_nodes[j].first;
-        //   std::pair<std::string, int> &ip_and_port = keys_nodes[j].second;
-        //   AppendToDatanode(block_key.c_str(), j, append_size, append_buf.data(), j, ip_and_port.first.c_str(), ip_and_port.second);
-        // };
-        // for (int j = 0; j < keys_nodes.size(); j++)
-        // {
-        //   append_to_datanode(j);
-        // }
+        std::vector<char *> slices = m_toolbox->splitCharPointer(append_buf.data(), append_stripe_data_placement);
+
+        auto append_to_datanode = [this](const char *block_key, int block_id, size_t slice_size, const char *slice_buf, int slice_offset, const char *ip, int port)
+        {
+          if (IF_DEBUG)
+          {
+            std::cout << "[Proxy" << m_self_cluster_id << "][Append]"
+                      << "Append to Block " << block_key << " at the offset of " << slice_offset << " with length of " << slice_size << std::endl;
+          }
+          AppendToDatanode(block_key, block_id, slice_size, slice_buf, slice_offset, ip, port);
+        };
+
+        std::vector<std::thread> senders;
+        for (int j = 0; j < slice_num; j++)
+        {
+          senders.push_back(std::thread(append_to_datanode, append_stripe_data_placement->blockkeys(j).c_str(), append_stripe_data_placement->blockids(j), append_stripe_data_placement->sizes(j), slices[j], append_stripe_data_placement->offsets(j), append_stripe_data_placement->datanodeip(j).c_str(), append_stripe_data_placement->datanodeport(j)));
+        }
+        for (int j = 0; j < int(senders.size()); j++)
+        {
+          senders[j].join();
+        }
+
+        if (IF_DEBUG)
+        {
+          std::cout << "[Proxy" << m_self_cluster_id << "][Append]"
+                    << "Finish appending to Stripe " << stripe_id << std::endl;
+        }
+
+        // report to coordinator
+        coordinator_proto::CommitAbortKey commit_abort_key;
+        coordinator_proto::ReplyFromCoordinator result;
+        grpc::ClientContext context;
+        ECProject::OpperateType opp = APPEND;
+        commit_abort_key.set_opp(opp);
+        commit_abort_key.set_key(append_stripe_data_placement->key());
+        commit_abort_key.set_stripe_id(stripe_id);
+        commit_abort_key.set_ifcommitmetadata(true);
+        grpc::Status status;
+        status = m_coordinator_ptr->reportCommitAbort(&context, commit_abort_key, &result);
+        if (status.ok() && IF_DEBUG)
+        {
+          std::cout << "[Proxy" << m_self_cluster_id << "][APPEND]"
+                    << "[APPEND] report to coordinator success" << std::endl;
+        }
+        else
+        {
+          std::cout << "[Proxy" << m_self_cluster_id << "][APPEND]"
+                    << " report to coordinator fail!" << std::endl;
+        }
       }
       catch (std::exception &e)
       {
@@ -302,6 +343,20 @@ namespace ECProject
         std::cout << e.what() << std::endl;
       }
     };
+    try
+    {
+      if (IF_DEBUG)
+      {
+        std::cout << "[Proxy][APPEND] Handle append_and_save" << std::endl;
+      }
+      std::thread my_thread(append_and_save);
+      my_thread.detach();
+    }
+    catch (std::exception &e)
+    {
+      std::cout << "exception" << std::endl;
+      std::cout << e.what() << std::endl;
+    }
 
     return grpc::Status::OK;
   }

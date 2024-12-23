@@ -3106,16 +3106,18 @@ class AppendStripeDataPlacement final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDatanodeipFieldNumber = 3,
-    kDatanodeportFieldNumber = 4,
-    kBlockkeysFieldNumber = 5,
-    kBlockidsFieldNumber = 6,
-    kOffsetsFieldNumber = 7,
-    kSizesFieldNumber = 8,
-    kStripeIdFieldNumber = 1,
-    kAppendSizeFieldNumber = 2,
+    kDatanodeipFieldNumber = 5,
+    kDatanodeportFieldNumber = 6,
+    kBlockkeysFieldNumber = 7,
+    kBlockidsFieldNumber = 8,
+    kOffsetsFieldNumber = 9,
+    kSizesFieldNumber = 10,
+    kKeyFieldNumber = 1,
+    kClusterIdFieldNumber = 2,
+    kStripeIdFieldNumber = 3,
+    kAppendSizeFieldNumber = 4,
   };
-  // repeated string datanodeip = 3;
+  // repeated string datanodeip = 5;
   int datanodeip_size() const;
   private:
   int _internal_datanodeip_size() const;
@@ -3139,7 +3141,7 @@ class AppendStripeDataPlacement final :
   std::string* _internal_add_datanodeip();
   public:
 
-  // repeated int32 datanodeport = 4;
+  // repeated int32 datanodeport = 6;
   int datanodeport_size() const;
   private:
   int _internal_datanodeport_size() const;
@@ -3161,7 +3163,7 @@ class AppendStripeDataPlacement final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
       mutable_datanodeport();
 
-  // repeated string blockkeys = 5;
+  // repeated string blockkeys = 7;
   int blockkeys_size() const;
   private:
   int _internal_blockkeys_size() const;
@@ -3185,7 +3187,7 @@ class AppendStripeDataPlacement final :
   std::string* _internal_add_blockkeys();
   public:
 
-  // repeated int32 blockids = 6;
+  // repeated int32 blockids = 8;
   int blockids_size() const;
   private:
   int _internal_blockids_size() const;
@@ -3207,7 +3209,7 @@ class AppendStripeDataPlacement final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
       mutable_blockids();
 
-  // repeated int32 offsets = 7;
+  // repeated int32 offsets = 9;
   int offsets_size() const;
   private:
   int _internal_offsets_size() const;
@@ -3229,7 +3231,7 @@ class AppendStripeDataPlacement final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
       mutable_offsets();
 
-  // repeated int32 sizes = 8;
+  // repeated int32 sizes = 10;
   int sizes_size() const;
   private:
   int _internal_sizes_size() const;
@@ -3251,7 +3253,30 @@ class AppendStripeDataPlacement final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
       mutable_sizes();
 
-  // int32 stripe_id = 1;
+  // string key = 1;
+  void clear_key();
+  const std::string& key() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_key(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_key();
+  PROTOBUF_NODISCARD std::string* release_key();
+  void set_allocated_key(std::string* key);
+  private:
+  const std::string& _internal_key() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_key(const std::string& value);
+  std::string* _internal_mutable_key();
+  public:
+
+  // int32 cluster_id = 2;
+  void clear_cluster_id();
+  int32_t cluster_id() const;
+  void set_cluster_id(int32_t value);
+  private:
+  int32_t _internal_cluster_id() const;
+  void _internal_set_cluster_id(int32_t value);
+  public:
+
+  // int32 stripe_id = 3;
   void clear_stripe_id();
   int32_t stripe_id() const;
   void set_stripe_id(int32_t value);
@@ -3260,7 +3285,7 @@ class AppendStripeDataPlacement final :
   void _internal_set_stripe_id(int32_t value);
   public:
 
-  // int32 append_size = 2;
+  // int32 append_size = 4;
   void clear_append_size();
   int32_t append_size() const;
   void set_append_size(int32_t value);
@@ -3287,6 +3312,8 @@ class AppendStripeDataPlacement final :
     mutable std::atomic<int> _offsets_cached_byte_size_;
     ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > sizes_;
     mutable std::atomic<int> _sizes_cached_byte_size_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr key_;
+    int32_t cluster_id_;
     int32_t stripe_id_;
     int32_t append_size_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -6178,7 +6205,77 @@ inline void ObjectAndPlacement::set_clientport(int32_t value) {
 
 // AppendStripeDataPlacement
 
-// int32 stripe_id = 1;
+// string key = 1;
+inline void AppendStripeDataPlacement::clear_key() {
+  _impl_.key_.ClearToEmpty();
+}
+inline const std::string& AppendStripeDataPlacement::key() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.AppendStripeDataPlacement.key)
+  return _internal_key();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void AppendStripeDataPlacement::set_key(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.key_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:proxy_proto.AppendStripeDataPlacement.key)
+}
+inline std::string* AppendStripeDataPlacement::mutable_key() {
+  std::string* _s = _internal_mutable_key();
+  // @@protoc_insertion_point(field_mutable:proxy_proto.AppendStripeDataPlacement.key)
+  return _s;
+}
+inline const std::string& AppendStripeDataPlacement::_internal_key() const {
+  return _impl_.key_.Get();
+}
+inline void AppendStripeDataPlacement::_internal_set_key(const std::string& value) {
+  
+  _impl_.key_.Set(value, GetArenaForAllocation());
+}
+inline std::string* AppendStripeDataPlacement::_internal_mutable_key() {
+  
+  return _impl_.key_.Mutable(GetArenaForAllocation());
+}
+inline std::string* AppendStripeDataPlacement::release_key() {
+  // @@protoc_insertion_point(field_release:proxy_proto.AppendStripeDataPlacement.key)
+  return _impl_.key_.Release();
+}
+inline void AppendStripeDataPlacement::set_allocated_key(std::string* key) {
+  if (key != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.key_.SetAllocated(key, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.key_.IsDefault()) {
+    _impl_.key_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:proxy_proto.AppendStripeDataPlacement.key)
+}
+
+// int32 cluster_id = 2;
+inline void AppendStripeDataPlacement::clear_cluster_id() {
+  _impl_.cluster_id_ = 0;
+}
+inline int32_t AppendStripeDataPlacement::_internal_cluster_id() const {
+  return _impl_.cluster_id_;
+}
+inline int32_t AppendStripeDataPlacement::cluster_id() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.AppendStripeDataPlacement.cluster_id)
+  return _internal_cluster_id();
+}
+inline void AppendStripeDataPlacement::_internal_set_cluster_id(int32_t value) {
+  
+  _impl_.cluster_id_ = value;
+}
+inline void AppendStripeDataPlacement::set_cluster_id(int32_t value) {
+  _internal_set_cluster_id(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.AppendStripeDataPlacement.cluster_id)
+}
+
+// int32 stripe_id = 3;
 inline void AppendStripeDataPlacement::clear_stripe_id() {
   _impl_.stripe_id_ = 0;
 }
@@ -6198,7 +6295,7 @@ inline void AppendStripeDataPlacement::set_stripe_id(int32_t value) {
   // @@protoc_insertion_point(field_set:proxy_proto.AppendStripeDataPlacement.stripe_id)
 }
 
-// int32 append_size = 2;
+// int32 append_size = 4;
 inline void AppendStripeDataPlacement::clear_append_size() {
   _impl_.append_size_ = 0;
 }
@@ -6218,7 +6315,7 @@ inline void AppendStripeDataPlacement::set_append_size(int32_t value) {
   // @@protoc_insertion_point(field_set:proxy_proto.AppendStripeDataPlacement.append_size)
 }
 
-// repeated string datanodeip = 3;
+// repeated string datanodeip = 5;
 inline int AppendStripeDataPlacement::_internal_datanodeip_size() const {
   return _impl_.datanodeip_.size();
 }
@@ -6293,7 +6390,7 @@ AppendStripeDataPlacement::mutable_datanodeip() {
   return &_impl_.datanodeip_;
 }
 
-// repeated int32 datanodeport = 4;
+// repeated int32 datanodeport = 6;
 inline int AppendStripeDataPlacement::_internal_datanodeport_size() const {
   return _impl_.datanodeport_.size();
 }
@@ -6340,7 +6437,7 @@ AppendStripeDataPlacement::mutable_datanodeport() {
   return _internal_mutable_datanodeport();
 }
 
-// repeated string blockkeys = 5;
+// repeated string blockkeys = 7;
 inline int AppendStripeDataPlacement::_internal_blockkeys_size() const {
   return _impl_.blockkeys_.size();
 }
@@ -6415,7 +6512,7 @@ AppendStripeDataPlacement::mutable_blockkeys() {
   return &_impl_.blockkeys_;
 }
 
-// repeated int32 blockids = 6;
+// repeated int32 blockids = 8;
 inline int AppendStripeDataPlacement::_internal_blockids_size() const {
   return _impl_.blockids_.size();
 }
@@ -6462,7 +6559,7 @@ AppendStripeDataPlacement::mutable_blockids() {
   return _internal_mutable_blockids();
 }
 
-// repeated int32 offsets = 7;
+// repeated int32 offsets = 9;
 inline int AppendStripeDataPlacement::_internal_offsets_size() const {
   return _impl_.offsets_.size();
 }
@@ -6509,7 +6606,7 @@ AppendStripeDataPlacement::mutable_offsets() {
   return _internal_mutable_offsets();
 }
 
-// repeated int32 sizes = 8;
+// repeated int32 sizes = 10;
 inline int AppendStripeDataPlacement::_internal_sizes_size() const {
   return _impl_.sizes_.size();
 }

@@ -263,6 +263,8 @@ PROTOBUF_CONSTEXPR AppendStripeDataPlacement::AppendStripeDataPlacement(
   , /*decltype(_impl_._offsets_cached_byte_size_)*/{0}
   , /*decltype(_impl_.sizes_)*/{}
   , /*decltype(_impl_._sizes_cached_byte_size_)*/{0}
+  , /*decltype(_impl_.key_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.cluster_id_)*/0
   , /*decltype(_impl_.stripe_id_)*/0
   , /*decltype(_impl_.append_size_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
@@ -455,6 +457,8 @@ const uint32_t TableStruct_proxy_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(pr
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::AppendStripeDataPlacement, _impl_.key_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::AppendStripeDataPlacement, _impl_.cluster_id_),
   PROTOBUF_FIELD_OFFSET(::proxy_proto::AppendStripeDataPlacement, _impl_.stripe_id_),
   PROTOBUF_FIELD_OFFSET(::proxy_proto::AppendStripeDataPlacement, _impl_.append_size_),
   PROTOBUF_FIELD_OFFSET(::proxy_proto::AppendStripeDataPlacement, _impl_.datanodeip_),
@@ -493,8 +497,8 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 115, -1, -1, sizeof(::proxy_proto::RequestResult)},
   { 122, -1, -1, sizeof(::proxy_proto::ObjectAndPlacement)},
   { 142, -1, -1, sizeof(::proxy_proto::AppendStripeDataPlacement)},
-  { 156, -1, -1, sizeof(::proxy_proto::SetReply)},
-  { 163, -1, -1, sizeof(::proxy_proto::GetReply)},
+  { 158, -1, -1, sizeof(::proxy_proto::SetReply)},
+  { 165, -1, -1, sizeof(::proxy_proto::GetReply)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -554,27 +558,28 @@ const char descriptor_table_protodef_proxy_2eproto[] PROTOBUF_SECTION_VARIABLE(p
   "\010 \003(\005\022\021\n\tblockkeys\030\t \003(\t\022\020\n\010blockids\030\n \003"
   "(\005\022\022\n\nblock_size\030\013 \001(\005\022\023\n\013encode_type\030\014 "
   "\001(\005\022\020\n\010clientip\030\r \001(\t\022\022\n\nclientport\030\016 \001("
-  "\005\"\262\001\n\031AppendStripeDataPlacement\022\021\n\tstrip"
-  "e_id\030\001 \001(\005\022\023\n\013append_size\030\002 \001(\005\022\022\n\ndatan"
-  "odeip\030\003 \003(\t\022\024\n\014datanodeport\030\004 \003(\005\022\021\n\tblo"
-  "ckkeys\030\005 \003(\t\022\020\n\010blockids\030\006 \003(\005\022\017\n\007offset"
-  "s\030\007 \003(\005\022\r\n\005sizes\030\010 \003(\005\"\034\n\010SetReply\022\020\n\010if"
-  "commit\030\001 \001(\010\"\036\n\010GetReply\022\022\n\ngetsuccess\030\001"
-  " \001(\0102\213\003\n\014proxyService\022D\n\ncheckalive\022\032.pr"
-  "oxy_proto.CheckaliveCMD\032\032.proxy_proto.Re"
-  "questResult\022L\n\022encodeAndSetObject\022\037.prox"
-  "y_proto.ObjectAndPlacement\032\025.proxy_proto"
-  ".SetReply\022L\n\022decodeAndGetObject\022\037.proxy_"
-  "proto.ObjectAndPlacement\032\025.proxy_proto.G"
-  "etReply\022\?\n\013deleteBlock\022\031.proxy_proto.Nod"
-  "eAndBlock\032\025.proxy_proto.DelReply\022X\n\027sche"
-  "duleAppend2Datanode\022&.proxy_proto.Append"
-  "StripeDataPlacement\032\025.proxy_proto.SetRep"
-  "lyb\006proto3"
+  "\005\"\323\001\n\031AppendStripeDataPlacement\022\013\n\003key\030\001"
+  " \001(\t\022\022\n\ncluster_id\030\002 \001(\005\022\021\n\tstripe_id\030\003 "
+  "\001(\005\022\023\n\013append_size\030\004 \001(\005\022\022\n\ndatanodeip\030\005"
+  " \003(\t\022\024\n\014datanodeport\030\006 \003(\005\022\021\n\tblockkeys\030"
+  "\007 \003(\t\022\020\n\010blockids\030\010 \003(\005\022\017\n\007offsets\030\t \003(\005"
+  "\022\r\n\005sizes\030\n \003(\005\"\034\n\010SetReply\022\020\n\010ifcommit\030"
+  "\001 \001(\010\"\036\n\010GetReply\022\022\n\ngetsuccess\030\001 \001(\0102\213\003"
+  "\n\014proxyService\022D\n\ncheckalive\022\032.proxy_pro"
+  "to.CheckaliveCMD\032\032.proxy_proto.RequestRe"
+  "sult\022L\n\022encodeAndSetObject\022\037.proxy_proto"
+  ".ObjectAndPlacement\032\025.proxy_proto.SetRep"
+  "ly\022L\n\022decodeAndGetObject\022\037.proxy_proto.O"
+  "bjectAndPlacement\032\025.proxy_proto.GetReply"
+  "\022\?\n\013deleteBlock\022\031.proxy_proto.NodeAndBlo"
+  "ck\032\025.proxy_proto.DelReply\022X\n\027scheduleApp"
+  "end2Datanode\022&.proxy_proto.AppendStripeD"
+  "ataPlacement\032\025.proxy_proto.SetReplyb\006pro"
+  "to3"
   ;
 static ::_pbi::once_flag descriptor_table_proxy_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_proxy_2eproto = {
-    false, false, 2130, descriptor_table_protodef_proxy_2eproto,
+    false, false, 2163, descriptor_table_protodef_proxy_2eproto,
     "proxy.proto",
     &descriptor_table_proxy_2eproto_once, nullptr, 0, 16,
     schemas, file_default_instances, TableStruct_proxy_2eproto::offsets,
@@ -4787,14 +4792,24 @@ AppendStripeDataPlacement::AppendStripeDataPlacement(const AppendStripeDataPlace
     , /*decltype(_impl_._offsets_cached_byte_size_)*/{0}
     , decltype(_impl_.sizes_){from._impl_.sizes_}
     , /*decltype(_impl_._sizes_cached_byte_size_)*/{0}
+    , decltype(_impl_.key_){}
+    , decltype(_impl_.cluster_id_){}
     , decltype(_impl_.stripe_id_){}
     , decltype(_impl_.append_size_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  ::memcpy(&_impl_.stripe_id_, &from._impl_.stripe_id_,
+  _impl_.key_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.key_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_key().empty()) {
+    _this->_impl_.key_.Set(from._internal_key(), 
+      _this->GetArenaForAllocation());
+  }
+  ::memcpy(&_impl_.cluster_id_, &from._impl_.cluster_id_,
     static_cast<size_t>(reinterpret_cast<char*>(&_impl_.append_size_) -
-    reinterpret_cast<char*>(&_impl_.stripe_id_)) + sizeof(_impl_.append_size_));
+    reinterpret_cast<char*>(&_impl_.cluster_id_)) + sizeof(_impl_.append_size_));
   // @@protoc_insertion_point(copy_constructor:proxy_proto.AppendStripeDataPlacement)
 }
 
@@ -4813,10 +4828,16 @@ inline void AppendStripeDataPlacement::SharedCtor(
     , /*decltype(_impl_._offsets_cached_byte_size_)*/{0}
     , decltype(_impl_.sizes_){arena}
     , /*decltype(_impl_._sizes_cached_byte_size_)*/{0}
+    , decltype(_impl_.key_){}
+    , decltype(_impl_.cluster_id_){0}
     , decltype(_impl_.stripe_id_){0}
     , decltype(_impl_.append_size_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };
+  _impl_.key_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.key_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 }
 
 AppendStripeDataPlacement::~AppendStripeDataPlacement() {
@@ -4836,6 +4857,7 @@ inline void AppendStripeDataPlacement::SharedDtor() {
   _impl_.blockids_.~RepeatedField();
   _impl_.offsets_.~RepeatedField();
   _impl_.sizes_.~RepeatedField();
+  _impl_.key_.Destroy();
 }
 
 void AppendStripeDataPlacement::SetCachedSize(int size) const {
@@ -4854,9 +4876,10 @@ void AppendStripeDataPlacement::Clear() {
   _impl_.blockids_.Clear();
   _impl_.offsets_.Clear();
   _impl_.sizes_.Clear();
-  ::memset(&_impl_.stripe_id_, 0, static_cast<size_t>(
+  _impl_.key_.ClearToEmpty();
+  ::memset(&_impl_.cluster_id_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&_impl_.append_size_) -
-      reinterpret_cast<char*>(&_impl_.stripe_id_)) + sizeof(_impl_.append_size_));
+      reinterpret_cast<char*>(&_impl_.cluster_id_)) + sizeof(_impl_.append_size_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -4866,25 +4889,43 @@ const char* AppendStripeDataPlacement::_InternalParse(const char* ptr, ::_pbi::P
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // int32 stripe_id = 1;
+      // string key = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+          auto str = _internal_mutable_key();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "proxy_proto.AppendStripeDataPlacement.key"));
+        } else
+          goto handle_unusual;
+        continue;
+      // int32 cluster_id = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          _impl_.cluster_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // int32 stripe_id = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
           _impl_.stripe_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // int32 append_size = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+      // int32 append_size = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
           _impl_.append_size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // repeated string datanodeip = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+      // repeated string datanodeip = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4893,24 +4934,24 @@ const char* AppendStripeDataPlacement::_InternalParse(const char* ptr, ::_pbi::P
             CHK_(ptr);
             CHK_(::_pbi::VerifyUTF8(str, "proxy_proto.AppendStripeDataPlacement.datanodeip"));
             if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<42>(ptr));
         } else
           goto handle_unusual;
         continue;
-      // repeated int32 datanodeport = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+      // repeated int32 datanodeport = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_datanodeport(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 32) {
+        } else if (static_cast<uint8_t>(tag) == 48) {
           _internal_add_datanodeport(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // repeated string blockkeys = 5;
-      case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+      // repeated string blockkeys = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -4919,38 +4960,38 @@ const char* AppendStripeDataPlacement::_InternalParse(const char* ptr, ::_pbi::P
             CHK_(ptr);
             CHK_(::_pbi::VerifyUTF8(str, "proxy_proto.AppendStripeDataPlacement.blockkeys"));
             if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<42>(ptr));
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<58>(ptr));
         } else
           goto handle_unusual;
         continue;
-      // repeated int32 blockids = 6;
-      case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+      // repeated int32 blockids = 8;
+      case 8:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_blockids(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 48) {
+        } else if (static_cast<uint8_t>(tag) == 64) {
           _internal_add_blockids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // repeated int32 offsets = 7;
-      case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+      // repeated int32 offsets = 9;
+      case 9:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_offsets(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 56) {
+        } else if (static_cast<uint8_t>(tag) == 72) {
           _internal_add_offsets(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // repeated int32 sizes = 8;
-      case 8:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
+      // repeated int32 sizes = 10;
+      case 10:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_sizes(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 64) {
+        } else if (static_cast<uint8_t>(tag) == 80) {
           _internal_add_sizes(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
           CHK_(ptr);
         } else
@@ -4985,71 +5026,87 @@ uint8_t* AppendStripeDataPlacement::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // int32 stripe_id = 1;
+  // string key = 1;
+  if (!this->_internal_key().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_key().data(), static_cast<int>(this->_internal_key().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "proxy_proto.AppendStripeDataPlacement.key");
+    target = stream->WriteStringMaybeAliased(
+        1, this->_internal_key(), target);
+  }
+
+  // int32 cluster_id = 2;
+  if (this->_internal_cluster_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(2, this->_internal_cluster_id(), target);
+  }
+
+  // int32 stripe_id = 3;
   if (this->_internal_stripe_id() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_stripe_id(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(3, this->_internal_stripe_id(), target);
   }
 
-  // int32 append_size = 2;
+  // int32 append_size = 4;
   if (this->_internal_append_size() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteInt32ToArray(2, this->_internal_append_size(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(4, this->_internal_append_size(), target);
   }
 
-  // repeated string datanodeip = 3;
+  // repeated string datanodeip = 5;
   for (int i = 0, n = this->_internal_datanodeip_size(); i < n; i++) {
     const auto& s = this->_internal_datanodeip(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       s.data(), static_cast<int>(s.length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "proxy_proto.AppendStripeDataPlacement.datanodeip");
-    target = stream->WriteString(3, s, target);
+    target = stream->WriteString(5, s, target);
   }
 
-  // repeated int32 datanodeport = 4;
+  // repeated int32 datanodeport = 6;
   {
     int byte_size = _impl_._datanodeport_cached_byte_size_.load(std::memory_order_relaxed);
     if (byte_size > 0) {
       target = stream->WriteInt32Packed(
-          4, _internal_datanodeport(), byte_size, target);
+          6, _internal_datanodeport(), byte_size, target);
     }
   }
 
-  // repeated string blockkeys = 5;
+  // repeated string blockkeys = 7;
   for (int i = 0, n = this->_internal_blockkeys_size(); i < n; i++) {
     const auto& s = this->_internal_blockkeys(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       s.data(), static_cast<int>(s.length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "proxy_proto.AppendStripeDataPlacement.blockkeys");
-    target = stream->WriteString(5, s, target);
+    target = stream->WriteString(7, s, target);
   }
 
-  // repeated int32 blockids = 6;
+  // repeated int32 blockids = 8;
   {
     int byte_size = _impl_._blockids_cached_byte_size_.load(std::memory_order_relaxed);
     if (byte_size > 0) {
       target = stream->WriteInt32Packed(
-          6, _internal_blockids(), byte_size, target);
+          8, _internal_blockids(), byte_size, target);
     }
   }
 
-  // repeated int32 offsets = 7;
+  // repeated int32 offsets = 9;
   {
     int byte_size = _impl_._offsets_cached_byte_size_.load(std::memory_order_relaxed);
     if (byte_size > 0) {
       target = stream->WriteInt32Packed(
-          7, _internal_offsets(), byte_size, target);
+          9, _internal_offsets(), byte_size, target);
     }
   }
 
-  // repeated int32 sizes = 8;
+  // repeated int32 sizes = 10;
   {
     int byte_size = _impl_._sizes_cached_byte_size_.load(std::memory_order_relaxed);
     if (byte_size > 0) {
       target = stream->WriteInt32Packed(
-          8, _internal_sizes(), byte_size, target);
+          10, _internal_sizes(), byte_size, target);
     }
   }
 
@@ -5069,7 +5126,7 @@ size_t AppendStripeDataPlacement::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated string datanodeip = 3;
+  // repeated string datanodeip = 5;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(_impl_.datanodeip_.size());
   for (int i = 0, n = _impl_.datanodeip_.size(); i < n; i++) {
@@ -5077,7 +5134,7 @@ size_t AppendStripeDataPlacement::ByteSizeLong() const {
       _impl_.datanodeip_.Get(i));
   }
 
-  // repeated int32 datanodeport = 4;
+  // repeated int32 datanodeport = 6;
   {
     size_t data_size = ::_pbi::WireFormatLite::
       Int32Size(this->_impl_.datanodeport_);
@@ -5091,7 +5148,7 @@ size_t AppendStripeDataPlacement::ByteSizeLong() const {
     total_size += data_size;
   }
 
-  // repeated string blockkeys = 5;
+  // repeated string blockkeys = 7;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(_impl_.blockkeys_.size());
   for (int i = 0, n = _impl_.blockkeys_.size(); i < n; i++) {
@@ -5099,7 +5156,7 @@ size_t AppendStripeDataPlacement::ByteSizeLong() const {
       _impl_.blockkeys_.Get(i));
   }
 
-  // repeated int32 blockids = 6;
+  // repeated int32 blockids = 8;
   {
     size_t data_size = ::_pbi::WireFormatLite::
       Int32Size(this->_impl_.blockids_);
@@ -5113,7 +5170,7 @@ size_t AppendStripeDataPlacement::ByteSizeLong() const {
     total_size += data_size;
   }
 
-  // repeated int32 offsets = 7;
+  // repeated int32 offsets = 9;
   {
     size_t data_size = ::_pbi::WireFormatLite::
       Int32Size(this->_impl_.offsets_);
@@ -5127,7 +5184,7 @@ size_t AppendStripeDataPlacement::ByteSizeLong() const {
     total_size += data_size;
   }
 
-  // repeated int32 sizes = 8;
+  // repeated int32 sizes = 10;
   {
     size_t data_size = ::_pbi::WireFormatLite::
       Int32Size(this->_impl_.sizes_);
@@ -5141,12 +5198,24 @@ size_t AppendStripeDataPlacement::ByteSizeLong() const {
     total_size += data_size;
   }
 
-  // int32 stripe_id = 1;
+  // string key = 1;
+  if (!this->_internal_key().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_key());
+  }
+
+  // int32 cluster_id = 2;
+  if (this->_internal_cluster_id() != 0) {
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_cluster_id());
+  }
+
+  // int32 stripe_id = 3;
   if (this->_internal_stripe_id() != 0) {
     total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_stripe_id());
   }
 
-  // int32 append_size = 2;
+  // int32 append_size = 4;
   if (this->_internal_append_size() != 0) {
     total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_append_size());
   }
@@ -5175,6 +5244,12 @@ void AppendStripeDataPlacement::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_m
   _this->_impl_.blockids_.MergeFrom(from._impl_.blockids_);
   _this->_impl_.offsets_.MergeFrom(from._impl_.offsets_);
   _this->_impl_.sizes_.MergeFrom(from._impl_.sizes_);
+  if (!from._internal_key().empty()) {
+    _this->_internal_set_key(from._internal_key());
+  }
+  if (from._internal_cluster_id() != 0) {
+    _this->_internal_set_cluster_id(from._internal_cluster_id());
+  }
   if (from._internal_stripe_id() != 0) {
     _this->_internal_set_stripe_id(from._internal_stripe_id());
   }
@@ -5197,6 +5272,8 @@ bool AppendStripeDataPlacement::IsInitialized() const {
 
 void AppendStripeDataPlacement::InternalSwap(AppendStripeDataPlacement* other) {
   using std::swap;
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   _impl_.datanodeip_.InternalSwap(&other->_impl_.datanodeip_);
   _impl_.datanodeport_.InternalSwap(&other->_impl_.datanodeport_);
@@ -5204,12 +5281,16 @@ void AppendStripeDataPlacement::InternalSwap(AppendStripeDataPlacement* other) {
   _impl_.blockids_.InternalSwap(&other->_impl_.blockids_);
   _impl_.offsets_.InternalSwap(&other->_impl_.offsets_);
   _impl_.sizes_.InternalSwap(&other->_impl_.sizes_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.key_, lhs_arena,
+      &other->_impl_.key_, rhs_arena
+  );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(AppendStripeDataPlacement, _impl_.append_size_)
       + sizeof(AppendStripeDataPlacement::_impl_.append_size_)
-      - PROTOBUF_FIELD_OFFSET(AppendStripeDataPlacement, _impl_.stripe_id_)>(
-          reinterpret_cast<char*>(&_impl_.stripe_id_),
-          reinterpret_cast<char*>(&other->_impl_.stripe_id_));
+      - PROTOBUF_FIELD_OFFSET(AppendStripeDataPlacement, _impl_.cluster_id_)>(
+          reinterpret_cast<char*>(&_impl_.cluster_id_),
+          reinterpret_cast<char*>(&other->_impl_.cluster_id_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata AppendStripeDataPlacement::GetMetadata() const {

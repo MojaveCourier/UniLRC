@@ -142,15 +142,18 @@ message ObjectAndPlacement{
 
 // append
 message AppendStripeDataPlacement{
-  int32 stripe_id = 1;
-  // sum of all append slices
-  int32 append_size = 2;
-  repeated string datanodeip = 3;
-  repeated int32 datanodeport = 4;
-  repeated string blockkeys = 5;
-  repeated int32 blockids = 6;
-  repeated int32 offsets = 7;
-  repeated int32 sizes = 8;
+  string key = 1;
+  int32 cluster_id = 2;
+  int32 stripe_id = 3;
+  // sum of all append slices within the cluster
+  int32 append_size = 4;
+  repeated string datanodeip = 5;
+  repeated int32 datanodeport = 6;
+  repeated string blockkeys = 7;
+  repeated int32 blockids = 8;
+  // physical offset of each append slice within each block
+  repeated int32 offsets = 9;
+  repeated int32 sizes = 10;
 }
 
 message SetReply {

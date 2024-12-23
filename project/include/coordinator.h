@@ -11,7 +11,7 @@
 #include <thread>
 #include <condition_variable>
 #include <config.h>
-
+#include <toolbox.h>
 // #define IF_DEBUG true
 #define IF_DEBUG false
 namespace ECProject
@@ -88,9 +88,11 @@ namespace ECProject
     bool find_block(char type, int cluster_id, int stripe_id);
 
     void initializeStripeDataPlacement(Stripe *stripe);
+    std::vector<proxy_proto::AppendStripeDataPlacement> generateAppendPlan(Stripe *stripe, int curr_logical_offset, int append_size, int unit_size);
     void update_stripe_info_in_node(int t_node_id, int stripe_id, int index);
-
+    int getClusterAppendSize(Stripe *stripe, const std::map<int, std::pair<int, int>> &block_to_slice_sizes, int curr_group_id);
     ECProject::Config *m_sys_config;
+    ECProject::ToolBox *m_toolbox;
     int m_cur_cluster_id = 0;
     int m_cur_stripe_id = 0;
     std::unordered_map<std::string, ObjectInfo> m_object_commit_table;
@@ -135,6 +137,7 @@ namespace ECProject
       m_coordinatorImpl.init_clusterinfo(m_clusterinfo_path);
       m_coordinatorImpl.init_proxyinfo();
       m_coordinatorImpl.m_sys_config = ECProject::Config::getInstance(sys_config_path);
+      m_coordinatorImpl.m_toolbox = ECProject::ToolBox::getInstance();
 
       // initializing
       m_coordinatorImpl.m_cur_cluster_id = 0;
