@@ -105,10 +105,10 @@ namespace ECProject
       asio::ip::tcp::socket socket(io_context);
       asio::ip::tcp::resolver resolver(io_context);
       asio::error_code con_error;
-      asio::connect(socket, resolver.resolve({std::string(ip), std::to_string(port + ECProject::PORT_SHIFT)}), con_error);
+      asio::connect(socket, resolver.resolve({std::string(ip), std::to_string(port + ECProject::DATANODE_PORT_SHIFT)}), con_error);
       if (!con_error && IF_DEBUG)
       {
-        std::cout << "Connect to " << ip << ":" << port + ECProject::PORT_SHIFT << " success!" << std::endl;
+        std::cout << "Connect to " << ip << ":" << port + ECProject::DATANODE_PORT_SHIFT << " success!" << std::endl;
       }
       asio::write(socket, asio::buffer(slice_buf, slice_size), error);
       asio::error_code ignore_ec;
@@ -148,10 +148,10 @@ namespace ECProject
       asio::ip::tcp::socket socket(io_context);
       asio::ip::tcp::resolver resolver(io_context);
       asio::error_code con_error;
-      asio::connect(socket, resolver.resolve({std::string(ip), std::to_string(port + ECProject::PORT_SHIFT)}), con_error);
+      asio::connect(socket, resolver.resolve({std::string(ip), std::to_string(port + ECProject::DATANODE_PORT_SHIFT)}), con_error);
       if (!con_error && IF_DEBUG)
       {
-        std::cout << "Connect to " << ip << ":" << port + ECProject::PORT_SHIFT << " success!" << std::endl;
+        std::cout << "Connect to " << ip << ":" << port + ECProject::DATANODE_PORT_SHIFT << " success!" << std::endl;
       }
 
       asio::write(socket, asio::buffer(value, value_length), error);
@@ -203,7 +203,7 @@ namespace ECProject
       asio::io_context io_context;
       asio::ip::tcp::resolver resolver(io_context);
       asio::ip::tcp::socket socket(io_context);
-      asio::connect(socket, resolver.resolve({std::string(ip), std::to_string(port + ECProject::PORT_SHIFT)}));
+      asio::connect(socket, resolver.resolve({std::string(ip), std::to_string(port + ECProject::DATANODE_PORT_SHIFT)}));
       asio::error_code ec;
       asio::read(socket, asio::buffer(buf, value_length), ec);
       asio::error_code ignore_ec;

@@ -85,6 +85,9 @@ namespace ECProject
   {
     int object_size;
     int map2stripe;
+
+    ObjectInfo() = default;
+    ObjectInfo(int object_size, int map2stripe) : object_size(object_size), map2stripe(map2stripe) {}
   } ObjectInfo;
 
   typedef struct StripeOffset
@@ -92,11 +95,12 @@ namespace ECProject
     int stripe_id;
     // range: [0, k*blockSize)
     // stripe organization
-    uint64_t offset;
+    int offset;
   } StripeOffset;
 
   typedef struct ParitySlice
   {
+    // physical offset
     int offset;
     int size;
     char *slice_ptr;

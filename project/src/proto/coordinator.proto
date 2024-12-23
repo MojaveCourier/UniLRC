@@ -89,6 +89,7 @@ message CommitAbortKey {
 message ReplyProxyIPsPorts {
   repeated string proxyips = 1;
   repeated int32 proxyports = 2;
+  repeated int32 cluster_slice_sizes = 3;
 }
 
 // set, del, merge

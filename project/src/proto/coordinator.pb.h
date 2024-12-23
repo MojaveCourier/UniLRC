@@ -1443,6 +1443,7 @@ class ReplyProxyIPsPorts final :
   enum : int {
     kProxyipsFieldNumber = 1,
     kProxyportsFieldNumber = 2,
+    kClusterSliceSizesFieldNumber = 3,
   };
   // repeated string proxyips = 1;
   int proxyips_size() const;
@@ -1490,6 +1491,28 @@ class ReplyProxyIPsPorts final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
       mutable_proxyports();
 
+  // repeated int32 cluster_slice_sizes = 3;
+  int cluster_slice_sizes_size() const;
+  private:
+  int _internal_cluster_slice_sizes_size() const;
+  public:
+  void clear_cluster_slice_sizes();
+  private:
+  int32_t _internal_cluster_slice_sizes(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      _internal_cluster_slice_sizes() const;
+  void _internal_add_cluster_slice_sizes(int32_t value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      _internal_mutable_cluster_slice_sizes();
+  public:
+  int32_t cluster_slice_sizes(int index) const;
+  void set_cluster_slice_sizes(int index, int32_t value);
+  void add_cluster_slice_sizes(int32_t value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      cluster_slice_sizes() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      mutable_cluster_slice_sizes();
+
   // @@protoc_insertion_point(class_scope:coordinator_proto.ReplyProxyIPsPorts)
  private:
   class _Internal;
@@ -1501,6 +1524,8 @@ class ReplyProxyIPsPorts final :
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> proxyips_;
     ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > proxyports_;
     mutable std::atomic<int> _proxyports_cached_byte_size_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > cluster_slice_sizes_;
+    mutable std::atomic<int> _cluster_slice_sizes_cached_byte_size_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -3488,6 +3513,53 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
 ReplyProxyIPsPorts::mutable_proxyports() {
   // @@protoc_insertion_point(field_mutable_list:coordinator_proto.ReplyProxyIPsPorts.proxyports)
   return _internal_mutable_proxyports();
+}
+
+// repeated int32 cluster_slice_sizes = 3;
+inline int ReplyProxyIPsPorts::_internal_cluster_slice_sizes_size() const {
+  return _impl_.cluster_slice_sizes_.size();
+}
+inline int ReplyProxyIPsPorts::cluster_slice_sizes_size() const {
+  return _internal_cluster_slice_sizes_size();
+}
+inline void ReplyProxyIPsPorts::clear_cluster_slice_sizes() {
+  _impl_.cluster_slice_sizes_.Clear();
+}
+inline int32_t ReplyProxyIPsPorts::_internal_cluster_slice_sizes(int index) const {
+  return _impl_.cluster_slice_sizes_.Get(index);
+}
+inline int32_t ReplyProxyIPsPorts::cluster_slice_sizes(int index) const {
+  // @@protoc_insertion_point(field_get:coordinator_proto.ReplyProxyIPsPorts.cluster_slice_sizes)
+  return _internal_cluster_slice_sizes(index);
+}
+inline void ReplyProxyIPsPorts::set_cluster_slice_sizes(int index, int32_t value) {
+  _impl_.cluster_slice_sizes_.Set(index, value);
+  // @@protoc_insertion_point(field_set:coordinator_proto.ReplyProxyIPsPorts.cluster_slice_sizes)
+}
+inline void ReplyProxyIPsPorts::_internal_add_cluster_slice_sizes(int32_t value) {
+  _impl_.cluster_slice_sizes_.Add(value);
+}
+inline void ReplyProxyIPsPorts::add_cluster_slice_sizes(int32_t value) {
+  _internal_add_cluster_slice_sizes(value);
+  // @@protoc_insertion_point(field_add:coordinator_proto.ReplyProxyIPsPorts.cluster_slice_sizes)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+ReplyProxyIPsPorts::_internal_cluster_slice_sizes() const {
+  return _impl_.cluster_slice_sizes_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+ReplyProxyIPsPorts::cluster_slice_sizes() const {
+  // @@protoc_insertion_point(field_list:coordinator_proto.ReplyProxyIPsPorts.cluster_slice_sizes)
+  return _internal_cluster_slice_sizes();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+ReplyProxyIPsPorts::_internal_mutable_cluster_slice_sizes() {
+  return &_impl_.cluster_slice_sizes_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+ReplyProxyIPsPorts::mutable_cluster_slice_sizes() {
+  // @@protoc_insertion_point(field_mutable_list:coordinator_proto.ReplyProxyIPsPorts.cluster_slice_sizes)
+  return _internal_mutable_cluster_slice_sizes();
 }
 
 // -------------------------------------------------------------------

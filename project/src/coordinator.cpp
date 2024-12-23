@@ -141,7 +141,7 @@ namespace ECProject
     std::string chosen_proxy = selected_proxy_ip + ":" + std::to_string(selected_proxy_port);
     grpc::Status status = m_proxy_ptrs[chosen_proxy]->encodeAndSetObject(&cont, object_placement, &set_reply);
     proxyIPPort->set_proxyip(selected_proxy_ip);
-    proxyIPPort->set_proxyport(selected_proxy_port + 1); // use another port to accept data
+    proxyIPPort->set_proxyport(selected_proxy_port + ECProject::PROXY_PORT_SHIFT); // use another port to accept data
     if (status.ok())
     {
       m_mutex.lock();
@@ -232,7 +232,7 @@ namespace ECProject
     int curr_group_id = (curr_logical_offset / (unit_size * stripe->k / stripe->z)) % stripe->z;
     int curr_block_id = (curr_logical_offset / unit_size) % stripe->k;
     // 计算需要多少个完整的unit
-    int num_units = (curr_logical_offset + append_size) / unit_size - curr_logical_offset / unit_size + 1;
+    // int num_units = (curr_logical_offset + append_size) / unit_size - curr_logical_offset / unit_size + 1;
     int num_groups = std::min((curr_logical_offset + append_size) / (unit_size * stripe->k / stripe->z) - curr_logical_offset / (unit_size * stripe->k / stripe->z) + 1, stripe->z);
 
     // key: block_id, value: (slice_size, physical_offset)
@@ -299,12 +299,9 @@ namespace ECProject
   {
     std::string clientID = keyValueSize->key();
     int appendSizeBytes = keyValueSize->valuesizebytes();
-    m_mutex.lock();
-    // TODO: verify whether use clientID or not
-    m_object_commit_table.erase(clientID);
-    m_mutex.unlock();
 
     // 1. record metadata
+    // logical offset within the block stripe
     StripeOffset curStripeOffset;
     if (m_cur_offset_table.find(clientID) == m_cur_offset_table.end())
     {
@@ -341,9 +338,45 @@ namespace ECProject
 
     std::vector<proxy_proto::AppendStripeDataPlacement> append_plans = generateAppendPlan(stripe, curStripeOffset.offset, appendSizeBytes, m_sys_config->BlockSize);
 
+    for (const auto &plan : append_plans)
+    {
+      m_mutex.lock();
+      m_object_commit_table.erase(plan.key());
+      m_mutex.unlock();
+    }
+
     // 3. notify proxies to receive data
-    grpc::ClientContext cont;
+    auto notify_proxies_ready = [this](const proxy_proto::AppendStripeDataPlacement &plan)
+    {
+      grpc::ClientContext cont;
+      proxy_proto::SetReply set_reply;
+      std::string chosen_proxy = m_cluster_table[plan.cluster_id()].proxy_ip + ":" + std::to_string(m_cluster_table[plan.cluster_id()].proxy_port);
+      grpc::Status status = m_proxy_ptrs[chosen_proxy]->scheduleAppend2Datanode(&cont, plan, &set_reply);
+      if (status.ok())
+      {
+        m_mutex.lock();
+        m_object_updating_table[plan.key()] = ObjectInfo(plan.append_size(), plan.stripe_id());
+        m_mutex.unlock();
+      }
+      else
+      {
+        std::cout << "[APPEND] Send append plan" << plan.key() << " failed! " << std::endl;
+      }
+    };
+
     // need multiple proxies to receive data, so need multiple threads
+    std::vector<std::thread> threads;
+    for (const auto &plan : append_plans)
+    {
+      threads.push_back(std::thread(notify_proxies_ready, plan));
+      proxyIPPort->add_proxyips(m_cluster_table[plan.cluster_id()].proxy_ip);
+      proxyIPPort->add_proxyports(m_cluster_table[plan.cluster_id()].proxy_port + ECProject::PROXY_PORT_SHIFT); // use another port to accept data
+      proxyIPPort->add_cluster_slice_sizes(plan.append_size());
+    }
+    for (auto &thread : threads)
+    {
+      thread.join();
+    }
 
     return grpc::Status::OK;
   }

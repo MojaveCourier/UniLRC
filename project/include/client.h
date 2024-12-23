@@ -11,6 +11,7 @@
 #include <grpcpp/grpcpp.h>
 #include <asio.hpp>
 #include "config.h"
+#include "toolbox.h"
 namespace ECProject
 {
   class Client
@@ -35,6 +36,7 @@ namespace ECProject
       m_coordinator_ptr = coordinator_proto::coordinatorService::NewStub(channel);
       m_clientID = ClientIP + ":" + std::to_string(ClientPort);
       m_sys_config = ECProject::Config::getInstance(config_path);
+      m_toolbox = ECProject::ToolBox::getInstance();
     }
 
     std::string sayHelloToCoordinatorByGrpc(std::string hello);
@@ -57,6 +59,7 @@ namespace ECProject
 
     uint64_t m_append_offset = 0;
     ECProject::Config *m_sys_config;
+    ECProject::ToolBox *m_toolbox;
   };
 
 } // namespace ECProject

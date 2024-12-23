@@ -224,7 +224,7 @@ namespace ECProject
                 memset(mergedBuf.get(), 0, m_sys_config->BlockSize);
                 for (const auto &slice : slices)
                 {
-                    for (size_t i = 0; i < slice.size; i++)
+                    for (int i = 0; i < slice.size; i++)
                     {
                         assert(slice.offset + i < m_sys_config->BlockSize && "Parity slice.offset + i >= m_sys_config->BlockSize!");
                         mergedBuf[slice.offset + i] ^= slice.slice_ptr[i];
@@ -392,7 +392,7 @@ namespace ECProject
             {
                 if (IF_DEBUG)
                 {
-                    std::cout << "[Datanode" << m_port << "][GET] read from the disk and write to socket with port " << m_port + ECProject::PORT_SHIFT << std::endl;
+                    std::cout << "[Datanode" << m_port << "][GET] read from the disk and write to socket with port " << m_port + ECProject::DATANODE_PORT_SHIFT << std::endl;
                 }
                 char *buf = new char[block_size];
                 std::ifstream ifs(readpath);

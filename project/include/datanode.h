@@ -18,11 +18,11 @@ namespace ECProject
         : public datanode_proto::datanodeService::Service
     {
     public:
-        DatanodeImpl(std::string datanode_ip_port) : datanode_ip_port(datanode_ip_port), acceptor(io_context, asio::ip::tcp::endpoint(asio::ip::address::from_string(datanode_ip_port.substr(0, datanode_ip_port.find(':')).c_str()), ECProject::PORT_SHIFT + std::stoi(datanode_ip_port.substr(datanode_ip_port.find(':') + 1, datanode_ip_port.size()))))
+        DatanodeImpl(std::string datanode_ip_port) : datanode_ip_port(datanode_ip_port), acceptor(io_context, asio::ip::tcp::endpoint(asio::ip::address::from_string(datanode_ip_port.substr(0, datanode_ip_port.find(':')).c_str()), ECProject::DATANODE_PORT_SHIFT + std::stoi(datanode_ip_port.substr(datanode_ip_port.find(':') + 1, datanode_ip_port.size()))))
         {
             m_ip = datanode_ip_port.substr(0, datanode_ip_port.find(':'));
             m_port = std::stoi(datanode_ip_port.substr(datanode_ip_port.find(':') + 1, datanode_ip_port.size()));
-            m_download_port = m_port + ECProject::PORT_SHIFT;
+            m_download_port = m_port + ECProject::DATANODE_PORT_SHIFT;
         }
         ~DatanodeImpl() {};
         grpc::Status checkalive(
