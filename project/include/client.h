@@ -37,16 +37,24 @@ namespace ECProject
       m_clientID = ClientIP + ":" + std::to_string(ClientPort);
       m_sys_config = ECProject::Config::getInstance(config_path);
       m_toolbox = ECProject::ToolBox::getInstance();
+      m_pre_allocated_buffer = new char[m_sys_config->BlockSize * m_sys_config->n];
+    }
+
+    ~Client()
+    {
+      delete[] m_pre_allocated_buffer;
     }
 
     std::string sayHelloToCoordinatorByGrpc(std::string hello);
-    bool append(std::string value);
+    bool append(int append_size);
+    bool sub_append(int append_size);
     bool set(std::string key, std::string value);
     bool SetParameterByGrpc(ECSchema input_ecschema);
     bool get(std::string key, std::string &value);
     bool delete_key(std::string key);
     bool delete_stripe(int stripe_id);
     bool delete_all_stripes();
+    void encode();
 
   private:
     std::unique_ptr<coordinator_proto::coordinatorService::Stub> m_coordinator_ptr;
@@ -57,9 +65,10 @@ namespace ECProject
     asio::io_context io_context;
     asio::ip::tcp::acceptor acceptor;
 
-    uint64_t m_append_offset = 0;
+    int m_append_logical_offset = 0;
     ECProject::Config *m_sys_config;
     ECProject::ToolBox *m_toolbox;
+    char *m_pre_allocated_buffer = nullptr;
   };
 
 } // namespace ECProject

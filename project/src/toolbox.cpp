@@ -38,6 +38,16 @@ namespace ECProject
     return splitCharPointer(str, append_stripe_data_placement->append_size(), sizes);
   }
 
+  std::vector<char *> ToolBox::splitCharPointer(const char *str, const coordinator_proto::ReplyProxyIPsPorts *reply_proxy_ips_ports)
+  {
+    std::vector<size_t> sizes;
+    for (int i = 0; i < reply_proxy_ips_ports->cluster_slice_sizes_size(); i++)
+    {
+      sizes.push_back(reply_proxy_ips_ports->cluster_slice_sizes(i));
+    }
+    return splitCharPointer(str, reply_proxy_ips_ports->sum_append_size(), sizes);
+  }
+
   std::string ToolBox::gen_append_key(int stripe_id, int cluster_id)
   {
     return std::to_string(cluster_id) + "_" + std::to_string(stripe_id);

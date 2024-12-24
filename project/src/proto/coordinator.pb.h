@@ -1441,11 +1441,37 @@ class ReplyProxyIPsPorts final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kProxyipsFieldNumber = 1,
-    kProxyportsFieldNumber = 2,
-    kClusterSliceSizesFieldNumber = 3,
+    kAppendKeysFieldNumber = 2,
+    kProxyipsFieldNumber = 3,
+    kProxyportsFieldNumber = 4,
+    kClusterSliceSizesFieldNumber = 5,
+    kSumAppendSizeFieldNumber = 1,
   };
-  // repeated string proxyips = 1;
+  // repeated string append_keys = 2;
+  int append_keys_size() const;
+  private:
+  int _internal_append_keys_size() const;
+  public:
+  void clear_append_keys();
+  const std::string& append_keys(int index) const;
+  std::string* mutable_append_keys(int index);
+  void set_append_keys(int index, const std::string& value);
+  void set_append_keys(int index, std::string&& value);
+  void set_append_keys(int index, const char* value);
+  void set_append_keys(int index, const char* value, size_t size);
+  std::string* add_append_keys();
+  void add_append_keys(const std::string& value);
+  void add_append_keys(std::string&& value);
+  void add_append_keys(const char* value);
+  void add_append_keys(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& append_keys() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_append_keys();
+  private:
+  const std::string& _internal_append_keys(int index) const;
+  std::string* _internal_add_append_keys();
+  public:
+
+  // repeated string proxyips = 3;
   int proxyips_size() const;
   private:
   int _internal_proxyips_size() const;
@@ -1469,7 +1495,7 @@ class ReplyProxyIPsPorts final :
   std::string* _internal_add_proxyips();
   public:
 
-  // repeated int32 proxyports = 2;
+  // repeated int32 proxyports = 4;
   int proxyports_size() const;
   private:
   int _internal_proxyports_size() const;
@@ -1491,7 +1517,7 @@ class ReplyProxyIPsPorts final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
       mutable_proxyports();
 
-  // repeated int32 cluster_slice_sizes = 3;
+  // repeated int32 cluster_slice_sizes = 5;
   int cluster_slice_sizes_size() const;
   private:
   int _internal_cluster_slice_sizes_size() const;
@@ -1513,6 +1539,15 @@ class ReplyProxyIPsPorts final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
       mutable_cluster_slice_sizes();
 
+  // int32 sum_append_size = 1;
+  void clear_sum_append_size();
+  int32_t sum_append_size() const;
+  void set_sum_append_size(int32_t value);
+  private:
+  int32_t _internal_sum_append_size() const;
+  void _internal_set_sum_append_size(int32_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:coordinator_proto.ReplyProxyIPsPorts)
  private:
   class _Internal;
@@ -1521,11 +1556,13 @@ class ReplyProxyIPsPorts final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> append_keys_;
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> proxyips_;
     ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > proxyports_;
     mutable std::atomic<int> _proxyports_cached_byte_size_;
     ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > cluster_slice_sizes_;
     mutable std::atomic<int> _cluster_slice_sizes_cached_byte_size_;
+    int32_t sum_append_size_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -3393,7 +3430,102 @@ inline void CommitAbortKey::set_stripe_id(int32_t value) {
 
 // ReplyProxyIPsPorts
 
-// repeated string proxyips = 1;
+// int32 sum_append_size = 1;
+inline void ReplyProxyIPsPorts::clear_sum_append_size() {
+  _impl_.sum_append_size_ = 0;
+}
+inline int32_t ReplyProxyIPsPorts::_internal_sum_append_size() const {
+  return _impl_.sum_append_size_;
+}
+inline int32_t ReplyProxyIPsPorts::sum_append_size() const {
+  // @@protoc_insertion_point(field_get:coordinator_proto.ReplyProxyIPsPorts.sum_append_size)
+  return _internal_sum_append_size();
+}
+inline void ReplyProxyIPsPorts::_internal_set_sum_append_size(int32_t value) {
+  
+  _impl_.sum_append_size_ = value;
+}
+inline void ReplyProxyIPsPorts::set_sum_append_size(int32_t value) {
+  _internal_set_sum_append_size(value);
+  // @@protoc_insertion_point(field_set:coordinator_proto.ReplyProxyIPsPorts.sum_append_size)
+}
+
+// repeated string append_keys = 2;
+inline int ReplyProxyIPsPorts::_internal_append_keys_size() const {
+  return _impl_.append_keys_.size();
+}
+inline int ReplyProxyIPsPorts::append_keys_size() const {
+  return _internal_append_keys_size();
+}
+inline void ReplyProxyIPsPorts::clear_append_keys() {
+  _impl_.append_keys_.Clear();
+}
+inline std::string* ReplyProxyIPsPorts::add_append_keys() {
+  std::string* _s = _internal_add_append_keys();
+  // @@protoc_insertion_point(field_add_mutable:coordinator_proto.ReplyProxyIPsPorts.append_keys)
+  return _s;
+}
+inline const std::string& ReplyProxyIPsPorts::_internal_append_keys(int index) const {
+  return _impl_.append_keys_.Get(index);
+}
+inline const std::string& ReplyProxyIPsPorts::append_keys(int index) const {
+  // @@protoc_insertion_point(field_get:coordinator_proto.ReplyProxyIPsPorts.append_keys)
+  return _internal_append_keys(index);
+}
+inline std::string* ReplyProxyIPsPorts::mutable_append_keys(int index) {
+  // @@protoc_insertion_point(field_mutable:coordinator_proto.ReplyProxyIPsPorts.append_keys)
+  return _impl_.append_keys_.Mutable(index);
+}
+inline void ReplyProxyIPsPorts::set_append_keys(int index, const std::string& value) {
+  _impl_.append_keys_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set:coordinator_proto.ReplyProxyIPsPorts.append_keys)
+}
+inline void ReplyProxyIPsPorts::set_append_keys(int index, std::string&& value) {
+  _impl_.append_keys_.Mutable(index)->assign(std::move(value));
+  // @@protoc_insertion_point(field_set:coordinator_proto.ReplyProxyIPsPorts.append_keys)
+}
+inline void ReplyProxyIPsPorts::set_append_keys(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.append_keys_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:coordinator_proto.ReplyProxyIPsPorts.append_keys)
+}
+inline void ReplyProxyIPsPorts::set_append_keys(int index, const char* value, size_t size) {
+  _impl_.append_keys_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:coordinator_proto.ReplyProxyIPsPorts.append_keys)
+}
+inline std::string* ReplyProxyIPsPorts::_internal_add_append_keys() {
+  return _impl_.append_keys_.Add();
+}
+inline void ReplyProxyIPsPorts::add_append_keys(const std::string& value) {
+  _impl_.append_keys_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:coordinator_proto.ReplyProxyIPsPorts.append_keys)
+}
+inline void ReplyProxyIPsPorts::add_append_keys(std::string&& value) {
+  _impl_.append_keys_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:coordinator_proto.ReplyProxyIPsPorts.append_keys)
+}
+inline void ReplyProxyIPsPorts::add_append_keys(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.append_keys_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:coordinator_proto.ReplyProxyIPsPorts.append_keys)
+}
+inline void ReplyProxyIPsPorts::add_append_keys(const char* value, size_t size) {
+  _impl_.append_keys_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:coordinator_proto.ReplyProxyIPsPorts.append_keys)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+ReplyProxyIPsPorts::append_keys() const {
+  // @@protoc_insertion_point(field_list:coordinator_proto.ReplyProxyIPsPorts.append_keys)
+  return _impl_.append_keys_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+ReplyProxyIPsPorts::mutable_append_keys() {
+  // @@protoc_insertion_point(field_mutable_list:coordinator_proto.ReplyProxyIPsPorts.append_keys)
+  return &_impl_.append_keys_;
+}
+
+// repeated string proxyips = 3;
 inline int ReplyProxyIPsPorts::_internal_proxyips_size() const {
   return _impl_.proxyips_.size();
 }
@@ -3468,7 +3600,7 @@ ReplyProxyIPsPorts::mutable_proxyips() {
   return &_impl_.proxyips_;
 }
 
-// repeated int32 proxyports = 2;
+// repeated int32 proxyports = 4;
 inline int ReplyProxyIPsPorts::_internal_proxyports_size() const {
   return _impl_.proxyports_.size();
 }
@@ -3515,7 +3647,7 @@ ReplyProxyIPsPorts::mutable_proxyports() {
   return _internal_mutable_proxyports();
 }
 
-// repeated int32 cluster_slice_sizes = 3;
+// repeated int32 cluster_slice_sizes = 5;
 inline int ReplyProxyIPsPorts::_internal_cluster_slice_sizes_size() const {
   return _impl_.cluster_slice_sizes_.size();
 }

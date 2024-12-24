@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_set>
 #include <proxy.pb.h>
+#include <coordinator.pb.h>
 #define MAX_KEY_LENGTH 200
 #define MAX_VALUE_LENGTH 20000
 namespace ECProject
@@ -35,6 +36,7 @@ namespace ECProject
         std::string gen_key(int key_len, std::unordered_set<std::string> keys);
         std::vector<char *> splitCharPointer(const char *str, const size_t str_size, const std::vector<size_t> &sizes);
         std::vector<char *> splitCharPointer(const char *str, const proxy_proto::AppendStripeDataPlacement *append_stripe_data_placement);
+        std::vector<char *> splitCharPointer(const char *str, const coordinator_proto::ReplyProxyIPsPorts *reply_proxy_ips_ports);
         std::string gen_append_key(int stripe_id, int cluster_id);
     };
 

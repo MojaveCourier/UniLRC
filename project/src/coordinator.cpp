@@ -286,6 +286,7 @@ namespace ECProject
       }
       append_plans.push_back(plan);
       num_groups--;
+      curr_group_id = (curr_group_id + 1) % stripe->z;
     }
 
     return append_plans;
@@ -366,17 +367,21 @@ namespace ECProject
 
     // need multiple proxies to receive data, so need multiple threads
     std::vector<std::thread> threads;
+    int sum_append_size = 0;
     for (const auto &plan : append_plans)
     {
       threads.push_back(std::thread(notify_proxies_ready, plan));
+      proxyIPPort->add_append_keys(plan.key());
       proxyIPPort->add_proxyips(m_cluster_table[plan.cluster_id()].proxy_ip);
       proxyIPPort->add_proxyports(m_cluster_table[plan.cluster_id()].proxy_port + ECProject::PROXY_PORT_SHIFT); // use another port to accept data
       proxyIPPort->add_cluster_slice_sizes(plan.append_size());
+      sum_append_size += plan.append_size();
     }
     for (auto &thread : threads)
     {
       thread.join();
     }
+    proxyIPPort->set_sum_append_size(sum_append_size);
 
     return grpc::Status::OK;
   }
