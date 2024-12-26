@@ -154,6 +154,7 @@ message AppendStripeDataPlacement{
   // physical offset of each append slice within each block
   repeated int32 offsets = 9;
   repeated int32 sizes = 10;
+  bool is_merge_parity = 11;
 }
 
 message SetReply {

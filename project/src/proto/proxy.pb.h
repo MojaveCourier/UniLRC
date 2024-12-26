@@ -3116,6 +3116,7 @@ class AppendStripeDataPlacement final :
     kClusterIdFieldNumber = 2,
     kStripeIdFieldNumber = 3,
     kAppendSizeFieldNumber = 4,
+    kIsMergeParityFieldNumber = 11,
   };
   // repeated string datanodeip = 5;
   int datanodeip_size() const;
@@ -3294,6 +3295,15 @@ class AppendStripeDataPlacement final :
   void _internal_set_append_size(int32_t value);
   public:
 
+  // bool is_merge_parity = 11;
+  void clear_is_merge_parity();
+  bool is_merge_parity() const;
+  void set_is_merge_parity(bool value);
+  private:
+  bool _internal_is_merge_parity() const;
+  void _internal_set_is_merge_parity(bool value);
+  public:
+
   // @@protoc_insertion_point(class_scope:proxy_proto.AppendStripeDataPlacement)
  private:
   class _Internal;
@@ -3316,6 +3326,7 @@ class AppendStripeDataPlacement final :
     int32_t cluster_id_;
     int32_t stripe_id_;
     int32_t append_size_;
+    bool is_merge_parity_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -6651,6 +6662,26 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
 AppendStripeDataPlacement::mutable_sizes() {
   // @@protoc_insertion_point(field_mutable_list:proxy_proto.AppendStripeDataPlacement.sizes)
   return _internal_mutable_sizes();
+}
+
+// bool is_merge_parity = 11;
+inline void AppendStripeDataPlacement::clear_is_merge_parity() {
+  _impl_.is_merge_parity_ = false;
+}
+inline bool AppendStripeDataPlacement::_internal_is_merge_parity() const {
+  return _impl_.is_merge_parity_;
+}
+inline bool AppendStripeDataPlacement::is_merge_parity() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.AppendStripeDataPlacement.is_merge_parity)
+  return _internal_is_merge_parity();
+}
+inline void AppendStripeDataPlacement::_internal_set_is_merge_parity(bool value) {
+  
+  _impl_.is_merge_parity_ = value;
+}
+inline void AppendStripeDataPlacement::set_is_merge_parity(bool value) {
+  _internal_set_is_merge_parity(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.AppendStripeDataPlacement.is_merge_parity)
 }
 
 // -------------------------------------------------------------------

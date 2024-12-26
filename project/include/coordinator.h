@@ -90,7 +90,7 @@ namespace ECProject
     void initializeStripeDataPlacement(Stripe *stripe);
     std::vector<proxy_proto::AppendStripeDataPlacement> generateAppendPlan(Stripe *stripe, int curr_logical_offset, int append_size, int unit_size);
     void update_stripe_info_in_node(int t_node_id, int stripe_id, int index);
-    int getClusterAppendSize(Stripe *stripe, const std::map<int, std::pair<int, int>> &block_to_slice_sizes, int curr_group_id);
+    int getClusterAppendSize(Stripe *stripe, const std::map<int, std::pair<int, int>> &block_to_slice_sizes, int curr_group_id, int parity_slice_size);
     ECProject::Config *m_sys_config;
     ECProject::ToolBox *m_toolbox;
     int m_cur_cluster_id = 0;
