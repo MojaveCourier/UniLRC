@@ -136,6 +136,8 @@ namespace ECProject
   bool Client::append(int append_size)
   {
     int tmp_append_size = append_size;
+    // align to aligned size
+    tmp_append_size = (tmp_append_size + m_sys_config->AlignedSize - 1) / m_sys_config->AlignedSize * m_sys_config->AlignedSize;
 
     while (tmp_append_size > 0)
     {

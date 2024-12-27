@@ -20,6 +20,7 @@ namespace ECProject
     void printConfigs() const;
     void validateConfig() const;
 
+    int AlignedSize = 4096;
     int UnitSize = 8 * 1024;
     int BlockSize = 1024 * 1024;
     int alpha = 2;
@@ -31,6 +32,8 @@ namespace ECProject
     int GlobalParityBlockNumPerGroup = r / z;
     int DatanodeNumPerCluster = 0;
     int ClusterNum = 0;
+    std::string CoordinatorIP = "0.0.0.0";
+    int CoordinatorPort = 55555;
   };
 }
 

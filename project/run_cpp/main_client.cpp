@@ -15,6 +15,39 @@ int main(int argc, char **argv)
     std::cout << "Current working directory: " << sys_config_path << std::endl;
 
     ECProject::Config *config = ECProject::Config::getInstance(sys_config_path);
+    std::string client_ip = "0.0.0.0";
+    int client_port = 44444;
+    ECProject::Client client(client_ip, client_port, config->CoordinatorIP + ":" + std::to_string(config->CoordinatorPort));
+    std::cout << client.sayHelloToCoordinatorByGrpc("Client ID: " + client_ip + ":" + std::to_string(client_port)) << std::endl;
+
+    // Test multiple append operations with different sizes
+    std::vector<int> append_sizes = {
+        4 * 1024,
+        8 * 1024,
+        12 * 1024,
+        16 * 1024,
+        24 * 1024};
+
+    // n=10, k=4, r=4. z=2, group_size=5
+    std::cout << "Starting multiple append tests with different sizes..." << std::endl;
+
+    // Test regular append with different sizes
+    for (size_t i = 0; i < append_sizes.size(); i++)
+    {
+        std::cout << "\n[Test " << i + 1 << "/" << append_sizes.size() << "]" << std::endl;
+        std::cout << "Testing append with size: " << append_sizes[i] << " bytes" << std::endl;
+
+        bool append_result = client.append(append_sizes[i]);
+        if (append_result)
+        {
+            std::cout << "Append operation succeeded for size " << append_sizes[i] << " bytes" << std::endl;
+        }
+        else
+        {
+            std::cout << "Append operation failed for size " << append_sizes[i] << " bytes" << std::endl;
+            break;
+        }
+    }
 
     return 0;
 }

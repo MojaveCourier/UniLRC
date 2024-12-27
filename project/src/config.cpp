@@ -45,6 +45,8 @@ namespace ECProject
       return;
     }
 
+    if (auto elem = root->FirstChildElement("AlignedSize"))
+      AlignedSize = std::stoi(elem->GetText());
     if (auto elem = root->FirstChildElement("UnitSize"))
       UnitSize = std::stoi(elem->GetText());
     if (auto elem = root->FirstChildElement("BlockSize"))
@@ -66,6 +68,10 @@ namespace ECProject
       DatanodeNumPerCluster = 2 * n / z; // default DatanodeNumPerCluster: two times of local group number
     if (ClusterNum == 0)
       ClusterNum = 2 * z; // default ClusterNum: two times of z
+    if (auto elem = root->FirstChildElement("CoordinatorIP"))
+      CoordinatorIP = std::string(elem->GetText());
+    if (auto elem = root->FirstChildElement("CoordinatorPort"))
+      CoordinatorPort = std::stoi(elem->GetText());
   }
 
   void Config::printConfigs() const

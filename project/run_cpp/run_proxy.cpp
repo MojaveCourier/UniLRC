@@ -2,11 +2,11 @@
 
 int main(int argc, char **argv)
 {
-    std::string coordinator_ip = "0.0.0.0";
-    if (argc == 3)
-    {
-        coordinator_ip = std::string(argv[2]);
-    }
+    // std::string coordinator_ip = "0.0.0.0";
+    // if (argc == 3)
+    // {
+    //     coordinator_ip = std::string(argv[2]);
+    // }
     pid_t pid = fork();
     if (pid > 0)
     {
@@ -26,11 +26,13 @@ int main(int argc, char **argv)
     char buff[256];
     getcwd(buff, 256);
     std::string cwf = std::string(argv[0]);
-    std::string config_path = std::string(buff) + cwf.substr(1, cwf.rfind('/') - 1) + "/../../config/clusterInformation.xml";
+    std::string config_path = std::string(buff) + cwf.substr(1, cwf.rfind('/') - 1) + "/../../config/test_clusterInformation.xml";
     std::string sys_config_path = std::string(buff) + cwf.substr(1, cwf.rfind('/') - 1) + "/../../config/parameterConfiguration.xml";
     std::cout << "Cluster config path: " << config_path << std::endl;
     std::cout << "Sys config path: " << sys_config_path << std::endl;
-    ECProject::Proxy proxy(ip_and_port, config_path, coordinator_ip + ":55555", sys_config_path);
+
+    ECProject::Config *config = ECProject::Config::getInstance(sys_config_path);
+    ECProject::Proxy proxy(ip_and_port, config_path, config->CoordinatorIP + ":" + std::to_string(config->CoordinatorPort), sys_config_path);
     proxy.Run();
     return 0;
 }
