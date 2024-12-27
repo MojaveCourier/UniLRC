@@ -116,5 +116,8 @@ foreach (_target
             # -lmemcached
             -lpthread
             -lJerasure -lgf_complete
+            # for gdb debug
+            -gdwarf-4 -gstrict-dwarf
+            -g
             )
 endforeach ()

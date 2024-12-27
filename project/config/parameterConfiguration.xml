@@ -5,8 +5,8 @@
     <BlockSize>16384</BlockSize>
     <alpha>2</alpha>
     <z>2</z>
-    <!-- <DatanodeNumPerCluster>5</DatanodeNumPerCluster>
-    <ClusterNum>4</ClusterNum> -->
+    <DatanodeNumPerCluster>10</DatanodeNumPerCluster>
+    <ClusterNum>12</ClusterNum>
     <CoordinatorIP>0.0.0.0</CoordinatorIP>
     <CoordinatorPort>55555</CoordinatorPort>
 </Configuration>
