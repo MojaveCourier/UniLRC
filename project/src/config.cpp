@@ -77,6 +77,7 @@ namespace ECProject
   void Config::printConfigs() const
   {
     std::cout << "Configuration Parameters:" << std::endl;
+    std::cout << "  AlignedSize: " << AlignedSize << " bytes" << std::endl;
     std::cout << "  UnitSize: " << UnitSize << " bytes" << std::endl;
     std::cout << "  BlockSize: " << BlockSize << " bytes" << std::endl;
     std::cout << "  alpha: " << (int)alpha << std::endl;
@@ -89,5 +90,7 @@ namespace ECProject
     std::cout << "  GlobalParityBlockNumPerGroup: " << GlobalParityBlockNumPerGroup << " blocks/group" << std::endl;
     std::cout << "  DatanodeNumPerCluster: " << DatanodeNumPerCluster << " nodes/cluster" << std::endl;
     std::cout << "  ClusterNum: " << (int)ClusterNum << " clusters" << std::endl;
+    std::cout << "  CoordinatorIP: " << CoordinatorIP << std::endl;
+    std::cout << "  CoordinatorPort: " << CoordinatorPort << std::endl;
   }
 }

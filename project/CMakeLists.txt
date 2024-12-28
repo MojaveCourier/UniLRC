@@ -81,6 +81,9 @@ link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
 set(Boost_USE_STATIC_LIBS ON)
 #find_package(Boost COMPONENTS thread REQUIRED)
 
+# for gdb debug
+add_compile_options(-gdwarf-4 -gstrict-dwarf)
+
 # set(testsrc ${CMAKE_CURRENT_SOURCE_DIR}/test/test.cpp)
 # add_executable(unittest ${testsrc})
 # target_link_libraries(unittest libJerasure.a libgf_complete.a)
@@ -117,7 +120,7 @@ foreach (_target
             -lpthread
             -lJerasure -lgf_complete
             # for gdb debug
-            -gdwarf-4 -gstrict-dwarf
-            -g
+            # -gdwarf-4 -gstrict-dwarf
+            # -g
             )
 endforeach ()
