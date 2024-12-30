@@ -65,6 +65,7 @@ namespace ECProject
     ECProject::ToolBox *m_toolbox;
     bool AppendToDatanode(const char *block_key, int block_id, size_t append_size, const char *append_buf, int append_offset, const char *ip, int port);
     bool MergeParityOnDatanode(const char *block_key, int block_id, const char *ip, int port);
+    void printAppendStripeDataPlacement(const proxy_proto::AppendStripeDataPlacement *append_stripe_data_placement);
 
   private:
     std::mutex m_mutex;

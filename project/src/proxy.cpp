@@ -267,11 +267,45 @@ namespace ECProject
     return true;
   }
 
+  void ProxyImpl::printAppendStripeDataPlacement(const proxy_proto::AppendStripeDataPlacement *append_stripe_data_placement)
+  {
+    // Print basic info
+    std::cout << "=== AppendStripeDataPlacement Info ===" << std::endl;
+    std::cout << "Key: " << append_stripe_data_placement->key() << std::endl;
+    std::cout << "Stripe ID: " << append_stripe_data_placement->stripe_id() << std::endl;
+    std::cout << "Cluster ID: " << append_stripe_data_placement->cluster_id() << std::endl;
+    std::cout << "Total Append Size: " << append_stripe_data_placement->append_size() << std::endl;
+    std::cout << "Is Merge Parity: " << (append_stripe_data_placement->is_merge_parity() ? "true" : "false") << std::endl;
+
+    // Print datanode info
+    std::cout << "\n=== Datanode Info ===" << std::endl;
+    for (int i = 0; i < append_stripe_data_placement->datanodeip_size(); i++)
+    {
+      std::cout << "Datanode " << i << ":" << std::endl;
+      std::cout << "  IP: " << append_stripe_data_placement->datanodeip(i) << std::endl;
+      std::cout << "  Port: " << append_stripe_data_placement->datanodeport(i) << std::endl;
+    }
+
+    // Print block info
+    std::cout << "\n=== Block Info ===" << std::endl;
+    for (int i = 0; i < append_stripe_data_placement->blockkeys_size(); i++)
+    {
+      std::cout << "Block " << i << ":" << std::endl;
+      std::cout << "  Key: " << append_stripe_data_placement->blockkeys(i) << std::endl;
+      std::cout << "  ID: " << append_stripe_data_placement->blockids(i) << std::endl;
+      std::cout << "  Offset: " << append_stripe_data_placement->offsets(i) << std::endl;
+      std::cout << "  Size: " << append_stripe_data_placement->sizes(i) << std::endl;
+    }
+    std::cout << "===================================" << std::endl;
+  }
+
   grpc::Status ProxyImpl::scheduleAppend2Datanode(
       grpc::ServerContext *context,
       const proxy_proto::AppendStripeDataPlacement *append_stripe_data_placement,
       proxy_proto::SetReply *response)
   {
+    printAppendStripeDataPlacement(append_stripe_data_placement);
+
     int stripe_id = append_stripe_data_placement->stripe_id();
     // sum of all append slices allocated to this proxy
     int cluster_append_size = append_stripe_data_placement->append_size();
@@ -286,6 +320,9 @@ namespace ECProject
         acceptor.accept(socket_data);
         asio::error_code error;
 
+        // char* append_buf = new char[cluster_append_size];
+        // memset(append_buf, 0, cluster_append_size);
+        // std::shared_ptr<char> append_buf_ptr(append_buf, [](char* p) { delete[] p; }); // 使用智能指针管理内存
         std::vector<char> append_buf(cluster_append_size, 0);
         asio::read(socket_data, asio::buffer(append_buf.data(), cluster_append_size), error);
         if (error == asio::error::eof)

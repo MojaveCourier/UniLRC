@@ -18,6 +18,7 @@ namespace ECProject
     for (size_t i = 0; i < sizes.size(); ++i)
     {
       // slice size is valid
+      std::cout << "[ToolBox::splitCharPointer] currentOffset: " << currentOffset << " i: " << i << " sizes[i]: " << sizes[i] << " str_size: " << str_size << std::endl;
       assert(currentOffset + sizes[i] <= str_size && "splitCharPointer: Invalid offset provided.");
       result.push_back(const_cast<char *>(str + currentOffset));
       currentOffset += sizes[i];

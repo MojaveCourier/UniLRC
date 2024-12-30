@@ -134,17 +134,31 @@ pkill -9 run_coordinator
 ./project/cmake/build/run_datanode 0.0.0.0:19108
 ./project/cmake/build/run_datanode 0.0.0.0:19109
 
-./project/cmake/build/run_proxy 0.0.0.0:50005
-./project/cmake/build/run_proxy 0.0.0.0:50035
-./project/cmake/build/run_proxy 0.0.0.0:50065
-./project/cmake/build/run_proxy 0.0.0.0:50095
-./project/cmake/build/run_proxy 0.0.0.0:50125
-./project/cmake/build/run_proxy 0.0.0.0:50155
-./project/cmake/build/run_proxy 0.0.0.0:50185
-./project/cmake/build/run_proxy 0.0.0.0:50215
-./project/cmake/build/run_proxy 0.0.0.0:50245
-./project/cmake/build/run_proxy 0.0.0.0:50275
-./project/cmake/build/run_proxy 0.0.0.0:50305
-./project/cmake/build/run_proxy 0.0.0.0:50335
+# ./project/cmake/build/run_proxy 0.0.0.0:50005
+# ./project/cmake/build/run_proxy 0.0.0.0:50035
+# ./project/cmake/build/run_proxy 0.0.0.0:50065
+# ./project/cmake/build/run_proxy 0.0.0.0:50095
+# ./project/cmake/build/run_proxy 0.0.0.0:50125
+# ./project/cmake/build/run_proxy 0.0.0.0:50155
+# ./project/cmake/build/run_proxy 0.0.0.0:50185
+# ./project/cmake/build/run_proxy 0.0.0.0:50215
+# ./project/cmake/build/run_proxy 0.0.0.0:50245
+# ./project/cmake/build/run_proxy 0.0.0.0:50275
+# ./project/cmake/build/run_proxy 0.0.0.0:50305
+# ./project/cmake/build/run_proxy 0.0.0.0:50335
 
-./project/cmake/build/run_coordinator
+# ./project/cmake/build/run_proxy 0.0.0.0:50005 &
+./project/cmake/build/run_proxy 0.0.0.0:50035 & 
+./project/cmake/build/run_proxy 0.0.0.0:50065 &
+./project/cmake/build/run_proxy 0.0.0.0:50095 &
+./project/cmake/build/run_proxy 0.0.0.0:50125 &
+./project/cmake/build/run_proxy 0.0.0.0:50155 &
+./project/cmake/build/run_proxy 0.0.0.0:50185 &
+./project/cmake/build/run_proxy 0.0.0.0:50215 &
+./project/cmake/build/run_proxy 0.0.0.0:50245 &
+./project/cmake/build/run_proxy 0.0.0.0:50275 &
+./project/cmake/build/run_proxy 0.0.0.0:50305 &
+./project/cmake/build/run_proxy 0.0.0.0:50335 &
+
+
+# ./project/cmake/build/run_coordinator

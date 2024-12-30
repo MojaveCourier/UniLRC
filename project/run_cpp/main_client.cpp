@@ -18,7 +18,7 @@ int main(int argc, char **argv)
     ECProject::Config *config = ECProject::Config::getInstance(sys_config_path);
     std::string client_ip = "0.0.0.0";
     int client_port = 44444;
-    ECProject::Client client(client_ip, client_port, config->CoordinatorIP + ":" + std::to_string(config->CoordinatorPort));
+    ECProject::Client client(client_ip, client_port, config->CoordinatorIP + ":" + std::to_string(config->CoordinatorPort), sys_config_path);
     std::cout << client.sayHelloToCoordinatorByGrpc("Client ID: " + client_ip + ":" + std::to_string(client_port)) << std::endl;
 
     // Test multiple append operations with different sizes

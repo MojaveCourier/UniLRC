@@ -12,8 +12,8 @@ int main(int argc, char **argv)
     {
         umask(0);
         close(STDIN_FILENO);
-        close(STDOUT_FILENO);
-        close(STDERR_FILENO);
+        // close(STDOUT_FILENO);
+        // close(STDERR_FILENO);
     }
 
     std::string ip_and_port(argv[1]);
