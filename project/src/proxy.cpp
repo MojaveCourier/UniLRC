@@ -312,7 +312,9 @@ namespace ECProject
     // number of slices allocated to this proxy
     int slice_num = append_stripe_data_placement->blockkeys_size();
 
-    auto append_and_save = [this, stripe_id, cluster_append_size, slice_num, append_stripe_data_placement]() mutable
+    auto placement_copy = std::make_shared<proxy_proto::AppendStripeDataPlacement>(*append_stripe_data_placement);
+
+    auto append_and_save = [this, stripe_id, cluster_append_size, slice_num, placement_copy]() mutable
     {
       try
       {
@@ -344,7 +346,7 @@ namespace ECProject
         socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
         socket_data.close(ignore_ec);
 
-        std::vector<char *> slices = m_toolbox->splitCharPointer(append_buf, append_stripe_data_placement);
+        std::vector<char *> slices = m_toolbox->splitCharPointer(append_buf, placement_copy);
 
         auto append_to_datanode = [this](const char *block_key, int block_id, size_t slice_size, const char *slice_buf, int slice_offset, const char *ip, int port)
         {
@@ -359,7 +361,7 @@ namespace ECProject
         std::vector<std::thread> senders;
         for (int j = 0; j < slice_num; j++)
         {
-          senders.push_back(std::thread(append_to_datanode, append_stripe_data_placement->blockkeys(j).c_str(), append_stripe_data_placement->blockids(j), append_stripe_data_placement->sizes(j), slices[j], append_stripe_data_placement->offsets(j), append_stripe_data_placement->datanodeip(j).c_str(), append_stripe_data_placement->datanodeport(j)));
+          senders.push_back(std::thread(append_to_datanode, placement_copy->blockkeys(j).c_str(), placement_copy->blockids(j), placement_copy->sizes(j), slices[j], placement_copy->offsets(j), placement_copy->datanodeip(j).c_str(), placement_copy->datanodeport(j)));
         }
         for (int j = 0; j < int(senders.size()); j++)
         {
@@ -372,13 +374,13 @@ namespace ECProject
                     << "Finish appending to Stripe " << stripe_id << std::endl;
         }
 
-        if (append_stripe_data_placement->is_merge_parity())
+        if (placement_copy->is_merge_parity())
         {
           for (int j = 0; j < slice_num; j++)
           {
-            if (append_stripe_data_placement->blockids(j) >= m_sys_config->k)
+            if (placement_copy->blockids(j) >= m_sys_config->k)
             {
-              MergeParityOnDatanode(append_stripe_data_placement->blockkeys(j).c_str(), append_stripe_data_placement->blockids(j), append_stripe_data_placement->datanodeip(j).c_str(), append_stripe_data_placement->datanodeport(j));
+              MergeParityOnDatanode(placement_copy->blockkeys(j).c_str(), placement_copy->blockids(j), placement_copy->datanodeip(j).c_str(), placement_copy->datanodeport(j));
             }
           }
 
@@ -395,7 +397,7 @@ namespace ECProject
         grpc::ClientContext context;
         ECProject::OpperateType opp = APPEND;
         commit_abort_key.set_opp(opp);
-        commit_abort_key.set_key(append_stripe_data_placement->key());
+        commit_abort_key.set_key(placement_copy->key());
         commit_abort_key.set_stripe_id(stripe_id);
         commit_abort_key.set_ifcommitmetadata(true);
         grpc::Status status;

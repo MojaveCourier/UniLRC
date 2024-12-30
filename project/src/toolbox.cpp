@@ -29,7 +29,7 @@ namespace ECProject
     return result;
   }
 
-  std::vector<char *> ToolBox::splitCharPointer(const char *str, const proxy_proto::AppendStripeDataPlacement *append_stripe_data_placement)
+  std::vector<char *> ToolBox::splitCharPointer(const char *str, const std::shared_ptr<proxy_proto::AppendStripeDataPlacement> append_stripe_data_placement)
   {
     std::vector<size_t> sizes;
     for (int i = 0; i < append_stripe_data_placement->sizes_size(); i++)
