@@ -160,5 +160,6 @@ pkill -9 run_coordinator
 ./project/cmake/build/run_proxy 0.0.0.0:50305 &
 ./project/cmake/build/run_proxy 0.0.0.0:50335 &
 
+sleep 5s
 
 ./project/cmake/build/run_coordinator
