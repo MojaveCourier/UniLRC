@@ -136,7 +136,7 @@ namespace ECProject
       socket.close(ignore_ec);
       if (IF_DEBUG)
       {
-        std::cout << "[Proxy" << m_self_cluster_id << "][Append]"
+        std::cout << "[Proxy" << m_self_cluster_id << "][Append139]"
                   << "Append to " << block_key << " with length of " << slice_size << std::endl;
       }
     }
@@ -320,11 +320,11 @@ namespace ECProject
         acceptor.accept(socket_data);
         asio::error_code error;
 
-        // char* append_buf = new char[cluster_append_size];
-        // memset(append_buf, 0, cluster_append_size);
+        char *append_buf = new char[cluster_append_size];
+        memset(append_buf, 0, cluster_append_size);
         // std::shared_ptr<char> append_buf_ptr(append_buf, [](char* p) { delete[] p; }); // 使用智能指针管理内存
-        std::vector<char> append_buf(cluster_append_size, 0);
-        asio::read(socket_data, asio::buffer(append_buf.data(), cluster_append_size), error);
+        // std::vector<char> append_buf(cluster_append_size, 0);
+        asio::read(socket_data, asio::buffer(append_buf, cluster_append_size), error);
         if (error == asio::error::eof)
         {
           std::cout << "error == asio::error::eof" << std::endl;
@@ -336,7 +336,7 @@ namespace ECProject
 
         if (IF_DEBUG)
         {
-          std::cout << "[Proxy" << m_self_cluster_id << "][Append]"
+          std::cout << "[Proxy" << m_self_cluster_id << "][Append339]"
                     << "Append to Stripe " << stripe_id << " with length of " << cluster_append_size << std::endl;
         }
 
@@ -344,13 +344,13 @@ namespace ECProject
         socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
         socket_data.close(ignore_ec);
 
-        std::vector<char *> slices = m_toolbox->splitCharPointer(append_buf.data(), append_stripe_data_placement);
+        std::vector<char *> slices = m_toolbox->splitCharPointer(append_buf, append_stripe_data_placement);
 
         auto append_to_datanode = [this](const char *block_key, int block_id, size_t slice_size, const char *slice_buf, int slice_offset, const char *ip, int port)
         {
           if (IF_DEBUG)
           {
-            std::cout << "[Proxy" << m_self_cluster_id << "][Append]"
+            std::cout << "[Proxy" << m_self_cluster_id << "][Append353]"
                       << "Append to Block " << block_key << " at the offset of " << slice_offset << " with length of " << slice_size << std::endl;
           }
           AppendToDatanode(block_key, block_id, slice_size, slice_buf, slice_offset, ip, port);
@@ -368,7 +368,7 @@ namespace ECProject
 
         if (IF_DEBUG)
         {
-          std::cout << "[Proxy" << m_self_cluster_id << "][Append]"
+          std::cout << "[Proxy" << m_self_cluster_id << "][Append371]"
                     << "Finish appending to Stripe " << stripe_id << std::endl;
         }
 
@@ -384,7 +384,7 @@ namespace ECProject
 
           if (IF_DEBUG)
           {
-            std::cout << "[Proxy" << m_self_cluster_id << "][Append]"
+            std::cout << "[Proxy" << m_self_cluster_id << "][Append387]"
                       << "Async merging parities of Stripe " << stripe_id << std::endl;
           }
         }
@@ -402,12 +402,12 @@ namespace ECProject
         status = m_coordinator_ptr->reportCommitAbort(&context, commit_abort_key, &result);
         if (status.ok() && IF_DEBUG)
         {
-          std::cout << "[Proxy" << m_self_cluster_id << "][APPEND]"
-                    << "[APPEND] report to coordinator success" << std::endl;
+          std::cout << "[Proxy" << m_self_cluster_id << "][APPEND405]"
+                    << " report to coordinator success" << std::endl;
         }
         else
         {
-          std::cout << "[Proxy" << m_self_cluster_id << "][APPEND]"
+          std::cout << "[Proxy" << m_self_cluster_id << "][APPEND410]"
                     << " report to coordinator fail!" << std::endl;
         }
       }
@@ -421,7 +421,7 @@ namespace ECProject
     {
       if (IF_DEBUG)
       {
-        std::cout << "[Proxy][APPEND] Handle append_and_save" << std::endl;
+        std::cout << "[Proxy][APPEND424] Handle append_and_save" << std::endl;
       }
       std::thread my_thread(append_and_save);
       my_thread.detach();

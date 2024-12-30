@@ -147,7 +147,7 @@ pkill -9 run_coordinator
 # ./project/cmake/build/run_proxy 0.0.0.0:50305
 # ./project/cmake/build/run_proxy 0.0.0.0:50335
 
-# ./project/cmake/build/run_proxy 0.0.0.0:50005 &
+./project/cmake/build/run_proxy 0.0.0.0:50005 &
 ./project/cmake/build/run_proxy 0.0.0.0:50035 & 
 ./project/cmake/build/run_proxy 0.0.0.0:50065 &
 ./project/cmake/build/run_proxy 0.0.0.0:50095 &
@@ -161,4 +161,4 @@ pkill -9 run_coordinator
 ./project/cmake/build/run_proxy 0.0.0.0:50335 &
 
 
-# ./project/cmake/build/run_coordinator
+./project/cmake/build/run_coordinator

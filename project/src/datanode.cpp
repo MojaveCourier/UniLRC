@@ -117,7 +117,7 @@ namespace ECProject
                 append_file.write(buf.data(), append_size);
                 if (IF_DEBUG)
                 {
-                    std::cout << "[Datanode" << m_port << "][Append] successfully append data block " << block_key << " with " << append_size << " bytes" << std::endl;
+                    std::cout << "[Datanode" << m_port << "][Append120] successfully append data block " << block_key << " with " << append_size << " bytes" << std::endl;
                 }
                 append_file.flush();
                 append_file.close();
@@ -164,7 +164,7 @@ namespace ECProject
 
                 if (IF_DEBUG)
                 {
-                    std::cout << "[Datanode" << m_port << "][Append] successfully append parity block " << block_key << " with " << append_size << " bytes" << std::endl;
+                    std::cout << "[Datanode" << m_port << "][Append167] successfully append parity block " << block_key << " with " << append_size << " bytes" << std::endl;
                 }
             }
             catch (const std::exception &e)
@@ -177,7 +177,7 @@ namespace ECProject
         {
             if (IF_DEBUG)
             {
-                std::cout << "[Datanode" << m_port << "][Append] ready to handle append!" << std::endl;
+                std::cout << "[Datanode" << m_port << "][Append180] ready to handle append!" << std::endl;
             }
             if (block_id < m_sys_config->k)
             {

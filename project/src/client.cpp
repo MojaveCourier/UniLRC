@@ -145,7 +145,7 @@ namespace ECProject
       bool if_append_success = sub_append(sub_append_size);
       if (!if_append_success)
       {
-        std::cout << "[APPEND] Sub append failed with sub append size " << sub_append_size << "!" << std::endl;
+        std::cout << "[APPEND148] Sub append failed with sub append size " << sub_append_size << "!" << std::endl;
         return false;
       }
       tmp_append_size -= sub_append_size;
@@ -171,7 +171,7 @@ namespace ECProject
 
     auto async_append_to_proxies = [this](char *cluster_slice_data, std::string append_key, int cluster_slice_size, std::string proxy_ip, int proxy_port, int index, bool *if_commit_arr)
     {
-      std::cout << "[Append] Appending size " << cluster_slice_size << " to proxy_address:" << proxy_ip << ":" << proxy_port << std::endl;
+      std::cout << "[Append174] Appending size " << cluster_slice_size << " to proxy_address:" << proxy_ip << ":" << proxy_port << std::endl;
       asio::io_context io_context;
       asio::error_code error;
       asio::ip::tcp::resolver resolver(io_context);
@@ -202,18 +202,18 @@ namespace ECProject
         }
         else
         {
-          std::cout << "[APPEND] " << append_key << " not commit!!!!!" << " cluster_slice_size: " << cluster_slice_size << " proxy_ip: " << proxy_ip << " proxy_port: " << proxy_port << std::endl;
+          std::cout << "[APPEND205] " << append_key << " not commit!!!!!" << " cluster_slice_size: " << cluster_slice_size << " proxy_ip: " << proxy_ip << " proxy_port: " << proxy_port << std::endl;
         }
       }
       else
       {
-        std::cout << "[APPEND] " << append_key << " Fail to check!!!!!" << " cluster_slice_size: " << cluster_slice_size << " proxy_ip: " << proxy_ip << " proxy_port: " << proxy_port << std::endl;
+        std::cout << "[APPEND210] " << append_key << " Fail to check!!!!!" << " cluster_slice_size: " << cluster_slice_size << " proxy_ip: " << proxy_ip << " proxy_port: " << proxy_port << std::endl;
       }
     };
 
     if (!status.ok())
     {
-      std::cout << "[APPEND] upload data failed!" << std::endl;
+      std::cout << "[APPEND216] upload data failed!" << std::endl;
       return false;
     }
     else
@@ -241,7 +241,7 @@ namespace ECProject
 
       if (all_true)
       {
-        std::cout << "[APPEND] Client " << m_clientID << " append " << append_size << " bytes successfully!" << std::endl;
+        std::cout << "[APPEND244] Client " << m_clientID << " append " << append_size << " bytes successfully!" << std::endl;
         m_append_logical_offset = (m_append_logical_offset + append_size) % (m_sys_config->BlockSize * m_sys_config->k);
         return true;
       }
