@@ -18,6 +18,7 @@ namespace ECProject
     assert(BlockSize % UnitSize == 0 && "Error: BlockSize must be divisible by UnitSize");
     assert(DatanodeNumPerCluster > n / z && "Error: DatanodeNumPerCluster must be greater than n / z");
     assert(ClusterNum > z && "Error: ClusterNum must be greater than z");
+    assert((AppendMode == "REP_MODE" || AppendMode == "UNILRC_MODE" || AppendMode == "CACHED_MODE") && "Error: AppendMode must be REP_MODE, UNILRC_MODE, or CACHED_MODE");
   }
 
   Config *Config::getInstance(const std::string &configPath)
@@ -72,6 +73,8 @@ namespace ECProject
       CoordinatorIP = std::string(elem->GetText());
     if (auto elem = root->FirstChildElement("CoordinatorPort"))
       CoordinatorPort = std::stoi(elem->GetText());
+    if (auto elem = root->FirstChildElement("AppendMode"))
+      AppendMode = std::string(elem->GetText());
   }
 
   void Config::printConfigs() const
@@ -92,5 +95,6 @@ namespace ECProject
     std::cout << "  ClusterNum: " << (int)ClusterNum << " clusters" << std::endl;
     std::cout << "  CoordinatorIP: " << CoordinatorIP << std::endl;
     std::cout << "  CoordinatorPort: " << CoordinatorPort << std::endl;
+    std::cout << "  AppendMode: " << AppendMode << std::endl;
   }
 }

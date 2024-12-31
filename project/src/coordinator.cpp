@@ -156,7 +156,19 @@ namespace ECProject
     return grpc::Status::OK;
   }
 
-  void CoordinatorImpl::initializeStripeDataPlacement(Stripe *stripe)
+  void CoordinatorImpl::initialize_azure_lrc_stripe_placement(Stripe *stripe)
+  {
+  }
+
+  void CoordinatorImpl::initialize_optimal_lrc_stripe_placement(Stripe *stripe)
+  {
+  }
+
+  void CoordinatorImpl::initialize_uniform_lrc_stripe_placement(Stripe *stripe)
+  {
+  }
+
+  void CoordinatorImpl::initialize_unilrc_stripe_placement(Stripe *stripe)
   {
     // range 0~k-1: data blocks
     // range k~k+r-1: global parity blocks
@@ -397,7 +409,7 @@ namespace ECProject
       t_stripe.r = m_sys_config->r;
       t_stripe.z = m_sys_config->z;
       t_stripe.object_keys.push_back(clientID);
-      initializeStripeDataPlacement(&t_stripe);
+      initialize_unilrc_stripe_placement(&t_stripe);
       m_stripe_table[t_stripe.stripe_id] = t_stripe;
       stripe = &m_stripe_table[t_stripe.stripe_id];
     }

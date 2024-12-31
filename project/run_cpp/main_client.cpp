@@ -27,7 +27,8 @@ int main(int argc, char **argv)
         8 * 1024,
         12 * 1024,
         16 * 1024,
-        24 * 1024};
+        24 * 1024,
+        4 * 1024};
 
     // n=10, k=4, r=4. z=2, group_size=5
     std::cout << "Starting multiple append tests with different sizes..." << std::endl;

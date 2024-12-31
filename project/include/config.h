@@ -25,6 +25,7 @@ namespace ECProject
     int BlockSize = 1024 * 1024;
     int alpha = 2;
     int z = 2;
+    // TODO: need to modify configs to support directly setting k,r,z
     int n = alpha * z * z + z;
     int k = alpha * z * z - alpha * z;
     int r = alpha * z;
@@ -34,6 +35,7 @@ namespace ECProject
     int ClusterNum = 0;
     std::string CoordinatorIP = "0.0.0.0";
     int CoordinatorPort = 55555;
+    std::string AppendMode = "UNILRC_MODE";
   };
 }
 

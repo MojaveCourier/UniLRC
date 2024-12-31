@@ -154,6 +154,16 @@ namespace ECProject
     return true;
   }
 
+  bool Client::sub_append_in_cached_mode(int append_size)
+  {
+    return true;
+  }
+
+  bool Client::sub_append_in_rep_mode(int append_size)
+  {
+    return true;
+  }
+
   /*
     Function: append within a block stripe
     1. send the append request including the information of the value to the coordinator
