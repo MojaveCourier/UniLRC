@@ -176,7 +176,7 @@ namespace ECProject
         std::string tmp = "_D";
         if (i < 10)
           tmp = "_D0";
-        blocks_info[i].block_key = stripe->object_keys[0] + tmp + std::to_string(i);
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i);
         blocks_info[i].block_id = i;
         blocks_info[i].block_type = 'D';
         blocks_info[i].map2group = int(i / (stripe->k / stripe->z));
@@ -186,7 +186,7 @@ namespace ECProject
         std::string tmp = "_G";
         if (i < 10)
           tmp = "_G0";
-        blocks_info[i].block_key = stripe->object_keys[0] + tmp + std::to_string(i - stripe->k);
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k);
         blocks_info[i].block_id = i;
         blocks_info[i].block_type = 'G';
         blocks_info[i].map2group = int((i - stripe->k) / (stripe->r / stripe->z));
@@ -196,7 +196,7 @@ namespace ECProject
         std::string tmp = "_L";
         if (i < 10)
           tmp = "_L0";
-        blocks_info[i].block_key = stripe->object_keys[0] + tmp + std::to_string(i - stripe->k - stripe->r);
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k - stripe->r);
         blocks_info[i].block_id = i;
         blocks_info[i].block_type = 'L';
         blocks_info[i].map2group = int((i - stripe->k - stripe->r) / (stripe->z / stripe->z));
@@ -284,7 +284,7 @@ namespace ECProject
       }
       else
       {
-        sub_slice_size = std::min(unit_size, append_size);
+        sub_slice_size = std::min(unit_size, tmp_size);
       }
       if (block_to_slice_sizes.find(curr_block_id) == block_to_slice_sizes.end())
       {
@@ -407,7 +407,7 @@ namespace ECProject
       stripe = &m_stripe_table[curStripeOffset.stripe_id];
     }
 
-    std::vector<proxy_proto::AppendStripeDataPlacement> append_plans = generateAppendPlan(stripe, curStripeOffset.offset, appendSizeBytes, m_sys_config->BlockSize);
+    std::vector<proxy_proto::AppendStripeDataPlacement> append_plans = generateAppendPlan(stripe, curStripeOffset.offset, appendSizeBytes, m_sys_config->UnitSize);
 
     for (const auto &plan : append_plans)
     {
