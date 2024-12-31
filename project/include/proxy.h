@@ -14,6 +14,7 @@
 #include <semaphore.h>
 #include <config.h>
 #include <toolbox.h>
+#include <queue>
 #define IF_DEBUG true
 // #define IF_DEBUG false
 namespace ECProject
@@ -31,6 +32,7 @@ namespace ECProject
       m_ip = proxy_ip_port.substr(0, proxy_ip_port.find(':'));
       m_port = std::stoi(proxy_ip_port.substr(proxy_ip_port.find(':') + 1, proxy_ip_port.size()));
       std::cout << "Cluster id:" << m_self_cluster_id << std::endl;
+      init_pre_allocated_buffer_queue();
     }
     ~ProxyImpl() {};
     grpc::Status checkalive(
@@ -63,9 +65,11 @@ namespace ECProject
 
     ECProject::Config *m_sys_config;
     ECProject::ToolBox *m_toolbox;
+    std::queue<std::shared_ptr<char[]>> m_pre_allocated_buffer_queue;
     bool AppendToDatanode(const char *block_key, int block_id, size_t append_size, const char *append_buf, int append_offset, const char *ip, int port);
     bool MergeParityOnDatanode(const char *block_key, int block_id, const char *ip, int port);
     void printAppendStripeDataPlacement(const proxy_proto::AppendStripeDataPlacement *append_stripe_data_placement);
+    void init_pre_allocated_buffer_queue();
 
   private:
     std::mutex m_mutex;

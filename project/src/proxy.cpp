@@ -8,6 +8,7 @@
 #include <cassert>
 #include <string>
 #include <fstream>
+#include <sys/mman.h>
 template <typename T>
 inline T ceil(T const &A, T const &B)
 {
@@ -267,6 +268,27 @@ namespace ECProject
     return true;
   }
 
+  void ProxyImpl::init_pre_allocated_buffer_queue()
+  {
+    int buffer_size = m_sys_config->BlockSize * m_sys_config->DatanodeNumPerCluster;
+    int buffer_num = m_sys_config->DatanodeNumPerCluster;
+    for (int i = 0; i < buffer_num; i++)
+    {
+      // // 使用new分配内存
+      // char *buffer_ptr = new char[buffer_size];
+
+      // // 初始化为0
+      // memset(buffer_ptr, 0, buffer_size);
+
+      // // 创建shared_ptr管理内存
+      // std::shared_ptr<char[]> buffer(buffer_ptr,
+      //                                [](char *p)
+      //                                { delete[] p; });
+
+      // m_pre_allocated_buffer_queue.push(buffer);
+    }
+  }
+
   void ProxyImpl::printAppendStripeDataPlacement(const proxy_proto::AppendStripeDataPlacement *append_stripe_data_placement)
   {
     // Print basic info
@@ -322,11 +344,14 @@ namespace ECProject
         acceptor.accept(socket_data);
         asio::error_code error;
 
-        char *append_buf = new char[cluster_append_size];
-        memset(append_buf, 0, cluster_append_size);
+        // assert(m_pre_allocated_buffer_queue.size() > 0 && "Pre-allocated buffer queue is empty");
+        // std::shared_ptr<char[]> append_buf = m_pre_allocated_buffer_queue.front();
+        // m_pre_allocated_buffer_queue.pop();
+        // char *append_buf = new char[cluster_append_size];
+        // memset(append_buf, 0, cluster_append_size);
         // std::shared_ptr<char> append_buf_ptr(append_buf, [](char* p) { delete[] p; }); // 使用智能指针管理内存
-        // std::vector<char> append_buf(cluster_append_size, 0);
-        asio::read(socket_data, asio::buffer(append_buf, cluster_append_size), error);
+        std::vector<char> append_buf(cluster_append_size, 0);
+        asio::read(socket_data, asio::buffer(append_buf.data(), cluster_append_size), error);
         if (error == asio::error::eof)
         {
           std::cout << "error == asio::error::eof" << std::endl;
@@ -346,7 +371,7 @@ namespace ECProject
         socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
         socket_data.close(ignore_ec);
 
-        std::vector<char *> slices = m_toolbox->splitCharPointer(append_buf, placement_copy);
+        std::vector<char *> slices = m_toolbox->splitCharPointer(append_buf.data(), placement_copy);
 
         auto append_to_datanode = [this](const char *block_key, int block_id, size_t slice_size, const char *slice_buf, int slice_offset, const char *ip, int port)
         {
