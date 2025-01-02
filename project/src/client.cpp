@@ -3,6 +3,7 @@
 
 #include <asio.hpp>
 #include <thread>
+#include <assert.h>
 namespace ECProject
 {
   std::string Client::sayHelloToCoordinatorByGrpc(std::string hello)
@@ -129,8 +130,88 @@ namespace ECProject
     return false;
   }
 
-  void Client::encode()
+  int Client::get_append_slice_plans(int curr_logical_offset, int append_size, std::vector<std::vector<int>> *node_slice_sizes_per_cluster, std::vector<int> *modified_data_block_nums_per_cluster)
   {
+    assert(node_slice_sizes_per_cluster->size() == m_sys_config->z);
+    assert(modified_data_block_nums_per_cluster->size() == m_sys_config->z);
+
+    int unit_size = m_sys_config->UnitSize;
+    int num_unit_stripes = (curr_logical_offset + append_size) / (unit_size * m_sys_config->k) - curr_logical_offset / (unit_size * m_sys_config->k) + 1;
+    int curr_block_id = (curr_logical_offset / unit_size) % m_sys_config->k;
+    int num_units = (curr_logical_offset + append_size) / unit_size - curr_logical_offset / unit_size + 1;
+    int parity_slice_size = num_unit_stripes * unit_size;
+
+    if (num_units == 1)
+    {
+      parity_slice_size = append_size;
+    }
+    if (num_unit_stripes > 1 && (curr_logical_offset + append_size) % (unit_size * m_sys_config->k) < unit_size)
+    {
+      parity_slice_size = (num_unit_stripes - 1) * unit_size + (curr_logical_offset + append_size) % (unit_size * m_sys_config->k);
+    }
+
+    std::map<int, int> block_to_slice_sizes;
+    int tmp_size = append_size;
+    int tmp_offset = curr_logical_offset;
+
+    while (tmp_size > 0)
+    {
+      int sub_slice_size = unit_size;
+      // first slice
+      if (tmp_size == append_size && curr_logical_offset % unit_size != 0)
+      {
+        sub_slice_size = std::min(unit_size - curr_logical_offset % unit_size, append_size);
+      }
+      else
+      {
+        sub_slice_size = std::min(unit_size, tmp_size);
+      }
+      if (block_to_slice_sizes.find(curr_block_id) == block_to_slice_sizes.end())
+      {
+        block_to_slice_sizes[curr_block_id] = sub_slice_size;
+      }
+      else
+      {
+        block_to_slice_sizes[curr_block_id] += sub_slice_size;
+      }
+      curr_block_id = (curr_block_id + 1) % m_sys_config->k;
+      tmp_size -= sub_slice_size;
+      tmp_offset += sub_slice_size;
+    }
+
+    int sum_modified_data_block_num = block_to_slice_sizes.size();
+
+    for (int i = m_sys_config->k; i < m_sys_config->n; i++)
+    {
+      block_to_slice_sizes[i] = parity_slice_size;
+    }
+
+    for (int i = 0; i < m_sys_config->z; i++)
+    {
+      for (int j = i * m_sys_config->k / m_sys_config->z;
+           j < (i + 1) * m_sys_config->k / m_sys_config->z; j++)
+      {
+        if (block_to_slice_sizes.find(j) != block_to_slice_sizes.end())
+        {
+          node_slice_sizes_per_cluster->at(i).push_back(block_to_slice_sizes[j]);
+          modified_data_block_nums_per_cluster->at(i)++;
+        }
+      }
+
+      for (int j = m_sys_config->k + i * m_sys_config->r / m_sys_config->z;
+           j < m_sys_config->k + (i + 1) * m_sys_config->r / m_sys_config->z; j++)
+      {
+        node_slice_sizes_per_cluster->at(i).push_back(block_to_slice_sizes[j]);
+      }
+
+      for (int j = m_sys_config->k + m_sys_config->r + i * m_sys_config->z / m_sys_config->z;
+           j < m_sys_config->k + m_sys_config->r + (i + 1) * m_sys_config->z / m_sys_config->z; j++)
+      {
+        node_slice_sizes_per_cluster->at(i).push_back(block_to_slice_sizes[j]);
+      }
+    }
+
+    return sum_modified_data_block_num;
   }
 
   bool Client::append(int append_size)
@@ -234,7 +315,7 @@ namespace ECProject
       std::fill_n(if_commit_arr.get(), reply.append_keys_size(), false);
 
       // TODO: add encode interface
-      encode();
+      // encode(m_sys_config->k, m_sys_config->r, m_sys_config->z, );
 
       for (int i = 0; i < reply.append_keys_size(); i++)
       {

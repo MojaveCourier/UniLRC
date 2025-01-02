@@ -244,7 +244,6 @@ namespace ECProject
                             const Node &node,
                             const std::pair<int, int> &slice_info)
   {
-    plan.set_cluster_id(block->map2cluster);
     plan.add_datanodeip(node.node_ip);
     plan.add_datanodeport(node.node_port);
     plan.add_blockkeys(block->block_key);
@@ -253,17 +252,18 @@ namespace ECProject
     plan.add_sizes(slice_info.first);
   }
 
-  std::vector<proxy_proto::AppendStripeDataPlacement> CoordinatorImpl::generateAppendPlan(Stripe *stripe, int curr_logical_offset, int append_size, int unit_size)
+  std::vector<proxy_proto::AppendStripeDataPlacement> CoordinatorImpl::generateAppendPlan(Stripe *stripe, int curr_logical_offset, int append_size)
   {
     std::vector<proxy_proto::AppendStripeDataPlacement> append_plans;
+    int unit_size = m_sys_config->UnitSize;
     int remain_size = stripe->k * m_sys_config->BlockSize - curr_logical_offset;
     assert(remain_size >= append_size && "append size is larger than the remaining size of the stripe!");
 
-    int curr_group_id = (curr_logical_offset / (unit_size * stripe->k / stripe->z)) % stripe->z;
+    // int curr_group_id = (curr_logical_offset / (unit_size * stripe->k / stripe->z)) % stripe->z;
     int curr_block_id = (curr_logical_offset / unit_size) % stripe->k;
     // compute how many units that need to be appended
     int num_units = (curr_logical_offset + append_size) / unit_size - curr_logical_offset / unit_size + 1;
-    int num_groups = std::min((curr_logical_offset + append_size) / (unit_size * stripe->k / stripe->z) - curr_logical_offset / (unit_size * stripe->k / stripe->z) + 1, stripe->z);
+    // int num_data_groups = std::min((curr_logical_offset + append_size) / (unit_size * stripe->k / stripe->z) - curr_logical_offset / (unit_size * stripe->k / stripe->z) + 1, stripe->z);
     int num_unit_stripes = (curr_logical_offset + append_size) / (unit_size * stripe->k) - curr_logical_offset / (unit_size * stripe->k) + 1;
 
     // compute the size and offset of the parity slice
@@ -284,6 +284,7 @@ namespace ECProject
     std::map<int, std::pair<int, int>> block_to_slice_sizes;
     int tmp_size = append_size;
     int tmp_offset = curr_logical_offset;
+    bool is_merge_parity = curr_logical_offset + append_size == m_sys_config->BlockSize * stripe->k;
 
     // add data slices to block_to_slice_sizes
     while (tmp_size > 0)
@@ -319,54 +320,46 @@ namespace ECProject
       block_to_slice_sizes[i].second = parity_slice_offset;
     }
 
-    while (num_groups > 0)
+    for (int i = 0; i < stripe->z; i++)
     {
       proxy_proto::AppendStripeDataPlacement plan;
-      plan.set_key(m_toolbox->gen_append_key(stripe->stripe_id, curr_group_id));
+      plan.set_key(m_toolbox->gen_append_key(stripe->stripe_id, i));
       plan.set_stripe_id(stripe->stripe_id);
-      plan.set_append_size(getClusterAppendSize(stripe, block_to_slice_sizes, curr_group_id, parity_slice_size));
-      if (curr_logical_offset + append_size == m_sys_config->BlockSize * m_sys_config->k)
-      {
-        plan.set_is_merge_parity(true);
-      }
-      else
-      {
-        plan.set_is_merge_parity(false);
-      }
+      plan.set_append_size(getClusterAppendSize(stripe, block_to_slice_sizes, i, parity_slice_size));
+      plan.set_is_merge_parity(is_merge_parity);
+      plan.set_cluster_id(i);
 
       // Add data slices to plan
-      for (int i = curr_group_id * stripe->k / stripe->z;
-           i < (curr_group_id + 1) * stripe->k / stripe->z; i++)
+      for (int j = i * stripe->k / stripe->z;
+           j < (i + 1) * stripe->k / stripe->z; j++)
       {
-        if (block_to_slice_sizes.find(i) != block_to_slice_sizes.end())
+        if (block_to_slice_sizes.find(j) != block_to_slice_sizes.end())
         {
-          addBlockToAppendPlan(plan, stripe->blocks[i],
-                               m_node_table[stripe->blocks[i]->map2node],
-                               block_to_slice_sizes.at(i));
+          addBlockToAppendPlan(plan, stripe->blocks[j],
+                               m_node_table[stripe->blocks[j]->map2node],
+                               block_to_slice_sizes.at(j));
         }
       }
 
       // Add global parity slices to plan
-      for (int i = stripe->k + curr_group_id * stripe->r / stripe->z;
-           i < stripe->k + (curr_group_id + 1) * stripe->r / stripe->z; i++)
+      for (int j = stripe->k + i * stripe->r / stripe->z;
+           j < stripe->k + (i + 1) * stripe->r / stripe->z; j++)
       {
-        addBlockToAppendPlan(plan, stripe->blocks[i],
-                             m_node_table[stripe->blocks[i]->map2node],
-                             block_to_slice_sizes.at(i));
+        addBlockToAppendPlan(plan, stripe->blocks[j],
+                             m_node_table[stripe->blocks[j]->map2node],
+                             block_to_slice_sizes.at(j));
       }
 
       // Add local parity slices to plan
-      for (int i = stripe->k + stripe->r + curr_group_id * stripe->z / stripe->z;
-           i < stripe->k + stripe->r + (curr_group_id + 1) * stripe->z / stripe->z; i++)
+      for (int j = stripe->k + stripe->r + i * stripe->z / stripe->z;
+           j < stripe->k + stripe->r + (i + 1) * stripe->z / stripe->z; j++)
       {
-        addBlockToAppendPlan(plan, stripe->blocks[i],
-                             m_node_table[stripe->blocks[i]->map2node],
-                             block_to_slice_sizes.at(i));
+        addBlockToAppendPlan(plan, stripe->blocks[j],
+                             m_node_table[stripe->blocks[j]->map2node],
+                             block_to_slice_sizes.at(j));
       }
 
       append_plans.push_back(plan);
-      num_groups--;
-      curr_group_id = (curr_group_id + 1) % stripe->z;
     }
 
     return append_plans;
@@ -419,7 +412,7 @@ namespace ECProject
       stripe = &m_stripe_table[curStripeOffset.stripe_id];
     }
 
-    std::vector<proxy_proto::AppendStripeDataPlacement> append_plans = generateAppendPlan(stripe, curStripeOffset.offset, appendSizeBytes, m_sys_config->UnitSize);
+    std::vector<proxy_proto::AppendStripeDataPlacement> append_plans = generateAppendPlan(stripe, curStripeOffset.offset, appendSizeBytes);
 
     for (const auto &plan : append_plans)
     {

@@ -56,7 +56,7 @@ namespace ECProject
     bool delete_key(std::string key);
     bool delete_stripe(int stripe_id);
     bool delete_all_stripes();
-    void encode();
+    int get_append_slice_plans(int curr_logical_offset, int append_size, std::vector<std::vector<int>> *node_slice_sizes_per_cluster, std::vector<int> *modified_data_block_nums_per_cluster);
 
   private:
     std::unique_ptr<coordinator_proto::coordinatorService::Stub> m_coordinator_ptr;
