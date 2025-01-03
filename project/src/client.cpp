@@ -338,8 +338,7 @@ namespace ECProject
       std::vector<char *> data_ptr_array, global_parity_ptr_array, local_parity_ptr_array;
       split_for_data_and_parity(&reply, cluster_slice_data, node_slice_sizes_per_cluster, modified_data_block_nums_per_cluster, data_ptr_array, global_parity_ptr_array, local_parity_ptr_array);
 
-      // TODO: add encode interface
-      ECProject::encode(m_sys_config->k, m_sys_config->r, m_sys_config->z, std::accumulate(modified_data_block_nums_per_cluster.begin(), modified_data_block_nums_per_cluster.end(), 0), reinterpret_cast<unsigned char **>(data_ptr_array.data()), &data_ptr_size_array, reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), start_data_block_id, m_sys_config->UnitSize);
+      ECProject::encode_unilrc_w_append_mode(m_sys_config->k, m_sys_config->r, m_sys_config->z, std::accumulate(modified_data_block_nums_per_cluster.begin(), modified_data_block_nums_per_cluster.end(), 0), reinterpret_cast<unsigned char **>(data_ptr_array.data()), &data_ptr_size_array, reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), start_data_block_id, m_sys_config->UnitSize);
 
       for (int i = 0; i < reply.append_keys_size(); i++)
       {

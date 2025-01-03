@@ -45,9 +45,9 @@ namespace ECProject
             0x4f, 0xae, 0xd5, 0xe9, 0xe6, 0xe7, 0xad, 0xe8, 0x74, 0xd6, 0xf4, 0xea, 0xa8, 0x50, 0x58,
             0xaf};
 
-        void encode(int k, int r, int z, int data_num, unsigned char **data_ptrs,
-                    const std::vector<int> *data_sizes, unsigned char **global_ptrs,
-                    unsigned char **local_ptrs, int start_offset, int unit_size);
+        void encode_unilrc_w_append_mode(int k, int r, int z, int data_num, unsigned char **data_ptrs,
+                                         const std::vector<int> *data_sizes, unsigned char **global_ptrs,
+                                         unsigned char **local_ptrs, int start_offset, int unit_size);
 
         unsigned char
         gf_mul(unsigned char a, unsigned char b);
