@@ -46,7 +46,7 @@ namespace ECProject
             0xaf};
 
         void encode(int k, int r, int z, int data_num, unsigned char **data_ptrs,
-                    const std::unique_ptr<std::vector<int>> &data_sizes, unsigned char **global_ptrs,
+                    const std::vector<int> *data_sizes, unsigned char **global_ptrs,
                     unsigned char **local_ptrs, int start_offset, int unit_size);
 
         unsigned char
@@ -55,7 +55,7 @@ namespace ECProject
         unsigned char
         gf_inv(unsigned char a);
 
-        void gf_gen_cauchy_matrix(unsigned char *a, int m, int k);
+        void gf_gen_cauchy_matrix(unsigned char **a, int m, int k);
 
         void gf_gen_local_vector(unsigned char *a, int k, int p);
 

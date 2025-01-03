@@ -56,7 +56,8 @@ namespace ECProject
     bool delete_key(std::string key);
     bool delete_stripe(int stripe_id);
     bool delete_all_stripes();
-    int get_append_slice_plans(int curr_logical_offset, int append_size, std::vector<std::vector<int>> *node_slice_sizes_per_cluster, std::vector<int> *modified_data_block_nums_per_cluster);
+    int get_append_slice_plans(int curr_logical_offset, int append_size, std::vector<std::vector<int>> *node_slice_sizes_per_cluster, std::vector<int> *modified_data_block_nums_per_cluster, std::vector<int> *data_ptr_size_array);
+    void split_for_data_and_parity(const coordinator_proto::ReplyProxyIPsPorts *reply_proxy_ips_ports, const std::vector<char *> &cluster_slice_data, const std::vector<std::vector<int>> &node_slice_sizes_per_cluster, const std::vector<int> &modified_data_block_nums_per_cluster, std::vector<char *> &data_ptr_array, std::vector<char *> &global_parity_ptr_array, std::vector<char *> &local_parity_ptr_array);
 
   private:
     std::unique_ptr<coordinator_proto::coordinatorService::Stub> m_coordinator_ptr;

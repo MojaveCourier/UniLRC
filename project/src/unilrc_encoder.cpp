@@ -2,7 +2,7 @@
 #include <iostream>
 
 unsigned char
-gf_mul(unsigned char a, unsigned char b)
+ECProject::gf_mul(unsigned char a, unsigned char b)
 {
     int i;
 
@@ -13,35 +13,35 @@ gf_mul(unsigned char a, unsigned char b)
 }
 
 unsigned char
-gf_inv(unsigned char a)
+ECProject::gf_inv(unsigned char a)
 {
     if (a == 0)
         return 0;
     return ECProject::gff_base[255 - ECProject::gflog_base[a]];
 }
 
-void gf_gen_cauchy_matrix(unsigned char **a, int m, int k)
+void ECProject::gf_gen_cauchy_matrix(unsigned char **a, int m, int k)
 {
     for (int i = 0; i < m - k; i++)
         for (int j = 0; j < k; j++)
         {
-            a[i][j] = gf_inv((i + k) ^ j);
+            a[i][j] = ECProject::gf_inv((i + k) ^ j);
         }
 }
 
-void gf_gen_local_vector(unsigned char *a, int k, int p)
+void ECProject::gf_gen_local_vector(unsigned char *a, int k, int p)
 {
     int i;
 
     for (i = 0; i < k; i++)
     {
-        a[i] = gf_inv(i ^ (k + p));
+        a[i] = ECProject::gf_inv(i ^ (k + p));
     }
 }
 
-void encode(int k, int r, int z, int data_num, unsigned char **data_ptrs,
-            const std::unique_ptr<std::vector<int>> &data_sizes, unsigned char **global_ptrs,
-            unsigned char **local_ptrs, int start_offset, int unit_size)
+void ECProject::encode(int k, int r, int z, int data_num, unsigned char **data_ptrs,
+                       const std::vector<int> *data_sizes, unsigned char **global_ptrs,
+                       unsigned char **local_ptrs, int start_offset, int unit_size)
 {
     unsigned char **cauchy_matrix;
     unsigned char *local_vector;
@@ -51,8 +51,8 @@ void encode(int k, int r, int z, int data_num, unsigned char **data_ptrs,
         cauchy_matrix[i] = new unsigned char[k];
     }
     local_vector = new unsigned char[k];
-    gf_gen_cauchy_matrix(cauchy_matrix, k + r, k);
-    gf_gen_local_vector(local_vector, k, r);
+    ECProject::gf_gen_cauchy_matrix(cauchy_matrix, k + r, k);
+    ECProject::gf_gen_local_vector(local_vector, k, r);
 
     std::vector<int> block_idx;
     if (data_num + start_offset < k)

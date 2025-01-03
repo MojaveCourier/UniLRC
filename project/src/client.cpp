@@ -4,6 +4,7 @@
 #include <asio.hpp>
 #include <thread>
 #include <assert.h>
+#include "unilrc_encoder.h"
 namespace ECProject
 {
   std::string Client::sayHelloToCoordinatorByGrpc(std::string hello)
@@ -130,7 +131,7 @@ namespace ECProject
     return false;
   }
 
-  int Client::get_append_slice_plans(int curr_logical_offset, int append_size, std::vector<std::vector<int>> *node_slice_sizes_per_cluster, std::vector<int> *modified_data_block_nums_per_cluster)
+  int Client::get_append_slice_plans(const int curr_logical_offset, const int append_size, std::vector<std::vector<int>> *node_slice_sizes_per_cluster, std::vector<int> *modified_data_block_nums_per_cluster, std::vector<int> *data_ptr_size_array)
   {
     assert(node_slice_sizes_per_cluster->size() == m_sys_config->z);
     assert(modified_data_block_nums_per_cluster->size() == m_sys_config->z);
@@ -140,6 +141,7 @@ namespace ECProject
     int curr_block_id = (curr_logical_offset / unit_size) % m_sys_config->k;
     int num_units = (curr_logical_offset + append_size) / unit_size - curr_logical_offset / unit_size + 1;
     int parity_slice_size = num_unit_stripes * unit_size;
+    int start_data_block_id = curr_block_id;
 
     if (num_units == 1)
     {
@@ -179,8 +181,6 @@ namespace ECProject
       tmp_offset += sub_slice_size;
     }
 
-    int sum_modified_data_block_num = block_to_slice_sizes.size();
-
     for (int i = m_sys_config->k; i < m_sys_config->n; i++)
     {
       block_to_slice_sizes[i] = parity_slice_size;
@@ -195,6 +195,7 @@ namespace ECProject
         {
           node_slice_sizes_per_cluster->at(i).push_back(block_to_slice_sizes[j]);
           modified_data_block_nums_per_cluster->at(i)++;
+          data_ptr_size_array->push_back(block_to_slice_sizes[j]);
         }
       }
 
@@ -211,7 +212,22 @@ namespace ECProject
       }
     }
 
-    return sum_modified_data_block_num;
+    return start_data_block_id;
+  }
+
+  void Client::split_for_data_and_parity(const coordinator_proto::ReplyProxyIPsPorts *reply_proxy_ips_ports, const std::vector<char *> &cluster_slice_data, const std::vector<std::vector<int>> &node_slice_sizes_per_cluster, const std::vector<int> &modified_data_block_nums_per_cluster, std::vector<char *> &data_ptr_array, std::vector<char *> &global_parity_ptr_array, std::vector<char *> &local_parity_ptr_array)
+  {
+    for (int i = 0; i < cluster_slice_data.size(); i++)
+    {
+      std::vector<size_t> node_slice_sizes(node_slice_sizes_per_cluster[i].begin(), node_slice_sizes_per_cluster[i].end());
+      std::vector<char *> node_slices = m_toolbox->splitCharPointer(cluster_slice_data[i], static_cast<size_t>(reply_proxy_ips_ports->cluster_slice_sizes(i)), node_slice_sizes);
+      if (modified_data_block_nums_per_cluster[i] > 0)
+      {
+        data_ptr_array.insert(data_ptr_array.end(), node_slices.begin(), node_slices.begin() + modified_data_block_nums_per_cluster[i]);
+      }
+      global_parity_ptr_array.insert(global_parity_ptr_array.end(), node_slices.begin() + modified_data_block_nums_per_cluster[i], node_slices.begin() + modified_data_block_nums_per_cluster[i] + (m_sys_config->r / m_sys_config->z));
+      local_parity_ptr_array.insert(local_parity_ptr_array.end(), node_slices.begin() + modified_data_block_nums_per_cluster[i] + (m_sys_config->r / m_sys_config->z), node_slices.end());
+    }
   }
 
   bool Client::append(int append_size)
@@ -314,8 +330,16 @@ namespace ECProject
       std::unique_ptr<bool[]> if_commit_arr(new bool[reply.append_keys_size()]);
       std::fill_n(if_commit_arr.get(), reply.append_keys_size(), false);
 
+      std::vector<std::vector<int>> node_slice_sizes_per_cluster(m_sys_config->z);
+      std::vector<int> modified_data_block_nums_per_cluster(m_sys_config->z, 0);
+      std::vector<int> data_ptr_size_array;
+      int start_data_block_id = get_append_slice_plans(m_append_logical_offset, append_size, &node_slice_sizes_per_cluster, &modified_data_block_nums_per_cluster, &data_ptr_size_array);
+
+      std::vector<char *> data_ptr_array, global_parity_ptr_array, local_parity_ptr_array;
+      split_for_data_and_parity(&reply, cluster_slice_data, node_slice_sizes_per_cluster, modified_data_block_nums_per_cluster, data_ptr_array, global_parity_ptr_array, local_parity_ptr_array);
+
       // TODO: add encode interface
-      // encode(m_sys_config->k, m_sys_config->r, m_sys_config->z, );
+      ECProject::encode(m_sys_config->k, m_sys_config->r, m_sys_config->z, std::accumulate(modified_data_block_nums_per_cluster.begin(), modified_data_block_nums_per_cluster.end(), 0), reinterpret_cast<unsigned char **>(data_ptr_array.data()), &data_ptr_size_array, reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), start_data_block_id, m_sys_config->UnitSize);
 
       for (int i = 0; i < reply.append_keys_size(); i++)
       {
