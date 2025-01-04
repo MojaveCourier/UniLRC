@@ -86,7 +86,7 @@ namespace ECProject
     return grpc::Status::OK;
   }
 
-  bool ProxyImpl::MergeParityOnDatanode(const char *block_key, int block_id, const char *ip, int port)
+  bool ProxyImpl::MergeParityOnDatanode(const char *block_key, int block_id, const char *ip, int port, const std::string &append_mode)
   {
     try
     {
@@ -96,7 +96,19 @@ namespace ECProject
       merge_parity_info.set_block_key(std::string(block_key));
       merge_parity_info.set_block_id(block_id);
       std::string node_ip_port = std::string(ip) + ":" + std::to_string(port);
-      grpc::Status stat = m_datanode_ptrs[node_ip_port]->handleMergeParity(&context, merge_parity_info, &result);
+      // REP_MODE; UNILRC_MODE; CACHED_MODE
+      if (append_mode == "UNILRC_MODE" || append_mode == "CACHED_MODE")
+      {
+        grpc::Status stat = m_datanode_ptrs[node_ip_port]->handleMergeParity(&context, merge_parity_info, &result);
+      }
+      else if (append_mode == "REP_MODE")
+      {
+        grpc::Status stat = m_datanode_ptrs[node_ip_port]->handleMergeParityWithRep(&context, merge_parity_info, &result);
+      }
+      else
+      {
+        throw std::runtime_error("Invalid append mode: " + append_mode);
+      }
     }
     catch (const std::exception &e)
     {
@@ -298,6 +310,7 @@ namespace ECProject
     std::cout << "Cluster ID: " << append_stripe_data_placement->cluster_id() << std::endl;
     std::cout << "Total Append Size: " << append_stripe_data_placement->append_size() << std::endl;
     std::cout << "Is Merge Parity: " << (append_stripe_data_placement->is_merge_parity() ? "true" : "false") << std::endl;
+    std::cout << "Append Mode: " << append_stripe_data_placement->append_mode() << std::endl;
 
     // Print datanode info
     std::cout << "\n=== Datanode Info ===" << std::endl;
@@ -378,7 +391,7 @@ namespace ECProject
           if (IF_DEBUG)
           {
             std::cout << "[Proxy" << m_self_cluster_id << "][Append353]"
-                      << "Append to Block " << block_key << " at the offset of " << slice_offset << " with length of " << slice_size << std::endl;
+                      << "Append to Block " << block_key << " of block_id " << block_id << " at the offset of " << slice_offset << " with length of " << slice_size << std::endl;
           }
           AppendToDatanode(block_key, block_id, slice_size, slice_buf, slice_offset, ip, port);
         };
@@ -405,7 +418,7 @@ namespace ECProject
           {
             if (placement_copy->blockids(j) >= m_sys_config->k)
             {
-              MergeParityOnDatanode(placement_copy->blockkeys(j).c_str(), placement_copy->blockids(j), placement_copy->datanodeip(j).c_str(), placement_copy->datanodeport(j));
+              MergeParityOnDatanode(placement_copy->blockkeys(j).c_str(), placement_copy->blockids(j), placement_copy->datanodeip(j).c_str(), placement_copy->datanodeport(j), placement_copy->append_mode());
             }
           }
 

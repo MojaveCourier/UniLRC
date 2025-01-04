@@ -69,6 +69,60 @@ namespace ECProject
         return slices;
     }
 
+    void DatanodeImpl::deserialize(const std::string &filename, char *buf)
+    {
+        std::ifstream inFile(filename, std::ios::in | std::ios::binary);
+        if (inFile.is_open())
+        {
+            int accumulated_offset = 0;
+            // read until file end
+            while (inFile.peek() != EOF)
+            {
+                int dummy_offset, size;
+
+                // read basic data types
+                inFile.read(reinterpret_cast<char *>(&dummy_offset), sizeof(dummy_offset));
+                inFile.read(reinterpret_cast<char *>(&size), sizeof(size));
+
+                // read data to buf
+                inFile.read(buf + accumulated_offset, size);
+                accumulated_offset += size;
+            }
+            inFile.close();
+        }
+        else
+        {
+            std::cerr << "Unable to open file for reading." << std::endl;
+        }
+    }
+
+    // create directories for the given path
+    bool DatanodeImpl::createDirectories(const std::string &path)
+    {
+        size_t pos = 0;
+        std::string dir;
+        while ((pos = path.find('/', pos)) != std::string::npos)
+        {
+            dir = path.substr(0, pos++);
+            if (dir.empty())
+                continue;
+            if (access(dir.c_str(), 0) == -1)
+            {
+                if (mkdir(dir.c_str(), S_IRWXU) == -1)
+                {
+                    return false;
+                }
+            }
+        }
+
+        // create the last directory if it does not exist
+        if (!path.empty() && access(path.c_str(), 0) == -1)
+        {
+            return mkdir(path.c_str(), S_IRWXU) != -1;
+        }
+        return true;
+    }
+
     grpc::Status DatanodeImpl::handleAppend(
         grpc::ServerContext *context,
         const datanode_proto::AppendInfo *append_info,
@@ -78,6 +132,8 @@ namespace ECProject
         int block_id = append_info->block_id();
         int append_size = append_info->append_size();
         int append_offset = append_info->append_offset();
+
+        std::cout << "[Datanode" << m_port << "][Append109] block_key: " << block_key << ", block_id: " << block_id << ", append_size: " << append_size << ", append_offset: " << append_offset << std::endl;
 
         // append_offset must be the physical offset of the block
         auto dataBlockHandler = [this](std::string block_key, int append_size, int append_offset) mutable
@@ -97,15 +153,19 @@ namespace ECProject
 
                 std::string targetdir = "./storage/" + std::to_string(m_port) + "/";
                 std::string writepath = targetdir + block_key;
+
+                std::cout << "[Datanode" << m_port << "][Append101] writepath: " << writepath << std::endl;
+
                 if (access(targetdir.c_str(), 0) == -1)
                 {
-                    mkdir(targetdir.c_str(), S_IRWXU);
+                    createDirectories(targetdir);
                 }
 
-                if (append_size == 0)
+                if (append_offset == 0)
                 {
+                    std::cout << "create data block file with path: " << writepath << std::endl;
                     assert(access(writepath.c_str(), 0) == -1 && "File already exists with append_offset == 0!");
-                    // Create new file if append_size is 0
+                    // Create new file if append_offset is 0
                     std::ofstream create_file(writepath, std::ios::binary | std::ios::out | std::ios::trunc);
                     create_file.close();
                 }
@@ -133,12 +193,12 @@ namespace ECProject
         {
             try
             {
-                std::vector<char> buf(append_size);
+                char *buf = new char[append_size];
                 // only send data
                 asio::error_code ec;
                 asio::ip::tcp::socket socket(io_context);
                 acceptor.accept(socket);
-                asio::read(socket, asio::buffer(buf.data(), append_size), ec);
+                asio::read(socket, asio::buffer(buf, append_size), ec);
 
                 asio::error_code ignore_ec;
                 socket.shutdown(asio::ip::tcp::socket::shutdown_both, ignore_ec);
@@ -146,21 +206,24 @@ namespace ECProject
 
                 std::string targetdir = "./storage/" + std::to_string(m_port) + "/";
                 std::string writepath = targetdir + block_key;
+
+                std::cout << "[Datanode" << m_port << "][Append153] writepath: " << writepath << std::endl;
+
                 if (access(targetdir.c_str(), 0) == -1)
                 {
-                    mkdir(targetdir.c_str(), S_IRWXU);
+                    createDirectories(targetdir);
                 }
 
-                if (append_size == 0)
+                if (append_offset == 0 && access(writepath.c_str(), 0) == -1)
                 {
-                    assert(access(writepath.c_str(), 0) == -1 && "File already exists with append_offset == 0!");
-                    // Create new file if append_size is 0
+                    std::cout << "create parity block file with path: " << writepath << std::endl;
+                    // Create new file if append_offset is 0 and file does not exist
                     std::ofstream create_file(writepath, std::ios::binary | std::ios::out | std::ios::trunc);
                     create_file.close();
                 }
 
                 // serialize and append to file
-                serialize(writepath, ParitySlice(append_offset, append_size, buf.data()));
+                serialize(writepath, ParitySlice(append_offset, append_size, buf));
 
                 if (IF_DEBUG)
                 {
@@ -177,7 +240,7 @@ namespace ECProject
         {
             if (IF_DEBUG)
             {
-                std::cout << "[Datanode" << m_port << "][Append180] ready to handle append!" << std::endl;
+                std::cout << "[Datanode" << m_port << "][Append180] ready to handle append! m_sys_config->k " << m_sys_config->k << std::endl;
             }
             if (block_id < m_sys_config->k)
             {
@@ -212,6 +275,9 @@ namespace ECProject
             {
                 std::string targetdir = "./storage/" + std::to_string(m_port) + "/";
                 std::string readpath = targetdir + block_key;
+
+                std::cout << "[Datanode" << m_port << "][Merge Parity Slices] readpath: " << readpath << std::endl;
+
                 if (access(readpath.c_str(), 0) == -1)
                 {
                     std::cout << "[Datanode" << m_port << "][Merge Parity Slices] file does not exist!" << readpath << std::endl;
@@ -230,6 +296,59 @@ namespace ECProject
                         mergedBuf[slice.offset + i] ^= slice.slice_ptr[i];
                     }
                 }
+                ofs.write(mergedBuf.get(), m_sys_config->BlockSize);
+                ofs.flush();
+                ofs.close();
+            }
+            catch (const std::exception &e)
+            {
+                std::cerr << e.what() << '\n';
+            }
+        };
+
+        try
+        {
+            std::thread my_thread(handler, block_key, block_id);
+            my_thread.detach();
+            response->set_message(true);
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+
+        return grpc::Status::OK;
+    }
+
+    grpc::Status DatanodeImpl::handleMergeParityWithRep(
+        grpc::ServerContext *context,
+        const datanode_proto::MergeParityInfo *merge_parity_info,
+        datanode_proto::RequestResult *response)
+    {
+        std::string block_key = merge_parity_info->block_key();
+        int block_id = merge_parity_info->block_id();
+        auto handler = [this](std::string block_key, int block_id) mutable
+        {
+            try
+            {
+                std::string targetdir = "./storage/" + std::to_string(m_port) + "/";
+                std::string readpath = targetdir + block_key;
+                if (access(readpath.c_str(), 0) == -1)
+                {
+                    std::cout << "[Datanode" << m_port << "][Merge Parity Slices] file does not exist!" << readpath << std::endl;
+                    exit(-1);
+                }
+
+                std::string writepath = targetdir + block_key;
+                std::ofstream ofs(writepath, std::ios::binary | std::ios::out | std::ios::trunc);
+                std::unique_ptr<char[]> dataBuf(new char[m_sys_config->BlockSize * m_sys_config->k]);
+                memset(dataBuf.get(), 0, m_sys_config->BlockSize * m_sys_config->k);
+                std::unique_ptr<char[]> mergedBuf(new char[m_sys_config->BlockSize]);
+                memset(mergedBuf.get(), 0, m_sys_config->BlockSize);
+
+                deserialize(readpath, dataBuf.get());
+                // encode_unilrc_w_rep_mode(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char**>(dataBuf.get()), reinterpret_cast<unsigned char**>(mergedBuf.get()), m_sys_config->BlockSize, m_sys_config->UnitSize, block_id);
+
                 ofs.write(mergedBuf.get(), m_sys_config->BlockSize);
                 ofs.flush();
                 ofs.close();

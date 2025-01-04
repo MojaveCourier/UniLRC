@@ -1,0 +1,21 @@
+find . -type f -name "0_D00" -exec ls -lh {} \;
+find . -type f -name "0_D01" -exec ls -lh {} \;
+find . -type f -name "0_D02" -exec ls -lh {} \;
+find . -type f -name "0_D03" -exec ls -lh {} \;
+find . -type f -name "0_G00" -exec ls -lh {} \;
+find . -type f -name "0_G01" -exec ls -lh {} \;
+find . -type f -name "0_G02" -exec ls -lh {} \;
+find . -type f -name "0_G03" -exec ls -lh {} \;
+find . -type f -name "0_L00" -exec ls -lh {} \;
+find . -type f -name "0_L01" -exec ls -lh {} \;
+
+find . -type f -name "1_D00" -exec ls -lh {} \;
+find . -type f -name "1_D01" -exec ls -lh {} \;
+find . -type f -name "1_D02" -exec ls -lh {} \;
+find . -type f -name "1_D03" -exec ls -lh {} \;
+find . -type f -name "1_G00" -exec ls -lh {} \;
+find . -type f -name "1_G01" -exec ls -lh {} \;
+find . -type f -name "1_G02" -exec ls -lh {} \;
+find . -type f -name "1_G03" -exec ls -lh {} \;
+find . -type f -name "1_L00" -exec ls -lh {} \;
+find . -type f -name "1_L01" -exec ls -lh {} \;

@@ -155,6 +155,7 @@ message AppendStripeDataPlacement{
   repeated int32 offsets = 9;
   repeated int32 sizes = 10;
   bool is_merge_parity = 11;
+  string append_mode = 12;
 }
 
 message SetReply {

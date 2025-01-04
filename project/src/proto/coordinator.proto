@@ -71,6 +71,7 @@ message ReplyFromCoordinator {
 message RequestProxyIPPort {
   string key = 1;
   int32 valuesizebytes = 2;
+  string append_mode = 3;
 }
 
 message ReplyProxyIPPort {

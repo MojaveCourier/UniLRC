@@ -44,6 +44,11 @@ namespace ECProject
             grpc::ServerContext *context,
             const datanode_proto::MergeParityInfo *merge_parity_info,
             datanode_proto::RequestResult *response) override;
+        // merge parity with rep
+        grpc::Status handleMergeParityWithRep(
+            grpc::ServerContext *context,
+            const datanode_proto::MergeParityInfo *merge_parity_info,
+            datanode_proto::RequestResult *response) override;
         // get
         grpc::Status handleGet(
             grpc::ServerContext *context,
@@ -57,6 +62,8 @@ namespace ECProject
 
         void serialize(const std::string &filename, const ParitySlice &slice);
         std::vector<ParitySlice> deserialize(const std::string &filename);
+        void deserialize(const std::string &filename, char *buf);
+        bool createDirectories(const std::string &path);
         ECProject::Config *m_sys_config;
 
     private:

@@ -3113,6 +3113,7 @@ class AppendStripeDataPlacement final :
     kOffsetsFieldNumber = 9,
     kSizesFieldNumber = 10,
     kKeyFieldNumber = 1,
+    kAppendModeFieldNumber = 12,
     kClusterIdFieldNumber = 2,
     kStripeIdFieldNumber = 3,
     kAppendSizeFieldNumber = 4,
@@ -3268,6 +3269,20 @@ class AppendStripeDataPlacement final :
   std::string* _internal_mutable_key();
   public:
 
+  // string append_mode = 12;
+  void clear_append_mode();
+  const std::string& append_mode() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_append_mode(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_append_mode();
+  PROTOBUF_NODISCARD std::string* release_append_mode();
+  void set_allocated_append_mode(std::string* append_mode);
+  private:
+  const std::string& _internal_append_mode() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_append_mode(const std::string& value);
+  std::string* _internal_mutable_append_mode();
+  public:
+
   // int32 cluster_id = 2;
   void clear_cluster_id();
   int32_t cluster_id() const;
@@ -3323,6 +3338,7 @@ class AppendStripeDataPlacement final :
     ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > sizes_;
     mutable std::atomic<int> _sizes_cached_byte_size_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr key_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr append_mode_;
     int32_t cluster_id_;
     int32_t stripe_id_;
     int32_t append_size_;
@@ -6682,6 +6698,56 @@ inline void AppendStripeDataPlacement::_internal_set_is_merge_parity(bool value)
 inline void AppendStripeDataPlacement::set_is_merge_parity(bool value) {
   _internal_set_is_merge_parity(value);
   // @@protoc_insertion_point(field_set:proxy_proto.AppendStripeDataPlacement.is_merge_parity)
+}
+
+// string append_mode = 12;
+inline void AppendStripeDataPlacement::clear_append_mode() {
+  _impl_.append_mode_.ClearToEmpty();
+}
+inline const std::string& AppendStripeDataPlacement::append_mode() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.AppendStripeDataPlacement.append_mode)
+  return _internal_append_mode();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void AppendStripeDataPlacement::set_append_mode(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.append_mode_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:proxy_proto.AppendStripeDataPlacement.append_mode)
+}
+inline std::string* AppendStripeDataPlacement::mutable_append_mode() {
+  std::string* _s = _internal_mutable_append_mode();
+  // @@protoc_insertion_point(field_mutable:proxy_proto.AppendStripeDataPlacement.append_mode)
+  return _s;
+}
+inline const std::string& AppendStripeDataPlacement::_internal_append_mode() const {
+  return _impl_.append_mode_.Get();
+}
+inline void AppendStripeDataPlacement::_internal_set_append_mode(const std::string& value) {
+  
+  _impl_.append_mode_.Set(value, GetArenaForAllocation());
+}
+inline std::string* AppendStripeDataPlacement::_internal_mutable_append_mode() {
+  
+  return _impl_.append_mode_.Mutable(GetArenaForAllocation());
+}
+inline std::string* AppendStripeDataPlacement::release_append_mode() {
+  // @@protoc_insertion_point(field_release:proxy_proto.AppendStripeDataPlacement.append_mode)
+  return _impl_.append_mode_.Release();
+}
+inline void AppendStripeDataPlacement::set_allocated_append_mode(std::string* append_mode) {
+  if (append_mode != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.append_mode_.SetAllocated(append_mode, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.append_mode_.IsDefault()) {
+    _impl_.append_mode_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:proxy_proto.AppendStripeDataPlacement.append_mode)
 }
 
 // -------------------------------------------------------------------

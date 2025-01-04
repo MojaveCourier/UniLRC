@@ -26,6 +26,7 @@ static const char* datanodeService_method_names[] = {
   "/datanode_proto.datanodeService/handleSet",
   "/datanode_proto.datanodeService/handleAppend",
   "/datanode_proto.datanodeService/handleMergeParity",
+  "/datanode_proto.datanodeService/handleMergeParityWithRep",
   "/datanode_proto.datanodeService/handleGet",
   "/datanode_proto.datanodeService/handleDelete",
 };
@@ -41,8 +42,9 @@ datanodeService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& ch
   , rpcmethod_handleSet_(datanodeService_method_names[1], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_handleAppend_(datanodeService_method_names[2], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_handleMergeParity_(datanodeService_method_names[3], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_handleGet_(datanodeService_method_names[4], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_handleDelete_(datanodeService_method_names[5], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_handleMergeParityWithRep_(datanodeService_method_names[4], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_handleGet_(datanodeService_method_names[5], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_handleDelete_(datanodeService_method_names[6], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
 ::grpc::Status datanodeService::Stub::checkalive(::grpc::ClientContext* context, const ::datanode_proto::CheckaliveCMD& request, ::datanode_proto::RequestResult* response) {
@@ -137,6 +139,29 @@ void datanodeService::Stub::async::handleMergeParity(::grpc::ClientContext* cont
   return result;
 }
 
+::grpc::Status datanodeService::Stub::handleMergeParityWithRep(::grpc::ClientContext* context, const ::datanode_proto::MergeParityInfo& request, ::datanode_proto::RequestResult* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::datanode_proto::MergeParityInfo, ::datanode_proto::RequestResult, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_handleMergeParityWithRep_, context, request, response);
+}
+
+void datanodeService::Stub::async::handleMergeParityWithRep(::grpc::ClientContext* context, const ::datanode_proto::MergeParityInfo* request, ::datanode_proto::RequestResult* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::datanode_proto::MergeParityInfo, ::datanode_proto::RequestResult, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_handleMergeParityWithRep_, context, request, response, std::move(f));
+}
+
+void datanodeService::Stub::async::handleMergeParityWithRep(::grpc::ClientContext* context, const ::datanode_proto::MergeParityInfo* request, ::datanode_proto::RequestResult* response, ::grpc::ClientUnaryReactor* reactor) {
+  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_handleMergeParityWithRep_, context, request, response, reactor);
+}
+
+::grpc::ClientAsyncResponseReader< ::datanode_proto::RequestResult>* datanodeService::Stub::PrepareAsynchandleMergeParityWithRepRaw(::grpc::ClientContext* context, const ::datanode_proto::MergeParityInfo& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::datanode_proto::RequestResult, ::datanode_proto::MergeParityInfo, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_handleMergeParityWithRep_, context, request);
+}
+
+::grpc::ClientAsyncResponseReader< ::datanode_proto::RequestResult>* datanodeService::Stub::AsynchandleMergeParityWithRepRaw(::grpc::ClientContext* context, const ::datanode_proto::MergeParityInfo& request, ::grpc::CompletionQueue* cq) {
+  auto* result =
+    this->PrepareAsynchandleMergeParityWithRepRaw(context, request, cq);
+  result->StartCall();
+  return result;
+}
+
 ::grpc::Status datanodeService::Stub::handleGet(::grpc::ClientContext* context, const ::datanode_proto::GetInfo& request, ::datanode_proto::RequestResult* response) {
   return ::grpc::internal::BlockingUnaryCall< ::datanode_proto::GetInfo, ::datanode_proto::RequestResult, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_handleGet_, context, request, response);
 }
@@ -227,6 +252,16 @@ datanodeService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       datanodeService_method_names[4],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
+      new ::grpc::internal::RpcMethodHandler< datanodeService::Service, ::datanode_proto::MergeParityInfo, ::datanode_proto::RequestResult, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+          [](datanodeService::Service* service,
+             ::grpc::ServerContext* ctx,
+             const ::datanode_proto::MergeParityInfo* req,
+             ::datanode_proto::RequestResult* resp) {
+               return service->handleMergeParityWithRep(ctx, req, resp);
+             }, this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      datanodeService_method_names[5],
+      ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< datanodeService::Service, ::datanode_proto::GetInfo, ::datanode_proto::RequestResult, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](datanodeService::Service* service,
              ::grpc::ServerContext* ctx,
@@ -235,7 +270,7 @@ datanodeService::Service::Service() {
                return service->handleGet(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      datanodeService_method_names[5],
+      datanodeService_method_names[6],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< datanodeService::Service, ::datanode_proto::DelInfo, ::datanode_proto::RequestResult, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](datanodeService::Service* service,
@@ -271,6 +306,13 @@ datanodeService::Service::~Service() {
 }
 
 ::grpc::Status datanodeService::Service::handleMergeParity(::grpc::ServerContext* context, const ::datanode_proto::MergeParityInfo* request, ::datanode_proto::RequestResult* response) {
+  (void) context;
+  (void) request;
+  (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status datanodeService::Service::handleMergeParityWithRep(::grpc::ServerContext* context, const ::datanode_proto::MergeParityInfo* request, ::datanode_proto::RequestResult* response) {
   (void) context;
   (void) request;
   (void) response;

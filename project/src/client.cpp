@@ -258,7 +258,95 @@ namespace ECProject
 
   bool Client::sub_append_in_rep_mode(int append_size)
   {
+    grpc::ClientContext get_proxy_ip_port;
+    coordinator_proto::RequestProxyIPPort request;
+    coordinator_proto::ReplyProxyIPsPorts reply;
+    request.set_key(m_clientID);
+    request.set_valuesizebytes(append_size);
+    request.set_append_mode(m_sys_config->AppendMode);
+    grpc::Status status = m_coordinator_ptr->uploadAppendValue(&get_proxy_ip_port, request, &reply);
+
+    if (!status.ok())
+    {
+      std::cout << "[APPEND216] upload data failed!" << std::endl;
+      return false;
+    }
+    else
+    {
+      std::vector<std::thread> threads;
+      std::vector<char *> cluster_slice_data = m_toolbox->splitCharPointer(m_pre_allocated_buffer, &reply);
+      std::unique_ptr<bool[]> if_commit_arr(new bool[reply.append_keys_size()]);
+      std::fill_n(if_commit_arr.get(), reply.append_keys_size(), false);
+
+      for (int i = 0; i < reply.append_keys_size(); i++)
+      {
+        threads.push_back(std::thread(&Client::async_append_to_proxies,
+                                      this, cluster_slice_data[i], reply.append_keys(i), reply.cluster_slice_sizes(i), reply.proxyips(i), reply.proxyports(i), i, if_commit_arr.get()));
+      }
+      for (auto &thread : threads)
+      {
+        thread.join();
+      }
+
+      // check if all appends are successful
+      bool all_true = std::all_of(if_commit_arr.get(), if_commit_arr.get() + reply.append_keys_size(), [](bool val)
+                                  { return val == true; });
+
+      if (all_true)
+      {
+        std::cout << "[APPEND244] Client " << m_clientID << " append " << append_size << " bytes successfully!" << std::endl;
+        m_append_logical_offset = (m_append_logical_offset + append_size) % (m_sys_config->BlockSize * m_sys_config->k);
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    }
+
     return true;
+  }
+
+  void Client::async_append_to_proxies(char *cluster_slice_data, std::string append_key, int cluster_slice_size, std::string proxy_ip, int proxy_port, int index, bool *if_commit_arr)
+  {
+    std::cout << "[Append174] Appending size " << cluster_slice_size << " to proxy_address:" << proxy_ip << ":" << proxy_port << std::endl;
+    asio::io_context io_context;
+    asio::error_code error;
+    asio::ip::tcp::resolver resolver(io_context);
+    asio::ip::tcp::resolver::results_type endpoints =
+        resolver.resolve(proxy_ip, std::to_string(proxy_port));
+    asio::ip::tcp::socket sock_data(io_context);
+    asio::connect(sock_data, endpoints);
+
+    asio::write(sock_data, asio::buffer(cluster_slice_data, cluster_slice_size), error);
+    asio::error_code ignore_ec;
+    sock_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);
+    sock_data.close(ignore_ec);
+
+    // check if metadata is saved successfully
+    grpc::ClientContext check_commit;
+    coordinator_proto::AskIfSuccess request;
+    request.set_key(append_key);
+    OpperateType opp = APPEND;
+    request.set_opp(opp);
+    coordinator_proto::RepIfSuccess reply;
+    grpc::Status status;
+    status = m_coordinator_ptr->checkCommitAbort(&check_commit, request, &reply);
+    if (status.ok())
+    {
+      if (reply.ifcommit())
+      {
+        if_commit_arr[index] = true;
+      }
+      else
+      {
+        std::cout << "[APPEND205] " << append_key << " not commit!!!!!" << " cluster_slice_size: " << cluster_slice_size << " proxy_ip: " << proxy_ip << " proxy_port: " << proxy_port << std::endl;
+      }
+    }
+    else
+    {
+      std::cout << "[APPEND210] " << append_key << " Fail to check!!!!!" << " cluster_slice_size: " << cluster_slice_size << " proxy_ip: " << proxy_ip << " proxy_port: " << proxy_port << std::endl;
+    }
   }
 
   /*
@@ -267,56 +355,16 @@ namespace ECProject
     2. get the address of proxy
     3. send the value to the proxy by socket
   */
-  bool Client::sub_append(int append_size)
+  bool
+  Client::sub_append(int append_size)
   {
     grpc::ClientContext get_proxy_ip_port;
     coordinator_proto::RequestProxyIPPort request;
     coordinator_proto::ReplyProxyIPsPorts reply;
     request.set_key(m_clientID);
     request.set_valuesizebytes(append_size);
+    request.set_append_mode(m_sys_config->AppendMode);
     grpc::Status status = m_coordinator_ptr->uploadAppendValue(&get_proxy_ip_port, request, &reply);
-
-    auto async_append_to_proxies = [this](char *cluster_slice_data, std::string append_key, int cluster_slice_size, std::string proxy_ip, int proxy_port, int index, bool *if_commit_arr)
-    {
-      std::cout << "[Append174] Appending size " << cluster_slice_size << " to proxy_address:" << proxy_ip << ":" << proxy_port << std::endl;
-      asio::io_context io_context;
-      asio::error_code error;
-      asio::ip::tcp::resolver resolver(io_context);
-      asio::ip::tcp::resolver::results_type endpoints =
-          resolver.resolve(proxy_ip, std::to_string(proxy_port));
-      asio::ip::tcp::socket sock_data(io_context);
-      asio::connect(sock_data, endpoints);
-
-      asio::write(sock_data, asio::buffer(cluster_slice_data, cluster_slice_size), error);
-      asio::error_code ignore_ec;
-      sock_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);
-      sock_data.close(ignore_ec);
-
-      // check if metadata is saved successfully
-      grpc::ClientContext check_commit;
-      coordinator_proto::AskIfSuccess request;
-      request.set_key(append_key);
-      OpperateType opp = APPEND;
-      request.set_opp(opp);
-      coordinator_proto::RepIfSuccess reply;
-      grpc::Status status;
-      status = m_coordinator_ptr->checkCommitAbort(&check_commit, request, &reply);
-      if (status.ok())
-      {
-        if (reply.ifcommit())
-        {
-          if_commit_arr[index] = true;
-        }
-        else
-        {
-          std::cout << "[APPEND205] " << append_key << " not commit!!!!!" << " cluster_slice_size: " << cluster_slice_size << " proxy_ip: " << proxy_ip << " proxy_port: " << proxy_port << std::endl;
-        }
-      }
-      else
-      {
-        std::cout << "[APPEND210] " << append_key << " Fail to check!!!!!" << " cluster_slice_size: " << cluster_slice_size << " proxy_ip: " << proxy_ip << " proxy_port: " << proxy_port << std::endl;
-      }
-    };
 
     if (!status.ok())
     {
@@ -342,7 +390,8 @@ namespace ECProject
 
       for (int i = 0; i < reply.append_keys_size(); i++)
       {
-        threads.push_back(std::thread(async_append_to_proxies, cluster_slice_data[i], reply.append_keys(i), reply.cluster_slice_sizes(i), reply.proxyips(i), reply.proxyports(i), i, if_commit_arr.get()));
+        threads.push_back(std::thread(&Client::async_append_to_proxies,
+                                      this, cluster_slice_data[i], reply.append_keys(i), reply.cluster_slice_sizes(i), reply.proxyips(i), reply.proxyports(i), i, if_commit_arr.get()));
       }
       for (auto &thread : threads)
       {

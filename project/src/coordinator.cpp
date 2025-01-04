@@ -252,7 +252,7 @@ namespace ECProject
     plan.add_sizes(slice_info.first);
   }
 
-  std::vector<proxy_proto::AppendStripeDataPlacement> CoordinatorImpl::generateAppendPlan(Stripe *stripe, int curr_logical_offset, int append_size)
+  std::vector<proxy_proto::AppendStripeDataPlacement> CoordinatorImpl::generateAppendPlan(Stripe *stripe, int curr_logical_offset, int append_size, std::string append_mode)
   {
     std::vector<proxy_proto::AppendStripeDataPlacement> append_plans;
     int unit_size = m_sys_config->UnitSize;
@@ -268,16 +268,33 @@ namespace ECProject
 
     // compute the size and offset of the parity slice
     // TODO: optimize the append size that below a unit_size but placed into two units within a unit_stripe
-    int parity_slice_size = num_unit_stripes * unit_size;
-    int parity_slice_offset = curr_logical_offset / (unit_size * stripe->k) * unit_size;
-    if (num_units == 1)
+    int parity_slice_size = -1;
+    int parity_slice_offset = -1;
+    switch (append_mode[0])
     {
+    case 'R': // REP_MODE
       parity_slice_size = append_size;
-      parity_slice_offset = curr_logical_offset % unit_size;
-    }
-    if (num_unit_stripes > 1 && (curr_logical_offset + append_size) % (unit_size * stripe->k) < unit_size)
-    {
-      parity_slice_size = (num_unit_stripes - 1) * unit_size + (curr_logical_offset + append_size) % (unit_size * stripe->k);
+      break;
+    case 'U': // UNILRC_MODE
+      parity_slice_size = num_unit_stripes * unit_size;
+      parity_slice_offset = curr_logical_offset / (unit_size * stripe->k) * unit_size;
+      if (num_units == 1)
+      {
+        parity_slice_size = append_size;
+        parity_slice_offset = curr_logical_offset % unit_size;
+      }
+      if (num_unit_stripes > 1 && (curr_logical_offset + append_size) % (unit_size * stripe->k) < unit_size)
+      {
+        parity_slice_size = (num_unit_stripes - 1) * unit_size + (curr_logical_offset + append_size) % (unit_size * stripe->k);
+      }
+      break;
+    case 'C': // CACHED_MODE
+      parity_slice_size = num_unit_stripes * unit_size;
+      parity_slice_offset = curr_logical_offset / (unit_size * stripe->k) * unit_size;
+      break;
+    default:
+      std::cout << "[ERROR] Invalid append mode: " << append_mode << std::endl;
+      return append_plans;
     }
 
     // key: block_id, value: (slice_size, physical_offset)
@@ -328,6 +345,7 @@ namespace ECProject
       plan.set_append_size(getClusterAppendSize(stripe, block_to_slice_sizes, i, parity_slice_size));
       plan.set_is_merge_parity(is_merge_parity);
       plan.set_cluster_id(i);
+      plan.set_append_mode(append_mode);
 
       // Add data slices to plan
       for (int j = i * stripe->k / stripe->z;
@@ -373,6 +391,7 @@ namespace ECProject
   {
     std::string clientID = keyValueSize->key();
     int appendSizeBytes = keyValueSize->valuesizebytes();
+    std::string append_mode = keyValueSize->append_mode();
 
     // 1. record metadata
     // logical offset within the block stripe
@@ -412,7 +431,12 @@ namespace ECProject
       stripe = &m_stripe_table[curStripeOffset.stripe_id];
     }
 
-    std::vector<proxy_proto::AppendStripeDataPlacement> append_plans = generateAppendPlan(stripe, curStripeOffset.offset, appendSizeBytes);
+    std::vector<proxy_proto::AppendStripeDataPlacement> append_plans = generateAppendPlan(stripe, curStripeOffset.offset, appendSizeBytes, append_mode);
+    if (append_plans.empty())
+    {
+      std::cout << "[ERROR] Invalid append mode: " << append_mode << std::endl;
+      return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "Invalid append mode");
+    }
 
     for (const auto &plan : append_plans)
     {
