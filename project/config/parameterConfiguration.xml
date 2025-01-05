@@ -10,5 +10,5 @@
     <CoordinatorIP>0.0.0.0</CoordinatorIP>
     <CoordinatorPort>55555</CoordinatorPort>
     <!-- REP_MODE; UNILRC_MODE; CACHED_MODE -->
-    <AppendMode>UNILRC_MODE</AppendMode> 
+    <AppendMode>REP_MODE</AppendMode> 
 </Configuration>

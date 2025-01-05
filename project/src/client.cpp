@@ -138,9 +138,9 @@ namespace ECProject
     assert(append_mode == "UNILRC_MODE" || append_mode == "CACHED_MODE");
 
     int unit_size = m_sys_config->UnitSize;
-    int num_unit_stripes = (curr_logical_offset + append_size) / (unit_size * m_sys_config->k) - curr_logical_offset / (unit_size * m_sys_config->k) + 1;
+    int num_unit_stripes = (curr_logical_offset + append_size - 1) / (unit_size * m_sys_config->k) - curr_logical_offset / (unit_size * m_sys_config->k) + 1;
     int curr_block_id = (curr_logical_offset / unit_size) % m_sys_config->k;
-    int num_units = (curr_logical_offset + append_size) / unit_size - curr_logical_offset / unit_size + 1;
+    int num_units = (curr_logical_offset + append_size - 1) / unit_size - curr_logical_offset / unit_size + 1;
     int start_data_block_id = curr_block_id;
 
     parity_slice_size = num_unit_stripes * unit_size;

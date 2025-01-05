@@ -262,9 +262,9 @@ namespace ECProject
     // int curr_group_id = (curr_logical_offset / (unit_size * stripe->k / stripe->z)) % stripe->z;
     int curr_block_id = (curr_logical_offset / unit_size) % stripe->k;
     // compute how many units that need to be appended
-    int num_units = (curr_logical_offset + append_size) / unit_size - curr_logical_offset / unit_size + 1;
-    // int num_data_groups = std::min((curr_logical_offset + append_size) / (unit_size * stripe->k / stripe->z) - curr_logical_offset / (unit_size * stripe->k / stripe->z) + 1, stripe->z);
-    int num_unit_stripes = (curr_logical_offset + append_size) / (unit_size * stripe->k) - curr_logical_offset / (unit_size * stripe->k) + 1;
+    int num_units = (curr_logical_offset + append_size - 1) / unit_size - curr_logical_offset / unit_size + 1;
+    // int num_data_groups = std::min((curr_logical_offset + append_size - 1) / (unit_size * stripe->k / stripe->z) - curr_logical_offset / (unit_size * stripe->k / stripe->z) + 1, stripe->z);
+    int num_unit_stripes = (curr_logical_offset + append_size - 1) / (unit_size * stripe->k) - curr_logical_offset / (unit_size * stripe->k) + 1;
 
     // compute the size and offset of the parity slice
     // TODO: optimize the append size that below a unit_size but placed into two units within a unit_stripe
