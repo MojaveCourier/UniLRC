@@ -29,13 +29,12 @@ namespace ECProject
     int n = alpha * z * z + z;
     int k = alpha * z * z - alpha * z;
     int r = alpha * z;
-    int DataBlockNumPerGroup = k / z;
-    int GlobalParityBlockNumPerGroup = r / z;
     int DatanodeNumPerCluster = 0;
     int ClusterNum = 0;
     std::string CoordinatorIP = "0.0.0.0";
     int CoordinatorPort = 55555;
     std::string AppendMode = "UNILRC_MODE";
+    std::string CodeType = "UniLRC";
   };
 }
 

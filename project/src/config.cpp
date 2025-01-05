@@ -19,6 +19,9 @@ namespace ECProject
     assert(DatanodeNumPerCluster > n / z && "Error: DatanodeNumPerCluster must be greater than n / z");
     assert(ClusterNum > z && "Error: ClusterNum must be greater than z");
     assert((AppendMode == "REP_MODE" || AppendMode == "UNILRC_MODE" || AppendMode == "CACHED_MODE") && "Error: AppendMode must be REP_MODE, UNILRC_MODE, or CACHED_MODE");
+    assert((CodeType == "UniLRC" || CodeType == "AzureLRC" || CodeType == "OptimalLRC" || CodeType == "UniformLRC") && "Error: CodeType must be UniLRC, AzureLRC, OptimalLRC, or UniformLRC");
+    assert(DatanodeNumPerCluster > 0 && "Error: DatanodeNumPerCluster must be greater than 0");
+    assert(ClusterNum > 0 && "Error: ClusterNum must be greater than 0");
   }
 
   Config *Config::getInstance(const std::string &configPath)
@@ -56,19 +59,28 @@ namespace ECProject
       alpha = std::stoi(elem->GetText());
     if (auto elem = root->FirstChildElement("z"))
       z = std::stoi(elem->GetText());
-    n = alpha * z * z + z;
-    k = alpha * z * z - alpha * z;
-    r = alpha * z;
-    DataBlockNumPerGroup = k / z;
-    GlobalParityBlockNumPerGroup = r / z;
+    if (auto elem = root->FirstChildElement("CodeType"))
+      CodeType = std::string(elem->GetText());
+    if (CodeType == "UniLRC")
+    {
+      n = alpha * z * z + z;
+      k = alpha * z * z - alpha * z;
+      r = alpha * z;
+    }
+    else
+    {
+      if (auto elem = root->FirstChildElement("n"))
+        n = std::stoi(elem->GetText());
+      if (auto elem = root->FirstChildElement("k"))
+        k = std::stoi(elem->GetText());
+      if (auto elem = root->FirstChildElement("r"))
+        r = std::stoi(elem->GetText());
+    }
+
     if (auto elem = root->FirstChildElement("DatanodeNumPerCluster"))
       DatanodeNumPerCluster = std::stoi(elem->GetText());
     if (auto elem = root->FirstChildElement("ClusterNum"))
       ClusterNum = std::stoi(elem->GetText());
-    if (DatanodeNumPerCluster == 0)
-      DatanodeNumPerCluster = 2 * n / z; // default DatanodeNumPerCluster: two times of local group number
-    if (ClusterNum == 0)
-      ClusterNum = 2 * z; // default ClusterNum: two times of z
     if (auto elem = root->FirstChildElement("CoordinatorIP"))
       CoordinatorIP = std::string(elem->GetText());
     if (auto elem = root->FirstChildElement("CoordinatorPort"))
@@ -89,12 +101,11 @@ namespace ECProject
     std::cout << "  k: " << k << std::endl;
     std::cout << "  r: " << r << std::endl;
     std::cout << "  (n, k, r, z): (" << n << ", " << k << ", " << r << ", " << (int)z << ")" << std::endl;
-    std::cout << "  DataBlockNumPerGroup: " << DataBlockNumPerGroup << " blocks/group" << std::endl;
-    std::cout << "  GlobalParityBlockNumPerGroup: " << GlobalParityBlockNumPerGroup << " blocks/group" << std::endl;
     std::cout << "  DatanodeNumPerCluster: " << DatanodeNumPerCluster << " nodes/cluster" << std::endl;
     std::cout << "  ClusterNum: " << (int)ClusterNum << " clusters" << std::endl;
     std::cout << "  CoordinatorIP: " << CoordinatorIP << std::endl;
     std::cout << "  CoordinatorPort: " << CoordinatorPort << std::endl;
     std::cout << "  AppendMode: " << AppendMode << std::endl;
+    std::cout << "  CodeType: " << CodeType << std::endl;
   }
 }
