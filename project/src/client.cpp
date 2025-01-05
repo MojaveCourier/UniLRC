@@ -427,12 +427,12 @@ namespace ECProject
 
       if (m_sys_config->AppendMode == "UNILRC_MODE")
       {
-        ECProject::encode_unilrc_w_append_mode(m_sys_config->k, m_sys_config->r, m_sys_config->z, std::accumulate(modified_data_block_nums_per_cluster.begin(), modified_data_block_nums_per_cluster.end(), 0), reinterpret_cast<unsigned char **>(data_ptr_array.data()), &data_ptr_size_array, reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), start_data_block_id, m_sys_config->UnitSize);
+        ECProject::encode_unilrc_w_append_mode(m_sys_config->k, m_sys_config->r, m_sys_config->z, std::accumulate(modified_data_block_nums_per_cluster.begin(), modified_data_block_nums_per_cluster.end(), 0), reinterpret_cast<unsigned char **>(data_ptr_array.data()), &data_ptr_size_array, reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), start_data_block_id, m_sys_config->UnitSize, false);
       }
       else if (m_sys_config->AppendMode == "CACHED_MODE")
       {
         get_cached_parity_slices(global_parity_ptr_array, local_parity_ptr_array, parity_slice_size, parity_slice_offset);
-        // ECProject::encode_cached_w_append_mode(m_sys_config->k, m_sys_config->r, m_sys_config->z, std::accumulate(modified_data_block_nums_per_cluster.begin(), modified_data_block_nums_per_cluster.end(), 0), reinterpret_cast<unsigned char **>(data_ptr_array.data()), &data_ptr_size_array, reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), start_data_block_id, m_sys_config->UnitSize);
+        ECProject::encode_unilrc_w_append_mode(m_sys_config->k, m_sys_config->r, m_sys_config->z, std::accumulate(modified_data_block_nums_per_cluster.begin(), modified_data_block_nums_per_cluster.end(), 0), reinterpret_cast<unsigned char **>(data_ptr_array.data()), &data_ptr_size_array, reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), start_data_block_id, m_sys_config->UnitSize, true);
         cache_latest_parity_slices(global_parity_ptr_array, local_parity_ptr_array, parity_slice_size, parity_slice_offset);
       }
 

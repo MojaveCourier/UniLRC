@@ -10,7 +10,7 @@
     <CoordinatorIP>0.0.0.0</CoordinatorIP>
     <CoordinatorPort>55555</CoordinatorPort>
     <!-- AppendMode: REP_MODE; UNILRC_MODE; CACHED_MODE -->
-    <AppendMode>REP_MODE</AppendMode>
+    <AppendMode>CACHED_MODE</AppendMode>
     <!-- LRC: UniLRC; AzureLRC; OptimalLRC; UniformLRC -->
     <CodeType>UniLRC</CodeType>
     <n>10</n>

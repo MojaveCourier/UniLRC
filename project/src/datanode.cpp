@@ -3,7 +3,7 @@
 #include <fstream>
 #include <unistd.h>
 #include <sys/stat.h>
-
+#include "unilrc_encoder.h"
 namespace ECProject
 {
     grpc::Status DatanodeImpl::checkalive(
@@ -347,7 +347,7 @@ namespace ECProject
                 memset(mergedBuf.get(), 0, m_sys_config->BlockSize);
 
                 deserialize(readpath, dataBuf.get());
-                // encode_unilrc_w_rep_mode(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char**>(dataBuf.get()), reinterpret_cast<unsigned char**>(mergedBuf.get()), m_sys_config->BlockSize, m_sys_config->UnitSize, block_id);
+                ECProject::encode_unilrc_w_rep_mode(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char *>(dataBuf.get()), reinterpret_cast<unsigned char *>(mergedBuf.get()), m_sys_config->BlockSize, m_sys_config->UnitSize, block_id);
 
                 ofs.write(mergedBuf.get(), m_sys_config->BlockSize);
                 ofs.flush();
