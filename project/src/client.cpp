@@ -245,20 +245,25 @@ namespace ECProject
     while (tmp_append_size > 0)
     {
       int sub_append_size = std::min(tmp_append_size, m_sys_config->BlockSize * m_sys_config->k - m_append_logical_offset);
-      bool if_append_success = sub_append(sub_append_size);
+
+      bool if_append_success = false;
+      if (m_sys_config->AppendMode == "UNILRC_MODE" || m_sys_config->AppendMode == "CACHED_MODE")
+      {
+        if_append_success = sub_append(sub_append_size);
+      }
+      else if (m_sys_config->AppendMode == "REP_MODE")
+      {
+        if_append_success = sub_append_in_rep_mode(sub_append_size);
+      }
+
       if (!if_append_success)
       {
-        std::cout << "[APPEND148] Sub append failed with sub append size " << sub_append_size << "!" << std::endl;
+        std::cout << "[APPEND148] Sub append failed with sub append size " << sub_append_size << " with mode " << m_sys_config->AppendMode << "!" << std::endl;
         return false;
       }
       tmp_append_size -= sub_append_size;
     }
 
-    return true;
-  }
-
-  bool Client::sub_append_in_cached_mode(int append_size)
-  {
     return true;
   }
 
@@ -390,8 +395,6 @@ namespace ECProject
   bool
   Client::sub_append(int append_size)
   {
-    assert(m_sys_config->AppendMode == "UNILRC_MODE" || m_sys_config->AppendMode == "CACHED_MODE");
-
     grpc::ClientContext get_proxy_ip_port;
     coordinator_proto::RequestProxyIPPort request;
     coordinator_proto::ReplyProxyIPsPorts reply;

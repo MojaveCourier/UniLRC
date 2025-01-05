@@ -65,7 +65,6 @@ namespace ECProject
     std::string sayHelloToCoordinatorByGrpc(std::string hello);
     bool append(int append_size);
     bool sub_append(int append_size);
-    bool sub_append_in_cached_mode(int append_size);
     bool sub_append_in_rep_mode(int append_size);
     bool set(std::string key, std::string value);
     bool SetParameterByGrpc(ECSchema input_ecschema);
