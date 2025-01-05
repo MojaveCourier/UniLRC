@@ -131,25 +131,31 @@ namespace ECProject
     return false;
   }
 
-  int Client::get_append_slice_plans(const int curr_logical_offset, const int append_size, std::vector<std::vector<int>> *node_slice_sizes_per_cluster, std::vector<int> *modified_data_block_nums_per_cluster, std::vector<int> *data_ptr_size_array)
+  int Client::get_append_slice_plans(std::string append_mode, const int curr_logical_offset, const int append_size, std::vector<std::vector<int>> *node_slice_sizes_per_cluster, std::vector<int> *modified_data_block_nums_per_cluster, std::vector<int> *data_ptr_size_array, int &parity_slice_size, int &parity_slice_offset)
   {
     assert(node_slice_sizes_per_cluster->size() == m_sys_config->z);
     assert(modified_data_block_nums_per_cluster->size() == m_sys_config->z);
+    assert(append_mode == "UNILRC_MODE" || append_mode == "CACHED_MODE");
 
     int unit_size = m_sys_config->UnitSize;
     int num_unit_stripes = (curr_logical_offset + append_size) / (unit_size * m_sys_config->k) - curr_logical_offset / (unit_size * m_sys_config->k) + 1;
     int curr_block_id = (curr_logical_offset / unit_size) % m_sys_config->k;
     int num_units = (curr_logical_offset + append_size) / unit_size - curr_logical_offset / unit_size + 1;
-    int parity_slice_size = num_unit_stripes * unit_size;
     int start_data_block_id = curr_block_id;
 
-    if (num_units == 1)
+    parity_slice_size = num_unit_stripes * unit_size;
+    parity_slice_offset = curr_logical_offset / (unit_size * m_sys_config->k) * unit_size;
+    if (append_mode == "UNILRC_MODE")
     {
-      parity_slice_size = append_size;
-    }
-    if (num_unit_stripes > 1 && (curr_logical_offset + append_size) % (unit_size * m_sys_config->k) < unit_size)
-    {
-      parity_slice_size = (num_unit_stripes - 1) * unit_size + (curr_logical_offset + append_size) % (unit_size * m_sys_config->k);
+      if (num_units == 1)
+      {
+        parity_slice_size = append_size;
+        parity_slice_offset = curr_logical_offset % unit_size;
+      }
+      if (num_unit_stripes > 1 && (curr_logical_offset + append_size) % (unit_size * m_sys_config->k) < unit_size)
+      {
+        parity_slice_size = (num_unit_stripes - 1) * unit_size + (curr_logical_offset + append_size) % (unit_size * m_sys_config->k);
+      }
     }
 
     std::map<int, int> block_to_slice_sizes;
@@ -349,6 +355,32 @@ namespace ECProject
     }
   }
 
+  void Client::get_cached_parity_slices(std::vector<char *> &global_parity_ptr_array, std::vector<char *> &local_parity_ptr_array, const int parity_slice_size, const int parity_slice_offset)
+  {
+    assert(global_parity_ptr_array.size() == m_sys_config->r);
+    assert(local_parity_ptr_array.size() == m_sys_config->z);
+    for (int i = 0; i < global_parity_ptr_array.size(); i++)
+    {
+      memcpy(global_parity_ptr_array[i], m_cached_buffer[i] + parity_slice_offset, parity_slice_size);
+    }
+    for (int i = 0; i < local_parity_ptr_array.size(); i++)
+    {
+      memcpy(local_parity_ptr_array[i], m_cached_buffer[i + m_sys_config->r] + parity_slice_offset, parity_slice_size);
+    }
+  }
+
+  void Client::cache_latest_parity_slices(std::vector<char *> &global_parity_ptr_array, std::vector<char *> &local_parity_ptr_array, const int parity_slice_size, const int parity_slice_offset)
+  {
+    for (int i = 0; i < global_parity_ptr_array.size(); i++)
+    {
+      memcpy(m_cached_buffer[i] + parity_slice_offset, global_parity_ptr_array[i], parity_slice_size);
+    }
+    for (int i = 0; i < local_parity_ptr_array.size(); i++)
+    {
+      memcpy(m_cached_buffer[i + m_sys_config->r] + parity_slice_offset, local_parity_ptr_array[i], parity_slice_size);
+    }
+  }
+
   /*
     Function: append within a block stripe
     1. send the append request including the information of the value to the coordinator
@@ -358,6 +390,8 @@ namespace ECProject
   bool
   Client::sub_append(int append_size)
   {
+    assert(m_sys_config->AppendMode == "UNILRC_MODE" || m_sys_config->AppendMode == "CACHED_MODE");
+
     grpc::ClientContext get_proxy_ip_port;
     coordinator_proto::RequestProxyIPPort request;
     coordinator_proto::ReplyProxyIPsPorts reply;
@@ -381,12 +415,23 @@ namespace ECProject
       std::vector<std::vector<int>> node_slice_sizes_per_cluster(m_sys_config->z);
       std::vector<int> modified_data_block_nums_per_cluster(m_sys_config->z, 0);
       std::vector<int> data_ptr_size_array;
-      int start_data_block_id = get_append_slice_plans(m_append_logical_offset, append_size, &node_slice_sizes_per_cluster, &modified_data_block_nums_per_cluster, &data_ptr_size_array);
+      int parity_slice_size = -1;
+      int parity_slice_offset = -1;
+      int start_data_block_id = get_append_slice_plans(m_sys_config->AppendMode, m_append_logical_offset, append_size, &node_slice_sizes_per_cluster, &modified_data_block_nums_per_cluster, &data_ptr_size_array, parity_slice_size, parity_slice_offset);
 
       std::vector<char *> data_ptr_array, global_parity_ptr_array, local_parity_ptr_array;
       split_for_data_and_parity(&reply, cluster_slice_data, node_slice_sizes_per_cluster, modified_data_block_nums_per_cluster, data_ptr_array, global_parity_ptr_array, local_parity_ptr_array);
 
-      ECProject::encode_unilrc_w_append_mode(m_sys_config->k, m_sys_config->r, m_sys_config->z, std::accumulate(modified_data_block_nums_per_cluster.begin(), modified_data_block_nums_per_cluster.end(), 0), reinterpret_cast<unsigned char **>(data_ptr_array.data()), &data_ptr_size_array, reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), start_data_block_id, m_sys_config->UnitSize);
+      if (m_sys_config->AppendMode == "UNILRC_MODE")
+      {
+        ECProject::encode_unilrc_w_append_mode(m_sys_config->k, m_sys_config->r, m_sys_config->z, std::accumulate(modified_data_block_nums_per_cluster.begin(), modified_data_block_nums_per_cluster.end(), 0), reinterpret_cast<unsigned char **>(data_ptr_array.data()), &data_ptr_size_array, reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), start_data_block_id, m_sys_config->UnitSize);
+      }
+      else if (m_sys_config->AppendMode == "CACHED_MODE")
+      {
+        get_cached_parity_slices(global_parity_ptr_array, local_parity_ptr_array, parity_slice_size, parity_slice_offset);
+        // ECProject::encode_cached_w_append_mode(m_sys_config->k, m_sys_config->r, m_sys_config->z, std::accumulate(modified_data_block_nums_per_cluster.begin(), modified_data_block_nums_per_cluster.end(), 0), reinterpret_cast<unsigned char **>(data_ptr_array.data()), &data_ptr_size_array, reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), start_data_block_id, m_sys_config->UnitSize);
+        cache_latest_parity_slices(global_parity_ptr_array, local_parity_ptr_array, parity_slice_size, parity_slice_offset);
+      }
 
       for (int i = 0; i < reply.append_keys_size(); i++)
       {
@@ -406,6 +451,15 @@ namespace ECProject
       {
         std::cout << "[APPEND244] Client " << m_clientID << " append " << append_size << " bytes successfully!" << std::endl;
         m_append_logical_offset = (m_append_logical_offset + append_size) % (m_sys_config->BlockSize * m_sys_config->k);
+
+        if (m_append_logical_offset == 0 && m_sys_config->AppendMode == "CACHED_MODE")
+        {
+          for (int i = 0; i < m_sys_config->r + m_sys_config->z; i++)
+          {
+            memset(m_cached_buffer[i], 0, m_sys_config->BlockSize);
+          }
+        }
+
         return true;
       }
       else

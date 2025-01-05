@@ -38,11 +38,28 @@ namespace ECProject
       m_sys_config = ECProject::Config::getInstance(config_path);
       m_toolbox = ECProject::ToolBox::getInstance();
       m_pre_allocated_buffer = new char[m_sys_config->BlockSize * m_sys_config->n];
+      if (m_sys_config->AppendMode == "CACHED_MODE")
+      {
+        m_cached_buffer = new char *[m_sys_config->r + m_sys_config->z];
+        for (int i = 0; i < m_sys_config->r + m_sys_config->z; i++)
+        {
+          m_cached_buffer[i] = new char[m_sys_config->BlockSize];
+          memset(m_cached_buffer[i], 0, m_sys_config->BlockSize);
+        }
+      }
     }
 
     ~Client()
     {
       delete[] m_pre_allocated_buffer;
+      if (m_sys_config->AppendMode == "CACHED_MODE")
+      {
+        for (int i = 0; i < m_sys_config->r + m_sys_config->z; i++)
+        {
+          delete[] m_cached_buffer[i];
+        }
+        delete[] m_cached_buffer;
+      }
     }
 
     std::string sayHelloToCoordinatorByGrpc(std::string hello);
@@ -56,9 +73,11 @@ namespace ECProject
     bool delete_key(std::string key);
     bool delete_stripe(int stripe_id);
     bool delete_all_stripes();
-    int get_append_slice_plans(int curr_logical_offset, int append_size, std::vector<std::vector<int>> *node_slice_sizes_per_cluster, std::vector<int> *modified_data_block_nums_per_cluster, std::vector<int> *data_ptr_size_array);
+    int get_append_slice_plans(std::string append_mode, int curr_logical_offset, int append_size, std::vector<std::vector<int>> *node_slice_sizes_per_cluster, std::vector<int> *modified_data_block_nums_per_cluster, std::vector<int> *data_ptr_size_array, int &parity_slice_size, int &parity_slice_offset);
     void split_for_data_and_parity(const coordinator_proto::ReplyProxyIPsPorts *reply_proxy_ips_ports, const std::vector<char *> &cluster_slice_data, const std::vector<std::vector<int>> &node_slice_sizes_per_cluster, const std::vector<int> &modified_data_block_nums_per_cluster, std::vector<char *> &data_ptr_array, std::vector<char *> &global_parity_ptr_array, std::vector<char *> &local_parity_ptr_array);
     void async_append_to_proxies(char *cluster_slice_data, std::string append_key, int cluster_slice_size, std::string proxy_ip, int proxy_port, int index, bool *if_commit_arr);
+    void get_cached_parity_slices(std::vector<char *> &global_parity_ptr_array, std::vector<char *> &local_parity_ptr_array, const int parity_slice_size, const int parity_slice_offset);
+    void cache_latest_parity_slices(std::vector<char *> &global_parity_ptr_array, std::vector<char *> &local_parity_ptr_array, const int parity_slice_size, const int parity_slice_offset);
 
   private:
     std::unique_ptr<coordinator_proto::coordinatorService::Stub> m_coordinator_ptr;
@@ -73,7 +92,7 @@ namespace ECProject
     ECProject::Config *m_sys_config;
     ECProject::ToolBox *m_toolbox;
     char *m_pre_allocated_buffer = nullptr;
-    char *m_cached_buffer = nullptr;
+    char **m_cached_buffer = nullptr;
   };
 
 } // namespace ECProject
