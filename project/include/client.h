@@ -12,6 +12,7 @@
 #include <asio.hpp>
 #include "config.h"
 #include "toolbox.h"
+#include <vector>
 namespace ECProject
 {
   class Client
@@ -66,6 +67,10 @@ namespace ECProject
     bool append(int append_size);
     bool sub_append(int append_size);
     bool sub_append_in_rep_mode(int append_size);
+    bool set();
+    std::vector<int> get_data_block_num_per_group(int k, int r, int z, std::string code_type);
+    std::vector<int> get_global_parity_block_num_per_group(int k, int r, int z, std::string code_type);
+    std::vector<int> get_local_parity_block_num_per_group(int k, int r, int z, std::string code_type);
     bool set(std::string key, std::string value);
     bool SetParameterByGrpc(ECSchema input_ecschema);
     bool get(std::string key, std::string &value);

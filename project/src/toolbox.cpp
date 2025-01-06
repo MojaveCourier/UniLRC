@@ -49,9 +49,9 @@ namespace ECProject
     return splitCharPointer(str, reply_proxy_ips_ports->sum_append_size(), sizes);
   }
 
-  std::string ToolBox::gen_append_key(int stripe_id, int cluster_id)
+  std::string ToolBox::gen_append_key(int stripe_id, int group_id)
   {
-    return std::to_string(cluster_id) + "_" + std::to_string(stripe_id);
+    return std::to_string(stripe_id) + "_" + std::to_string(group_id);
   }
 
   bool ToolBox::random_generate_kv(std::string &key, std::string &value,

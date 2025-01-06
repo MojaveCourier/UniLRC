@@ -79,6 +79,8 @@ namespace ECProject
     std::unordered_set<int> place2clusters;
 
     int n, r, z;
+    int num_groups;
+    std::map<int, std::vector<int>> group_to_blocks;
   } Stripe;
 
   typedef struct ObjectInfo

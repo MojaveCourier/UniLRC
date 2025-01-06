@@ -16,12 +16,30 @@ namespace ECProject
   void Config::validateConfig() const
   {
     assert(BlockSize % UnitSize == 0 && "Error: BlockSize must be divisible by UnitSize");
-    assert(DatanodeNumPerCluster > n / z && "Error: DatanodeNumPerCluster must be greater than n / z");
-    assert(ClusterNum > z && "Error: ClusterNum must be greater than z");
     assert((AppendMode == "REP_MODE" || AppendMode == "UNILRC_MODE" || AppendMode == "CACHED_MODE") && "Error: AppendMode must be REP_MODE, UNILRC_MODE, or CACHED_MODE");
     assert((CodeType == "UniLRC" || CodeType == "AzureLRC" || CodeType == "OptimalLRC" || CodeType == "UniformLRC") && "Error: CodeType must be UniLRC, AzureLRC, OptimalLRC, or UniformLRC");
     assert(DatanodeNumPerCluster > 0 && "Error: DatanodeNumPerCluster must be greater than 0");
     assert(ClusterNum > 0 && "Error: ClusterNum must be greater than 0");
+    if (CodeType == "UniLRC")
+    {
+      assert(DatanodeNumPerCluster > n / z && "Error: DatanodeNumPerCluster must be greater than n / z");
+      assert(ClusterNum > z && "Error: ClusterNum must be greater than z");
+    }
+    if (CodeType == "AzureLRC")
+    {
+      assert(DatanodeNumPerCluster > k / z + 1 && "Error: DatanodeNumPerCluster must be greater than k / z + 1");
+      assert(ClusterNum > z + 1 && "Error: ClusterNum must be greater than z + 1");
+    }
+    if (CodeType == "OptimalLRC")
+    {
+      assert(DatanodeNumPerCluster > r + 1 && "Error: DatanodeNumPerCluster must be greater than r + 1");
+      assert(ClusterNum > std::ceil(1.0 * k / z / (r + 1)) * z + 1 && "Error: ClusterNum must be greater than std::ceil(1.0 * k / z / (r + 1)) * z + 1");
+    }
+    if (CodeType == "UniformLRC")
+    {
+      assert(DatanodeNumPerCluster > r && "Error: DatanodeNumPerCluster must be greater than r");
+      assert(ClusterNum > ((((k + r) / z + 1) / r + (bool)(((k + r) / z + 1) % r)) * ((k + r) % z)) + (((k + r) / z) / r + (bool)(((k + r) / z) % r)) * (z - ((k + r) % z)) && "Error: ClusterNum must be greater than ((((k + r) / z + 1) / r + (bool)(((k + r) / z + 1) % r)) * ((k + r) % z)) + (((k + r) / z) / r + (bool)(((k + r) / z) % r)) * (z - ((k + r) % z))");
+    }
   }
 
   Config *Config::getInstance(const std::string &configPath)

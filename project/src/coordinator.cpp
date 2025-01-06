@@ -156,20 +156,154 @@ namespace ECProject
     return grpc::Status::OK;
   }
 
-  void CoordinatorImpl::initialize_azure_lrc_stripe_placement(Stripe *stripe)
-  {
-  }
-
   void CoordinatorImpl::initialize_optimal_lrc_stripe_placement(Stripe *stripe)
   {
+    // range 0~k-1: data blocks
+    // range k~k+r-1: global parity blocks
+    // range k+r~k+r+z-1: local parity blocks
+    Block *blocks_info = new Block[stripe->n];
+    // a stripe is only created by a single client
+    assert(stripe->object_keys.size() == 1);
+    // choose a cluster: round robin
+    int t_cluster_id = stripe->stripe_id % m_sys_config->ClusterNum;
+    int group_size = stripe->r + 1;
+    int local_group_size = int(stripe->k / stripe->z);
+    int group_num_of_one_local_group = local_group_size / group_size;
+    if (local_group_size % group_size != 0)
+      group_num_of_one_local_group++;
+
+    for (int i = 0; i < stripe->n; i++)
+    {
+      blocks_info[i].block_size = m_sys_config->BlockSize;
+      blocks_info[i].map2stripe = stripe->stripe_id;
+      blocks_info[i].map2key = stripe->object_keys[0];
+      if (i < stripe->k)
+      {
+        std::string tmp = "_D";
+        if (i < 10)
+          tmp = "_D0";
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i);
+        blocks_info[i].block_id = i;
+        blocks_info[i].block_type = 'D';
+        blocks_info[i].map2group = (i % local_group_size / group_size) + i / local_group_size * group_num_of_one_local_group;
+      }
+      else if (i >= stripe->k && i < stripe->k + stripe->r)
+      {
+        std::string tmp = "_G";
+        if (i < 10)
+          tmp = "_G0";
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k);
+        blocks_info[i].block_id = i;
+        blocks_info[i].block_type = 'G';
+        blocks_info[i].map2group = stripe->z * group_num_of_one_local_group;
+      }
+      else
+      {
+        std::string tmp = "_L";
+        if (i < 10)
+          tmp = "_L0";
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k - stripe->r);
+        blocks_info[i].block_id = i;
+        blocks_info[i].block_type = 'L';
+        blocks_info[i].map2group = (i - stripe->k - stripe->r + stripe->z + 1) * group_num_of_one_local_group - 1;
+      }
+      blocks_info[i].map2cluster = (t_cluster_id + blocks_info[i].map2group) % m_sys_config->ClusterNum;
+      int t_node_id = randomly_select_a_node(blocks_info[i].map2cluster, stripe->stripe_id);
+      blocks_info[i].map2node = t_node_id;
+      update_stripe_info_in_node(t_node_id, stripe->stripe_id, i);
+      m_cluster_table[blocks_info[i].map2cluster].blocks.push_back(&blocks_info[i]);
+      m_cluster_table[blocks_info[i].map2cluster].stripes.insert(stripe->stripe_id);
+      stripe->blocks.push_back(&blocks_info[i]);
+      stripe->place2clusters.insert(blocks_info[i].map2cluster);
+      add_to_map(stripe->group_to_blocks, blocks_info[i].map2group, i);
+    }
+
+    stripe->num_groups = stripe->group_to_blocks.size();
   }
 
   void CoordinatorImpl::initialize_uniform_lrc_stripe_placement(Stripe *stripe)
   {
+    // range 0~k-1: data blocks
+    // range k~k+r-1: global parity blocks
+    // range k+r~k+r+z-1: local parity blocks
+    Block *blocks_info = new Block[stripe->n];
+    // a stripe is only created by a single client
+    assert(stripe->object_keys.size() == 1);
+    // choose a cluster: round robin
+    int t_cluster_id = stripe->stripe_id % m_sys_config->ClusterNum;
+
+    int group_size = stripe->r;
+    int local_group_size = int((stripe->k + stripe->r) / stripe->z);
+    int larger_local_group_num = int((stripe->k + stripe->r) % stripe->z);
+    int group_num = -1;
+    int block_num = 0;
+
+    for (int i = 0; i < stripe->z; i++)
+    {
+      if (i + larger_local_group_num == stripe->z)
+      {
+        local_group_size++;
+      }
+      for (int j = 0; j < local_group_size; j++)
+      {
+        if (j % group_size == 0)
+        {
+          group_num++;
+        }
+        blocks_info[block_num++].map2group = group_num;
+      }
+      blocks_info[stripe->k + stripe->r + i].map2group = group_num;
+    }
+    for (int i = 0; i < stripe->n; i++)
+    {
+      blocks_info[i].block_size = m_sys_config->BlockSize;
+      blocks_info[i].map2stripe = stripe->stripe_id;
+      blocks_info[i].map2key = stripe->object_keys[0];
+      if (i < stripe->k)
+      {
+        std::string tmp = "_D";
+        if (i < 10)
+          tmp = "_D0";
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i);
+        blocks_info[i].block_id = i;
+        blocks_info[i].block_type = 'D';
+      }
+      else if (i >= stripe->k && i < stripe->k + stripe->r)
+      {
+        std::string tmp = "_G";
+        if (i < 10)
+          tmp = "_G0";
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k);
+        blocks_info[i].block_id = i;
+        blocks_info[i].block_type = 'G';
+      }
+      else
+      {
+        std::string tmp = "_L";
+        if (i < 10)
+          tmp = "_L0";
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k - stripe->r);
+        blocks_info[i].block_id = i;
+        blocks_info[i].block_type = 'L';
+      }
+      blocks_info[i].map2cluster = (t_cluster_id + blocks_info[i].map2group) % m_sys_config->ClusterNum;
+      int t_node_id = randomly_select_a_node(blocks_info[i].map2cluster, stripe->stripe_id);
+      blocks_info[i].map2node = t_node_id;
+      update_stripe_info_in_node(t_node_id, stripe->stripe_id, i);
+      m_cluster_table[blocks_info[i].map2cluster].blocks.push_back(&blocks_info[i]);
+      m_cluster_table[blocks_info[i].map2cluster].stripes.insert(stripe->stripe_id);
+      stripe->blocks.push_back(&blocks_info[i]);
+      stripe->place2clusters.insert(blocks_info[i].map2cluster);
+      add_to_map(stripe->group_to_blocks, blocks_info[i].map2group, i);
+    }
+
+    stripe->num_groups = stripe->group_to_blocks.size();
   }
 
-  void CoordinatorImpl::initialize_unilrc_stripe_placement(Stripe *stripe)
+  void CoordinatorImpl::initialize_unilrc_and_azurelrc_stripe_placement(Stripe *stripe)
   {
+    std::string code_type = m_sys_config->CodeType;
+
     // range 0~k-1: data blocks
     // range k~k+r-1: global parity blocks
     // range k+r~k+r+z-1: local parity blocks
@@ -201,7 +335,14 @@ namespace ECProject
         blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k);
         blocks_info[i].block_id = i;
         blocks_info[i].block_type = 'G';
-        blocks_info[i].map2group = int((i - stripe->k) / (stripe->r / stripe->z));
+        if (code_type == "UniLRC")
+        {
+          blocks_info[i].map2group = int((i - stripe->k) / (stripe->r / stripe->z));
+        }
+        else if (code_type == "AzureLRC")
+        {
+          blocks_info[i].map2group = int(stripe->z);
+        }
       }
       else
       {
@@ -221,7 +362,17 @@ namespace ECProject
       m_cluster_table[blocks_info[i].map2cluster].stripes.insert(stripe->stripe_id);
       stripe->blocks.push_back(&blocks_info[i]);
       stripe->place2clusters.insert(blocks_info[i].map2cluster);
+      add_to_map(stripe->group_to_blocks, blocks_info[i].map2group, i);
     }
+
+    stripe->num_groups = stripe->group_to_blocks.size();
+  }
+
+  void CoordinatorImpl::add_to_map(std::map<int, std::vector<int>> &map, int key, int value)
+  {
+    if (map.find(key) == map.end())
+      map[key] = std::vector<int>();
+    map[key].push_back(value);
   }
 
   int CoordinatorImpl::getClusterAppendSize(Stripe *stripe, const std::map<int, std::pair<int, int>> &block_to_slice_sizes, int curr_group_id, int parity_slice_size)
@@ -252,9 +403,10 @@ namespace ECProject
     plan.add_sizes(slice_info.first);
   }
 
-  std::vector<proxy_proto::AppendStripeDataPlacement> CoordinatorImpl::generateAppendPlan(Stripe *stripe, int curr_logical_offset, int append_size, std::string append_mode)
+  std::vector<proxy_proto::AppendStripeDataPlacement> CoordinatorImpl::generateAppendPlan(Stripe *stripe, int curr_logical_offset, int append_size)
   {
     std::vector<proxy_proto::AppendStripeDataPlacement> append_plans;
+    std::string append_mode = m_sys_config->AppendMode;
     int unit_size = m_sys_config->UnitSize;
     int remain_size = stripe->k * m_sys_config->BlockSize - curr_logical_offset;
     assert(remain_size >= append_size && "append size is larger than the remaining size of the stripe!");
@@ -344,7 +496,7 @@ namespace ECProject
       plan.set_stripe_id(stripe->stripe_id);
       plan.set_append_size(getClusterAppendSize(stripe, block_to_slice_sizes, i, parity_slice_size));
       plan.set_is_merge_parity(is_merge_parity);
-      plan.set_cluster_id(i);
+      plan.set_cluster_id(stripe->blocks[stripe->group_to_blocks[i][0]]->map2cluster);
       plan.set_append_mode(append_mode);
 
       // Add data slices to plan
@@ -381,6 +533,24 @@ namespace ECProject
     }
 
     return append_plans;
+  }
+
+  void CoordinatorImpl::notify_proxies_ready(const proxy_proto::AppendStripeDataPlacement &plan)
+  {
+    grpc::ClientContext cont;
+    proxy_proto::SetReply set_reply;
+    std::string chosen_proxy = m_cluster_table[plan.cluster_id()].proxy_ip + ":" + std::to_string(m_cluster_table[plan.cluster_id()].proxy_port);
+    grpc::Status status = m_proxy_ptrs[chosen_proxy]->scheduleAppend2Datanode(&cont, plan, &set_reply);
+    if (status.ok())
+    {
+      m_mutex.lock();
+      m_object_updating_table[plan.key()] = ObjectInfo(plan.append_size(), plan.stripe_id());
+      m_mutex.unlock();
+    }
+    else
+    {
+      std::cout << "[APPEND434] Send append plan" << plan.key() << " failed! " << std::endl;
+    }
   }
 
   // Only processing the appending within a single stripe
@@ -421,7 +591,7 @@ namespace ECProject
       t_stripe.r = m_sys_config->r;
       t_stripe.z = m_sys_config->z;
       t_stripe.object_keys.push_back(clientID);
-      initialize_unilrc_stripe_placement(&t_stripe);
+      initialize_unilrc_and_azurelrc_stripe_placement(&t_stripe);
       m_stripe_table[t_stripe.stripe_id] = t_stripe;
       stripe = &m_stripe_table[t_stripe.stripe_id];
     }
@@ -431,7 +601,7 @@ namespace ECProject
       stripe = &m_stripe_table[curStripeOffset.stripe_id];
     }
 
-    std::vector<proxy_proto::AppendStripeDataPlacement> append_plans = generateAppendPlan(stripe, curStripeOffset.offset, appendSizeBytes, append_mode);
+    std::vector<proxy_proto::AppendStripeDataPlacement> append_plans = generateAppendPlan(stripe, curStripeOffset.offset, appendSizeBytes);
     if (append_plans.empty())
     {
       std::cout << "[ERROR] Invalid append mode: " << append_mode << std::endl;
@@ -446,30 +616,12 @@ namespace ECProject
     }
 
     // 3. notify proxies to receive data
-    auto notify_proxies_ready = [this](const proxy_proto::AppendStripeDataPlacement &plan)
-    {
-      grpc::ClientContext cont;
-      proxy_proto::SetReply set_reply;
-      std::string chosen_proxy = m_cluster_table[plan.cluster_id()].proxy_ip + ":" + std::to_string(m_cluster_table[plan.cluster_id()].proxy_port);
-      grpc::Status status = m_proxy_ptrs[chosen_proxy]->scheduleAppend2Datanode(&cont, plan, &set_reply);
-      if (status.ok())
-      {
-        m_mutex.lock();
-        m_object_updating_table[plan.key()] = ObjectInfo(plan.append_size(), plan.stripe_id());
-        m_mutex.unlock();
-      }
-      else
-      {
-        std::cout << "[APPEND434] Send append plan" << plan.key() << " failed! " << std::endl;
-      }
-    };
-
     // need multiple proxies to receive data, so need multiple threads
     std::vector<std::thread> threads;
     int sum_append_size = 0;
     for (const auto &plan : append_plans)
     {
-      threads.push_back(std::thread(notify_proxies_ready, plan));
+      threads.push_back(std::thread(&CoordinatorImpl::notify_proxies_ready, this, plan));
       proxyIPPort->add_append_keys(plan.key());
       proxyIPPort->add_proxyips(m_cluster_table[plan.cluster_id()].proxy_ip);
       proxyIPPort->add_proxyports(m_cluster_table[plan.cluster_id()].proxy_port + ECProject::PROXY_PORT_SHIFT); // use another port to accept data
@@ -487,6 +639,93 @@ namespace ECProject
     {
       m_cur_offset_table.erase(clientID);
     }
+
+    return grpc::Status::OK;
+  }
+
+  std::vector<proxy_proto::AppendStripeDataPlacement> CoordinatorImpl::generate_add_plans(Stripe *stripe)
+  {
+    std::vector<proxy_proto::AppendStripeDataPlacement> add_plans;
+    for (int i = 0; i < stripe->num_groups; i++)
+    {
+      proxy_proto::AppendStripeDataPlacement plan;
+      plan.set_key(m_toolbox->gen_append_key(stripe->stripe_id, i));
+      plan.set_stripe_id(stripe->stripe_id);
+      plan.set_append_size(stripe->group_to_blocks[i].size() * m_sys_config->BlockSize);
+      plan.set_is_merge_parity(false);
+      plan.set_cluster_id(stripe->blocks[stripe->group_to_blocks[i][0]]->map2cluster);
+      plan.set_append_mode("UNILRC_MODE");
+
+      for (int j = 0; j < stripe->group_to_blocks[i].size(); j++)
+      {
+        addBlockToAppendPlan(plan, stripe->blocks[stripe->group_to_blocks[i][j]], m_node_table[stripe->blocks[stripe->group_to_blocks[i][j]]->map2node], std::make_pair(m_sys_config->BlockSize, 0));
+      }
+
+      add_plans.push_back(plan);
+    }
+
+    return add_plans;
+  }
+
+  // set only the full block stripe
+  grpc::Status CoordinatorImpl::uploadSetValue(
+      grpc::ServerContext *context,
+      const coordinator_proto::RequestProxyIPPort *keyValueSize,
+      coordinator_proto::ReplyProxyIPsPorts *proxyIPPort)
+  {
+    std::string clientID = keyValueSize->key();
+    int setSizeBytes = keyValueSize->valuesizebytes();
+    std::string code_type = m_sys_config->CodeType;
+    assert(setSizeBytes == m_sys_config->BlockSize * m_sys_config->k && "set size is not equal to the block stripe size!");
+    assert((code_type == "UniLRC" || code_type == "AzureLRC" || code_type == "OptimalLRC" || code_type == "UniformLRC") && "Error: code type must be UniLRC, AzureLRC, OptimalLRC, or UniformLRC!");
+
+    Stripe t_stripe;
+    t_stripe.stripe_id = m_cur_stripe_id++;
+    t_stripe.n = m_sys_config->n;
+    t_stripe.k = m_sys_config->k;
+    t_stripe.r = m_sys_config->r;
+    t_stripe.z = m_sys_config->z;
+    t_stripe.object_keys.push_back(clientID);
+    if (code_type == "UniLRC" || code_type == "AzureLRC")
+    {
+      initialize_unilrc_and_azurelrc_stripe_placement(&t_stripe);
+    }
+    else if (code_type == "OptimalLRC")
+    {
+      initialize_optimal_lrc_stripe_placement(&t_stripe);
+    }
+    else if (code_type == "UniformLRC")
+    {
+      initialize_uniform_lrc_stripe_placement(&t_stripe);
+    }
+
+    std::vector<proxy_proto::AppendStripeDataPlacement> add_plans = generate_add_plans(&t_stripe);
+
+    for (const auto &plan : add_plans)
+    {
+      m_mutex.lock();
+      m_object_commit_table.erase(plan.key());
+      m_mutex.unlock();
+    }
+
+    std::vector<std::thread> threads;
+    int sum_append_size = 0;
+    for (const auto &plan : add_plans)
+    {
+      threads.push_back(std::thread(&CoordinatorImpl::notify_proxies_ready, this, plan));
+      proxyIPPort->add_append_keys(plan.key());
+      proxyIPPort->add_proxyips(m_cluster_table[plan.cluster_id()].proxy_ip);
+      proxyIPPort->add_proxyports(m_cluster_table[plan.cluster_id()].proxy_port + ECProject::PROXY_PORT_SHIFT); // use another port to accept data
+      proxyIPPort->add_cluster_slice_sizes(plan.append_size());
+      sum_append_size += plan.append_size();
+    }
+    for (auto &thread : threads)
+    {
+      thread.join();
+    }
+    proxyIPPort->set_sum_append_size(sum_append_size);
+
+    m_stripe_table[t_stripe.stripe_id] = std::move(t_stripe);
 
     return grpc::Status::OK;
   }

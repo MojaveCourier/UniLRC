@@ -29,6 +29,7 @@ service coordinatorService {
   rpc uploadOriginKeyValue (RequestProxyIPPort) returns (ReplyProxyIPPort) {};
   rpc reportCommitAbort (CommitAbortKey) returns (ReplyFromCoordinator) {}; //from proxy
   rpc checkCommitAbort (AskIfSuccess) returns (RepIfSuccess) {};  //from client
+  rpc uploadSetValue (RequestProxyIPPort) returns (ReplyProxyIPsPorts) {};
   // append
   rpc uploadAppendValue (RequestProxyIPPort) returns (ReplyProxyIPsPorts) {};
   // get

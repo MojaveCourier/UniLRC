@@ -51,6 +51,10 @@ namespace ECProject
         grpc::ServerContext *context,
         const coordinator_proto::AskIfSuccess *key_opp,
         coordinator_proto::RepIfSuccess *reply) override;
+    grpc::Status uploadSetValue(
+        grpc::ServerContext *context,
+        const coordinator_proto::RequestProxyIPPort *keyValueSize,
+        coordinator_proto::ReplyProxyIPsPorts *proxyIPPort) override;
     // append
     grpc::Status uploadAppendValue(
         grpc::ServerContext *context,
@@ -87,13 +91,15 @@ namespace ECProject
     int count_block_num(char type, int cluster_id, int stripe_id, int group_id);
     bool find_block(char type, int cluster_id, int stripe_id);
 
-    void initialize_unilrc_stripe_placement(Stripe *stripe);
-    void initialize_azure_lrc_stripe_placement(Stripe *stripe);
+    void initialize_unilrc_and_azurelrc_stripe_placement(Stripe *stripe);
     void initialize_optimal_lrc_stripe_placement(Stripe *stripe);
     void initialize_uniform_lrc_stripe_placement(Stripe *stripe);
-    std::vector<proxy_proto::AppendStripeDataPlacement> generateAppendPlan(Stripe *stripe, int curr_logical_offset, int append_size, std::string append_mode);
+    void add_to_map(std::map<int, std::vector<int>> &map, int key, int value);
+    std::vector<proxy_proto::AppendStripeDataPlacement> generate_add_plans(Stripe *stripe);
+    std::vector<proxy_proto::AppendStripeDataPlacement> generateAppendPlan(Stripe *stripe, int curr_logical_offset, int append_size);
     void update_stripe_info_in_node(int t_node_id, int stripe_id, int index);
     int getClusterAppendSize(Stripe *stripe, const std::map<int, std::pair<int, int>> &block_to_slice_sizes, int curr_group_id, int parity_slice_size);
+    void notify_proxies_ready(const proxy_proto::AppendStripeDataPlacement &plan);
     ECProject::Config *m_sys_config;
     ECProject::ToolBox *m_toolbox;
     int m_cur_cluster_id = 0;

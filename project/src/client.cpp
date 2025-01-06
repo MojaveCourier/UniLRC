@@ -386,6 +386,73 @@ namespace ECProject
     }
   }
 
+  std::vector<int> get_data_block_num_per_group(int k, int r, int z, std::string code_type)
+  {
+    return std::vector<int>(0);
+  }
+  std::vector<int> get_global_parity_block_num_per_group(int k, int r, int z, std::string code_type)
+  {
+    return std::vector<int>(0);
+  }
+  std::vector<int> get_local_parity_block_num_per_group(int k, int r, int z, std::string code_type)
+  {
+    return std::vector<int>(0);
+  }
+
+  // add a stripe each time
+  bool Client::set()
+  {
+    grpc::ClientContext get_proxy_ip_port;
+    coordinator_proto::RequestProxyIPPort request;
+    coordinator_proto::ReplyProxyIPsPorts reply;
+    request.set_key(m_clientID);
+    request.set_valuesizebytes(m_sys_config->BlockSize * m_sys_config->k);
+    request.set_append_mode("UNILRC_MODE");
+    grpc::Status status = m_coordinator_ptr->uploadSetValue(&get_proxy_ip_port, request, &reply);
+
+    if (!status.ok())
+    {
+      std::cout << "[SET402] upload data failed!" << std::endl;
+      return false;
+    }
+    else
+    {
+      std::vector<std::thread> threads;
+      std::vector<char *> cluster_slice_data = m_toolbox->splitCharPointer(m_pre_allocated_buffer, &reply);
+      std::unique_ptr<bool[]> if_commit_arr(new bool[reply.append_keys_size()]);
+      std::fill_n(if_commit_arr.get(), reply.append_keys_size(), false);
+
+      // TODO: split buffer and call encode interface
+
+      for (int i = 0; i < reply.append_keys_size(); i++)
+      {
+        threads.push_back(std::thread(&Client::async_append_to_proxies,
+                                      this, cluster_slice_data[i], reply.append_keys(i), reply.cluster_slice_sizes(i), reply.proxyips(i), reply.proxyports(i), i, if_commit_arr.get()));
+      }
+      for (auto &thread : threads)
+      {
+        thread.join();
+      }
+
+      // check if all appends are successful
+      bool all_true = std::all_of(if_commit_arr.get(), if_commit_arr.get() + reply.append_keys_size(), [](bool val)
+                                  { return val == true; });
+
+      if (all_true)
+      {
+        std::cout << "[SET437] Client " << m_clientID << " set successfully!" << std::endl;
+        return true;
+      }
+      else
+      {
+        std::cout << "[SET441] Client " << m_clientID << " set failed!" << std::endl;
+        return false;
+      }
+    }
+
+    return false;
+  }
+
   /*
     Function: append within a block stripe
     1. send the append request including the information of the value to the coordinator
