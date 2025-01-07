@@ -101,6 +101,7 @@ namespace ECProject
     int getClusterAppendSize(Stripe *stripe, const std::map<int, std::pair<int, int>> &block_to_slice_sizes, int curr_group_id, int parity_slice_size);
     void notify_proxies_ready(const proxy_proto::AppendStripeDataPlacement &plan);
     std::vector<int> get_recovery_group_ids(std::string code_type, int k, int r, int z, int failed_block_id);
+    void print_stripe_data_placement(Stripe &stripe);
     ECProject::Config *m_sys_config;
     ECProject::ToolBox *m_toolbox;
     int m_cur_cluster_id = 0;

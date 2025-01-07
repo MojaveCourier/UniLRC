@@ -205,7 +205,7 @@ namespace ECProject
         blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k - stripe->r);
         blocks_info[i].block_id = i;
         blocks_info[i].block_type = 'L';
-        blocks_info[i].map2group = (i - stripe->k - stripe->r + stripe->z + 1) * group_num_of_one_local_group - 1;
+        blocks_info[i].map2group = (i - stripe->k - stripe->r + 1) * group_num_of_one_local_group - 1;
       }
       blocks_info[i].map2cluster = (t_cluster_id + blocks_info[i].map2group) % m_sys_config->ClusterNum;
       int t_node_id = randomly_select_a_node(blocks_info[i].map2cluster, stripe->stripe_id);
@@ -653,11 +653,14 @@ namespace ECProject
     for (int i = 0; i < stripe->num_groups; i++)
     {
       proxy_proto::AppendStripeDataPlacement plan;
+      int mapped_cluster_id = stripe->blocks[stripe->group_to_blocks[i][0]]->map2cluster;
+      int append_size = stripe->group_to_blocks[i].size() * m_sys_config->BlockSize;
+
       plan.set_key(m_toolbox->gen_append_key(stripe->stripe_id, i));
       plan.set_stripe_id(stripe->stripe_id);
-      plan.set_append_size(stripe->group_to_blocks[i].size() * m_sys_config->BlockSize);
+      plan.set_append_size(append_size);
       plan.set_is_merge_parity(false);
-      plan.set_cluster_id(stripe->blocks[stripe->group_to_blocks[i][0]]->map2cluster);
+      plan.set_cluster_id(mapped_cluster_id);
       plan.set_append_mode("UNILRC_MODE");
       plan.set_is_serialized(false);
 
@@ -670,6 +673,20 @@ namespace ECProject
     }
 
     return add_plans;
+  }
+
+  void CoordinatorImpl::print_stripe_data_placement(Stripe &stripe)
+  {
+    std::cout << "Stripe " << stripe.stripe_id << " data placement: " << std::endl;
+    for (int i = 0; i < stripe.num_groups; i++)
+    {
+      std::cout << "Group " << i << ": (" << stripe.group_to_blocks[i].size() << " blocks, mapped to cluster " << stripe.blocks[stripe.group_to_blocks[i][0]]->map2cluster << ") ";
+      for (int j = 0; j < stripe.group_to_blocks[i].size(); j++)
+      {
+        std::cout << stripe.blocks[stripe.group_to_blocks[i][j]]->block_key << " ";
+      }
+      std::cout << std::endl;
+    }
   }
 
   // set only the full block stripe
@@ -703,6 +720,8 @@ namespace ECProject
     {
       initialize_uniform_lrc_stripe_placement(&t_stripe);
     }
+
+    print_stripe_data_placement(t_stripe);
 
     std::vector<proxy_proto::AppendStripeDataPlacement> add_plans = generate_add_plans(&t_stripe);
 
