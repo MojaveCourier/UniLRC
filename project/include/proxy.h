@@ -66,7 +66,7 @@ namespace ECProject
     ECProject::Config *m_sys_config;
     ECProject::ToolBox *m_toolbox;
     std::queue<std::shared_ptr<char[]>> m_pre_allocated_buffer_queue;
-    bool AppendToDatanode(const char *block_key, int block_id, size_t append_size, const char *append_buf, int append_offset, const char *ip, int port);
+    bool AppendToDatanode(const char *block_key, int block_id, size_t append_size, const char *append_buf, int append_offset, const char *ip, int port, bool is_serialized);
     bool MergeParityOnDatanode(const char *block_key, int block_id, const char *ip, int port, const std::string &append_mode);
     void printAppendStripeDataPlacement(const proxy_proto::AppendStripeDataPlacement *append_stripe_data_placement);
     void init_pre_allocated_buffer_queue();

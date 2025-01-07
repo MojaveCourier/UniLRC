@@ -269,6 +269,7 @@ PROTOBUF_CONSTEXPR AppendStripeDataPlacement::AppendStripeDataPlacement(
   , /*decltype(_impl_.stripe_id_)*/0
   , /*decltype(_impl_.append_size_)*/0
   , /*decltype(_impl_.is_merge_parity_)*/false
+  , /*decltype(_impl_.is_serialized_)*/false
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct AppendStripeDataPlacementDefaultTypeInternal {
   PROTOBUF_CONSTEXPR AppendStripeDataPlacementDefaultTypeInternal()
@@ -471,6 +472,7 @@ const uint32_t TableStruct_proxy_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(pr
   PROTOBUF_FIELD_OFFSET(::proxy_proto::AppendStripeDataPlacement, _impl_.sizes_),
   PROTOBUF_FIELD_OFFSET(::proxy_proto::AppendStripeDataPlacement, _impl_.is_merge_parity_),
   PROTOBUF_FIELD_OFFSET(::proxy_proto::AppendStripeDataPlacement, _impl_.append_mode_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::AppendStripeDataPlacement, _impl_.is_serialized_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::proxy_proto::SetReply, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -501,8 +503,8 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 115, -1, -1, sizeof(::proxy_proto::RequestResult)},
   { 122, -1, -1, sizeof(::proxy_proto::ObjectAndPlacement)},
   { 142, -1, -1, sizeof(::proxy_proto::AppendStripeDataPlacement)},
-  { 160, -1, -1, sizeof(::proxy_proto::SetReply)},
-  { 167, -1, -1, sizeof(::proxy_proto::GetReply)},
+  { 161, -1, -1, sizeof(::proxy_proto::SetReply)},
+  { 168, -1, -1, sizeof(::proxy_proto::GetReply)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -562,29 +564,29 @@ const char descriptor_table_protodef_proxy_2eproto[] PROTOBUF_SECTION_VARIABLE(p
   "\010 \003(\005\022\021\n\tblockkeys\030\t \003(\t\022\020\n\010blockids\030\n \003"
   "(\005\022\022\n\nblock_size\030\013 \001(\005\022\023\n\013encode_type\030\014 "
   "\001(\005\022\020\n\010clientip\030\r \001(\t\022\022\n\nclientport\030\016 \001("
-  "\005\"\201\002\n\031AppendStripeDataPlacement\022\013\n\003key\030\001"
+  "\005\"\230\002\n\031AppendStripeDataPlacement\022\013\n\003key\030\001"
   " \001(\t\022\022\n\ncluster_id\030\002 \001(\005\022\021\n\tstripe_id\030\003 "
   "\001(\005\022\023\n\013append_size\030\004 \001(\005\022\022\n\ndatanodeip\030\005"
   " \003(\t\022\024\n\014datanodeport\030\006 \003(\005\022\021\n\tblockkeys\030"
   "\007 \003(\t\022\020\n\010blockids\030\010 \003(\005\022\017\n\007offsets\030\t \003(\005"
   "\022\r\n\005sizes\030\n \003(\005\022\027\n\017is_merge_parity\030\013 \001(\010"
-  "\022\023\n\013append_mode\030\014 \001(\t\"\034\n\010SetReply\022\020\n\010ifc"
-  "ommit\030\001 \001(\010\"\036\n\010GetReply\022\022\n\ngetsuccess\030\001 "
-  "\001(\0102\213\003\n\014proxyService\022D\n\ncheckalive\022\032.pro"
-  "xy_proto.CheckaliveCMD\032\032.proxy_proto.Req"
-  "uestResult\022L\n\022encodeAndSetObject\022\037.proxy"
-  "_proto.ObjectAndPlacement\032\025.proxy_proto."
-  "SetReply\022L\n\022decodeAndGetObject\022\037.proxy_p"
-  "roto.ObjectAndPlacement\032\025.proxy_proto.Ge"
-  "tReply\022\?\n\013deleteBlock\022\031.proxy_proto.Node"
-  "AndBlock\032\025.proxy_proto.DelReply\022X\n\027sched"
-  "uleAppend2Datanode\022&.proxy_proto.AppendS"
-  "tripeDataPlacement\032\025.proxy_proto.SetRepl"
-  "yb\006proto3"
+  "\022\023\n\013append_mode\030\014 \001(\t\022\025\n\ris_serialized\030\r"
+  " \001(\010\"\034\n\010SetReply\022\020\n\010ifcommit\030\001 \001(\010\"\036\n\010Ge"
+  "tReply\022\022\n\ngetsuccess\030\001 \001(\0102\213\003\n\014proxyServ"
+  "ice\022D\n\ncheckalive\022\032.proxy_proto.Checkali"
+  "veCMD\032\032.proxy_proto.RequestResult\022L\n\022enc"
+  "odeAndSetObject\022\037.proxy_proto.ObjectAndP"
+  "lacement\032\025.proxy_proto.SetReply\022L\n\022decod"
+  "eAndGetObject\022\037.proxy_proto.ObjectAndPla"
+  "cement\032\025.proxy_proto.GetReply\022\?\n\013deleteB"
+  "lock\022\031.proxy_proto.NodeAndBlock\032\025.proxy_"
+  "proto.DelReply\022X\n\027scheduleAppend2Datanod"
+  "e\022&.proxy_proto.AppendStripeDataPlacemen"
+  "t\032\025.proxy_proto.SetReplyb\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_proxy_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_proxy_2eproto = {
-    false, false, 2209, descriptor_table_protodef_proxy_2eproto,
+    false, false, 2232, descriptor_table_protodef_proxy_2eproto,
     "proxy.proto",
     &descriptor_table_proxy_2eproto_once, nullptr, 0, 16,
     schemas, file_default_instances, TableStruct_proxy_2eproto::offsets,
@@ -4803,6 +4805,7 @@ AppendStripeDataPlacement::AppendStripeDataPlacement(const AppendStripeDataPlace
     , decltype(_impl_.stripe_id_){}
     , decltype(_impl_.append_size_){}
     , decltype(_impl_.is_merge_parity_){}
+    , decltype(_impl_.is_serialized_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -4823,8 +4826,8 @@ AppendStripeDataPlacement::AppendStripeDataPlacement(const AppendStripeDataPlace
       _this->GetArenaForAllocation());
   }
   ::memcpy(&_impl_.cluster_id_, &from._impl_.cluster_id_,
-    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.is_merge_parity_) -
-    reinterpret_cast<char*>(&_impl_.cluster_id_)) + sizeof(_impl_.is_merge_parity_));
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.is_serialized_) -
+    reinterpret_cast<char*>(&_impl_.cluster_id_)) + sizeof(_impl_.is_serialized_));
   // @@protoc_insertion_point(copy_constructor:proxy_proto.AppendStripeDataPlacement)
 }
 
@@ -4849,6 +4852,7 @@ inline void AppendStripeDataPlacement::SharedCtor(
     , decltype(_impl_.stripe_id_){0}
     , decltype(_impl_.append_size_){0}
     , decltype(_impl_.is_merge_parity_){false}
+    , decltype(_impl_.is_serialized_){false}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.key_.InitDefault();
@@ -4901,8 +4905,8 @@ void AppendStripeDataPlacement::Clear() {
   _impl_.key_.ClearToEmpty();
   _impl_.append_mode_.ClearToEmpty();
   ::memset(&_impl_.cluster_id_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&_impl_.is_merge_parity_) -
-      reinterpret_cast<char*>(&_impl_.cluster_id_)) + sizeof(_impl_.is_merge_parity_));
+      reinterpret_cast<char*>(&_impl_.is_serialized_) -
+      reinterpret_cast<char*>(&_impl_.cluster_id_)) + sizeof(_impl_.is_serialized_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -5038,6 +5042,14 @@ const char* AppendStripeDataPlacement::_InternalParse(const char* ptr, ::_pbi::P
         } else
           goto handle_unusual;
         continue;
+      // bool is_serialized = 13;
+      case 13:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 104)) {
+          _impl_.is_serialized_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
       default:
         goto handle_unusual;
     }  // switch
@@ -5167,6 +5179,12 @@ uint8_t* AppendStripeDataPlacement::_InternalSerialize(
         12, this->_internal_append_mode(), target);
   }
 
+  // bool is_serialized = 13;
+  if (this->_internal_is_serialized() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteBoolToArray(13, this->_internal_is_serialized(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -5289,6 +5307,11 @@ size_t AppendStripeDataPlacement::ByteSizeLong() const {
     total_size += 1 + 1;
   }
 
+  // bool is_serialized = 13;
+  if (this->_internal_is_serialized() != 0) {
+    total_size += 1 + 1;
+  }
+
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -5331,6 +5354,9 @@ void AppendStripeDataPlacement::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_m
   if (from._internal_is_merge_parity() != 0) {
     _this->_internal_set_is_merge_parity(from._internal_is_merge_parity());
   }
+  if (from._internal_is_serialized() != 0) {
+    _this->_internal_set_is_serialized(from._internal_is_serialized());
+  }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -5365,8 +5391,8 @@ void AppendStripeDataPlacement::InternalSwap(AppendStripeDataPlacement* other) {
       &other->_impl_.append_mode_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(AppendStripeDataPlacement, _impl_.is_merge_parity_)
-      + sizeof(AppendStripeDataPlacement::_impl_.is_merge_parity_)
+      PROTOBUF_FIELD_OFFSET(AppendStripeDataPlacement, _impl_.is_serialized_)
+      + sizeof(AppendStripeDataPlacement::_impl_.is_serialized_)
       - PROTOBUF_FIELD_OFFSET(AppendStripeDataPlacement, _impl_.cluster_id_)>(
           reinterpret_cast<char*>(&_impl_.cluster_id_),
           reinterpret_cast<char*>(&other->_impl_.cluster_id_));

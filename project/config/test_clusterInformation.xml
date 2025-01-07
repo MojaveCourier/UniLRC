@@ -12,6 +12,11 @@
 			<datanode uri="0.0.0.0:18007" />
 			<datanode uri="0.0.0.0:18008" />
 			<datanode uri="0.0.0.0:18009" />
+			<datanode uri="0.0.0.0:18010" />
+			<datanode uri="0.0.0.0:18011" />
+			<datanode uri="0.0.0.0:18012" />
+			<datanode uri="0.0.0.0:18013" />
+			<datanode uri="0.0.0.0:18014" />
 		</datanodes>
 	</cluster>
 	<cluster id="1" proxy="0.0.0.0:50035">
@@ -26,6 +31,11 @@
 			<datanode uri="0.0.0.0:18107" />
 			<datanode uri="0.0.0.0:18108" />
 			<datanode uri="0.0.0.0:18109" />
+			<datanode uri="0.0.0.0:18110" />
+			<datanode uri="0.0.0.0:18111" />
+			<datanode uri="0.0.0.0:18112" />
+			<datanode uri="0.0.0.0:18113" />
+			<datanode uri="0.0.0.0:18114" />
 		</datanodes>
 	</cluster>
 	<cluster id="2" proxy="0.0.0.0:50065">
@@ -40,6 +50,11 @@
 			<datanode uri="0.0.0.0:18207" />
 			<datanode uri="0.0.0.0:18208" />
 			<datanode uri="0.0.0.0:18209" />
+			<datanode uri="0.0.0.0:18210" />
+			<datanode uri="0.0.0.0:18211" />
+			<datanode uri="0.0.0.0:18212" />
+			<datanode uri="0.0.0.0:18213" />
+			<datanode uri="0.0.0.0:18214" />
 		</datanodes>
 	</cluster>
 	<cluster id="3" proxy="0.0.0.0:50095">
@@ -54,6 +69,11 @@
 			<datanode uri="0.0.0.0:18307" />
 			<datanode uri="0.0.0.0:18308" />
 			<datanode uri="0.0.0.0:18309" />
+			<datanode uri="0.0.0.0:18310" />
+			<datanode uri="0.0.0.0:18311" />
+			<datanode uri="0.0.0.0:18312" />
+			<datanode uri="0.0.0.0:18313" />
+			<datanode uri="0.0.0.0:18314" />
 		</datanodes>
 	</cluster>
 	<cluster id="4" proxy="0.0.0.0:50125">
@@ -68,6 +88,11 @@
 			<datanode uri="0.0.0.0:18407" />
 			<datanode uri="0.0.0.0:18408" />
 			<datanode uri="0.0.0.0:18409" />
+			<datanode uri="0.0.0.0:18410" />
+			<datanode uri="0.0.0.0:18411" />
+			<datanode uri="0.0.0.0:18412" />
+			<datanode uri="0.0.0.0:18413" />
+			<datanode uri="0.0.0.0:18414" />
 		</datanodes>
 	</cluster>
 	<cluster id="5" proxy="0.0.0.0:50155">
@@ -82,6 +107,11 @@
 			<datanode uri="0.0.0.0:18507" />
 			<datanode uri="0.0.0.0:18508" />
 			<datanode uri="0.0.0.0:18509" />
+			<datanode uri="0.0.0.0:18510" />
+			<datanode uri="0.0.0.0:18511" />
+			<datanode uri="0.0.0.0:18512" />
+			<datanode uri="0.0.0.0:18513" />
+			<datanode uri="0.0.0.0:18514" />
 		</datanodes>
 	</cluster>
 	<cluster id="6" proxy="0.0.0.0:50185">
@@ -96,6 +126,11 @@
 			<datanode uri="0.0.0.0:18607" />
 			<datanode uri="0.0.0.0:18608" />
 			<datanode uri="0.0.0.0:18609" />
+			<datanode uri="0.0.0.0:18610" />
+			<datanode uri="0.0.0.0:18611" />
+			<datanode uri="0.0.0.0:18612" />
+			<datanode uri="0.0.0.0:18613" />
+			<datanode uri="0.0.0.0:18614" />
 		</datanodes>
 	</cluster>
 	<cluster id="7" proxy="0.0.0.0:50215">
@@ -110,6 +145,11 @@
 			<datanode uri="0.0.0.0:18707" />
 			<datanode uri="0.0.0.0:18708" />
 			<datanode uri="0.0.0.0:18709" />
+			<datanode uri="0.0.0.0:18710" />
+			<datanode uri="0.0.0.0:18711" />
+			<datanode uri="0.0.0.0:18712" />
+			<datanode uri="0.0.0.0:18713" />
+			<datanode uri="0.0.0.0:18714" />
 		</datanodes>
 	</cluster>
 	<cluster id="8" proxy="0.0.0.0:50245">
@@ -124,6 +164,11 @@
 			<datanode uri="0.0.0.0:18807" />
 			<datanode uri="0.0.0.0:18808" />
 			<datanode uri="0.0.0.0:18809" />
+			<datanode uri="0.0.0.0:18810" />
+			<datanode uri="0.0.0.0:18811" />
+			<datanode uri="0.0.0.0:18812" />
+			<datanode uri="0.0.0.0:18813" />
+			<datanode uri="0.0.0.0:18814" />
 		</datanodes>
 	</cluster>
 	<cluster id="9" proxy="0.0.0.0:50275">
@@ -138,6 +183,11 @@
 			<datanode uri="0.0.0.0:18907" />
 			<datanode uri="0.0.0.0:18908" />
 			<datanode uri="0.0.0.0:18909" />
+			<datanode uri="0.0.0.0:18910" />
+			<datanode uri="0.0.0.0:18911" />
+			<datanode uri="0.0.0.0:18912" />
+			<datanode uri="0.0.0.0:18913" />
+			<datanode uri="0.0.0.0:18914" />
 		</datanodes>
 	</cluster>
 	<cluster id="10" proxy="0.0.0.0:50305">
@@ -152,6 +202,11 @@
 			<datanode uri="0.0.0.0:19007" />
 			<datanode uri="0.0.0.0:19008" />
 			<datanode uri="0.0.0.0:19009" />
+			<datanode uri="0.0.0.0:19010" />
+			<datanode uri="0.0.0.0:19011" />
+			<datanode uri="0.0.0.0:19012" />
+			<datanode uri="0.0.0.0:19013" />
+			<datanode uri="0.0.0.0:19014" />
 		</datanodes>
 	</cluster>
 	<cluster id="11" proxy="0.0.0.0:50335">
@@ -166,6 +221,11 @@
 			<datanode uri="0.0.0.0:19107" />
 			<datanode uri="0.0.0.0:19108" />
 			<datanode uri="0.0.0.0:19109" />
+			<datanode uri="0.0.0.0:19110" />
+			<datanode uri="0.0.0.0:19111" />
+			<datanode uri="0.0.0.0:19112" />
+			<datanode uri="0.0.0.0:19113" />
+			<datanode uri="0.0.0.0:19114" />
 		</datanodes>
 	</cluster>
 </clusters>

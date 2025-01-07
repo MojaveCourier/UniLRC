@@ -72,6 +72,7 @@ PROTOBUF_CONSTEXPR AppendInfo::AppendInfo(
   , /*decltype(_impl_.block_id_)*/0
   , /*decltype(_impl_.append_size_)*/0
   , /*decltype(_impl_.append_offset_)*/0
+  , /*decltype(_impl_.is_serialized_)*/false
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct AppendInfoDefaultTypeInternal {
   PROTOBUF_CONSTEXPR AppendInfoDefaultTypeInternal()
@@ -169,6 +170,7 @@ const uint32_t TableStruct_datanode_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE
   PROTOBUF_FIELD_OFFSET(::datanode_proto::AppendInfo, _impl_.block_id_),
   PROTOBUF_FIELD_OFFSET(::datanode_proto::AppendInfo, _impl_.append_size_),
   PROTOBUF_FIELD_OFFSET(::datanode_proto::AppendInfo, _impl_.append_offset_),
+  PROTOBUF_FIELD_OFFSET(::datanode_proto::AppendInfo, _impl_.is_serialized_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::datanode_proto::MergeParityInfo, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -201,9 +203,9 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 7, -1, -1, sizeof(::datanode_proto::RequestResult)},
   { 15, -1, -1, sizeof(::datanode_proto::SetInfo)},
   { 27, -1, -1, sizeof(::datanode_proto::AppendInfo)},
-  { 37, -1, -1, sizeof(::datanode_proto::MergeParityInfo)},
-  { 45, -1, -1, sizeof(::datanode_proto::GetInfo)},
-  { 56, -1, -1, sizeof(::datanode_proto::DelInfo)},
+  { 38, -1, -1, sizeof(::datanode_proto::MergeParityInfo)},
+  { 46, -1, -1, sizeof(::datanode_proto::GetInfo)},
+  { 57, -1, -1, sizeof(::datanode_proto::DelInfo)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -223,32 +225,32 @@ const char descriptor_table_protodef_datanode_2eproto[] PROTOBUF_SECTION_VARIABL
   "\005\"x\n\007SetInfo\022\021\n\tblock_key\030\001 \001(\t\022\022\n\nblock"
   "_size\030\002 \001(\005\022\020\n\010block_id\030\003 \001(\005\022\020\n\010proxy_i"
   "p\030\004 \001(\t\022\022\n\nproxy_port\030\005 \001(\005\022\016\n\006ispull\030\006 "
-  "\001(\010\"]\n\nAppendInfo\022\021\n\tblock_key\030\001 \001(\t\022\020\n\010"
+  "\001(\010\"t\n\nAppendInfo\022\021\n\tblock_key\030\001 \001(\t\022\020\n\010"
   "block_id\030\002 \001(\005\022\023\n\013append_size\030\003 \001(\005\022\025\n\ra"
-  "ppend_offset\030\004 \001(\005\"6\n\017MergeParityInfo\022\021\n"
-  "\tblock_key\030\001 \001(\t\022\020\n\010block_id\030\002 \001(\005\"h\n\007Ge"
-  "tInfo\022\021\n\tblock_key\030\001 \001(\t\022\022\n\nblock_size\030\002"
-  " \001(\005\022\020\n\010block_id\030\003 \001(\005\022\020\n\010proxy_ip\030\004 \001(\t"
-  "\022\022\n\nproxy_port\030\005 \001(\005\"\034\n\007DelInfo\022\021\n\tblock"
-  "_key\030\001 \001(\t2\253\004\n\017datanodeService\022J\n\nchecka"
-  "live\022\035.datanode_proto.CheckaliveCMD\032\035.da"
-  "tanode_proto.RequestResult\022C\n\thandleSet\022"
-  "\027.datanode_proto.SetInfo\032\035.datanode_prot"
-  "o.RequestResult\022I\n\014handleAppend\022\032.datano"
-  "de_proto.AppendInfo\032\035.datanode_proto.Req"
-  "uestResult\022S\n\021handleMergeParity\022\037.datano"
-  "de_proto.MergeParityInfo\032\035.datanode_prot"
-  "o.RequestResult\022Z\n\030handleMergeParityWith"
-  "Rep\022\037.datanode_proto.MergeParityInfo\032\035.d"
-  "atanode_proto.RequestResult\022C\n\thandleGet"
-  "\022\027.datanode_proto.GetInfo\032\035.datanode_pro"
-  "to.RequestResult\022F\n\014handleDelete\022\027.datan"
-  "ode_proto.DelInfo\032\035.datanode_proto.Reque"
-  "stResultb\006proto3"
+  "ppend_offset\030\004 \001(\005\022\025\n\ris_serialized\030\005 \001("
+  "\010\"6\n\017MergeParityInfo\022\021\n\tblock_key\030\001 \001(\t\022"
+  "\020\n\010block_id\030\002 \001(\005\"h\n\007GetInfo\022\021\n\tblock_ke"
+  "y\030\001 \001(\t\022\022\n\nblock_size\030\002 \001(\005\022\020\n\010block_id\030"
+  "\003 \001(\005\022\020\n\010proxy_ip\030\004 \001(\t\022\022\n\nproxy_port\030\005 "
+  "\001(\005\"\034\n\007DelInfo\022\021\n\tblock_key\030\001 \001(\t2\253\004\n\017da"
+  "tanodeService\022J\n\ncheckalive\022\035.datanode_p"
+  "roto.CheckaliveCMD\032\035.datanode_proto.Requ"
+  "estResult\022C\n\thandleSet\022\027.datanode_proto."
+  "SetInfo\032\035.datanode_proto.RequestResult\022I"
+  "\n\014handleAppend\022\032.datanode_proto.AppendIn"
+  "fo\032\035.datanode_proto.RequestResult\022S\n\021han"
+  "dleMergeParity\022\037.datanode_proto.MergePar"
+  "ityInfo\032\035.datanode_proto.RequestResult\022Z"
+  "\n\030handleMergeParityWithRep\022\037.datanode_pr"
+  "oto.MergeParityInfo\032\035.datanode_proto.Req"
+  "uestResult\022C\n\thandleGet\022\027.datanode_proto"
+  ".GetInfo\032\035.datanode_proto.RequestResult\022"
+  "F\n\014handleDelete\022\027.datanode_proto.DelInfo"
+  "\032\035.datanode_proto.RequestResultb\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_datanode_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_datanode_2eproto = {
-    false, false, 1096, descriptor_table_protodef_datanode_2eproto,
+    false, false, 1119, descriptor_table_protodef_datanode_2eproto,
     "datanode.proto",
     &descriptor_table_datanode_2eproto_once, nullptr, 0, 7,
     schemas, file_default_instances, TableStruct_datanode_2eproto::offsets,
@@ -1058,6 +1060,7 @@ AppendInfo::AppendInfo(const AppendInfo& from)
     , decltype(_impl_.block_id_){}
     , decltype(_impl_.append_size_){}
     , decltype(_impl_.append_offset_){}
+    , decltype(_impl_.is_serialized_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -1070,8 +1073,8 @@ AppendInfo::AppendInfo(const AppendInfo& from)
       _this->GetArenaForAllocation());
   }
   ::memcpy(&_impl_.block_id_, &from._impl_.block_id_,
-    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.append_offset_) -
-    reinterpret_cast<char*>(&_impl_.block_id_)) + sizeof(_impl_.append_offset_));
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.is_serialized_) -
+    reinterpret_cast<char*>(&_impl_.block_id_)) + sizeof(_impl_.is_serialized_));
   // @@protoc_insertion_point(copy_constructor:datanode_proto.AppendInfo)
 }
 
@@ -1084,6 +1087,7 @@ inline void AppendInfo::SharedCtor(
     , decltype(_impl_.block_id_){0}
     , decltype(_impl_.append_size_){0}
     , decltype(_impl_.append_offset_){0}
+    , decltype(_impl_.is_serialized_){false}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.block_key_.InitDefault();
@@ -1118,8 +1122,8 @@ void AppendInfo::Clear() {
 
   _impl_.block_key_.ClearToEmpty();
   ::memset(&_impl_.block_id_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&_impl_.append_offset_) -
-      reinterpret_cast<char*>(&_impl_.block_id_)) + sizeof(_impl_.append_offset_));
+      reinterpret_cast<char*>(&_impl_.is_serialized_) -
+      reinterpret_cast<char*>(&_impl_.block_id_)) + sizeof(_impl_.is_serialized_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -1159,6 +1163,14 @@ const char* AppendInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ct
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
           _impl_.append_offset_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // bool is_serialized = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 40)) {
+          _impl_.is_serialized_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -1220,6 +1232,12 @@ uint8_t* AppendInfo::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteInt32ToArray(4, this->_internal_append_offset(), target);
   }
 
+  // bool is_serialized = 5;
+  if (this->_internal_is_serialized() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteBoolToArray(5, this->_internal_is_serialized(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -1258,6 +1276,11 @@ size_t AppendInfo::ByteSizeLong() const {
     total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_append_offset());
   }
 
+  // bool is_serialized = 5;
+  if (this->_internal_is_serialized() != 0) {
+    total_size += 1 + 1;
+  }
+
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -1288,6 +1311,9 @@ void AppendInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PRO
   if (from._internal_append_offset() != 0) {
     _this->_internal_set_append_offset(from._internal_append_offset());
   }
+  if (from._internal_is_serialized() != 0) {
+    _this->_internal_set_is_serialized(from._internal_is_serialized());
+  }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -1312,8 +1338,8 @@ void AppendInfo::InternalSwap(AppendInfo* other) {
       &other->_impl_.block_key_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(AppendInfo, _impl_.append_offset_)
-      + sizeof(AppendInfo::_impl_.append_offset_)
+      PROTOBUF_FIELD_OFFSET(AppendInfo, _impl_.is_serialized_)
+      + sizeof(AppendInfo::_impl_.is_serialized_)
       - PROTOBUF_FIELD_OFFSET(AppendInfo, _impl_.block_id_)>(
           reinterpret_cast<char*>(&_impl_.block_id_),
           reinterpret_cast<char*>(&other->_impl_.block_id_));

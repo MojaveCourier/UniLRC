@@ -132,7 +132,7 @@ namespace ECProject
         int block_id = append_info->block_id();
         int append_size = append_info->append_size();
         int append_offset = append_info->append_offset();
-
+        bool is_serialized = append_info->is_serialized();
         std::cout << "[Datanode" << m_port << "][Append109] block_key: " << block_key << ", block_id: " << block_id << ", append_size: " << append_size << ", append_offset: " << append_offset << std::endl;
 
         // append_offset must be the physical offset of the block
@@ -189,7 +189,7 @@ namespace ECProject
         };
 
         // append_offset must be the physical offset of the block
-        auto ParityBlockHandler = [this](std::string block_key, int append_size, int append_offset) mutable
+        auto ParityBlockHandler = [this](std::string block_key, int append_size, int append_offset, bool is_serialized) mutable
         {
             try
             {
@@ -223,7 +223,17 @@ namespace ECProject
                 }
 
                 // serialize and append to file
-                serialize(writepath, ParitySlice(append_offset, append_size, buf));
+                if (is_serialized)
+                {
+                    serialize(writepath, ParitySlice(append_offset, append_size, buf));
+                }
+                else
+                {
+                    std::ofstream append_file(writepath, std::ios::binary | std::ios::out | std::ios::app);
+                    append_file.write(buf, append_size);
+                    append_file.flush();
+                    append_file.close();
+                }
 
                 if (IF_DEBUG)
                 {
@@ -249,7 +259,7 @@ namespace ECProject
             }
             else
             {
-                std::thread my_thread(ParityBlockHandler, block_key, append_size, append_offset);
+                std::thread my_thread(ParityBlockHandler, block_key, append_size, append_offset, is_serialized);
                 my_thread.detach();
             }
             response->set_message(true);

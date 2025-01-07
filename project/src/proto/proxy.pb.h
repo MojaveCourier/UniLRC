@@ -3118,6 +3118,7 @@ class AppendStripeDataPlacement final :
     kStripeIdFieldNumber = 3,
     kAppendSizeFieldNumber = 4,
     kIsMergeParityFieldNumber = 11,
+    kIsSerializedFieldNumber = 13,
   };
   // repeated string datanodeip = 5;
   int datanodeip_size() const;
@@ -3319,6 +3320,15 @@ class AppendStripeDataPlacement final :
   void _internal_set_is_merge_parity(bool value);
   public:
 
+  // bool is_serialized = 13;
+  void clear_is_serialized();
+  bool is_serialized() const;
+  void set_is_serialized(bool value);
+  private:
+  bool _internal_is_serialized() const;
+  void _internal_set_is_serialized(bool value);
+  public:
+
   // @@protoc_insertion_point(class_scope:proxy_proto.AppendStripeDataPlacement)
  private:
   class _Internal;
@@ -3343,6 +3353,7 @@ class AppendStripeDataPlacement final :
     int32_t stripe_id_;
     int32_t append_size_;
     bool is_merge_parity_;
+    bool is_serialized_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -6748,6 +6759,26 @@ inline void AppendStripeDataPlacement::set_allocated_append_mode(std::string* ap
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   // @@protoc_insertion_point(field_set_allocated:proxy_proto.AppendStripeDataPlacement.append_mode)
+}
+
+// bool is_serialized = 13;
+inline void AppendStripeDataPlacement::clear_is_serialized() {
+  _impl_.is_serialized_ = false;
+}
+inline bool AppendStripeDataPlacement::_internal_is_serialized() const {
+  return _impl_.is_serialized_;
+}
+inline bool AppendStripeDataPlacement::is_serialized() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.AppendStripeDataPlacement.is_serialized)
+  return _internal_is_serialized();
+}
+inline void AppendStripeDataPlacement::_internal_set_is_serialized(bool value) {
+  
+  _impl_.is_serialized_ = value;
+}
+inline void AppendStripeDataPlacement::set_is_serialized(bool value) {
+  _internal_set_is_serialized(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.AppendStripeDataPlacement.is_serialized)
 }
 
 // -------------------------------------------------------------------

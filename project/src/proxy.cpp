@@ -119,7 +119,7 @@ namespace ECProject
   }
 
   // slice_offset is the physical offset of the data block
-  bool ProxyImpl::AppendToDatanode(const char *block_key, int block_id, size_t slice_size, const char *slice_buf, int slice_offset, const char *ip, int port)
+  bool ProxyImpl::AppendToDatanode(const char *block_key, int block_id, size_t slice_size, const char *slice_buf, int slice_offset, const char *ip, int port, bool is_serialized)
   {
     try
     {
@@ -130,6 +130,7 @@ namespace ECProject
       append_info.set_block_id(block_id);
       append_info.set_append_size(slice_size);
       append_info.set_append_offset(slice_offset);
+      append_info.set_is_serialized(is_serialized);
       std::string node_ip_port = std::string(ip) + ":" + std::to_string(port);
       grpc::Status stat = m_datanode_ptrs[node_ip_port]->handleAppend(&context, append_info, &result);
 
@@ -311,6 +312,7 @@ namespace ECProject
     std::cout << "Total Append Size: " << append_stripe_data_placement->append_size() << std::endl;
     std::cout << "Is Merge Parity: " << (append_stripe_data_placement->is_merge_parity() ? "true" : "false") << std::endl;
     std::cout << "Append Mode: " << append_stripe_data_placement->append_mode() << std::endl;
+    std::cout << "Is Serialized: " << (append_stripe_data_placement->is_serialized() ? "true" : "false") << std::endl;
 
     // Print datanode info
     std::cout << "\n=== Datanode Info ===" << std::endl;
@@ -346,10 +348,11 @@ namespace ECProject
     int cluster_append_size = append_stripe_data_placement->append_size();
     // number of slices allocated to this proxy
     int slice_num = append_stripe_data_placement->blockkeys_size();
+    bool is_serialized = append_stripe_data_placement->is_serialized();
 
     auto placement_copy = std::make_shared<proxy_proto::AppendStripeDataPlacement>(*append_stripe_data_placement);
 
-    auto append_and_save = [this, stripe_id, cluster_append_size, slice_num, placement_copy]() mutable
+    auto append_and_save = [this, stripe_id, cluster_append_size, slice_num, placement_copy, is_serialized]() mutable
     {
       try
       {
@@ -386,20 +389,20 @@ namespace ECProject
 
         std::vector<char *> slices = m_toolbox->splitCharPointer(append_buf.data(), placement_copy);
 
-        auto append_to_datanode = [this](const char *block_key, int block_id, size_t slice_size, const char *slice_buf, int slice_offset, const char *ip, int port)
+        auto append_to_datanode = [this](const char *block_key, int block_id, size_t slice_size, const char *slice_buf, int slice_offset, const char *ip, int port, bool is_serialized)
         {
           if (IF_DEBUG)
           {
             std::cout << "[Proxy" << m_self_cluster_id << "][Append353]"
                       << "Append to Block " << block_key << " of block_id " << block_id << " at the offset of " << slice_offset << " with length of " << slice_size << std::endl;
           }
-          AppendToDatanode(block_key, block_id, slice_size, slice_buf, slice_offset, ip, port);
+          AppendToDatanode(block_key, block_id, slice_size, slice_buf, slice_offset, ip, port, is_serialized);
         };
 
         std::vector<std::thread> senders;
         for (int j = 0; j < slice_num; j++)
         {
-          senders.push_back(std::thread(append_to_datanode, placement_copy->blockkeys(j).c_str(), placement_copy->blockids(j), placement_copy->sizes(j), slices[j], placement_copy->offsets(j), placement_copy->datanodeip(j).c_str(), placement_copy->datanodeport(j)));
+          senders.push_back(std::thread(append_to_datanode, placement_copy->blockkeys(j).c_str(), placement_copy->blockids(j), placement_copy->sizes(j), slices[j], placement_copy->offsets(j), placement_copy->datanodeip(j).c_str(), placement_copy->datanodeport(j), is_serialized));
         }
         for (int j = 0; j < int(senders.size()); j++)
         {

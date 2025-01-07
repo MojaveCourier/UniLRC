@@ -190,7 +190,7 @@ namespace ECProject
       else if (i >= stripe->k && i < stripe->k + stripe->r)
       {
         std::string tmp = "_G";
-        if (i < 10)
+        if (i - stripe->k < 10)
           tmp = "_G0";
         blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k);
         blocks_info[i].block_id = i;
@@ -200,7 +200,7 @@ namespace ECProject
       else
       {
         std::string tmp = "_L";
-        if (i < 10)
+        if (i - stripe->k - stripe->r < 10)
           tmp = "_L0";
         blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k - stripe->r);
         blocks_info[i].block_id = i;
@@ -271,7 +271,7 @@ namespace ECProject
       else if (i >= stripe->k && i < stripe->k + stripe->r)
       {
         std::string tmp = "_G";
-        if (i < 10)
+        if (i - stripe->k < 10)
           tmp = "_G0";
         blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k);
         blocks_info[i].block_id = i;
@@ -280,7 +280,7 @@ namespace ECProject
       else
       {
         std::string tmp = "_L";
-        if (i < 10)
+        if (i - stripe->k - stripe->r < 10)
           tmp = "_L0";
         blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k - stripe->r);
         blocks_info[i].block_id = i;
@@ -330,7 +330,7 @@ namespace ECProject
       else if (i >= stripe->k && i < stripe->k + stripe->r)
       {
         std::string tmp = "_G";
-        if (i < 10)
+        if (i - stripe->k < 10)
           tmp = "_G0";
         blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k);
         blocks_info[i].block_id = i;
@@ -347,7 +347,7 @@ namespace ECProject
       else
       {
         std::string tmp = "_L";
-        if (i < 10)
+        if (i - stripe->k - stripe->r < 10)
           tmp = "_L0";
         blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k - stripe->r);
         blocks_info[i].block_id = i;
@@ -498,6 +498,10 @@ namespace ECProject
       plan.set_is_merge_parity(is_merge_parity);
       plan.set_cluster_id(stripe->blocks[stripe->group_to_blocks[i][0]]->map2cluster);
       plan.set_append_mode(append_mode);
+      if (curr_logical_offset == 0 && append_size == m_sys_config->BlockSize * stripe->k)
+        plan.set_is_serialized(false);
+      else
+        plan.set_is_serialized(true);
 
       // Add data slices to plan
       for (int j = i * stripe->k / stripe->z;
@@ -655,6 +659,7 @@ namespace ECProject
       plan.set_is_merge_parity(false);
       plan.set_cluster_id(stripe->blocks[stripe->group_to_blocks[i][0]]->map2cluster);
       plan.set_append_mode("UNILRC_MODE");
+      plan.set_is_serialized(false);
 
       for (int j = 0; j < stripe->group_to_blocks[i].size(); j++)
       {
@@ -728,6 +733,11 @@ namespace ECProject
     m_stripe_table[t_stripe.stripe_id] = std::move(t_stripe);
 
     return grpc::Status::OK;
+  }
+
+  std::vector<int> CoordinatorImpl::get_recovery_group_ids(std::string code_type, int k, int r, int z, int failed_block_id)
+  {
+    return std::vector<int>();
   }
 
   grpc::Status CoordinatorImpl::getValue(

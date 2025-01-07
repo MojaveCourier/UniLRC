@@ -59,6 +59,7 @@ message AppendInfo {
     int32 block_id = 2;
     int32 append_size = 3;
     int32 append_offset = 4;
+    bool is_serialized = 5;
 }
 
 message MergeParityInfo {

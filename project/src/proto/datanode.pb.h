@@ -730,6 +730,7 @@ class AppendInfo final :
     kBlockIdFieldNumber = 2,
     kAppendSizeFieldNumber = 3,
     kAppendOffsetFieldNumber = 4,
+    kIsSerializedFieldNumber = 5,
   };
   // string block_key = 1;
   void clear_block_key();
@@ -772,6 +773,15 @@ class AppendInfo final :
   void _internal_set_append_offset(int32_t value);
   public:
 
+  // bool is_serialized = 5;
+  void clear_is_serialized();
+  bool is_serialized() const;
+  void set_is_serialized(bool value);
+  private:
+  bool _internal_is_serialized() const;
+  void _internal_set_is_serialized(bool value);
+  public:
+
   // @@protoc_insertion_point(class_scope:datanode_proto.AppendInfo)
  private:
   class _Internal;
@@ -784,6 +794,7 @@ class AppendInfo final :
     int32_t block_id_;
     int32_t append_size_;
     int32_t append_offset_;
+    bool is_serialized_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -1709,6 +1720,26 @@ inline void AppendInfo::_internal_set_append_offset(int32_t value) {
 inline void AppendInfo::set_append_offset(int32_t value) {
   _internal_set_append_offset(value);
   // @@protoc_insertion_point(field_set:datanode_proto.AppendInfo.append_offset)
+}
+
+// bool is_serialized = 5;
+inline void AppendInfo::clear_is_serialized() {
+  _impl_.is_serialized_ = false;
+}
+inline bool AppendInfo::_internal_is_serialized() const {
+  return _impl_.is_serialized_;
+}
+inline bool AppendInfo::is_serialized() const {
+  // @@protoc_insertion_point(field_get:datanode_proto.AppendInfo.is_serialized)
+  return _internal_is_serialized();
+}
+inline void AppendInfo::_internal_set_is_serialized(bool value) {
+  
+  _impl_.is_serialized_ = value;
+}
+inline void AppendInfo::set_is_serialized(bool value) {
+  _internal_set_is_serialized(value);
+  // @@protoc_insertion_point(field_set:datanode_proto.AppendInfo.is_serialized)
 }
 
 // -------------------------------------------------------------------

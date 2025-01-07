@@ -156,6 +156,7 @@ message AppendStripeDataPlacement{
   repeated int32 sizes = 10;
   bool is_merge_parity = 11;
   string append_mode = 12;
+  bool is_serialized = 13;
 }
 
 message SetReply {

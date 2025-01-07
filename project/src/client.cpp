@@ -221,7 +221,7 @@ namespace ECProject
     return start_data_block_id;
   }
 
-  void Client::split_for_data_and_parity(const coordinator_proto::ReplyProxyIPsPorts *reply_proxy_ips_ports, const std::vector<char *> &cluster_slice_data, const std::vector<std::vector<int>> &node_slice_sizes_per_cluster, const std::vector<int> &modified_data_block_nums_per_cluster, std::vector<char *> &data_ptr_array, std::vector<char *> &global_parity_ptr_array, std::vector<char *> &local_parity_ptr_array)
+  void Client::split_for_append_data_and_parity(const coordinator_proto::ReplyProxyIPsPorts *reply_proxy_ips_ports, const std::vector<char *> &cluster_slice_data, const std::vector<std::vector<int>> &node_slice_sizes_per_cluster, const std::vector<int> &modified_data_block_nums_per_cluster, std::vector<char *> &data_ptr_array, std::vector<char *> &global_parity_ptr_array, std::vector<char *> &local_parity_ptr_array)
   {
     for (int i = 0; i < cluster_slice_data.size(); i++)
     {
@@ -386,17 +386,209 @@ namespace ECProject
     }
   }
 
-  std::vector<int> get_data_block_num_per_group(int k, int r, int z, std::string code_type)
+  std::vector<int> Client::get_data_block_num_per_group(int k, int r, int z, std::string code_type)
   {
-    return std::vector<int>(0);
+    std::vector<int> data_block_num_per_group;
+    if (code_type == "AzureLRC")
+    {
+      for (int i = 0; i < z; i++)
+      {
+        data_block_num_per_group.push_back((k / z));
+      }
+      data_block_num_per_group.push_back(0);
+    }
+    else if (code_type == "OptimalLRC")
+    {
+      int group_size = r + 1;
+      int local_group_size = (k / z);
+      int group_num_of_one_local_group = local_group_size / group_size + 1;
+      int group_num = z * group_num_of_one_local_group + 1;
+      for (int i = 0; i < group_num - 1; i++)
+      {
+        if ((i + 1) % group_num_of_one_local_group)
+        {
+          data_block_num_per_group.push_back(group_size);
+        }
+        else
+        {
+          data_block_num_per_group.push_back(local_group_size % group_size);
+        }
+      }
+      data_block_num_per_group.push_back(0);
+    }
+    else if (code_type == "UniformLRC")
+    {
+      int group_size = r;
+      int local_group_size = int((k + r) / z);
+      int larger_local_group_num = int((k + r) % z);
+      int group_num = -1;
+      int group_num_of_one_local_group = local_group_size / group_size + (bool)(local_group_size % group_size);
+      for (int i = 0; i < z - 1; i++)
+      {
+        if (i + larger_local_group_num == z)
+        {
+          local_group_size++;
+          group_num_of_one_local_group = local_group_size / group_size + (bool)(local_group_size % group_size);
+        }
+        for (int j = 0; j < group_num_of_one_local_group; j++)
+        {
+          if (j > 0 && j == group_num_of_one_local_group - 1)
+          {
+            data_block_num_per_group.push_back(local_group_size % group_size);
+          }
+          else
+          {
+            data_block_num_per_group.push_back(group_size);
+          }
+        }
+      }
+      data_block_num_per_group.push_back(local_group_size - r);
+      data_block_num_per_group.push_back(0);
+    }
+    else if (code_type == "UniLRC")
+    {
+      int local_data_num = k / z;
+      for (int i = 0; i < z; i++)
+      {
+        data_block_num_per_group.push_back(local_data_num);
+      }
+    }
+    return data_block_num_per_group;
   }
-  std::vector<int> get_global_parity_block_num_per_group(int k, int r, int z, std::string code_type)
+
+  std::vector<int> Client::get_global_parity_block_num_per_group(int k, int r, int z, std::string code_type)
   {
-    return std::vector<int>(0);
+    std::vector<int> global_pairty_block_num_per_group;
+    if (code_type == "AzureLRC")
+    {
+      for (int i = 0; i < z; i++)
+      {
+        global_pairty_block_num_per_group.push_back(0);
+      }
+      global_pairty_block_num_per_group.push_back(r);
+    }
+    else if (code_type == "OptimalLRC")
+    {
+      int group_size = r + 1;
+      int local_group_size = (k / z);
+      int group_num_of_one_local_group = local_group_size / group_size + 1;
+      int group_num = z * group_num_of_one_local_group + 1;
+      for (int i = 0; i < group_num - 1; i++)
+      {
+        global_pairty_block_num_per_group.push_back(0);
+      }
+      global_pairty_block_num_per_group.push_back(r);
+    }
+    else if (code_type == "UniformLRC")
+    {
+      int group_size = r;
+      int local_group_size = int((k + r) / z);
+      int larger_local_group_num = int((k + r) % z);
+      int group_num = -1;
+      int group_num_of_one_local_group = local_group_size / group_size + (bool)(local_group_size % group_size);
+      for (int i = 0; i < z - 1; i++)
+      {
+        if (i + larger_local_group_num == z)
+        {
+          local_group_size++;
+          group_num_of_one_local_group = local_group_size / group_size + (bool)(local_group_size % group_size);
+        }
+        for (int j = 0; j < group_num_of_one_local_group; j++)
+        {
+          global_pairty_block_num_per_group.push_back(0);
+        }
+      }
+      global_pairty_block_num_per_group.push_back(group_size - local_group_size % group_size);
+      global_pairty_block_num_per_group.push_back(local_group_size % group_size);
+    }
+    else if (code_type == "UniLRC")
+    {
+      int local_global_parity_num = r / z;
+      for (int i = 0; i < z; i++)
+      {
+        global_pairty_block_num_per_group.push_back(local_global_parity_num);
+      }
+    }
+    return global_pairty_block_num_per_group;
   }
-  std::vector<int> get_local_parity_block_num_per_group(int k, int r, int z, std::string code_type)
+
+  std::vector<int> Client::get_local_parity_block_num_per_group(int k, int r, int z, std::string code_type)
   {
-    return std::vector<int>(0);
+    std::vector<int> local_parity_block_num_per_group;
+    if (code_type == "AzureLRC")
+    {
+      for (int i = 0; i < z; i++)
+      {
+        local_parity_block_num_per_group.push_back(1);
+      }
+      local_parity_block_num_per_group.push_back(0);
+    }
+    else if (code_type == "OptimalLRC")
+    {
+      int group_size = r + 1;
+      int local_group_size = (k / z);
+      int group_num_of_one_local_group = local_group_size / group_size + 1;
+      int group_num = z * group_num_of_one_local_group + 1;
+      for (int i = 0; i < group_num - 1; i++)
+      {
+        if ((i + 1) % group_num_of_one_local_group)
+        {
+          local_parity_block_num_per_group.push_back(0);
+        }
+        else
+        {
+          local_parity_block_num_per_group.push_back(1);
+        }
+      }
+      local_parity_block_num_per_group.push_back(0);
+    }
+    else if (code_type == "UniformLRC")
+    {
+      int group_size = r;
+      int local_group_size = int((k + r) / z);
+      int larger_local_group_num = int((k + r) % z);
+      int group_num = -1;
+      int group_num_of_one_local_group = local_group_size / group_size + (bool)(local_group_size % group_size);
+      for (int i = 0; i < z; i++)
+      {
+        if (i + larger_local_group_num == z)
+        {
+          local_group_size++;
+          group_num_of_one_local_group = local_group_size / group_size + (bool)(local_group_size % group_size);
+        }
+        for (int j = 0; j < group_num_of_one_local_group; j++)
+        {
+          if (j == group_num_of_one_local_group - 1)
+          {
+            local_parity_block_num_per_group.push_back(1);
+          }
+          else
+          {
+            local_parity_block_num_per_group.push_back(0);
+          }
+        }
+      }
+    }
+    else if (code_type == "UniLRC")
+    {
+      for (int i = 0; i < z; i++)
+      {
+        local_parity_block_num_per_group.push_back(1);
+      }
+    }
+    return local_parity_block_num_per_group;
+  }
+
+  void Client::split_for_set_data_and_parity(const coordinator_proto::ReplyProxyIPsPorts *reply_proxy_ips_ports, const std::vector<char *> &cluster_slice_data, const std::vector<int> &data_block_num_per_group, const std::vector<int> &global_parity_block_num_per_group, const std::vector<int> &local_parity_block_num_per_group, std::vector<char *> &data_ptr_array, std::vector<char *> &global_parity_ptr_array, std::vector<char *> &local_parity_ptr_array)
+  {
+    for (int i = 0; i < cluster_slice_data.size(); i++)
+    {
+      std::vector<size_t> node_slice_sizes(data_block_num_per_group[i] + global_parity_block_num_per_group[i] + local_parity_block_num_per_group[i], m_sys_config->BlockSize);
+      std::vector<char *> node_slices = m_toolbox->splitCharPointer(cluster_slice_data[i], static_cast<size_t>(reply_proxy_ips_ports->cluster_slice_sizes(i)), node_slice_sizes);
+      data_ptr_array.insert(data_ptr_array.end(), node_slices.begin(), node_slices.begin() + data_block_num_per_group[i]);
+      global_parity_ptr_array.insert(global_parity_ptr_array.end(), node_slices.begin() + data_block_num_per_group[i], node_slices.begin() + data_block_num_per_group[i] + global_parity_block_num_per_group[i]);
+      local_parity_ptr_array.insert(local_parity_ptr_array.end(), node_slices.begin() + data_block_num_per_group[i] + global_parity_block_num_per_group[i], node_slices.begin() + data_block_num_per_group[i] + global_parity_block_num_per_group[i] + local_parity_block_num_per_group[i]);
+    }
   }
 
   // add a stripe each time
@@ -422,7 +614,29 @@ namespace ECProject
       std::unique_ptr<bool[]> if_commit_arr(new bool[reply.append_keys_size()]);
       std::fill_n(if_commit_arr.get(), reply.append_keys_size(), false);
 
-      // TODO: split buffer and call encode interface
+      assert(m_sys_config->CodeType == "UniLRC" || m_sys_config->CodeType == "OptimalLRC" || m_sys_config->CodeType == "UniformLRC" || m_sys_config->CodeType == "AzureLRC");
+      std::vector<int> data_block_num_per_group = get_data_block_num_per_group(m_sys_config->k, m_sys_config->r, m_sys_config->z, m_sys_config->CodeType);
+      std::vector<int> global_parity_block_num_per_group = get_global_parity_block_num_per_group(m_sys_config->k, m_sys_config->r, m_sys_config->z, m_sys_config->CodeType);
+      std::vector<int> local_parity_block_num_per_group = get_local_parity_block_num_per_group(m_sys_config->k, m_sys_config->r, m_sys_config->z, m_sys_config->CodeType);
+
+      std::vector<char *> data_ptr_array, global_parity_ptr_array, local_parity_ptr_array;
+      split_for_set_data_and_parity(&reply, cluster_slice_data, data_block_num_per_group, global_parity_block_num_per_group, local_parity_block_num_per_group, data_ptr_array, global_parity_ptr_array, local_parity_ptr_array);
+      if (m_sys_config->CodeType == "UniLRC")
+      {
+        ECProject::encode_unilrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
+      }
+      else if (m_sys_config->CodeType == "OptimalLRC")
+      {
+        ECProject::encode_optimal_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
+      }
+      else if (m_sys_config->CodeType == "UniformLRC")
+      {
+        ECProject::encode_uniform_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
+      }
+      else if (m_sys_config->CodeType == "AzureLRC")
+      {
+        ECProject::encode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
+      }
 
       for (int i = 0; i < reply.append_keys_size(); i++)
       {
@@ -490,7 +704,7 @@ namespace ECProject
       int start_data_block_id = get_append_slice_plans(m_sys_config->AppendMode, m_append_logical_offset, append_size, &node_slice_sizes_per_cluster, &modified_data_block_nums_per_cluster, &data_ptr_size_array, parity_slice_size, parity_slice_offset);
 
       std::vector<char *> data_ptr_array, global_parity_ptr_array, local_parity_ptr_array;
-      split_for_data_and_parity(&reply, cluster_slice_data, node_slice_sizes_per_cluster, modified_data_block_nums_per_cluster, data_ptr_array, global_parity_ptr_array, local_parity_ptr_array);
+      split_for_append_data_and_parity(&reply, cluster_slice_data, node_slice_sizes_per_cluster, modified_data_block_nums_per_cluster, data_ptr_array, global_parity_ptr_array, local_parity_ptr_array);
 
       if (m_sys_config->AppendMode == "UNILRC_MODE")
       {

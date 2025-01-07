@@ -73,27 +73,25 @@ namespace ECProject
       UnitSize = std::stoi(elem->GetText());
     if (auto elem = root->FirstChildElement("BlockSize"))
       BlockSize = std::stoi(elem->GetText());
-    if (auto elem = root->FirstChildElement("alpha"))
-      alpha = std::stoi(elem->GetText());
     if (auto elem = root->FirstChildElement("z"))
       z = std::stoi(elem->GetText());
     if (auto elem = root->FirstChildElement("CodeType"))
       CodeType = std::string(elem->GetText());
     if (CodeType == "UniLRC")
     {
-      n = alpha * z * z + z;
+      if (auto elem = root->FirstChildElement("alpha"))
+        alpha = std::stoi(elem->GetText());
       k = alpha * z * z - alpha * z;
       r = alpha * z;
     }
     else
     {
-      if (auto elem = root->FirstChildElement("n"))
-        n = std::stoi(elem->GetText());
       if (auto elem = root->FirstChildElement("k"))
         k = std::stoi(elem->GetText());
       if (auto elem = root->FirstChildElement("r"))
         r = std::stoi(elem->GetText());
     }
+    n = k + r + z;
 
     if (auto elem = root->FirstChildElement("DatanodeNumPerCluster"))
       DatanodeNumPerCluster = std::stoi(elem->GetText());
