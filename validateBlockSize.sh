@@ -27,20 +27,20 @@ stripe_num=3
 # r=6
 # z=6
 
-# optimal lrc
-k=30
-r=10
-z=2
+# # optimal lrc
+# k=30
+# r=10
+# z=2
 
 # # uniform lrc
 # k=30
 # r=7
 # z=5
 
-# # unilrc
-# k=30
-# r=6
-# z=6
+# unilrc
+k=30
+r=6
+z=6
 
 for stripe_id in $(seq 0 $((stripe_num - 1)))
 do

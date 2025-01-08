@@ -150,11 +150,11 @@ namespace ECProject
       if (num_units == 1)
       {
         parity_slice_size = append_size;
-        parity_slice_offset = curr_logical_offset % unit_size;
+        parity_slice_offset += curr_logical_offset % unit_size;
       }
-      if (num_unit_stripes > 1 && (curr_logical_offset + append_size) % (unit_size * m_sys_config->k) < unit_size)
+      if (num_unit_stripes > 1 && (curr_logical_offset + append_size - 1) % (unit_size * m_sys_config->k) < unit_size - 1)
       {
-        parity_slice_size = (num_unit_stripes - 1) * unit_size + (curr_logical_offset + append_size) % (unit_size * m_sys_config->k);
+        parity_slice_size = (num_unit_stripes - 1) * unit_size + (curr_logical_offset + append_size - 1) % (unit_size * m_sys_config->k) + 1;
       }
     }
 
