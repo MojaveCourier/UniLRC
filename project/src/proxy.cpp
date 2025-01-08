@@ -142,7 +142,12 @@ namespace ECProject
       asio::connect(socket, resolver.resolve({std::string(ip), std::to_string(port + ECProject::DATANODE_PORT_SHIFT)}), con_error);
       if (!con_error && IF_DEBUG)
       {
-        std::cout << "Connect to " << ip << ":" << port + ECProject::DATANODE_PORT_SHIFT << " success!" << std::endl;
+        std::cout << "Connect to " << ip << ":" << port + ECProject::DATANODE_PORT_SHIFT << " success! block_key: " << block_key << " block_id: " << block_id << " slice_size: " << slice_size << " slice_offset: " << slice_offset << " is_serialized: " << is_serialized << std::endl;
+      }
+      else if (IF_DEBUG)
+      {
+        std::cout << "Connect to " << ip << ":" << port + ECProject::DATANODE_PORT_SHIFT << " failed! block_key: " << block_key << " block_id: " << block_id << " slice_size: " << slice_size << " slice_offset: " << slice_offset << " is_serialized: " << is_serialized << std::endl;
+        exit(-1);
       }
       asio::write(socket, asio::buffer(slice_buf, slice_size), error);
       asio::error_code ignore_ec;
@@ -443,7 +448,7 @@ namespace ECProject
         commit_abort_key.set_ifcommitmetadata(true);
         grpc::Status status;
         status = m_coordinator_ptr->reportCommitAbort(&context, commit_abort_key, &result);
-        if (status.ok() && IF_DEBUG)
+        if (status.ok())
         {
           std::cout << "[Proxy" << m_self_cluster_id << "][APPEND405]"
                     << " report to coordinator success" << std::endl;

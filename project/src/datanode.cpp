@@ -133,7 +133,6 @@ namespace ECProject
         int append_size = append_info->append_size();
         int append_offset = append_info->append_offset();
         bool is_serialized = append_info->is_serialized();
-        std::cout << "[Datanode" << m_port << "][Append109] block_key: " << block_key << ", block_id: " << block_id << ", append_size: " << append_size << ", append_offset: " << append_offset << std::endl;
 
         // append_offset must be the physical offset of the block
         auto dataBlockHandler = [this](std::string block_key, int append_size, int append_offset) mutable
@@ -154,7 +153,7 @@ namespace ECProject
                 std::string targetdir = "./storage/" + std::to_string(m_port) + "/";
                 std::string writepath = targetdir + block_key;
 
-                std::cout << "[Datanode" << m_port << "][Append101] writepath: " << writepath << std::endl;
+                // std::cout << "[Datanode" << m_port << "][Append101] writepath: " << writepath << " append_offset: " << append_offset << " append_size: " << append_size << std::endl;
 
                 if (access(targetdir.c_str(), 0) == -1)
                 {
@@ -207,7 +206,7 @@ namespace ECProject
                 std::string targetdir = "./storage/" + std::to_string(m_port) + "/";
                 std::string writepath = targetdir + block_key;
 
-                std::cout << "[Datanode" << m_port << "][Append153] writepath: " << writepath << std::endl;
+                // std::cout << "[Datanode" << m_port << "][Append101] writepath: " << writepath << " append_offset: " << append_offset << " append_size: " << append_size << std::endl;
 
                 if (access(targetdir.c_str(), 0) == -1)
                 {
@@ -250,7 +249,7 @@ namespace ECProject
         {
             if (IF_DEBUG)
             {
-                std::cout << "[Datanode" << m_port << "][Append180] ready to handle append! m_sys_config->k " << m_sys_config->k << std::endl;
+                // std::cout << "[Datanode" << m_port << "][Append109] block_key: " << block_key << ", block_id: " << block_id << ", append_size: " << append_size << ", append_offset: " << append_offset << " is_serialized: " << is_serialized << std::endl;
             }
             if (block_id < m_sys_config->k)
             {

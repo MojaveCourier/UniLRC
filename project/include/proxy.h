@@ -15,8 +15,8 @@
 #include <config.h>
 #include <toolbox.h>
 #include <queue>
-#define IF_DEBUG true
-// #define IF_DEBUG false
+// #define IF_DEBUG true
+#define IF_DEBUG false
 namespace ECProject
 {
   class ProxyImpl final

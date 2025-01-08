@@ -10,8 +10,8 @@
 #include <vector>
 #include "meta_definition.h"
 #include "config.h"
-#define IF_DEBUG true
-// #define IF_DEBUG false
+// #define IF_DEBUG true
+#define IF_DEBUG false
 namespace ECProject
 {
     class DatanodeImpl final
