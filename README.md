@@ -1,6 +1,6 @@
 ## Prototype
 
-The architecture follows master-worker style, like many state-of-art distributed file storage such as HDFS and Ceph. Four major components are client, coordinator, proxy and datanode. The implementation is introduced in the `doc/` directory.
+The architecture follows master-worker style, like many state-of-art distributed file storage such as HDFS and Ceph. Four major components are client, coordinator, proxy and datanode. 
 
 ### Environment Configuration
 
@@ -26,6 +26,38 @@ The architecture follows master-worker style, like many state-of-art distributed
     sh install_third_party.sh
     ```
 
+### System Configuration
+
+- Cluster configuration. The cluster configuration is defined in `clusterInformation.xml`, which contains the following fields:
+
+  * `cluster id`: The unique identifier for each cluster
+  * `proxy`: The IP address and port number of the proxy server for this cluster
+  * `datanodes`: A list of datanode configurations for this cluster
+    - `uri`: The IP address and port number of each datanode
+
+- System parameter configuration. The system parameters are defined in `parameterConfiguration.xml`, which contains the following fields:
+
+  * `AlignedSize`: The size in bytes that data should be aligned to (4096 bytes)
+  * `UnitSize`: The basic unit size for data operations (8192 bytes)
+  * `BlockSize`: The size of data blocks (16384 bytes)
+  * `DatanodeNumPerCluster`: Number of datanodes in each cluster (15)
+  * `ClusterNum`: Total number of clusters in the system (12)
+  * `CoordinatorIP`: IP address of the coordinator server (0.0.0.0)
+  * `CoordinatorPort`: Port number for the coordinator server (55555)
+  * `AppendMode`: The mode for append operations, can be:
+    - REP_MODE: Replication mode
+    - UNILRC_MODE: Uniform LRC mode  
+    - CACHED_MODE: Cached mode
+  * `alpha`: Parameter for coding (1)
+  * `CodeType`: Type of erasure coding scheme, can be:
+    - UniLRC: Uniform LRC
+    - AzureLRC: Azure LRC
+    - OptimalLRC: Optimal LRC
+    - UniformLRC: Uniform LRC
+  * `k`: Number of data blocks
+  * `r`: Number of global parity blocks
+  * `z`: Number of local parity blocks
+
 ### Compile and Run
 
 - Compile
@@ -38,39 +70,23 @@ sh compile.sh
 - Run
 
 ```
+# Run proxy and datanode
 sh run_proxy_datanode.sh
-cd project/cmake/build
-./run_coordinator
-./run_client false Azure_LRC Optimal OPT 8 2 2 100 2 2 0 1024
+
+# Run coordinator
+sh run_coordinator.sh
+
+# Run client
+sh test.sh
 ```
-
-- The parameter meaning of `run_client`
-
-```
-./run_client partial_decoding encode_type singlestripe_placement_type multistripes_placement_type k l g_m upload_stripes_num stage_x1 stage_x2 stage_x3 value_length
-```
-
-#### Tips. 
-
-- `partial_decoding` denotes if apply `encode-and-transfer`.
-- `encode_type` denotes the encoding type of a single stripe, such as `RS`,  `Azure_LRC`, etc. Now support  `Azure_LRC` and `Optimal_Cauchy_LRC`.
-- `singlestripe_placement_type` denotes the data placement type of a single stripe, such as `Flat`, `Random` and `Optimal`. Now only support  `Optimal`.
-- `multistripes_placement_type` denotes the data placement type of multiple stripes, such as `Ran`, `DIS`, `AGG` and `OPT`. Now all are supported.
-- In our experiment, we mainly test 2 or 3 stages of stripe merging, and the `stage_xi` denotes the number of stripes to merge into a large-size stripe in `i-th` stage. 
-- `value_length` is the object size of each object to form a stripe initially, with the unit of `KiB`.
 
 #### Attention
 
-> About implementation.
+> About Append Test.
 
-For stripe merging, the coordinator introduces a variable called `merge_groups` to manage stripe merging, for the number of stripes in each merge group, it will be the lesser of the following two numbers.
+- In `parameterConfiguration.xml`, `CodeType` can only be UniLRC, and  `AppendMode` can be REP_MODE, UNILRC_MODE or CACHED_MODE.
 
-- the maximum number of stripes that matches specified placement scheme such as `OPT`, `AGG`, `DIS` and `Ran`;
-- the product of `xi` (for example, equal to `x1*x2*x3` when there is three stages of merging, `xi!=0`), the total number of stripes before the first stage of merging to be merged into a large stripe after all the stages of merging.
-
-We recommend that the former is always larger than the latter, otherwise the latter stages of stripe merging can not be processed. Thus, the number of clusters, `upload_stripes_num`, `stage_xi`, `k`, `l` and `g_m` should be carefully set.
-
-- For example, when `(k, l, g_m) = (8, 2, 2)`, we consider two stages of stripe merging and `stage_x1 = stage_x2 = 2`, then the number of stripes in each merge group should be `4`, and `upload_stripes_num` should be divisible by `4`, and the number of cluster should be `20` at least, since `4` stripes of `(8, 2, 2)` should be placed to `20` clusters with `DIS` placement scheme (`5` clusters for each stripe with optimal data placement).
+- In `parameterConfiguration.xml`, if `CodeType` is UniLRC, the `k`, `r` is computed based on `alpha` and `z`; if `CodeType` is AzureLRC, OptimalLRC or UniformLRC, the `k`, `r`, and `z` are directly specified.
 
 ### Other
 
@@ -78,8 +94,6 @@ We recommend that the former is always larger than the latter, otherwise the lat
 
 - directory `doc/`  is the introduction of system implementation.
 - directory `project/` is the system implementation.
-- create directory `data/` to store the original test data object for the client to upload.
-- create directory `client_get/` to store the data object getting from proxy for the client.
 - create directory `storage/` to store the data blocks for data nodes.
 - create directory `run_cluster_sh/` to store the running shell for each cluster.
 
