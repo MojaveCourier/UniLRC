@@ -761,10 +761,168 @@ namespace ECProject
 
   std::vector<int> CoordinatorImpl::get_recovery_group_ids(std::string code_type, int k, int r, int z, int failed_block_id)
   {
-    return std::vector<int>();
+    std::vector<int> recovery_group_ids;
+    if (code_type == "AzureLRC")
+    {
+      if (failed_block_id >= k && failed_block_id < k + r)
+      {
+        recovery_group_ids.push_back(z);
+        for (int i = 0; i < z; i++)
+        {
+          recovery_group_ids.push_back(i);
+        }
+      }
+      else if (failed_block_id >= k + r)
+      {
+        recovery_group_ids.push_back(failed_block_id - k - r);
+      }
+      else
+      {
+        recovery_group_ids.push_back(failed_block_id / (k / z));
+      }
+    }
+    else if (code_type == "UniLRC")
+    {
+      if (failed_block_id >= k && failed_block_id < k + r)
+      {
+        recovery_group_ids.push_back((failed_block_id - k) / (r / z));
+      }
+      else if (failed_block_id >= k + r)
+      {
+        recovery_group_ids.push_back(failed_block_id - k - r);
+      }
+      else
+      {
+        recovery_group_ids.push_back(failed_block_id / (k / z));
+      }
+    }
+    else if (code_type == "OptimalLRC")
+    {
+      if (failed_block_id >= k && failed_block_id < k + r)
+      {
+        int group_num = (k / z / (r + 1) + (bool)(k / z % (r + 1))) * z + 1;
+        recovery_group_ids.push_back(group_num - 1);
+        for (int i = 0; i < group_num / z; i++)
+        {
+          recovery_group_ids.push_back(i);
+        }
+      }
+      else if (failed_block_id >= k + r)
+      {
+        int local_group_size = k / z;
+        int local_group_id = (failed_block_id - k - r);
+        int group_num_of_one_local_group = local_group_size / (r + 1) + 1;
+        int group_num = z * group_num_of_one_local_group + 1;
+        recovery_group_ids.push_back((local_group_id + 1) * group_num_of_one_local_group - 1);
+        for (int i = local_group_id * group_num_of_one_local_group; i < (local_group_id + 1) * group_num_of_one_local_group - 1; i++)
+        {
+          recovery_group_ids.push_back(i);
+        }
+        recovery_group_ids.push_back(group_num - 1);
+      }
+      else
+      {
+        int local_group_size = k / z;
+        int group_num_of_one_local_group = local_group_size / (r + 1) + 1;
+        int local_group_id = failed_block_id / local_group_size;
+        int group_id_in_local_group = failed_block_id % local_group_size / (r + 1);
+        recovery_group_ids.push_back(local_group_id * group_num_of_one_local_group + group_id_in_local_group);
+        for (int i = 0; i < group_num_of_one_local_group; i++)
+        {
+          if (i != group_id_in_local_group)
+          {
+            recovery_group_ids.push_back(local_group_id * group_num_of_one_local_group + i);
+          }
+        }
+        int group_num = z * group_num_of_one_local_group + 1;
+        recovery_group_ids.push_back(group_num - 1);
+      }
+    }
+    else if (code_type == "UniformLRC")
+    {
+      if (failed_block_id >= k + r)
+      {
+        int larger_local_group_num = (k + r) % z;
+        int local_group_id = failed_block_id - k - r;
+        int local_group_size = (k + r) / z;
+        int group_num_of_one_local_group = local_group_size / r + bool(local_group_size % r);
+        if (local_group_id + larger_local_group_num < z)
+        {
+          recovery_group_ids.push_back((local_group_id + 1) * group_num_of_one_local_group - 1);
+          for (int i = local_group_id * group_num_of_one_local_group; i < (local_group_id + 1) * group_num_of_one_local_group - 1; i++)
+          {
+            recovery_group_ids.push_back(i);
+          }
+        }
+        else
+        {
+          int smaller_local_group_num = z - larger_local_group_num;
+          int group_num_of_all_small_group = smaller_local_group_num * group_num_of_one_local_group;
+          local_group_size++;
+          group_num_of_one_local_group = local_group_size / r + (bool)(local_group_size % r);
+          local_group_id = local_group_id - smaller_local_group_num;
+          recovery_group_ids.push_back(group_num_of_all_small_group + (local_group_id + 1) * group_num_of_one_local_group - 1);
+          for (int i = group_num_of_all_small_group + local_group_id * group_num_of_one_local_group; i < group_num_of_all_small_group + (local_group_id + 1) * group_num_of_one_local_group - 1; i++)
+          {
+            recovery_group_ids.push_back(i);
+          }
+        }
+      }
+      else if (failed_block_id < k + r)
+      {
+        int larger_local_group_num = (k + r) % z;
+        int smaller_local_group_num = z - larger_local_group_num;
+        int local_group_size = (k + r) / z;
+        int group_num_of_one_local_group = local_group_size / r + bool(local_group_size % r);
+        int block_num_of_smaller_local_group = (z - larger_local_group_num) * local_group_size;
+        int group_num_of_smaller_local_group = smaller_local_group_num * group_num_of_one_local_group;
+        int local_group_id = 0;
+        if (failed_block_id < block_num_of_smaller_local_group)
+        {
+          local_group_id = failed_block_id / local_group_size;
+          int block_num_in_previous_local_group = local_group_id * local_group_size;
+          int group_id = local_group_id * group_num_of_one_local_group + (failed_block_id - block_num_in_previous_local_group) / r;
+          recovery_group_ids.push_back(group_id);
+          for (int i = local_group_id * group_num_of_one_local_group; i < local_group_id * group_num_of_one_local_group + group_num_of_one_local_group; i++)
+          {
+            if (i != group_id)
+            {
+              recovery_group_ids.push_back(i);
+            }
+          }
+        }
+        else
+        {
+          local_group_size++;
+          group_num_of_one_local_group = local_group_size / r + bool(local_group_size % r);
+          local_group_id = (failed_block_id - block_num_of_smaller_local_group) / local_group_size;
+          int block_num_in_previous_local_group = local_group_id * local_group_size + block_num_of_smaller_local_group;
+          int group_id = local_group_id * group_num_of_one_local_group + (failed_block_id - block_num_in_previous_local_group) / r;
+          recovery_group_ids.push_back(group_id + group_num_of_smaller_local_group);
+          for (int i = local_group_id * group_num_of_one_local_group; i < local_group_id * group_num_of_one_local_group + group_num_of_one_local_group; i++)
+          {
+            if (i != group_id)
+            {
+              recovery_group_ids.push_back(i + group_num_of_smaller_local_group);
+            }
+          }
+        }
+      }
+    }
+
+    return recovery_group_ids;
   }
 
-  grpc::Status CoordinatorImpl::getValue(
+  void CoordinatorImpl::init_recovery_group_lookup_table()
+  {
+    for (int i = 0; i < m_sys_config->n; i++)
+    {
+      m_recovery_group_lookup_table[i] = get_recovery_group_ids(m_sys_config->CodeType, m_sys_config->k, m_sys_config->r, m_sys_config->z, i);
+    }
+  }
+
+  grpc::Status
+  CoordinatorImpl::getValue(
       grpc::ServerContext *context,
       const coordinator_proto::KeyAndClientIP *keyClient,
       coordinator_proto::RepIfGetSuccess *getReplyClient)

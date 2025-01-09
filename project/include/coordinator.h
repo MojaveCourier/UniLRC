@@ -101,6 +101,7 @@ namespace ECProject
     int getClusterAppendSize(Stripe *stripe, const std::map<int, std::pair<int, int>> &block_to_slice_sizes, int curr_group_id, int parity_slice_size);
     void notify_proxies_ready(const proxy_proto::AppendStripeDataPlacement &plan);
     std::vector<int> get_recovery_group_ids(std::string code_type, int k, int r, int z, int failed_block_id);
+    void init_recovery_group_lookup_table();
     void print_stripe_data_placement(Stripe &stripe);
     ECProject::Config *m_sys_config;
     ECProject::ToolBox *m_toolbox;
@@ -112,6 +113,7 @@ namespace ECProject
     std::map<int, Node> m_node_table;
     std::map<int, Stripe> m_stripe_table;
     std::map<std::string, StripeOffset> m_cur_offset_table;
+    std::map<int, std::vector<int>> m_recovery_group_lookup_table;
 
   private:
     std::mutex m_mutex;
