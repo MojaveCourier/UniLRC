@@ -107,9 +107,9 @@ def cluster_generate_run_proxy_datanode_file(ip, port, i):
         f.write("pkill -9 run_proxy\n")
         f.write("\n")
         for each_datanode in cluster_informtion[0]["datanode"]:
-            f.write("./project/cmake/build/run_datanode "+ip+":"+str(each_datanode[1])+"\n")
+            f.write("./project/cmake/build/run_datanode "+ip+":"+str(each_datanode[1])+" & \n")
         f.write("\n") 
-        f.write("./project/cmake/build/run_proxy "+ip+":"+str(port)+" "+coordinator_ip+"\n")   
+        f.write("./project/cmake/build/run_proxy "+ip+":"+str(port)+" "+coordinator_ip+" & \n")   
         f.write("\n")
 
 if __name__ == "__main__":

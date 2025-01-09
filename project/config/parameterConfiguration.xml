@@ -3,7 +3,7 @@
     <AlignedSize>4096</AlignedSize>
     <UnitSize>8192</UnitSize>
     <BlockSize>16384</BlockSize>
-    <DatanodeNumPerCluster>15</DatanodeNumPerCluster>
+    <DatanodeNumPerCluster>10</DatanodeNumPerCluster>
     <ClusterNum>12</ClusterNum>
     <CoordinatorIP>0.0.0.0</CoordinatorIP>
     <CoordinatorPort>55555</CoordinatorPort>

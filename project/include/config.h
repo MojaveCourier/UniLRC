@@ -5,7 +5,7 @@
 
 namespace ECProject
 {
-  const int DATANODE_PORT_SHIFT = 20;
+  const int DATANODE_PORT_SHIFT = 50;
   const int PROXY_PORT_SHIFT = 1;
 
   class Config

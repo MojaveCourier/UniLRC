@@ -286,27 +286,6 @@ namespace ECProject
     return true;
   }
 
-  void ProxyImpl::init_pre_allocated_buffer_queue()
-  {
-    int buffer_size = m_sys_config->BlockSize * m_sys_config->DatanodeNumPerCluster;
-    int buffer_num = m_sys_config->DatanodeNumPerCluster;
-    for (int i = 0; i < buffer_num; i++)
-    {
-      // // 使用new分配内存
-      // char *buffer_ptr = new char[buffer_size];
-
-      // // 初始化为0
-      // memset(buffer_ptr, 0, buffer_size);
-
-      // // 创建shared_ptr管理内存
-      // std::shared_ptr<char[]> buffer(buffer_ptr,
-      //                                [](char *p)
-      //                                { delete[] p; });
-
-      // m_pre_allocated_buffer_queue.push(buffer);
-    }
-  }
-
   void ProxyImpl::printAppendStripeDataPlacement(const proxy_proto::AppendStripeDataPlacement *append_stripe_data_placement)
   {
     // Print basic info
