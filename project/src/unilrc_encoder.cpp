@@ -39,21 +39,30 @@ void ECProject::gf_gen_local_vector(unsigned char *a, int k, int p)
     }
 }
 
+void ECProject::gf_gen_rs_matrix(unsigned char **a, int m, int k)
+{
+    for (int j = 0; j < k; j++)
+    {
+        int gen = gff_base[j];
+        a[0][j] = gen;
+        for (int i = 1; i < m - k; i++)
+        {
+            a[i][j] = gf_mul(a[i - 1][j], gen);
+        }
+    }
+}
+
 void ECProject::encode_unilrc_w_append_mode(int k, int r, int z, int data_num, unsigned char **data_ptrs,
                                             const std::vector<int> *data_sizes, unsigned char **global_ptrs,
                                             unsigned char **local_ptrs, int start_offset, int unit_size, bool is_cached)
 {
-    unsigned char **cauchy_matrix;
-    unsigned char *local_vector;
-    cauchy_matrix = new unsigned char *[r];
+    unsigned char **rs_matrix;
+    rs_matrix = new unsigned char *[r];
     for (int i = 0; i < r; i++)
     {
-        cauchy_matrix[i] = new unsigned char[k];
+        rs_matrix[i] = new unsigned char[k];
     }
-    local_vector = new unsigned char[k];
-    ECProject::gf_gen_cauchy_matrix(cauchy_matrix, k + r, k);
-    ECProject::gf_gen_local_vector(local_vector, k, r);
-
+    ECProject::gf_gen_rs_matrix(rs_matrix, k + r, k);
     std::vector<int> block_idx;
     if (data_num + start_offset < k)
     {
@@ -159,9 +168,9 @@ void ECProject::encode_unilrc_w_append_mode(int k, int r, int z, int data_num, u
             int parity_index = j + block_start[i];
             for (int l = 0; l < r; l++)
             {
-                global_ptrs[l][parity_index] ^= gf_mul(cauchy_matrix[l][block_idx[i]], data_ptrs[i][j]);
+                global_ptrs[l][parity_index] ^= gf_mul(rs_matrix[l][block_idx[i]], data_ptrs[i][j]);
             }
-            local_ptrs[local_group][parity_index] ^= gf_mul(local_vector[block_idx[i]], data_ptrs[i][j]);
+            local_ptrs[local_group][parity_index] ^= data_ptrs[i][j];
         }
     }
 
@@ -180,16 +189,13 @@ void ECProject::encode_unilrc_w_append_mode(int k, int r, int z, int data_num, u
 void ECProject::encode_unilrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **global_ptrs,
                               unsigned char **local_ptrs, int block_size)
 {
-    unsigned char **cauchy_matrix;
-    unsigned char *local_vector;
-    cauchy_matrix = new unsigned char *[r];
+    unsigned char **rs_matrix;
+    rs_matrix = new unsigned char *[r];
     for (int i = 0; i < r; i++)
     {
-        cauchy_matrix[i] = new unsigned char[k];
+        rs_matrix[i] = new unsigned char[k];
     }
-    local_vector = new unsigned char[k];
-    gf_gen_cauchy_matrix(cauchy_matrix, k + r, k);
-    gf_gen_local_vector(local_vector, k, r);
+    gf_gen_rs_matrix(rs_matrix, k + r, k);
 
     for (int i = 0; i < block_size; i++)
     {
@@ -210,9 +216,9 @@ void ECProject::encode_unilrc(int k, int r, int z, unsigned char **data_ptrs, un
         {
             for (int l = 0; l < r; l++)
             {
-                global_ptrs[l][j] ^= gf_mul(cauchy_matrix[l][i], data_ptrs[i][j]);
+                global_ptrs[l][j] ^= gf_mul(rs_matrix[l][i], data_ptrs[i][j]);
             }
-            local_ptrs[local_group][j] ^= gf_mul(local_vector[i], data_ptrs[i][j]);
+            local_ptrs[local_group][j] ^= data_ptrs[i][j];
         }
     }
 
@@ -390,17 +396,14 @@ void ECProject::encode_uniform_lrc(int k, int r, int z, unsigned char **data_ptr
 void ECProject::encode_unilrc_w_rep_mode(int k, int r, int z, unsigned char *data_ptrs, unsigned char *parity_ptr,
                                          int block_size, int unit_size, int parity_block_id)
 {
-    unsigned char **cauchy_matrix;
-    unsigned char *local_vector;
-    cauchy_matrix = new unsigned char *[r];
+    unsigned char **rs_matrix;
+    rs_matrix = new unsigned char *[r];
     for (int i = 0; i < r; i++)
     {
-        cauchy_matrix[i] = new unsigned char[k];
+        rs_matrix[i] = new unsigned char[k];
     }
-    local_vector = new unsigned char[k];
 
-    gf_gen_cauchy_matrix(cauchy_matrix, k + r, k);
-    gf_gen_local_vector(local_vector, k, r);
+    gf_gen_rs_matrix(rs_matrix, k + r, k);
 
     for (int i = 0; i < block_size; i++)
     {
@@ -423,7 +426,7 @@ void ECProject::encode_unilrc_w_rep_mode(int k, int r, int z, unsigned char *dat
         {
             for (int j = 0; j < k; j++)
             {
-                parity_ptr[i] ^= gf_mul(cauchy_matrix[parity_block_id - k][j], data_ptrs[block_idx[i][j]]);
+                parity_ptr[i] ^= gf_mul(rs_matrix[parity_block_id - k][j], data_ptrs[block_idx[i][j]]);
             }
         }
     }
@@ -434,13 +437,13 @@ void ECProject::encode_unilrc_w_rep_mode(int k, int r, int z, unsigned char *dat
         {
             for (int j = local_group * (k / z); j < (local_group + 1) * (k / z); j++)
             {
-                parity_ptr[i] ^= gf_mul(local_vector[j], data_ptrs[block_idx[i][j]]);
+                parity_ptr[i] ^= data_ptrs[block_idx[i][j]];
             }
             for (int j = 0; j < k; j++)
             {
                 for (int l = 0; l < r / z; l++)
                 {
-                    parity_ptr[i] ^= gf_mul(cauchy_matrix[l + local_group * (r / z)][j], data_ptrs[block_idx[i][j]]);
+                    parity_ptr[i] ^= gf_mul(rs_matrix[l + local_group * (r / z)][j], data_ptrs[block_idx[i][j]]);
                 }
             }
         }
