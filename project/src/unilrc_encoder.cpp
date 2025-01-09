@@ -238,15 +238,12 @@ void ECProject::encode_azure_lrc(int k, int r, int z, unsigned char **data_ptrs,
                                  unsigned char **local_ptrs, int block_size)
 {
     unsigned char **cauchy_matrix;
-    unsigned char *local_vector;
     cauchy_matrix = new unsigned char *[r];
     for (int i = 0; i < r; i++)
     {
         cauchy_matrix[i] = new unsigned char[k];
     }
-    local_vector = new unsigned char[k];
     gf_gen_cauchy_matrix(cauchy_matrix, k + r, k);
-    gf_gen_local_vector(local_vector, k, r);
 
     for (int i = 0; i < block_size; i++)
     {
@@ -269,7 +266,7 @@ void ECProject::encode_azure_lrc(int k, int r, int z, unsigned char **data_ptrs,
             {
                 global_ptrs[l][j] ^= gf_mul(cauchy_matrix[l][i], data_ptrs[i][j]);
             }
-            local_ptrs[local_group][j] ^= gf_mul(local_vector[i], data_ptrs[i][j]);
+            local_ptrs[local_group][j] ^= data_ptrs[i][j];
         }
     }
 }
