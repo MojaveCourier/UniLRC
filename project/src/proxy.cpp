@@ -325,7 +325,7 @@ namespace ECProject
       const proxy_proto::AppendStripeDataPlacement *append_stripe_data_placement,
       proxy_proto::SetReply *response)
   {
-    printAppendStripeDataPlacement(append_stripe_data_placement);
+    // printAppendStripeDataPlacement(append_stripe_data_placement);
 
     int stripe_id = append_stripe_data_placement->stripe_id();
     // sum of all append slices allocated to this proxy
@@ -427,12 +427,12 @@ namespace ECProject
         commit_abort_key.set_ifcommitmetadata(true);
         grpc::Status status;
         status = m_coordinator_ptr->reportCommitAbort(&context, commit_abort_key, &result);
-        if (status.ok())
+        if (status.ok() && IF_DEBUG)
         {
           std::cout << "[Proxy" << m_self_cluster_id << "][APPEND405]"
                     << " report to coordinator success" << std::endl;
         }
-        else
+        else if (IF_DEBUG)
         {
           std::cout << "[Proxy" << m_self_cluster_id << "][APPEND410]"
                     << " report to coordinator fail!" << std::endl;

@@ -162,7 +162,7 @@ namespace ECProject
 
                 if (append_offset == 0)
                 {
-                    std::cout << "create data block file with path: " << writepath << std::endl;
+                    // std::cout << "create data block file with path: " << writepath << std::endl;
                     assert(access(writepath.c_str(), 0) == -1 && "File already exists with append_offset == 0!");
                     // Create new file if append_offset is 0
                     std::ofstream create_file(writepath, std::ios::binary | std::ios::out | std::ios::trunc);
@@ -215,7 +215,7 @@ namespace ECProject
 
                 if (append_offset == 0 && access(writepath.c_str(), 0) == -1)
                 {
-                    std::cout << "create parity block file with path: " << writepath << std::endl;
+                    // std::cout << "create parity block file with path: " << writepath << std::endl;
                     // Create new file if append_offset is 0 and file does not exist
                     std::ofstream create_file(writepath, std::ios::binary | std::ios::out | std::ios::trunc);
                     create_file.close();
