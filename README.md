@@ -88,6 +88,9 @@ sh test.sh
 
 - In `parameterConfiguration.xml`, if `CodeType` is UniLRC, the `k`, `r` is computed based on `alpha` and `z`; if `CodeType` is AzureLRC, OptimalLRC or UniformLRC, the `k`, `r`, and `z` are directly specified.
 
+> [Implementing] About Degraded read and Recovery.
+
+
 ### Other
 
 #### Directory
