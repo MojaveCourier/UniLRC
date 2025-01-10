@@ -2,17 +2,6 @@
 #include <iostream>
 
 unsigned char
-ECProject::gf_mul(unsigned char a, unsigned char b)
-{
-    int i;
-
-    if ((a == 0) || (b == 0))
-        return 0;
-
-    return ECProject::gff_base[(i = ECProject::gflog_base[a] + ECProject::gflog_base[b]) > 254 ? i - 255 : i];
-}
-
-unsigned char
 ECProject::gf_inv(unsigned char a)
 {
     if (a == 0)
@@ -47,7 +36,7 @@ void ECProject::gf_gen_rs_matrix(unsigned char **a, int m, int k)
         a[0][j] = gen;
         for (int i = 1; i < m - k; i++)
         {
-            a[i][j] = gf_mul(a[i - 1][j], gen);
+            a[i][j] = gf_mul_table_base[a[i - 1][j]][gen];
         }
     }
 }
@@ -168,7 +157,7 @@ void ECProject::encode_unilrc_w_append_mode(int k, int r, int z, int data_num, u
             int parity_index = j + block_start[i];
             for (int l = 0; l < r; l++)
             {
-                global_ptrs[l][parity_index] ^= gf_mul(rs_matrix[l][block_idx[i]], data_ptrs[i][j]);
+                global_ptrs[l][parity_index] ^= gf_mul_table_base[rs_matrix[l][block_idx[i]]][data_ptrs[i][j]];
             }
             local_ptrs[local_group][parity_index] ^= data_ptrs[i][j];
         }
@@ -184,6 +173,12 @@ void ECProject::encode_unilrc_w_append_mode(int k, int r, int z, int data_num, u
             }
         }
     }
+
+    for (int i = 0; i < r; i++)
+    {
+        delete[] rs_matrix[i];
+    }
+    delete[] rs_matrix;
 }
 
 void ECProject::encode_unilrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **global_ptrs,
@@ -216,7 +211,7 @@ void ECProject::encode_unilrc(int k, int r, int z, unsigned char **data_ptrs, un
         {
             for (int l = 0; l < r; l++)
             {
-                global_ptrs[l][j] ^= gf_mul(rs_matrix[l][i], data_ptrs[i][j]);
+                global_ptrs[l][j] ^= gf_mul_table_base[rs_matrix[l][i]][data_ptrs[i][j]];
             }
             local_ptrs[local_group][j] ^= data_ptrs[i][j];
         }
@@ -232,6 +227,12 @@ void ECProject::encode_unilrc(int k, int r, int z, unsigned char **data_ptrs, un
             }
         }
     }
+
+    for (int i = 0; i < r; i++)
+    {
+        delete[] rs_matrix[i];
+    }
+    delete[] rs_matrix;
 }
 
 void ECProject::encode_azure_lrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **global_ptrs,
@@ -264,11 +265,17 @@ void ECProject::encode_azure_lrc(int k, int r, int z, unsigned char **data_ptrs,
         {
             for (int l = 0; l < r; l++)
             {
-                global_ptrs[l][j] ^= gf_mul(cauchy_matrix[l][i], data_ptrs[i][j]);
+                global_ptrs[l][j] ^= gf_mul_table_base[cauchy_matrix[l][i]][data_ptrs[i][j]];
             }
             local_ptrs[local_group][j] ^= data_ptrs[i][j];
         }
     }
+
+    for (int i = 0; i < r; i++)
+    {
+        delete[] cauchy_matrix[i];
+    }
+    delete[] cauchy_matrix;
 }
 
 void ECProject::encode_optimal_lrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **global_ptrs,
@@ -304,9 +311,9 @@ void ECProject::encode_optimal_lrc(int k, int r, int z, unsigned char **data_ptr
         {
             for (int l = 0; l < r; l++)
             {
-                global_ptrs[l][j] ^= gf_mul(cauchy_matrix[l][i], data_ptrs[i][j]);
+                global_ptrs[l][j] ^= gf_mul_table_base[cauchy_matrix[l][i]][data_ptrs[i][j]];
             }
-            local_ptrs[local_group][j] ^= gf_mul(local_vector[i], data_ptrs[i][j]);
+            local_ptrs[local_group][j] ^= gf_mul_table_base[local_vector[i]][data_ptrs[i][j]];
         }
     }
 
@@ -320,6 +327,13 @@ void ECProject::encode_optimal_lrc(int k, int r, int z, unsigned char **data_ptr
             }
         }
     }
+
+    for (int i = 0; i < r; i++)
+    {
+        delete[] cauchy_matrix[i];
+    }
+    delete[] cauchy_matrix;
+    delete[] local_vector;
 }
 
 void ECProject::encode_uniform_lrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **global_ptrs,
@@ -354,7 +368,7 @@ void ECProject::encode_uniform_lrc(int k, int r, int z, unsigned char **data_ptr
         {
             for (int l = 0; l < r; l++)
             {
-                global_ptrs[l][j] ^= gf_mul(cauchy_matrix[l][i], data_ptrs[i][j]);
+                global_ptrs[l][j] ^= gf_mul_table_base[cauchy_matrix[l][i]][data_ptrs[i][j]];
             }
         }
     }
@@ -372,7 +386,7 @@ void ECProject::encode_uniform_lrc(int k, int r, int z, unsigned char **data_ptr
         {
             for (int l = 0; l < block_size; l++)
             {
-                local_ptrs[i][l] ^= gf_mul(local_vector[block_num], data_ptrs[block_num][l]);
+                local_ptrs[i][l] ^= gf_mul_table_base[local_vector[block_num]][data_ptrs[block_num][l]];
             }
             block_num++;
             if (block_num == k)
@@ -388,6 +402,13 @@ void ECProject::encode_uniform_lrc(int k, int r, int z, unsigned char **data_ptr
             local_ptrs[z - 1][l] ^= global_ptrs[j][l];
         }
     }
+
+    for (int i = 0; i < r; i++)
+    {
+        delete[] cauchy_matrix[i];
+    }
+    delete[] cauchy_matrix;
+    delete[] local_vector;
 }
 
 void ECProject::encode_unilrc_w_rep_mode(int k, int r, int z, unsigned char *data_ptrs, unsigned char *parity_ptr,
@@ -423,7 +444,7 @@ void ECProject::encode_unilrc_w_rep_mode(int k, int r, int z, unsigned char *dat
         {
             for (int j = 0; j < k; j++)
             {
-                parity_ptr[i] ^= gf_mul(rs_matrix[parity_block_id - k][j], data_ptrs[block_idx[i][j]]);
+                parity_ptr[i] ^= gf_mul_table_base[rs_matrix[parity_block_id - k][j]][data_ptrs[block_idx[i][j]]];
             }
         }
     }
@@ -440,9 +461,123 @@ void ECProject::encode_unilrc_w_rep_mode(int k, int r, int z, unsigned char *dat
             {
                 for (int l = 0; l < r / z; l++)
                 {
-                    parity_ptr[i] ^= gf_mul(rs_matrix[l + local_group * (r / z)][j], data_ptrs[block_idx[i][j]]);
+                    parity_ptr[i] ^= gf_mul_table_base[rs_matrix[l + local_group * (r / z)][j]][data_ptrs[block_idx[i][j]]];
                 }
             }
         }
     }
+
+    for (int i = 0; i < r; i++)
+    {
+        delete[] rs_matrix[i];
+    }
+    delete[] rs_matrix;
+}
+
+void ECProject::decode_unilrc(const int k, const int r, const int z, const int block_num,
+                              const std::vector<int> *block_indexes, unsigned char **block_ptrs, unsigned char *res_ptr, int block_size)
+{
+    for (int i = 0; i < block_num; i++)
+    {
+        for (int j = 0; j < block_size; j++)
+        {
+            res_ptr[j] ^= block_ptrs[block_indexes->at(i)][j];
+        }
+    }
+}
+
+void ECProject::decode_azure_lrc(const int k, const int r, const int z, const int block_num,
+                                 const std::vector<int> *block_indexes, unsigned char **block_ptrs, unsigned char *res_ptr, int block_size,
+                                 int failed_block_id)
+{
+    if (failed_block_id >= k && failed_block_id < k + r)
+    {
+        unsigned char **rs_matrix;
+        rs_matrix = new unsigned char *[r];
+        for (int i = 0; i < r; i++)
+        {
+            rs_matrix[i] = new unsigned char[k];
+        }
+        gf_gen_rs_matrix(rs_matrix, k + r, k);
+        for (int i = 0; i < block_num; i++)
+        {
+            int block_index = block_indexes->at(i);
+            for (int j = 0; j < block_size; j++)
+            {
+                res_ptr[j] ^= gf_mul_table_base[rs_matrix[failed_block_id - k][block_index]][block_ptrs[block_index][j]];
+            }
+        }
+        for (int i = 0; i < r; i++)
+        {
+            delete[] rs_matrix[i];
+        }
+        delete[] rs_matrix;
+    }
+    else
+    {
+        for (int i = 0; i < block_num; i++)
+        {
+            for (int j = 0; j < block_size; j++)
+            {
+                res_ptr[j] ^= block_ptrs[block_indexes->at(i)][j];
+            }
+        }
+    }
+}
+
+void ECProject::decode_optimal_lrc(const int k, const int r, const int z, const int block_num,
+                                   const std::vector<int> *block_indexes, unsigned char **block_ptrs, unsigned char *res_ptr, int block_size)
+{
+    unsigned char *local_vector;
+    local_vector = new unsigned char[k];
+    gf_gen_local_vector(local_vector, k, r);
+    for (int i = 0; i < block_num; i++)
+    {
+        int block_index = block_indexes->at(i);
+        if (block_index < k)
+        {
+            unsigned char factor = local_vector[block_index];
+            for (int j = 0; j < block_size; j++)
+            {
+                res_ptr[j] ^= gf_mul_table_base[factor][block_ptrs[block_index][j]];
+            }
+        }
+
+        else
+        {
+            for (int j = 0; j < block_size; j++)
+            {
+                res_ptr[j] ^= block_ptrs[block_index][j];
+            }
+        }
+    }
+    delete[] local_vector;
+}
+void ECProject::decode_uniform_lrc(const int k, const int r, const int z, const int block_num,
+                                   const std::vector<int> *block_indexes, unsigned char **block_ptrs, unsigned char *res_ptr, int block_size)
+{
+    unsigned char *local_vector;
+    local_vector = new unsigned char[k];
+    gf_gen_local_vector(local_vector, k, r);
+    for (int i = 0; i < block_num; i++)
+    {
+        int block_index = block_indexes->at(i);
+        if (block_index < k)
+        {
+            unsigned char factor = local_vector[block_index];
+            for (int j = 0; j < block_size; j++)
+            {
+                res_ptr[j] ^= gf_mul_table_base[factor][block_ptrs[block_index][j]];
+            }
+        }
+
+        else
+        {
+            for (int j = 0; j < block_size; j++)
+            {
+                res_ptr[j] ^= block_ptrs[block_index][j];
+            }
+        }
+    }
+    delete[] local_vector;
 }
