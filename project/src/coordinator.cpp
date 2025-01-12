@@ -982,6 +982,145 @@ namespace ECProject
     return grpc::Status::OK;
   }
 
+  int CoordinatorImpl::get_cluster_id_by_group_id(Stripe &t_stripe, int group_id)
+  {
+    int block_id = t_stripe.group_to_blocks[group_id][0];
+    return t_stripe.blocks[block_id]->map2cluster;
+  }
+
+  grpc::Status CoordinatorImpl::getDegradedReadValue(
+      grpc::ServerContext *context,
+      const coordinator_proto::KeyAndClientIP *keyClient,
+      coordinator_proto::RepIfGetSuccess *getReplyClient)
+  {
+    std::string code_type = m_sys_config->CodeType;
+    int stripe_id = std::stoi(keyClient->key().substr(0, keyClient->key().find('_')));
+    int failed_block_id = std::stoi(keyClient->key().substr(keyClient->key().find('_') + 1));
+    std::string client_ip = keyClient->clientip();
+    int client_port = keyClient->clientport();
+
+    Stripe &t_stripe = m_stripe_table[stripe_id];
+    std::vector<int> recovery_group_ids = get_recovery_group_ids(m_sys_config->CodeType, m_sys_config->k, m_sys_config->r, m_sys_config->z, failed_block_id);
+    grpc::Status status;
+
+    if (recovery_group_ids.size() == 1)
+    {
+      assert((code_type == "UniLRC") || (code_type == "AzureLRC" && failed_block_id >= m_sys_config->k && failed_block_id < m_sys_config->k + m_sys_config->r));
+
+      grpc::ClientContext degraded_read_context;
+      proxy_proto::DegradedReadRequest degraded_read_request;
+      proxy_proto::GetReply degraded_read_reply;
+
+      int chosen_cluster_id = get_cluster_id_by_group_id(t_stripe, recovery_group_ids[0]);
+      std::string chosen_proxy = m_cluster_table[chosen_cluster_id].proxy_ip + ":" + std::to_string(m_cluster_table[chosen_cluster_id].proxy_port);
+      degraded_read_request.set_clientip(client_ip);
+      degraded_read_request.set_clientport(client_port);
+      degraded_read_request.set_failed_block_id(failed_block_id);
+      degraded_read_request.set_failed_block_key(t_stripe.blocks[failed_block_id]->block_key);
+      std::vector<int> blockids = t_stripe.group_to_blocks[recovery_group_ids[0]];
+      for (int i = 0; i < int(blockids.size()); i++)
+      {
+        if (blockids[i] == failed_block_id)
+          continue;
+
+        Block *t_block = t_stripe.blocks[blockids[i]];
+        degraded_read_request.add_datanodeip(m_node_table[t_block->map2node].node_ip);
+        degraded_read_request.add_datanodeport(m_node_table[t_block->map2node].node_port);
+        degraded_read_request.add_blockkeys(t_block->block_key);
+        degraded_read_request.add_blockids(t_block->block_id);
+      }
+      status = m_proxy_ptrs[chosen_proxy]->degradedRead(&degraded_read_context, degraded_read_request, &degraded_read_reply);
+      if (status.ok() && IF_DEBUG)
+      {
+        std::cout << "[Coordinator] degraded read of " << keyClient->key() << " success!" << std::endl;
+      }
+      else if (IF_DEBUG)
+      {
+        std::cout << "[Coordinator] degraded read of " << keyClient->key() << " failed!" << std::endl;
+      }
+    }
+    else
+    {
+      std::cout << "[Coordinator] degraded read across multiple groups has not been implemented!" << std::endl;
+      return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "Degraded read across multiple groups has not been implemented!");
+    }
+
+    return grpc::Status::OK;
+  }
+
+  bool CoordinatorImpl::recovery_one_stripe(int stripe_id, int failed_block_id)
+  {
+    std::string code_type = m_sys_config->CodeType;
+    Stripe &t_stripe = m_stripe_table[stripe_id];
+    std::vector<int> recovery_group_ids = get_recovery_group_ids(m_sys_config->CodeType, m_sys_config->k, m_sys_config->r, m_sys_config->z, failed_block_id);
+    grpc::Status status;
+
+    if (recovery_group_ids.size() == 1)
+    {
+      assert((code_type == "UniLRC") || (code_type == "AzureLRC" && failed_block_id >= m_sys_config->k && failed_block_id < m_sys_config->k + m_sys_config->r));
+
+      grpc::ClientContext recovery_context;
+      proxy_proto::RecoveryRequest recovery_request;
+      proxy_proto::GetReply recovery_reply;
+
+      int chosen_cluster_id = get_cluster_id_by_group_id(t_stripe, recovery_group_ids[0]);
+      std::string chosen_proxy = m_cluster_table[chosen_cluster_id].proxy_ip + ":" + std::to_string(m_cluster_table[chosen_cluster_id].proxy_port);
+      recovery_request.set_failed_block_id(failed_block_id);
+      recovery_request.set_failed_block_key(t_stripe.blocks[failed_block_id]->block_key);
+      int t_node_id = randomly_select_a_node(chosen_cluster_id, stripe_id);
+      recovery_request.set_replaced_node_ip(m_node_table[t_node_id].node_ip);
+      recovery_request.set_replaced_node_port(m_node_table[t_node_id].node_port);
+      std::vector<int> blockids = t_stripe.group_to_blocks[recovery_group_ids[0]];
+      for (int i = 0; i < int(blockids.size()); i++)
+      {
+        if (blockids[i] == failed_block_id)
+          continue;
+
+        Block *t_block = t_stripe.blocks[blockids[i]];
+        recovery_request.add_datanodeip(m_node_table[t_block->map2node].node_ip);
+        recovery_request.add_datanodeport(m_node_table[t_block->map2node].node_port);
+        recovery_request.add_blockkeys(t_block->block_key);
+        recovery_request.add_blockids(t_block->block_id);
+      }
+
+      status = m_proxy_ptrs[chosen_proxy]->recovery(&recovery_context, recovery_request, &recovery_reply);
+      if (status.ok() && IF_DEBUG)
+      {
+        std::cout << "[Coordinator] recovery of " << stripe_id << "_" << failed_block_id << " success!" << std::endl;
+        return true;
+      }
+      else if (IF_DEBUG)
+      {
+        std::cout << "[Coordinator] recovery of " << stripe_id << "_" << failed_block_id << " failed!" << std::endl;
+        return false;
+      }
+    }
+    else
+    {
+      std::cout << "[Coordinator] recovery across multiple groups has not been implemented!" << std::endl;
+      return false;
+    }
+  }
+
+  grpc::Status CoordinatorImpl::getRecovery(
+      grpc::ServerContext *context,
+      const coordinator_proto::KeyAndClientIP *keyClient,
+      coordinator_proto::RepIfGetSuccess *getReplyClient)
+  {
+    int stripe_id = std::stoi(keyClient->key().substr(0, keyClient->key().find('_')));
+    int failed_block_id = std::stoi(keyClient->key().substr(keyClient->key().find('_') + 1));
+    bool if_success = recovery_one_stripe(stripe_id, failed_block_id);
+
+    if (if_success)
+    {
+      return grpc::Status::OK;
+    }
+    else
+    {
+      return grpc::Status(grpc::StatusCode::INTERNAL, "Recovery failed!");
+    }
+  }
+
   grpc::Status CoordinatorImpl::delByKey(
       grpc::ServerContext *context,
       const coordinator_proto::KeyFromClient *del_key,

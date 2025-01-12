@@ -28,6 +28,8 @@ service datanodeService {
   rpc handleMergeParity(MergeParityInfo) returns(RequestResult);
   // merge parity with rep
   rpc handleMergeParityWithRep(MergeParityInfo) returns(RequestResult);
+  // recovery
+  rpc handleRecovery(MergeParityInfo) returns(RequestResult);
   // get
   rpc handleGet(GetInfo) returns(RequestResult);
   // delete

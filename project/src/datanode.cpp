@@ -271,6 +271,67 @@ namespace ECProject
         return grpc::Status::OK;
     }
 
+    grpc::Status DatanodeImpl::handleRecovery(
+        grpc::ServerContext *context,
+        const datanode_proto::MergeParityInfo *recovery_info,
+        datanode_proto::RequestResult *response)
+    {
+        std::string block_key = recovery_info->block_key();
+        int block_id = recovery_info->block_id();
+
+        auto handler = [this](std::string block_key, int block_id) mutable
+        {
+            try
+            {
+                std::vector<char> buf(m_sys_config->BlockSize);
+                // only send data
+                asio::error_code ec;
+                asio::ip::tcp::socket socket(io_context);
+                acceptor.accept(socket);
+                asio::read(socket, asio::buffer(buf.data(), m_sys_config->BlockSize), ec);
+
+                asio::error_code ignore_ec;
+                socket.shutdown(asio::ip::tcp::socket::shutdown_both, ignore_ec);
+                socket.close(ignore_ec);
+
+                std::string targetdir = "./storage/" + std::to_string(m_port) + "/";
+                std::string writepath = targetdir + block_key;
+
+                std::ofstream ofs(writepath, std::ios::binary | std::ios::out | std::ios::trunc);
+                if (!ofs.is_open())
+                {
+                    std::cerr << "[Recovery] Failed to open file: " << writepath << std::endl;
+                    exit(-1);
+                }
+                ofs.write(buf.data(), m_sys_config->BlockSize);
+                ofs.flush();
+                ofs.close();
+
+                if (IF_DEBUG)
+                {
+                    std::cout << "[Datanode" << m_port << "][Recovery] successfully recovery block " << block_key << " with " << m_sys_config->BlockSize << " bytes" << std::endl;
+                }
+            }
+            catch (const std::exception &e)
+            {
+                std::cerr << e.what() << '\n';
+            }
+        };
+
+        try
+        {
+            std::thread my_thread(handler, block_key, block_id);
+            my_thread.detach();
+            response->set_message(true);
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+
+        return grpc::Status::OK;
+    }
+
     grpc::Status DatanodeImpl::handleMergeParity(
         grpc::ServerContext *context,
         const datanode_proto::MergeParityInfo *merge_parity_info,

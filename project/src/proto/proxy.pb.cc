@@ -251,6 +251,50 @@ struct ObjectAndPlacementDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ObjectAndPlacementDefaultTypeInternal _ObjectAndPlacement_default_instance_;
+PROTOBUF_CONSTEXPR DegradedReadRequest::DegradedReadRequest(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.datanodeip_)*/{}
+  , /*decltype(_impl_.datanodeport_)*/{}
+  , /*decltype(_impl_._datanodeport_cached_byte_size_)*/{0}
+  , /*decltype(_impl_.blockkeys_)*/{}
+  , /*decltype(_impl_.blockids_)*/{}
+  , /*decltype(_impl_._blockids_cached_byte_size_)*/{0}
+  , /*decltype(_impl_.clientip_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.failed_block_key_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.clientport_)*/0
+  , /*decltype(_impl_.failed_block_id_)*/0
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct DegradedReadRequestDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR DegradedReadRequestDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~DegradedReadRequestDefaultTypeInternal() {}
+  union {
+    DegradedReadRequest _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DegradedReadRequestDefaultTypeInternal _DegradedReadRequest_default_instance_;
+PROTOBUF_CONSTEXPR RecoveryRequest::RecoveryRequest(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.datanodeip_)*/{}
+  , /*decltype(_impl_.datanodeport_)*/{}
+  , /*decltype(_impl_._datanodeport_cached_byte_size_)*/{0}
+  , /*decltype(_impl_.blockkeys_)*/{}
+  , /*decltype(_impl_.blockids_)*/{}
+  , /*decltype(_impl_._blockids_cached_byte_size_)*/{0}
+  , /*decltype(_impl_.replaced_node_ip_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.failed_block_key_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.replaced_node_port_)*/0
+  , /*decltype(_impl_.failed_block_id_)*/0
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct RecoveryRequestDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR RecoveryRequestDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~RecoveryRequestDefaultTypeInternal() {}
+  union {
+    RecoveryRequest _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 RecoveryRequestDefaultTypeInternal _RecoveryRequest_default_instance_;
 PROTOBUF_CONSTEXPR AppendStripeDataPlacement::AppendStripeDataPlacement(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.datanodeip_)*/{}
@@ -307,7 +351,7 @@ struct GetReplyDefaultTypeInternal {
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetReplyDefaultTypeInternal _GetReply_default_instance_;
 }  // namespace proxy_proto
-static ::_pb::Metadata file_level_metadata_proxy_2eproto[16];
+static ::_pb::Metadata file_level_metadata_proxy_2eproto[18];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_proxy_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_proxy_2eproto = nullptr;
 
@@ -455,6 +499,34 @@ const uint32_t TableStruct_proxy_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(pr
   PROTOBUF_FIELD_OFFSET(::proxy_proto::ObjectAndPlacement, _impl_.clientip_),
   PROTOBUF_FIELD_OFFSET(::proxy_proto::ObjectAndPlacement, _impl_.clientport_),
   ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::DegradedReadRequest, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::DegradedReadRequest, _impl_.clientip_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::DegradedReadRequest, _impl_.clientport_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::DegradedReadRequest, _impl_.failed_block_id_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::DegradedReadRequest, _impl_.failed_block_key_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::DegradedReadRequest, _impl_.datanodeip_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::DegradedReadRequest, _impl_.datanodeport_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::DegradedReadRequest, _impl_.blockkeys_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::DegradedReadRequest, _impl_.blockids_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::RecoveryRequest, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::RecoveryRequest, _impl_.replaced_node_ip_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::RecoveryRequest, _impl_.replaced_node_port_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::RecoveryRequest, _impl_.failed_block_id_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::RecoveryRequest, _impl_.failed_block_key_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::RecoveryRequest, _impl_.datanodeip_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::RecoveryRequest, _impl_.datanodeport_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::RecoveryRequest, _impl_.blockkeys_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::RecoveryRequest, _impl_.blockids_),
+  ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::proxy_proto::AppendStripeDataPlacement, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
@@ -502,9 +574,11 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 108, -1, -1, sizeof(::proxy_proto::CheckaliveCMD)},
   { 115, -1, -1, sizeof(::proxy_proto::RequestResult)},
   { 122, -1, -1, sizeof(::proxy_proto::ObjectAndPlacement)},
-  { 142, -1, -1, sizeof(::proxy_proto::AppendStripeDataPlacement)},
-  { 161, -1, -1, sizeof(::proxy_proto::SetReply)},
-  { 168, -1, -1, sizeof(::proxy_proto::GetReply)},
+  { 142, -1, -1, sizeof(::proxy_proto::DegradedReadRequest)},
+  { 156, -1, -1, sizeof(::proxy_proto::RecoveryRequest)},
+  { 170, -1, -1, sizeof(::proxy_proto::AppendStripeDataPlacement)},
+  { 189, -1, -1, sizeof(::proxy_proto::SetReply)},
+  { 196, -1, -1, sizeof(::proxy_proto::GetReply)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -521,6 +595,8 @@ static const ::_pb::Message* const file_default_instances[] = {
   &::proxy_proto::_CheckaliveCMD_default_instance_._instance,
   &::proxy_proto::_RequestResult_default_instance_._instance,
   &::proxy_proto::_ObjectAndPlacement_default_instance_._instance,
+  &::proxy_proto::_DegradedReadRequest_default_instance_._instance,
+  &::proxy_proto::_RecoveryRequest_default_instance_._instance,
   &::proxy_proto::_AppendStripeDataPlacement_default_instance_._instance,
   &::proxy_proto::_SetReply_default_instance_._instance,
   &::proxy_proto::_GetReply_default_instance_._instance,
@@ -564,31 +640,45 @@ const char descriptor_table_protodef_proxy_2eproto[] PROTOBUF_SECTION_VARIABLE(p
   "\010 \003(\005\022\021\n\tblockkeys\030\t \003(\t\022\020\n\010blockids\030\n \003"
   "(\005\022\022\n\nblock_size\030\013 \001(\005\022\023\n\013encode_type\030\014 "
   "\001(\005\022\020\n\010clientip\030\r \001(\t\022\022\n\nclientport\030\016 \001("
-  "\005\"\230\002\n\031AppendStripeDataPlacement\022\013\n\003key\030\001"
-  " \001(\t\022\022\n\ncluster_id\030\002 \001(\005\022\021\n\tstripe_id\030\003 "
-  "\001(\005\022\023\n\013append_size\030\004 \001(\005\022\022\n\ndatanodeip\030\005"
-  " \003(\t\022\024\n\014datanodeport\030\006 \003(\005\022\021\n\tblockkeys\030"
-  "\007 \003(\t\022\020\n\010blockids\030\010 \003(\005\022\017\n\007offsets\030\t \003(\005"
-  "\022\r\n\005sizes\030\n \003(\005\022\027\n\017is_merge_parity\030\013 \001(\010"
-  "\022\023\n\013append_mode\030\014 \001(\t\022\025\n\ris_serialized\030\r"
-  " \001(\010\"\034\n\010SetReply\022\020\n\010ifcommit\030\001 \001(\010\"\036\n\010Ge"
-  "tReply\022\022\n\ngetsuccess\030\001 \001(\0102\213\003\n\014proxyServ"
-  "ice\022D\n\ncheckalive\022\032.proxy_proto.Checkali"
-  "veCMD\032\032.proxy_proto.RequestResult\022L\n\022enc"
-  "odeAndSetObject\022\037.proxy_proto.ObjectAndP"
-  "lacement\032\025.proxy_proto.SetReply\022L\n\022decod"
-  "eAndGetObject\022\037.proxy_proto.ObjectAndPla"
-  "cement\032\025.proxy_proto.GetReply\022\?\n\013deleteB"
-  "lock\022\031.proxy_proto.NodeAndBlock\032\025.proxy_"
-  "proto.DelReply\022X\n\027scheduleAppend2Datanod"
-  "e\022&.proxy_proto.AppendStripeDataPlacemen"
-  "t\032\025.proxy_proto.SetReplyb\006proto3"
+  "\005\"\275\001\n\023DegradedReadRequest\022\020\n\010clientip\030\001 "
+  "\001(\t\022\022\n\nclientport\030\002 \001(\005\022\027\n\017failed_block_"
+  "id\030\003 \001(\005\022\030\n\020failed_block_key\030\004 \001(\t\022\022\n\nda"
+  "tanodeip\030\005 \003(\t\022\024\n\014datanodeport\030\006 \003(\005\022\021\n\t"
+  "blockkeys\030\007 \003(\t\022\020\n\010blockids\030\010 \003(\005\"\311\001\n\017Re"
+  "coveryRequest\022\030\n\020replaced_node_ip\030\001 \001(\t\022"
+  "\032\n\022replaced_node_port\030\002 \001(\005\022\027\n\017failed_bl"
+  "ock_id\030\003 \001(\005\022\030\n\020failed_block_key\030\004 \001(\t\022\022"
+  "\n\ndatanodeip\030\005 \003(\t\022\024\n\014datanodeport\030\006 \003(\005"
+  "\022\021\n\tblockkeys\030\007 \003(\t\022\020\n\010blockids\030\010 \003(\005\"\230\002"
+  "\n\031AppendStripeDataPlacement\022\013\n\003key\030\001 \001(\t"
+  "\022\022\n\ncluster_id\030\002 \001(\005\022\021\n\tstripe_id\030\003 \001(\005\022"
+  "\023\n\013append_size\030\004 \001(\005\022\022\n\ndatanodeip\030\005 \003(\t"
+  "\022\024\n\014datanodeport\030\006 \003(\005\022\021\n\tblockkeys\030\007 \003("
+  "\t\022\020\n\010blockids\030\010 \003(\005\022\017\n\007offsets\030\t \003(\005\022\r\n\005"
+  "sizes\030\n \003(\005\022\027\n\017is_merge_parity\030\013 \001(\010\022\023\n\013"
+  "append_mode\030\014 \001(\t\022\025\n\ris_serialized\030\r \001(\010"
+  "\"\034\n\010SetReply\022\020\n\010ifcommit\030\001 \001(\010\"\036\n\010GetRep"
+  "ly\022\022\n\ngetsuccess\030\001 \001(\0102\225\004\n\014proxyService\022"
+  "D\n\ncheckalive\022\032.proxy_proto.CheckaliveCM"
+  "D\032\032.proxy_proto.RequestResult\022L\n\022encodeA"
+  "ndSetObject\022\037.proxy_proto.ObjectAndPlace"
+  "ment\032\025.proxy_proto.SetReply\022L\n\022decodeAnd"
+  "GetObject\022\037.proxy_proto.ObjectAndPlaceme"
+  "nt\032\025.proxy_proto.GetReply\022G\n\014degradedRea"
+  "d\022 .proxy_proto.DegradedReadRequest\032\025.pr"
+  "oxy_proto.GetReply\022\?\n\010recovery\022\034.proxy_p"
+  "roto.RecoveryRequest\032\025.proxy_proto.GetRe"
+  "ply\022\?\n\013deleteBlock\022\031.proxy_proto.NodeAnd"
+  "Block\032\025.proxy_proto.DelReply\022X\n\027schedule"
+  "Append2Datanode\022&.proxy_proto.AppendStri"
+  "peDataPlacement\032\025.proxy_proto.SetReplyb\006"
+  "proto3"
   ;
 static ::_pbi::once_flag descriptor_table_proxy_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_proxy_2eproto = {
-    false, false, 2232, descriptor_table_protodef_proxy_2eproto,
+    false, false, 2766, descriptor_table_protodef_proxy_2eproto,
     "proxy.proto",
-    &descriptor_table_proxy_2eproto_once, nullptr, 0, 16,
+    &descriptor_table_proxy_2eproto_once, nullptr, 0, 18,
     schemas, file_default_instances, TableStruct_proxy_2eproto::offsets,
     file_level_metadata_proxy_2eproto, file_level_enum_descriptors_proxy_2eproto,
     file_level_service_descriptors_proxy_2eproto,
@@ -4775,6 +4865,956 @@ void ObjectAndPlacement::InternalSwap(ObjectAndPlacement* other) {
 
 // ===================================================================
 
+class DegradedReadRequest::_Internal {
+ public:
+};
+
+DegradedReadRequest::DegradedReadRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:proxy_proto.DegradedReadRequest)
+}
+DegradedReadRequest::DegradedReadRequest(const DegradedReadRequest& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  DegradedReadRequest* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.datanodeip_){from._impl_.datanodeip_}
+    , decltype(_impl_.datanodeport_){from._impl_.datanodeport_}
+    , /*decltype(_impl_._datanodeport_cached_byte_size_)*/{0}
+    , decltype(_impl_.blockkeys_){from._impl_.blockkeys_}
+    , decltype(_impl_.blockids_){from._impl_.blockids_}
+    , /*decltype(_impl_._blockids_cached_byte_size_)*/{0}
+    , decltype(_impl_.clientip_){}
+    , decltype(_impl_.failed_block_key_){}
+    , decltype(_impl_.clientport_){}
+    , decltype(_impl_.failed_block_id_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _impl_.clientip_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.clientip_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_clientip().empty()) {
+    _this->_impl_.clientip_.Set(from._internal_clientip(), 
+      _this->GetArenaForAllocation());
+  }
+  _impl_.failed_block_key_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.failed_block_key_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_failed_block_key().empty()) {
+    _this->_impl_.failed_block_key_.Set(from._internal_failed_block_key(), 
+      _this->GetArenaForAllocation());
+  }
+  ::memcpy(&_impl_.clientport_, &from._impl_.clientport_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.failed_block_id_) -
+    reinterpret_cast<char*>(&_impl_.clientport_)) + sizeof(_impl_.failed_block_id_));
+  // @@protoc_insertion_point(copy_constructor:proxy_proto.DegradedReadRequest)
+}
+
+inline void DegradedReadRequest::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.datanodeip_){arena}
+    , decltype(_impl_.datanodeport_){arena}
+    , /*decltype(_impl_._datanodeport_cached_byte_size_)*/{0}
+    , decltype(_impl_.blockkeys_){arena}
+    , decltype(_impl_.blockids_){arena}
+    , /*decltype(_impl_._blockids_cached_byte_size_)*/{0}
+    , decltype(_impl_.clientip_){}
+    , decltype(_impl_.failed_block_key_){}
+    , decltype(_impl_.clientport_){0}
+    , decltype(_impl_.failed_block_id_){0}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+  _impl_.clientip_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.clientip_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.failed_block_key_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.failed_block_key_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+}
+
+DegradedReadRequest::~DegradedReadRequest() {
+  // @@protoc_insertion_point(destructor:proxy_proto.DegradedReadRequest)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void DegradedReadRequest::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.datanodeip_.~RepeatedPtrField();
+  _impl_.datanodeport_.~RepeatedField();
+  _impl_.blockkeys_.~RepeatedPtrField();
+  _impl_.blockids_.~RepeatedField();
+  _impl_.clientip_.Destroy();
+  _impl_.failed_block_key_.Destroy();
+}
+
+void DegradedReadRequest::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void DegradedReadRequest::Clear() {
+// @@protoc_insertion_point(message_clear_start:proxy_proto.DegradedReadRequest)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.datanodeip_.Clear();
+  _impl_.datanodeport_.Clear();
+  _impl_.blockkeys_.Clear();
+  _impl_.blockids_.Clear();
+  _impl_.clientip_.ClearToEmpty();
+  _impl_.failed_block_key_.ClearToEmpty();
+  ::memset(&_impl_.clientport_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.failed_block_id_) -
+      reinterpret_cast<char*>(&_impl_.clientport_)) + sizeof(_impl_.failed_block_id_));
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* DegradedReadRequest::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // string clientip = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+          auto str = _internal_mutable_clientip();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "proxy_proto.DegradedReadRequest.clientip"));
+        } else
+          goto handle_unusual;
+        continue;
+      // int32 clientport = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          _impl_.clientport_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // int32 failed_block_id = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
+          _impl_.failed_block_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // string failed_block_key = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+          auto str = _internal_mutable_failed_block_key();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "proxy_proto.DegradedReadRequest.failed_block_key"));
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated string datanodeip = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            auto str = _internal_add_datanodeip();
+            ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+            CHK_(ptr);
+            CHK_(::_pbi::VerifyUTF8(str, "proxy_proto.DegradedReadRequest.datanodeip"));
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<42>(ptr));
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated int32 datanodeport = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_datanodeport(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<uint8_t>(tag) == 48) {
+          _internal_add_datanodeport(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated string blockkeys = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            auto str = _internal_add_blockkeys();
+            ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+            CHK_(ptr);
+            CHK_(::_pbi::VerifyUTF8(str, "proxy_proto.DegradedReadRequest.blockkeys"));
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<58>(ptr));
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated int32 blockids = 8;
+      case 8:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_blockids(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<uint8_t>(tag) == 64) {
+          _internal_add_blockids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* DegradedReadRequest::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:proxy_proto.DegradedReadRequest)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // string clientip = 1;
+  if (!this->_internal_clientip().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_clientip().data(), static_cast<int>(this->_internal_clientip().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "proxy_proto.DegradedReadRequest.clientip");
+    target = stream->WriteStringMaybeAliased(
+        1, this->_internal_clientip(), target);
+  }
+
+  // int32 clientport = 2;
+  if (this->_internal_clientport() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(2, this->_internal_clientport(), target);
+  }
+
+  // int32 failed_block_id = 3;
+  if (this->_internal_failed_block_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(3, this->_internal_failed_block_id(), target);
+  }
+
+  // string failed_block_key = 4;
+  if (!this->_internal_failed_block_key().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_failed_block_key().data(), static_cast<int>(this->_internal_failed_block_key().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "proxy_proto.DegradedReadRequest.failed_block_key");
+    target = stream->WriteStringMaybeAliased(
+        4, this->_internal_failed_block_key(), target);
+  }
+
+  // repeated string datanodeip = 5;
+  for (int i = 0, n = this->_internal_datanodeip_size(); i < n; i++) {
+    const auto& s = this->_internal_datanodeip(i);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      s.data(), static_cast<int>(s.length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "proxy_proto.DegradedReadRequest.datanodeip");
+    target = stream->WriteString(5, s, target);
+  }
+
+  // repeated int32 datanodeport = 6;
+  {
+    int byte_size = _impl_._datanodeport_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteInt32Packed(
+          6, _internal_datanodeport(), byte_size, target);
+    }
+  }
+
+  // repeated string blockkeys = 7;
+  for (int i = 0, n = this->_internal_blockkeys_size(); i < n; i++) {
+    const auto& s = this->_internal_blockkeys(i);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      s.data(), static_cast<int>(s.length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "proxy_proto.DegradedReadRequest.blockkeys");
+    target = stream->WriteString(7, s, target);
+  }
+
+  // repeated int32 blockids = 8;
+  {
+    int byte_size = _impl_._blockids_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteInt32Packed(
+          8, _internal_blockids(), byte_size, target);
+    }
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:proxy_proto.DegradedReadRequest)
+  return target;
+}
+
+size_t DegradedReadRequest::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:proxy_proto.DegradedReadRequest)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated string datanodeip = 5;
+  total_size += 1 *
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(_impl_.datanodeip_.size());
+  for (int i = 0, n = _impl_.datanodeip_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      _impl_.datanodeip_.Get(i));
+  }
+
+  // repeated int32 datanodeport = 6;
+  {
+    size_t data_size = ::_pbi::WireFormatLite::
+      Int32Size(this->_impl_.datanodeport_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::_pbi::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    }
+    int cached_size = ::_pbi::ToCachedSize(data_size);
+    _impl_._datanodeport_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
+  }
+
+  // repeated string blockkeys = 7;
+  total_size += 1 *
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(_impl_.blockkeys_.size());
+  for (int i = 0, n = _impl_.blockkeys_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      _impl_.blockkeys_.Get(i));
+  }
+
+  // repeated int32 blockids = 8;
+  {
+    size_t data_size = ::_pbi::WireFormatLite::
+      Int32Size(this->_impl_.blockids_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::_pbi::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    }
+    int cached_size = ::_pbi::ToCachedSize(data_size);
+    _impl_._blockids_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
+  }
+
+  // string clientip = 1;
+  if (!this->_internal_clientip().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_clientip());
+  }
+
+  // string failed_block_key = 4;
+  if (!this->_internal_failed_block_key().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_failed_block_key());
+  }
+
+  // int32 clientport = 2;
+  if (this->_internal_clientport() != 0) {
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_clientport());
+  }
+
+  // int32 failed_block_id = 3;
+  if (this->_internal_failed_block_id() != 0) {
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_failed_block_id());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData DegradedReadRequest::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    DegradedReadRequest::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*DegradedReadRequest::GetClassData() const { return &_class_data_; }
+
+
+void DegradedReadRequest::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<DegradedReadRequest*>(&to_msg);
+  auto& from = static_cast<const DegradedReadRequest&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:proxy_proto.DegradedReadRequest)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  _this->_impl_.datanodeip_.MergeFrom(from._impl_.datanodeip_);
+  _this->_impl_.datanodeport_.MergeFrom(from._impl_.datanodeport_);
+  _this->_impl_.blockkeys_.MergeFrom(from._impl_.blockkeys_);
+  _this->_impl_.blockids_.MergeFrom(from._impl_.blockids_);
+  if (!from._internal_clientip().empty()) {
+    _this->_internal_set_clientip(from._internal_clientip());
+  }
+  if (!from._internal_failed_block_key().empty()) {
+    _this->_internal_set_failed_block_key(from._internal_failed_block_key());
+  }
+  if (from._internal_clientport() != 0) {
+    _this->_internal_set_clientport(from._internal_clientport());
+  }
+  if (from._internal_failed_block_id() != 0) {
+    _this->_internal_set_failed_block_id(from._internal_failed_block_id());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void DegradedReadRequest::CopyFrom(const DegradedReadRequest& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:proxy_proto.DegradedReadRequest)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool DegradedReadRequest::IsInitialized() const {
+  return true;
+}
+
+void DegradedReadRequest::InternalSwap(DegradedReadRequest* other) {
+  using std::swap;
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  _impl_.datanodeip_.InternalSwap(&other->_impl_.datanodeip_);
+  _impl_.datanodeport_.InternalSwap(&other->_impl_.datanodeport_);
+  _impl_.blockkeys_.InternalSwap(&other->_impl_.blockkeys_);
+  _impl_.blockids_.InternalSwap(&other->_impl_.blockids_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.clientip_, lhs_arena,
+      &other->_impl_.clientip_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.failed_block_key_, lhs_arena,
+      &other->_impl_.failed_block_key_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(DegradedReadRequest, _impl_.failed_block_id_)
+      + sizeof(DegradedReadRequest::_impl_.failed_block_id_)
+      - PROTOBUF_FIELD_OFFSET(DegradedReadRequest, _impl_.clientport_)>(
+          reinterpret_cast<char*>(&_impl_.clientport_),
+          reinterpret_cast<char*>(&other->_impl_.clientport_));
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata DegradedReadRequest::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_proxy_2eproto_getter, &descriptor_table_proxy_2eproto_once,
+      file_level_metadata_proxy_2eproto[13]);
+}
+
+// ===================================================================
+
+class RecoveryRequest::_Internal {
+ public:
+};
+
+RecoveryRequest::RecoveryRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:proxy_proto.RecoveryRequest)
+}
+RecoveryRequest::RecoveryRequest(const RecoveryRequest& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  RecoveryRequest* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.datanodeip_){from._impl_.datanodeip_}
+    , decltype(_impl_.datanodeport_){from._impl_.datanodeport_}
+    , /*decltype(_impl_._datanodeport_cached_byte_size_)*/{0}
+    , decltype(_impl_.blockkeys_){from._impl_.blockkeys_}
+    , decltype(_impl_.blockids_){from._impl_.blockids_}
+    , /*decltype(_impl_._blockids_cached_byte_size_)*/{0}
+    , decltype(_impl_.replaced_node_ip_){}
+    , decltype(_impl_.failed_block_key_){}
+    , decltype(_impl_.replaced_node_port_){}
+    , decltype(_impl_.failed_block_id_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _impl_.replaced_node_ip_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.replaced_node_ip_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_replaced_node_ip().empty()) {
+    _this->_impl_.replaced_node_ip_.Set(from._internal_replaced_node_ip(), 
+      _this->GetArenaForAllocation());
+  }
+  _impl_.failed_block_key_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.failed_block_key_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_failed_block_key().empty()) {
+    _this->_impl_.failed_block_key_.Set(from._internal_failed_block_key(), 
+      _this->GetArenaForAllocation());
+  }
+  ::memcpy(&_impl_.replaced_node_port_, &from._impl_.replaced_node_port_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.failed_block_id_) -
+    reinterpret_cast<char*>(&_impl_.replaced_node_port_)) + sizeof(_impl_.failed_block_id_));
+  // @@protoc_insertion_point(copy_constructor:proxy_proto.RecoveryRequest)
+}
+
+inline void RecoveryRequest::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.datanodeip_){arena}
+    , decltype(_impl_.datanodeport_){arena}
+    , /*decltype(_impl_._datanodeport_cached_byte_size_)*/{0}
+    , decltype(_impl_.blockkeys_){arena}
+    , decltype(_impl_.blockids_){arena}
+    , /*decltype(_impl_._blockids_cached_byte_size_)*/{0}
+    , decltype(_impl_.replaced_node_ip_){}
+    , decltype(_impl_.failed_block_key_){}
+    , decltype(_impl_.replaced_node_port_){0}
+    , decltype(_impl_.failed_block_id_){0}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+  _impl_.replaced_node_ip_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.replaced_node_ip_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.failed_block_key_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.failed_block_key_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+}
+
+RecoveryRequest::~RecoveryRequest() {
+  // @@protoc_insertion_point(destructor:proxy_proto.RecoveryRequest)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void RecoveryRequest::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.datanodeip_.~RepeatedPtrField();
+  _impl_.datanodeport_.~RepeatedField();
+  _impl_.blockkeys_.~RepeatedPtrField();
+  _impl_.blockids_.~RepeatedField();
+  _impl_.replaced_node_ip_.Destroy();
+  _impl_.failed_block_key_.Destroy();
+}
+
+void RecoveryRequest::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void RecoveryRequest::Clear() {
+// @@protoc_insertion_point(message_clear_start:proxy_proto.RecoveryRequest)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.datanodeip_.Clear();
+  _impl_.datanodeport_.Clear();
+  _impl_.blockkeys_.Clear();
+  _impl_.blockids_.Clear();
+  _impl_.replaced_node_ip_.ClearToEmpty();
+  _impl_.failed_block_key_.ClearToEmpty();
+  ::memset(&_impl_.replaced_node_port_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.failed_block_id_) -
+      reinterpret_cast<char*>(&_impl_.replaced_node_port_)) + sizeof(_impl_.failed_block_id_));
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* RecoveryRequest::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // string replaced_node_ip = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+          auto str = _internal_mutable_replaced_node_ip();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "proxy_proto.RecoveryRequest.replaced_node_ip"));
+        } else
+          goto handle_unusual;
+        continue;
+      // int32 replaced_node_port = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          _impl_.replaced_node_port_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // int32 failed_block_id = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
+          _impl_.failed_block_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // string failed_block_key = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+          auto str = _internal_mutable_failed_block_key();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "proxy_proto.RecoveryRequest.failed_block_key"));
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated string datanodeip = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            auto str = _internal_add_datanodeip();
+            ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+            CHK_(ptr);
+            CHK_(::_pbi::VerifyUTF8(str, "proxy_proto.RecoveryRequest.datanodeip"));
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<42>(ptr));
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated int32 datanodeport = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_datanodeport(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<uint8_t>(tag) == 48) {
+          _internal_add_datanodeport(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated string blockkeys = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            auto str = _internal_add_blockkeys();
+            ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+            CHK_(ptr);
+            CHK_(::_pbi::VerifyUTF8(str, "proxy_proto.RecoveryRequest.blockkeys"));
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<58>(ptr));
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated int32 blockids = 8;
+      case 8:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_blockids(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<uint8_t>(tag) == 64) {
+          _internal_add_blockids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* RecoveryRequest::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:proxy_proto.RecoveryRequest)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // string replaced_node_ip = 1;
+  if (!this->_internal_replaced_node_ip().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_replaced_node_ip().data(), static_cast<int>(this->_internal_replaced_node_ip().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "proxy_proto.RecoveryRequest.replaced_node_ip");
+    target = stream->WriteStringMaybeAliased(
+        1, this->_internal_replaced_node_ip(), target);
+  }
+
+  // int32 replaced_node_port = 2;
+  if (this->_internal_replaced_node_port() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(2, this->_internal_replaced_node_port(), target);
+  }
+
+  // int32 failed_block_id = 3;
+  if (this->_internal_failed_block_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(3, this->_internal_failed_block_id(), target);
+  }
+
+  // string failed_block_key = 4;
+  if (!this->_internal_failed_block_key().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_failed_block_key().data(), static_cast<int>(this->_internal_failed_block_key().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "proxy_proto.RecoveryRequest.failed_block_key");
+    target = stream->WriteStringMaybeAliased(
+        4, this->_internal_failed_block_key(), target);
+  }
+
+  // repeated string datanodeip = 5;
+  for (int i = 0, n = this->_internal_datanodeip_size(); i < n; i++) {
+    const auto& s = this->_internal_datanodeip(i);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      s.data(), static_cast<int>(s.length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "proxy_proto.RecoveryRequest.datanodeip");
+    target = stream->WriteString(5, s, target);
+  }
+
+  // repeated int32 datanodeport = 6;
+  {
+    int byte_size = _impl_._datanodeport_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteInt32Packed(
+          6, _internal_datanodeport(), byte_size, target);
+    }
+  }
+
+  // repeated string blockkeys = 7;
+  for (int i = 0, n = this->_internal_blockkeys_size(); i < n; i++) {
+    const auto& s = this->_internal_blockkeys(i);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      s.data(), static_cast<int>(s.length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "proxy_proto.RecoveryRequest.blockkeys");
+    target = stream->WriteString(7, s, target);
+  }
+
+  // repeated int32 blockids = 8;
+  {
+    int byte_size = _impl_._blockids_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteInt32Packed(
+          8, _internal_blockids(), byte_size, target);
+    }
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:proxy_proto.RecoveryRequest)
+  return target;
+}
+
+size_t RecoveryRequest::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:proxy_proto.RecoveryRequest)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated string datanodeip = 5;
+  total_size += 1 *
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(_impl_.datanodeip_.size());
+  for (int i = 0, n = _impl_.datanodeip_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      _impl_.datanodeip_.Get(i));
+  }
+
+  // repeated int32 datanodeport = 6;
+  {
+    size_t data_size = ::_pbi::WireFormatLite::
+      Int32Size(this->_impl_.datanodeport_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::_pbi::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    }
+    int cached_size = ::_pbi::ToCachedSize(data_size);
+    _impl_._datanodeport_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
+  }
+
+  // repeated string blockkeys = 7;
+  total_size += 1 *
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(_impl_.blockkeys_.size());
+  for (int i = 0, n = _impl_.blockkeys_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      _impl_.blockkeys_.Get(i));
+  }
+
+  // repeated int32 blockids = 8;
+  {
+    size_t data_size = ::_pbi::WireFormatLite::
+      Int32Size(this->_impl_.blockids_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::_pbi::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    }
+    int cached_size = ::_pbi::ToCachedSize(data_size);
+    _impl_._blockids_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
+  }
+
+  // string replaced_node_ip = 1;
+  if (!this->_internal_replaced_node_ip().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_replaced_node_ip());
+  }
+
+  // string failed_block_key = 4;
+  if (!this->_internal_failed_block_key().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_failed_block_key());
+  }
+
+  // int32 replaced_node_port = 2;
+  if (this->_internal_replaced_node_port() != 0) {
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_replaced_node_port());
+  }
+
+  // int32 failed_block_id = 3;
+  if (this->_internal_failed_block_id() != 0) {
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_failed_block_id());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData RecoveryRequest::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    RecoveryRequest::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*RecoveryRequest::GetClassData() const { return &_class_data_; }
+
+
+void RecoveryRequest::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<RecoveryRequest*>(&to_msg);
+  auto& from = static_cast<const RecoveryRequest&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:proxy_proto.RecoveryRequest)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  _this->_impl_.datanodeip_.MergeFrom(from._impl_.datanodeip_);
+  _this->_impl_.datanodeport_.MergeFrom(from._impl_.datanodeport_);
+  _this->_impl_.blockkeys_.MergeFrom(from._impl_.blockkeys_);
+  _this->_impl_.blockids_.MergeFrom(from._impl_.blockids_);
+  if (!from._internal_replaced_node_ip().empty()) {
+    _this->_internal_set_replaced_node_ip(from._internal_replaced_node_ip());
+  }
+  if (!from._internal_failed_block_key().empty()) {
+    _this->_internal_set_failed_block_key(from._internal_failed_block_key());
+  }
+  if (from._internal_replaced_node_port() != 0) {
+    _this->_internal_set_replaced_node_port(from._internal_replaced_node_port());
+  }
+  if (from._internal_failed_block_id() != 0) {
+    _this->_internal_set_failed_block_id(from._internal_failed_block_id());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void RecoveryRequest::CopyFrom(const RecoveryRequest& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:proxy_proto.RecoveryRequest)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool RecoveryRequest::IsInitialized() const {
+  return true;
+}
+
+void RecoveryRequest::InternalSwap(RecoveryRequest* other) {
+  using std::swap;
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  _impl_.datanodeip_.InternalSwap(&other->_impl_.datanodeip_);
+  _impl_.datanodeport_.InternalSwap(&other->_impl_.datanodeport_);
+  _impl_.blockkeys_.InternalSwap(&other->_impl_.blockkeys_);
+  _impl_.blockids_.InternalSwap(&other->_impl_.blockids_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.replaced_node_ip_, lhs_arena,
+      &other->_impl_.replaced_node_ip_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.failed_block_key_, lhs_arena,
+      &other->_impl_.failed_block_key_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(RecoveryRequest, _impl_.failed_block_id_)
+      + sizeof(RecoveryRequest::_impl_.failed_block_id_)
+      - PROTOBUF_FIELD_OFFSET(RecoveryRequest, _impl_.replaced_node_port_)>(
+          reinterpret_cast<char*>(&_impl_.replaced_node_port_),
+          reinterpret_cast<char*>(&other->_impl_.replaced_node_port_));
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata RecoveryRequest::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_proxy_2eproto_getter, &descriptor_table_proxy_2eproto_once,
+      file_level_metadata_proxy_2eproto[14]);
+}
+
+// ===================================================================
+
 class AppendStripeDataPlacement::_Internal {
  public:
 };
@@ -5401,7 +6441,7 @@ void AppendStripeDataPlacement::InternalSwap(AppendStripeDataPlacement* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata AppendStripeDataPlacement::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_proxy_2eproto_getter, &descriptor_table_proxy_2eproto_once,
-      file_level_metadata_proxy_2eproto[13]);
+      file_level_metadata_proxy_2eproto[15]);
 }
 
 // ===================================================================
@@ -5579,7 +6619,7 @@ void SetReply::InternalSwap(SetReply* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata SetReply::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_proxy_2eproto_getter, &descriptor_table_proxy_2eproto_once,
-      file_level_metadata_proxy_2eproto[14]);
+      file_level_metadata_proxy_2eproto[16]);
 }
 
 // ===================================================================
@@ -5757,7 +6797,7 @@ void GetReply::InternalSwap(GetReply* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata GetReply::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_proxy_2eproto_getter, &descriptor_table_proxy_2eproto_once,
-      file_level_metadata_proxy_2eproto[15]);
+      file_level_metadata_proxy_2eproto[17]);
 }
 
 // @@protoc_insertion_point(namespace_scope)
@@ -5814,6 +6854,14 @@ Arena::CreateMaybeMessage< ::proxy_proto::RequestResult >(Arena* arena) {
 template<> PROTOBUF_NOINLINE ::proxy_proto::ObjectAndPlacement*
 Arena::CreateMaybeMessage< ::proxy_proto::ObjectAndPlacement >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proxy_proto::ObjectAndPlacement >(arena);
+}
+template<> PROTOBUF_NOINLINE ::proxy_proto::DegradedReadRequest*
+Arena::CreateMaybeMessage< ::proxy_proto::DegradedReadRequest >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::proxy_proto::DegradedReadRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::proxy_proto::RecoveryRequest*
+Arena::CreateMaybeMessage< ::proxy_proto::RecoveryRequest >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::proxy_proto::RecoveryRequest >(arena);
 }
 template<> PROTOBUF_NOINLINE ::proxy_proto::AppendStripeDataPlacement*
 Arena::CreateMaybeMessage< ::proxy_proto::AppendStripeDataPlacement >(Arena* arena) {

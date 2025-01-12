@@ -232,7 +232,7 @@ const char descriptor_table_protodef_datanode_2eproto[] PROTOBUF_SECTION_VARIABL
   "\020\n\010block_id\030\002 \001(\005\"h\n\007GetInfo\022\021\n\tblock_ke"
   "y\030\001 \001(\t\022\022\n\nblock_size\030\002 \001(\005\022\020\n\010block_id\030"
   "\003 \001(\005\022\020\n\010proxy_ip\030\004 \001(\t\022\022\n\nproxy_port\030\005 "
-  "\001(\005\"\034\n\007DelInfo\022\021\n\tblock_key\030\001 \001(\t2\253\004\n\017da"
+  "\001(\005\"\034\n\007DelInfo\022\021\n\tblock_key\030\001 \001(\t2\375\004\n\017da"
   "tanodeService\022J\n\ncheckalive\022\035.datanode_p"
   "roto.CheckaliveCMD\032\035.datanode_proto.Requ"
   "estResult\022C\n\thandleSet\022\027.datanode_proto."
@@ -243,14 +243,17 @@ const char descriptor_table_protodef_datanode_2eproto[] PROTOBUF_SECTION_VARIABL
   "ityInfo\032\035.datanode_proto.RequestResult\022Z"
   "\n\030handleMergeParityWithRep\022\037.datanode_pr"
   "oto.MergeParityInfo\032\035.datanode_proto.Req"
-  "uestResult\022C\n\thandleGet\022\027.datanode_proto"
-  ".GetInfo\032\035.datanode_proto.RequestResult\022"
-  "F\n\014handleDelete\022\027.datanode_proto.DelInfo"
-  "\032\035.datanode_proto.RequestResultb\006proto3"
+  "uestResult\022P\n\016handleRecovery\022\037.datanode_"
+  "proto.MergeParityInfo\032\035.datanode_proto.R"
+  "equestResult\022C\n\thandleGet\022\027.datanode_pro"
+  "to.GetInfo\032\035.datanode_proto.RequestResul"
+  "t\022F\n\014handleDelete\022\027.datanode_proto.DelIn"
+  "fo\032\035.datanode_proto.RequestResultb\006proto"
+  "3"
   ;
 static ::_pbi::once_flag descriptor_table_datanode_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_datanode_2eproto = {
-    false, false, 1119, descriptor_table_protodef_datanode_2eproto,
+    false, false, 1201, descriptor_table_protodef_datanode_2eproto,
     "datanode.proto",
     &descriptor_table_datanode_2eproto_once, nullptr, 0, 7,
     schemas, file_default_instances, TableStruct_datanode_2eproto::offsets,

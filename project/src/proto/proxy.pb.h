@@ -54,6 +54,9 @@ extern AskIfSuccessDefaultTypeInternal _AskIfSuccess_default_instance_;
 class CheckaliveCMD;
 struct CheckaliveCMDDefaultTypeInternal;
 extern CheckaliveCMDDefaultTypeInternal _CheckaliveCMD_default_instance_;
+class DegradedReadRequest;
+struct DegradedReadRequestDefaultTypeInternal;
+extern DegradedReadRequestDefaultTypeInternal _DegradedReadRequest_default_instance_;
 class DelReply;
 struct DelReplyDefaultTypeInternal;
 extern DelReplyDefaultTypeInternal _DelReply_default_instance_;
@@ -69,6 +72,9 @@ extern ObjectAndPlacementDefaultTypeInternal _ObjectAndPlacement_default_instanc
 class RecalReply;
 struct RecalReplyDefaultTypeInternal;
 extern RecalReplyDefaultTypeInternal _RecalReply_default_instance_;
+class RecoveryRequest;
+struct RecoveryRequestDefaultTypeInternal;
+extern RecoveryRequestDefaultTypeInternal _RecoveryRequest_default_instance_;
 class RepIfSuccess;
 struct RepIfSuccessDefaultTypeInternal;
 extern RepIfSuccessDefaultTypeInternal _RepIfSuccess_default_instance_;
@@ -98,11 +104,13 @@ PROTOBUF_NAMESPACE_OPEN
 template<> ::proxy_proto::AppendStripeDataPlacement* Arena::CreateMaybeMessage<::proxy_proto::AppendStripeDataPlacement>(Arena*);
 template<> ::proxy_proto::AskIfSuccess* Arena::CreateMaybeMessage<::proxy_proto::AskIfSuccess>(Arena*);
 template<> ::proxy_proto::CheckaliveCMD* Arena::CreateMaybeMessage<::proxy_proto::CheckaliveCMD>(Arena*);
+template<> ::proxy_proto::DegradedReadRequest* Arena::CreateMaybeMessage<::proxy_proto::DegradedReadRequest>(Arena*);
 template<> ::proxy_proto::DelReply* Arena::CreateMaybeMessage<::proxy_proto::DelReply>(Arena*);
 template<> ::proxy_proto::GetReply* Arena::CreateMaybeMessage<::proxy_proto::GetReply>(Arena*);
 template<> ::proxy_proto::NodeAndBlock* Arena::CreateMaybeMessage<::proxy_proto::NodeAndBlock>(Arena*);
 template<> ::proxy_proto::ObjectAndPlacement* Arena::CreateMaybeMessage<::proxy_proto::ObjectAndPlacement>(Arena*);
 template<> ::proxy_proto::RecalReply* Arena::CreateMaybeMessage<::proxy_proto::RecalReply>(Arena*);
+template<> ::proxy_proto::RecoveryRequest* Arena::CreateMaybeMessage<::proxy_proto::RecoveryRequest>(Arena*);
 template<> ::proxy_proto::RepIfSuccess* Arena::CreateMaybeMessage<::proxy_proto::RepIfSuccess>(Arena*);
 template<> ::proxy_proto::RequestResult* Arena::CreateMaybeMessage<::proxy_proto::RequestResult>(Arena*);
 template<> ::proxy_proto::SetReply* Arena::CreateMaybeMessage<::proxy_proto::SetReply>(Arena*);
@@ -2985,6 +2993,592 @@ class ObjectAndPlacement final :
 };
 // -------------------------------------------------------------------
 
+class DegradedReadRequest final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:proxy_proto.DegradedReadRequest) */ {
+ public:
+  inline DegradedReadRequest() : DegradedReadRequest(nullptr) {}
+  ~DegradedReadRequest() override;
+  explicit PROTOBUF_CONSTEXPR DegradedReadRequest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  DegradedReadRequest(const DegradedReadRequest& from);
+  DegradedReadRequest(DegradedReadRequest&& from) noexcept
+    : DegradedReadRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline DegradedReadRequest& operator=(const DegradedReadRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline DegradedReadRequest& operator=(DegradedReadRequest&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const DegradedReadRequest& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const DegradedReadRequest* internal_default_instance() {
+    return reinterpret_cast<const DegradedReadRequest*>(
+               &_DegradedReadRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    13;
+
+  friend void swap(DegradedReadRequest& a, DegradedReadRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(DegradedReadRequest* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(DegradedReadRequest* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  DegradedReadRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<DegradedReadRequest>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const DegradedReadRequest& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const DegradedReadRequest& from) {
+    DegradedReadRequest::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(DegradedReadRequest* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "proxy_proto.DegradedReadRequest";
+  }
+  protected:
+  explicit DegradedReadRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kDatanodeipFieldNumber = 5,
+    kDatanodeportFieldNumber = 6,
+    kBlockkeysFieldNumber = 7,
+    kBlockidsFieldNumber = 8,
+    kClientipFieldNumber = 1,
+    kFailedBlockKeyFieldNumber = 4,
+    kClientportFieldNumber = 2,
+    kFailedBlockIdFieldNumber = 3,
+  };
+  // repeated string datanodeip = 5;
+  int datanodeip_size() const;
+  private:
+  int _internal_datanodeip_size() const;
+  public:
+  void clear_datanodeip();
+  const std::string& datanodeip(int index) const;
+  std::string* mutable_datanodeip(int index);
+  void set_datanodeip(int index, const std::string& value);
+  void set_datanodeip(int index, std::string&& value);
+  void set_datanodeip(int index, const char* value);
+  void set_datanodeip(int index, const char* value, size_t size);
+  std::string* add_datanodeip();
+  void add_datanodeip(const std::string& value);
+  void add_datanodeip(std::string&& value);
+  void add_datanodeip(const char* value);
+  void add_datanodeip(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& datanodeip() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_datanodeip();
+  private:
+  const std::string& _internal_datanodeip(int index) const;
+  std::string* _internal_add_datanodeip();
+  public:
+
+  // repeated int32 datanodeport = 6;
+  int datanodeport_size() const;
+  private:
+  int _internal_datanodeport_size() const;
+  public:
+  void clear_datanodeport();
+  private:
+  int32_t _internal_datanodeport(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      _internal_datanodeport() const;
+  void _internal_add_datanodeport(int32_t value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      _internal_mutable_datanodeport();
+  public:
+  int32_t datanodeport(int index) const;
+  void set_datanodeport(int index, int32_t value);
+  void add_datanodeport(int32_t value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      datanodeport() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      mutable_datanodeport();
+
+  // repeated string blockkeys = 7;
+  int blockkeys_size() const;
+  private:
+  int _internal_blockkeys_size() const;
+  public:
+  void clear_blockkeys();
+  const std::string& blockkeys(int index) const;
+  std::string* mutable_blockkeys(int index);
+  void set_blockkeys(int index, const std::string& value);
+  void set_blockkeys(int index, std::string&& value);
+  void set_blockkeys(int index, const char* value);
+  void set_blockkeys(int index, const char* value, size_t size);
+  std::string* add_blockkeys();
+  void add_blockkeys(const std::string& value);
+  void add_blockkeys(std::string&& value);
+  void add_blockkeys(const char* value);
+  void add_blockkeys(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& blockkeys() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_blockkeys();
+  private:
+  const std::string& _internal_blockkeys(int index) const;
+  std::string* _internal_add_blockkeys();
+  public:
+
+  // repeated int32 blockids = 8;
+  int blockids_size() const;
+  private:
+  int _internal_blockids_size() const;
+  public:
+  void clear_blockids();
+  private:
+  int32_t _internal_blockids(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      _internal_blockids() const;
+  void _internal_add_blockids(int32_t value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      _internal_mutable_blockids();
+  public:
+  int32_t blockids(int index) const;
+  void set_blockids(int index, int32_t value);
+  void add_blockids(int32_t value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      blockids() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      mutable_blockids();
+
+  // string clientip = 1;
+  void clear_clientip();
+  const std::string& clientip() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_clientip(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_clientip();
+  PROTOBUF_NODISCARD std::string* release_clientip();
+  void set_allocated_clientip(std::string* clientip);
+  private:
+  const std::string& _internal_clientip() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_clientip(const std::string& value);
+  std::string* _internal_mutable_clientip();
+  public:
+
+  // string failed_block_key = 4;
+  void clear_failed_block_key();
+  const std::string& failed_block_key() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_failed_block_key(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_failed_block_key();
+  PROTOBUF_NODISCARD std::string* release_failed_block_key();
+  void set_allocated_failed_block_key(std::string* failed_block_key);
+  private:
+  const std::string& _internal_failed_block_key() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_failed_block_key(const std::string& value);
+  std::string* _internal_mutable_failed_block_key();
+  public:
+
+  // int32 clientport = 2;
+  void clear_clientport();
+  int32_t clientport() const;
+  void set_clientport(int32_t value);
+  private:
+  int32_t _internal_clientport() const;
+  void _internal_set_clientport(int32_t value);
+  public:
+
+  // int32 failed_block_id = 3;
+  void clear_failed_block_id();
+  int32_t failed_block_id() const;
+  void set_failed_block_id(int32_t value);
+  private:
+  int32_t _internal_failed_block_id() const;
+  void _internal_set_failed_block_id(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:proxy_proto.DegradedReadRequest)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> datanodeip_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > datanodeport_;
+    mutable std::atomic<int> _datanodeport_cached_byte_size_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> blockkeys_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > blockids_;
+    mutable std::atomic<int> _blockids_cached_byte_size_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr clientip_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr failed_block_key_;
+    int32_t clientport_;
+    int32_t failed_block_id_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_proxy_2eproto;
+};
+// -------------------------------------------------------------------
+
+class RecoveryRequest final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:proxy_proto.RecoveryRequest) */ {
+ public:
+  inline RecoveryRequest() : RecoveryRequest(nullptr) {}
+  ~RecoveryRequest() override;
+  explicit PROTOBUF_CONSTEXPR RecoveryRequest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  RecoveryRequest(const RecoveryRequest& from);
+  RecoveryRequest(RecoveryRequest&& from) noexcept
+    : RecoveryRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline RecoveryRequest& operator=(const RecoveryRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline RecoveryRequest& operator=(RecoveryRequest&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const RecoveryRequest& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const RecoveryRequest* internal_default_instance() {
+    return reinterpret_cast<const RecoveryRequest*>(
+               &_RecoveryRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    14;
+
+  friend void swap(RecoveryRequest& a, RecoveryRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(RecoveryRequest* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(RecoveryRequest* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  RecoveryRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<RecoveryRequest>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const RecoveryRequest& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const RecoveryRequest& from) {
+    RecoveryRequest::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(RecoveryRequest* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "proxy_proto.RecoveryRequest";
+  }
+  protected:
+  explicit RecoveryRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kDatanodeipFieldNumber = 5,
+    kDatanodeportFieldNumber = 6,
+    kBlockkeysFieldNumber = 7,
+    kBlockidsFieldNumber = 8,
+    kReplacedNodeIpFieldNumber = 1,
+    kFailedBlockKeyFieldNumber = 4,
+    kReplacedNodePortFieldNumber = 2,
+    kFailedBlockIdFieldNumber = 3,
+  };
+  // repeated string datanodeip = 5;
+  int datanodeip_size() const;
+  private:
+  int _internal_datanodeip_size() const;
+  public:
+  void clear_datanodeip();
+  const std::string& datanodeip(int index) const;
+  std::string* mutable_datanodeip(int index);
+  void set_datanodeip(int index, const std::string& value);
+  void set_datanodeip(int index, std::string&& value);
+  void set_datanodeip(int index, const char* value);
+  void set_datanodeip(int index, const char* value, size_t size);
+  std::string* add_datanodeip();
+  void add_datanodeip(const std::string& value);
+  void add_datanodeip(std::string&& value);
+  void add_datanodeip(const char* value);
+  void add_datanodeip(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& datanodeip() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_datanodeip();
+  private:
+  const std::string& _internal_datanodeip(int index) const;
+  std::string* _internal_add_datanodeip();
+  public:
+
+  // repeated int32 datanodeport = 6;
+  int datanodeport_size() const;
+  private:
+  int _internal_datanodeport_size() const;
+  public:
+  void clear_datanodeport();
+  private:
+  int32_t _internal_datanodeport(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      _internal_datanodeport() const;
+  void _internal_add_datanodeport(int32_t value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      _internal_mutable_datanodeport();
+  public:
+  int32_t datanodeport(int index) const;
+  void set_datanodeport(int index, int32_t value);
+  void add_datanodeport(int32_t value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      datanodeport() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      mutable_datanodeport();
+
+  // repeated string blockkeys = 7;
+  int blockkeys_size() const;
+  private:
+  int _internal_blockkeys_size() const;
+  public:
+  void clear_blockkeys();
+  const std::string& blockkeys(int index) const;
+  std::string* mutable_blockkeys(int index);
+  void set_blockkeys(int index, const std::string& value);
+  void set_blockkeys(int index, std::string&& value);
+  void set_blockkeys(int index, const char* value);
+  void set_blockkeys(int index, const char* value, size_t size);
+  std::string* add_blockkeys();
+  void add_blockkeys(const std::string& value);
+  void add_blockkeys(std::string&& value);
+  void add_blockkeys(const char* value);
+  void add_blockkeys(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& blockkeys() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_blockkeys();
+  private:
+  const std::string& _internal_blockkeys(int index) const;
+  std::string* _internal_add_blockkeys();
+  public:
+
+  // repeated int32 blockids = 8;
+  int blockids_size() const;
+  private:
+  int _internal_blockids_size() const;
+  public:
+  void clear_blockids();
+  private:
+  int32_t _internal_blockids(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      _internal_blockids() const;
+  void _internal_add_blockids(int32_t value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      _internal_mutable_blockids();
+  public:
+  int32_t blockids(int index) const;
+  void set_blockids(int index, int32_t value);
+  void add_blockids(int32_t value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      blockids() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      mutable_blockids();
+
+  // string replaced_node_ip = 1;
+  void clear_replaced_node_ip();
+  const std::string& replaced_node_ip() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_replaced_node_ip(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_replaced_node_ip();
+  PROTOBUF_NODISCARD std::string* release_replaced_node_ip();
+  void set_allocated_replaced_node_ip(std::string* replaced_node_ip);
+  private:
+  const std::string& _internal_replaced_node_ip() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_replaced_node_ip(const std::string& value);
+  std::string* _internal_mutable_replaced_node_ip();
+  public:
+
+  // string failed_block_key = 4;
+  void clear_failed_block_key();
+  const std::string& failed_block_key() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_failed_block_key(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_failed_block_key();
+  PROTOBUF_NODISCARD std::string* release_failed_block_key();
+  void set_allocated_failed_block_key(std::string* failed_block_key);
+  private:
+  const std::string& _internal_failed_block_key() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_failed_block_key(const std::string& value);
+  std::string* _internal_mutable_failed_block_key();
+  public:
+
+  // int32 replaced_node_port = 2;
+  void clear_replaced_node_port();
+  int32_t replaced_node_port() const;
+  void set_replaced_node_port(int32_t value);
+  private:
+  int32_t _internal_replaced_node_port() const;
+  void _internal_set_replaced_node_port(int32_t value);
+  public:
+
+  // int32 failed_block_id = 3;
+  void clear_failed_block_id();
+  int32_t failed_block_id() const;
+  void set_failed_block_id(int32_t value);
+  private:
+  int32_t _internal_failed_block_id() const;
+  void _internal_set_failed_block_id(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:proxy_proto.RecoveryRequest)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> datanodeip_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > datanodeport_;
+    mutable std::atomic<int> _datanodeport_cached_byte_size_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> blockkeys_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > blockids_;
+    mutable std::atomic<int> _blockids_cached_byte_size_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr replaced_node_ip_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr failed_block_key_;
+    int32_t replaced_node_port_;
+    int32_t failed_block_id_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_proxy_2eproto;
+};
+// -------------------------------------------------------------------
+
 class AppendStripeDataPlacement final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:proxy_proto.AppendStripeDataPlacement) */ {
  public:
@@ -3033,7 +3627,7 @@ class AppendStripeDataPlacement final :
                &_AppendStripeDataPlacement_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    13;
+    15;
 
   friend void swap(AppendStripeDataPlacement& a, AppendStripeDataPlacement& b) {
     a.Swap(&b);
@@ -3409,7 +4003,7 @@ class SetReply final :
                &_SetReply_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    14;
+    16;
 
   friend void swap(SetReply& a, SetReply& b) {
     a.Swap(&b);
@@ -3557,7 +4151,7 @@ class GetReply final :
                &_GetReply_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    15;
+    17;
 
   friend void swap(GetReply& a, GetReply& b) {
     a.Swap(&b);
@@ -6241,6 +6835,782 @@ inline void ObjectAndPlacement::set_clientport(int32_t value) {
 
 // -------------------------------------------------------------------
 
+// DegradedReadRequest
+
+// string clientip = 1;
+inline void DegradedReadRequest::clear_clientip() {
+  _impl_.clientip_.ClearToEmpty();
+}
+inline const std::string& DegradedReadRequest::clientip() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadRequest.clientip)
+  return _internal_clientip();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void DegradedReadRequest::set_clientip(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.clientip_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadRequest.clientip)
+}
+inline std::string* DegradedReadRequest::mutable_clientip() {
+  std::string* _s = _internal_mutable_clientip();
+  // @@protoc_insertion_point(field_mutable:proxy_proto.DegradedReadRequest.clientip)
+  return _s;
+}
+inline const std::string& DegradedReadRequest::_internal_clientip() const {
+  return _impl_.clientip_.Get();
+}
+inline void DegradedReadRequest::_internal_set_clientip(const std::string& value) {
+  
+  _impl_.clientip_.Set(value, GetArenaForAllocation());
+}
+inline std::string* DegradedReadRequest::_internal_mutable_clientip() {
+  
+  return _impl_.clientip_.Mutable(GetArenaForAllocation());
+}
+inline std::string* DegradedReadRequest::release_clientip() {
+  // @@protoc_insertion_point(field_release:proxy_proto.DegradedReadRequest.clientip)
+  return _impl_.clientip_.Release();
+}
+inline void DegradedReadRequest::set_allocated_clientip(std::string* clientip) {
+  if (clientip != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.clientip_.SetAllocated(clientip, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.clientip_.IsDefault()) {
+    _impl_.clientip_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:proxy_proto.DegradedReadRequest.clientip)
+}
+
+// int32 clientport = 2;
+inline void DegradedReadRequest::clear_clientport() {
+  _impl_.clientport_ = 0;
+}
+inline int32_t DegradedReadRequest::_internal_clientport() const {
+  return _impl_.clientport_;
+}
+inline int32_t DegradedReadRequest::clientport() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadRequest.clientport)
+  return _internal_clientport();
+}
+inline void DegradedReadRequest::_internal_set_clientport(int32_t value) {
+  
+  _impl_.clientport_ = value;
+}
+inline void DegradedReadRequest::set_clientport(int32_t value) {
+  _internal_set_clientport(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadRequest.clientport)
+}
+
+// int32 failed_block_id = 3;
+inline void DegradedReadRequest::clear_failed_block_id() {
+  _impl_.failed_block_id_ = 0;
+}
+inline int32_t DegradedReadRequest::_internal_failed_block_id() const {
+  return _impl_.failed_block_id_;
+}
+inline int32_t DegradedReadRequest::failed_block_id() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadRequest.failed_block_id)
+  return _internal_failed_block_id();
+}
+inline void DegradedReadRequest::_internal_set_failed_block_id(int32_t value) {
+  
+  _impl_.failed_block_id_ = value;
+}
+inline void DegradedReadRequest::set_failed_block_id(int32_t value) {
+  _internal_set_failed_block_id(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadRequest.failed_block_id)
+}
+
+// string failed_block_key = 4;
+inline void DegradedReadRequest::clear_failed_block_key() {
+  _impl_.failed_block_key_.ClearToEmpty();
+}
+inline const std::string& DegradedReadRequest::failed_block_key() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadRequest.failed_block_key)
+  return _internal_failed_block_key();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void DegradedReadRequest::set_failed_block_key(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.failed_block_key_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadRequest.failed_block_key)
+}
+inline std::string* DegradedReadRequest::mutable_failed_block_key() {
+  std::string* _s = _internal_mutable_failed_block_key();
+  // @@protoc_insertion_point(field_mutable:proxy_proto.DegradedReadRequest.failed_block_key)
+  return _s;
+}
+inline const std::string& DegradedReadRequest::_internal_failed_block_key() const {
+  return _impl_.failed_block_key_.Get();
+}
+inline void DegradedReadRequest::_internal_set_failed_block_key(const std::string& value) {
+  
+  _impl_.failed_block_key_.Set(value, GetArenaForAllocation());
+}
+inline std::string* DegradedReadRequest::_internal_mutable_failed_block_key() {
+  
+  return _impl_.failed_block_key_.Mutable(GetArenaForAllocation());
+}
+inline std::string* DegradedReadRequest::release_failed_block_key() {
+  // @@protoc_insertion_point(field_release:proxy_proto.DegradedReadRequest.failed_block_key)
+  return _impl_.failed_block_key_.Release();
+}
+inline void DegradedReadRequest::set_allocated_failed_block_key(std::string* failed_block_key) {
+  if (failed_block_key != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.failed_block_key_.SetAllocated(failed_block_key, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.failed_block_key_.IsDefault()) {
+    _impl_.failed_block_key_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:proxy_proto.DegradedReadRequest.failed_block_key)
+}
+
+// repeated string datanodeip = 5;
+inline int DegradedReadRequest::_internal_datanodeip_size() const {
+  return _impl_.datanodeip_.size();
+}
+inline int DegradedReadRequest::datanodeip_size() const {
+  return _internal_datanodeip_size();
+}
+inline void DegradedReadRequest::clear_datanodeip() {
+  _impl_.datanodeip_.Clear();
+}
+inline std::string* DegradedReadRequest::add_datanodeip() {
+  std::string* _s = _internal_add_datanodeip();
+  // @@protoc_insertion_point(field_add_mutable:proxy_proto.DegradedReadRequest.datanodeip)
+  return _s;
+}
+inline const std::string& DegradedReadRequest::_internal_datanodeip(int index) const {
+  return _impl_.datanodeip_.Get(index);
+}
+inline const std::string& DegradedReadRequest::datanodeip(int index) const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadRequest.datanodeip)
+  return _internal_datanodeip(index);
+}
+inline std::string* DegradedReadRequest::mutable_datanodeip(int index) {
+  // @@protoc_insertion_point(field_mutable:proxy_proto.DegradedReadRequest.datanodeip)
+  return _impl_.datanodeip_.Mutable(index);
+}
+inline void DegradedReadRequest::set_datanodeip(int index, const std::string& value) {
+  _impl_.datanodeip_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadRequest.datanodeip)
+}
+inline void DegradedReadRequest::set_datanodeip(int index, std::string&& value) {
+  _impl_.datanodeip_.Mutable(index)->assign(std::move(value));
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadRequest.datanodeip)
+}
+inline void DegradedReadRequest::set_datanodeip(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.datanodeip_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:proxy_proto.DegradedReadRequest.datanodeip)
+}
+inline void DegradedReadRequest::set_datanodeip(int index, const char* value, size_t size) {
+  _impl_.datanodeip_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:proxy_proto.DegradedReadRequest.datanodeip)
+}
+inline std::string* DegradedReadRequest::_internal_add_datanodeip() {
+  return _impl_.datanodeip_.Add();
+}
+inline void DegradedReadRequest::add_datanodeip(const std::string& value) {
+  _impl_.datanodeip_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:proxy_proto.DegradedReadRequest.datanodeip)
+}
+inline void DegradedReadRequest::add_datanodeip(std::string&& value) {
+  _impl_.datanodeip_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:proxy_proto.DegradedReadRequest.datanodeip)
+}
+inline void DegradedReadRequest::add_datanodeip(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.datanodeip_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:proxy_proto.DegradedReadRequest.datanodeip)
+}
+inline void DegradedReadRequest::add_datanodeip(const char* value, size_t size) {
+  _impl_.datanodeip_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:proxy_proto.DegradedReadRequest.datanodeip)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+DegradedReadRequest::datanodeip() const {
+  // @@protoc_insertion_point(field_list:proxy_proto.DegradedReadRequest.datanodeip)
+  return _impl_.datanodeip_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+DegradedReadRequest::mutable_datanodeip() {
+  // @@protoc_insertion_point(field_mutable_list:proxy_proto.DegradedReadRequest.datanodeip)
+  return &_impl_.datanodeip_;
+}
+
+// repeated int32 datanodeport = 6;
+inline int DegradedReadRequest::_internal_datanodeport_size() const {
+  return _impl_.datanodeport_.size();
+}
+inline int DegradedReadRequest::datanodeport_size() const {
+  return _internal_datanodeport_size();
+}
+inline void DegradedReadRequest::clear_datanodeport() {
+  _impl_.datanodeport_.Clear();
+}
+inline int32_t DegradedReadRequest::_internal_datanodeport(int index) const {
+  return _impl_.datanodeport_.Get(index);
+}
+inline int32_t DegradedReadRequest::datanodeport(int index) const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadRequest.datanodeport)
+  return _internal_datanodeport(index);
+}
+inline void DegradedReadRequest::set_datanodeport(int index, int32_t value) {
+  _impl_.datanodeport_.Set(index, value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadRequest.datanodeport)
+}
+inline void DegradedReadRequest::_internal_add_datanodeport(int32_t value) {
+  _impl_.datanodeport_.Add(value);
+}
+inline void DegradedReadRequest::add_datanodeport(int32_t value) {
+  _internal_add_datanodeport(value);
+  // @@protoc_insertion_point(field_add:proxy_proto.DegradedReadRequest.datanodeport)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+DegradedReadRequest::_internal_datanodeport() const {
+  return _impl_.datanodeport_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+DegradedReadRequest::datanodeport() const {
+  // @@protoc_insertion_point(field_list:proxy_proto.DegradedReadRequest.datanodeport)
+  return _internal_datanodeport();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+DegradedReadRequest::_internal_mutable_datanodeport() {
+  return &_impl_.datanodeport_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+DegradedReadRequest::mutable_datanodeport() {
+  // @@protoc_insertion_point(field_mutable_list:proxy_proto.DegradedReadRequest.datanodeport)
+  return _internal_mutable_datanodeport();
+}
+
+// repeated string blockkeys = 7;
+inline int DegradedReadRequest::_internal_blockkeys_size() const {
+  return _impl_.blockkeys_.size();
+}
+inline int DegradedReadRequest::blockkeys_size() const {
+  return _internal_blockkeys_size();
+}
+inline void DegradedReadRequest::clear_blockkeys() {
+  _impl_.blockkeys_.Clear();
+}
+inline std::string* DegradedReadRequest::add_blockkeys() {
+  std::string* _s = _internal_add_blockkeys();
+  // @@protoc_insertion_point(field_add_mutable:proxy_proto.DegradedReadRequest.blockkeys)
+  return _s;
+}
+inline const std::string& DegradedReadRequest::_internal_blockkeys(int index) const {
+  return _impl_.blockkeys_.Get(index);
+}
+inline const std::string& DegradedReadRequest::blockkeys(int index) const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadRequest.blockkeys)
+  return _internal_blockkeys(index);
+}
+inline std::string* DegradedReadRequest::mutable_blockkeys(int index) {
+  // @@protoc_insertion_point(field_mutable:proxy_proto.DegradedReadRequest.blockkeys)
+  return _impl_.blockkeys_.Mutable(index);
+}
+inline void DegradedReadRequest::set_blockkeys(int index, const std::string& value) {
+  _impl_.blockkeys_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadRequest.blockkeys)
+}
+inline void DegradedReadRequest::set_blockkeys(int index, std::string&& value) {
+  _impl_.blockkeys_.Mutable(index)->assign(std::move(value));
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadRequest.blockkeys)
+}
+inline void DegradedReadRequest::set_blockkeys(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.blockkeys_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:proxy_proto.DegradedReadRequest.blockkeys)
+}
+inline void DegradedReadRequest::set_blockkeys(int index, const char* value, size_t size) {
+  _impl_.blockkeys_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:proxy_proto.DegradedReadRequest.blockkeys)
+}
+inline std::string* DegradedReadRequest::_internal_add_blockkeys() {
+  return _impl_.blockkeys_.Add();
+}
+inline void DegradedReadRequest::add_blockkeys(const std::string& value) {
+  _impl_.blockkeys_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:proxy_proto.DegradedReadRequest.blockkeys)
+}
+inline void DegradedReadRequest::add_blockkeys(std::string&& value) {
+  _impl_.blockkeys_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:proxy_proto.DegradedReadRequest.blockkeys)
+}
+inline void DegradedReadRequest::add_blockkeys(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.blockkeys_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:proxy_proto.DegradedReadRequest.blockkeys)
+}
+inline void DegradedReadRequest::add_blockkeys(const char* value, size_t size) {
+  _impl_.blockkeys_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:proxy_proto.DegradedReadRequest.blockkeys)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+DegradedReadRequest::blockkeys() const {
+  // @@protoc_insertion_point(field_list:proxy_proto.DegradedReadRequest.blockkeys)
+  return _impl_.blockkeys_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+DegradedReadRequest::mutable_blockkeys() {
+  // @@protoc_insertion_point(field_mutable_list:proxy_proto.DegradedReadRequest.blockkeys)
+  return &_impl_.blockkeys_;
+}
+
+// repeated int32 blockids = 8;
+inline int DegradedReadRequest::_internal_blockids_size() const {
+  return _impl_.blockids_.size();
+}
+inline int DegradedReadRequest::blockids_size() const {
+  return _internal_blockids_size();
+}
+inline void DegradedReadRequest::clear_blockids() {
+  _impl_.blockids_.Clear();
+}
+inline int32_t DegradedReadRequest::_internal_blockids(int index) const {
+  return _impl_.blockids_.Get(index);
+}
+inline int32_t DegradedReadRequest::blockids(int index) const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadRequest.blockids)
+  return _internal_blockids(index);
+}
+inline void DegradedReadRequest::set_blockids(int index, int32_t value) {
+  _impl_.blockids_.Set(index, value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadRequest.blockids)
+}
+inline void DegradedReadRequest::_internal_add_blockids(int32_t value) {
+  _impl_.blockids_.Add(value);
+}
+inline void DegradedReadRequest::add_blockids(int32_t value) {
+  _internal_add_blockids(value);
+  // @@protoc_insertion_point(field_add:proxy_proto.DegradedReadRequest.blockids)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+DegradedReadRequest::_internal_blockids() const {
+  return _impl_.blockids_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+DegradedReadRequest::blockids() const {
+  // @@protoc_insertion_point(field_list:proxy_proto.DegradedReadRequest.blockids)
+  return _internal_blockids();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+DegradedReadRequest::_internal_mutable_blockids() {
+  return &_impl_.blockids_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+DegradedReadRequest::mutable_blockids() {
+  // @@protoc_insertion_point(field_mutable_list:proxy_proto.DegradedReadRequest.blockids)
+  return _internal_mutable_blockids();
+}
+
+// -------------------------------------------------------------------
+
+// RecoveryRequest
+
+// string replaced_node_ip = 1;
+inline void RecoveryRequest::clear_replaced_node_ip() {
+  _impl_.replaced_node_ip_.ClearToEmpty();
+}
+inline const std::string& RecoveryRequest::replaced_node_ip() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryRequest.replaced_node_ip)
+  return _internal_replaced_node_ip();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void RecoveryRequest::set_replaced_node_ip(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.replaced_node_ip_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryRequest.replaced_node_ip)
+}
+inline std::string* RecoveryRequest::mutable_replaced_node_ip() {
+  std::string* _s = _internal_mutable_replaced_node_ip();
+  // @@protoc_insertion_point(field_mutable:proxy_proto.RecoveryRequest.replaced_node_ip)
+  return _s;
+}
+inline const std::string& RecoveryRequest::_internal_replaced_node_ip() const {
+  return _impl_.replaced_node_ip_.Get();
+}
+inline void RecoveryRequest::_internal_set_replaced_node_ip(const std::string& value) {
+  
+  _impl_.replaced_node_ip_.Set(value, GetArenaForAllocation());
+}
+inline std::string* RecoveryRequest::_internal_mutable_replaced_node_ip() {
+  
+  return _impl_.replaced_node_ip_.Mutable(GetArenaForAllocation());
+}
+inline std::string* RecoveryRequest::release_replaced_node_ip() {
+  // @@protoc_insertion_point(field_release:proxy_proto.RecoveryRequest.replaced_node_ip)
+  return _impl_.replaced_node_ip_.Release();
+}
+inline void RecoveryRequest::set_allocated_replaced_node_ip(std::string* replaced_node_ip) {
+  if (replaced_node_ip != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.replaced_node_ip_.SetAllocated(replaced_node_ip, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.replaced_node_ip_.IsDefault()) {
+    _impl_.replaced_node_ip_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:proxy_proto.RecoveryRequest.replaced_node_ip)
+}
+
+// int32 replaced_node_port = 2;
+inline void RecoveryRequest::clear_replaced_node_port() {
+  _impl_.replaced_node_port_ = 0;
+}
+inline int32_t RecoveryRequest::_internal_replaced_node_port() const {
+  return _impl_.replaced_node_port_;
+}
+inline int32_t RecoveryRequest::replaced_node_port() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryRequest.replaced_node_port)
+  return _internal_replaced_node_port();
+}
+inline void RecoveryRequest::_internal_set_replaced_node_port(int32_t value) {
+  
+  _impl_.replaced_node_port_ = value;
+}
+inline void RecoveryRequest::set_replaced_node_port(int32_t value) {
+  _internal_set_replaced_node_port(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryRequest.replaced_node_port)
+}
+
+// int32 failed_block_id = 3;
+inline void RecoveryRequest::clear_failed_block_id() {
+  _impl_.failed_block_id_ = 0;
+}
+inline int32_t RecoveryRequest::_internal_failed_block_id() const {
+  return _impl_.failed_block_id_;
+}
+inline int32_t RecoveryRequest::failed_block_id() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryRequest.failed_block_id)
+  return _internal_failed_block_id();
+}
+inline void RecoveryRequest::_internal_set_failed_block_id(int32_t value) {
+  
+  _impl_.failed_block_id_ = value;
+}
+inline void RecoveryRequest::set_failed_block_id(int32_t value) {
+  _internal_set_failed_block_id(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryRequest.failed_block_id)
+}
+
+// string failed_block_key = 4;
+inline void RecoveryRequest::clear_failed_block_key() {
+  _impl_.failed_block_key_.ClearToEmpty();
+}
+inline const std::string& RecoveryRequest::failed_block_key() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryRequest.failed_block_key)
+  return _internal_failed_block_key();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void RecoveryRequest::set_failed_block_key(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.failed_block_key_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryRequest.failed_block_key)
+}
+inline std::string* RecoveryRequest::mutable_failed_block_key() {
+  std::string* _s = _internal_mutable_failed_block_key();
+  // @@protoc_insertion_point(field_mutable:proxy_proto.RecoveryRequest.failed_block_key)
+  return _s;
+}
+inline const std::string& RecoveryRequest::_internal_failed_block_key() const {
+  return _impl_.failed_block_key_.Get();
+}
+inline void RecoveryRequest::_internal_set_failed_block_key(const std::string& value) {
+  
+  _impl_.failed_block_key_.Set(value, GetArenaForAllocation());
+}
+inline std::string* RecoveryRequest::_internal_mutable_failed_block_key() {
+  
+  return _impl_.failed_block_key_.Mutable(GetArenaForAllocation());
+}
+inline std::string* RecoveryRequest::release_failed_block_key() {
+  // @@protoc_insertion_point(field_release:proxy_proto.RecoveryRequest.failed_block_key)
+  return _impl_.failed_block_key_.Release();
+}
+inline void RecoveryRequest::set_allocated_failed_block_key(std::string* failed_block_key) {
+  if (failed_block_key != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.failed_block_key_.SetAllocated(failed_block_key, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.failed_block_key_.IsDefault()) {
+    _impl_.failed_block_key_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:proxy_proto.RecoveryRequest.failed_block_key)
+}
+
+// repeated string datanodeip = 5;
+inline int RecoveryRequest::_internal_datanodeip_size() const {
+  return _impl_.datanodeip_.size();
+}
+inline int RecoveryRequest::datanodeip_size() const {
+  return _internal_datanodeip_size();
+}
+inline void RecoveryRequest::clear_datanodeip() {
+  _impl_.datanodeip_.Clear();
+}
+inline std::string* RecoveryRequest::add_datanodeip() {
+  std::string* _s = _internal_add_datanodeip();
+  // @@protoc_insertion_point(field_add_mutable:proxy_proto.RecoveryRequest.datanodeip)
+  return _s;
+}
+inline const std::string& RecoveryRequest::_internal_datanodeip(int index) const {
+  return _impl_.datanodeip_.Get(index);
+}
+inline const std::string& RecoveryRequest::datanodeip(int index) const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryRequest.datanodeip)
+  return _internal_datanodeip(index);
+}
+inline std::string* RecoveryRequest::mutable_datanodeip(int index) {
+  // @@protoc_insertion_point(field_mutable:proxy_proto.RecoveryRequest.datanodeip)
+  return _impl_.datanodeip_.Mutable(index);
+}
+inline void RecoveryRequest::set_datanodeip(int index, const std::string& value) {
+  _impl_.datanodeip_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryRequest.datanodeip)
+}
+inline void RecoveryRequest::set_datanodeip(int index, std::string&& value) {
+  _impl_.datanodeip_.Mutable(index)->assign(std::move(value));
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryRequest.datanodeip)
+}
+inline void RecoveryRequest::set_datanodeip(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.datanodeip_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:proxy_proto.RecoveryRequest.datanodeip)
+}
+inline void RecoveryRequest::set_datanodeip(int index, const char* value, size_t size) {
+  _impl_.datanodeip_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:proxy_proto.RecoveryRequest.datanodeip)
+}
+inline std::string* RecoveryRequest::_internal_add_datanodeip() {
+  return _impl_.datanodeip_.Add();
+}
+inline void RecoveryRequest::add_datanodeip(const std::string& value) {
+  _impl_.datanodeip_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:proxy_proto.RecoveryRequest.datanodeip)
+}
+inline void RecoveryRequest::add_datanodeip(std::string&& value) {
+  _impl_.datanodeip_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:proxy_proto.RecoveryRequest.datanodeip)
+}
+inline void RecoveryRequest::add_datanodeip(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.datanodeip_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:proxy_proto.RecoveryRequest.datanodeip)
+}
+inline void RecoveryRequest::add_datanodeip(const char* value, size_t size) {
+  _impl_.datanodeip_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:proxy_proto.RecoveryRequest.datanodeip)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+RecoveryRequest::datanodeip() const {
+  // @@protoc_insertion_point(field_list:proxy_proto.RecoveryRequest.datanodeip)
+  return _impl_.datanodeip_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+RecoveryRequest::mutable_datanodeip() {
+  // @@protoc_insertion_point(field_mutable_list:proxy_proto.RecoveryRequest.datanodeip)
+  return &_impl_.datanodeip_;
+}
+
+// repeated int32 datanodeport = 6;
+inline int RecoveryRequest::_internal_datanodeport_size() const {
+  return _impl_.datanodeport_.size();
+}
+inline int RecoveryRequest::datanodeport_size() const {
+  return _internal_datanodeport_size();
+}
+inline void RecoveryRequest::clear_datanodeport() {
+  _impl_.datanodeport_.Clear();
+}
+inline int32_t RecoveryRequest::_internal_datanodeport(int index) const {
+  return _impl_.datanodeport_.Get(index);
+}
+inline int32_t RecoveryRequest::datanodeport(int index) const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryRequest.datanodeport)
+  return _internal_datanodeport(index);
+}
+inline void RecoveryRequest::set_datanodeport(int index, int32_t value) {
+  _impl_.datanodeport_.Set(index, value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryRequest.datanodeport)
+}
+inline void RecoveryRequest::_internal_add_datanodeport(int32_t value) {
+  _impl_.datanodeport_.Add(value);
+}
+inline void RecoveryRequest::add_datanodeport(int32_t value) {
+  _internal_add_datanodeport(value);
+  // @@protoc_insertion_point(field_add:proxy_proto.RecoveryRequest.datanodeport)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+RecoveryRequest::_internal_datanodeport() const {
+  return _impl_.datanodeport_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+RecoveryRequest::datanodeport() const {
+  // @@protoc_insertion_point(field_list:proxy_proto.RecoveryRequest.datanodeport)
+  return _internal_datanodeport();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+RecoveryRequest::_internal_mutable_datanodeport() {
+  return &_impl_.datanodeport_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+RecoveryRequest::mutable_datanodeport() {
+  // @@protoc_insertion_point(field_mutable_list:proxy_proto.RecoveryRequest.datanodeport)
+  return _internal_mutable_datanodeport();
+}
+
+// repeated string blockkeys = 7;
+inline int RecoveryRequest::_internal_blockkeys_size() const {
+  return _impl_.blockkeys_.size();
+}
+inline int RecoveryRequest::blockkeys_size() const {
+  return _internal_blockkeys_size();
+}
+inline void RecoveryRequest::clear_blockkeys() {
+  _impl_.blockkeys_.Clear();
+}
+inline std::string* RecoveryRequest::add_blockkeys() {
+  std::string* _s = _internal_add_blockkeys();
+  // @@protoc_insertion_point(field_add_mutable:proxy_proto.RecoveryRequest.blockkeys)
+  return _s;
+}
+inline const std::string& RecoveryRequest::_internal_blockkeys(int index) const {
+  return _impl_.blockkeys_.Get(index);
+}
+inline const std::string& RecoveryRequest::blockkeys(int index) const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryRequest.blockkeys)
+  return _internal_blockkeys(index);
+}
+inline std::string* RecoveryRequest::mutable_blockkeys(int index) {
+  // @@protoc_insertion_point(field_mutable:proxy_proto.RecoveryRequest.blockkeys)
+  return _impl_.blockkeys_.Mutable(index);
+}
+inline void RecoveryRequest::set_blockkeys(int index, const std::string& value) {
+  _impl_.blockkeys_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryRequest.blockkeys)
+}
+inline void RecoveryRequest::set_blockkeys(int index, std::string&& value) {
+  _impl_.blockkeys_.Mutable(index)->assign(std::move(value));
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryRequest.blockkeys)
+}
+inline void RecoveryRequest::set_blockkeys(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.blockkeys_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:proxy_proto.RecoveryRequest.blockkeys)
+}
+inline void RecoveryRequest::set_blockkeys(int index, const char* value, size_t size) {
+  _impl_.blockkeys_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:proxy_proto.RecoveryRequest.blockkeys)
+}
+inline std::string* RecoveryRequest::_internal_add_blockkeys() {
+  return _impl_.blockkeys_.Add();
+}
+inline void RecoveryRequest::add_blockkeys(const std::string& value) {
+  _impl_.blockkeys_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:proxy_proto.RecoveryRequest.blockkeys)
+}
+inline void RecoveryRequest::add_blockkeys(std::string&& value) {
+  _impl_.blockkeys_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:proxy_proto.RecoveryRequest.blockkeys)
+}
+inline void RecoveryRequest::add_blockkeys(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.blockkeys_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:proxy_proto.RecoveryRequest.blockkeys)
+}
+inline void RecoveryRequest::add_blockkeys(const char* value, size_t size) {
+  _impl_.blockkeys_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:proxy_proto.RecoveryRequest.blockkeys)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+RecoveryRequest::blockkeys() const {
+  // @@protoc_insertion_point(field_list:proxy_proto.RecoveryRequest.blockkeys)
+  return _impl_.blockkeys_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+RecoveryRequest::mutable_blockkeys() {
+  // @@protoc_insertion_point(field_mutable_list:proxy_proto.RecoveryRequest.blockkeys)
+  return &_impl_.blockkeys_;
+}
+
+// repeated int32 blockids = 8;
+inline int RecoveryRequest::_internal_blockids_size() const {
+  return _impl_.blockids_.size();
+}
+inline int RecoveryRequest::blockids_size() const {
+  return _internal_blockids_size();
+}
+inline void RecoveryRequest::clear_blockids() {
+  _impl_.blockids_.Clear();
+}
+inline int32_t RecoveryRequest::_internal_blockids(int index) const {
+  return _impl_.blockids_.Get(index);
+}
+inline int32_t RecoveryRequest::blockids(int index) const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryRequest.blockids)
+  return _internal_blockids(index);
+}
+inline void RecoveryRequest::set_blockids(int index, int32_t value) {
+  _impl_.blockids_.Set(index, value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryRequest.blockids)
+}
+inline void RecoveryRequest::_internal_add_blockids(int32_t value) {
+  _impl_.blockids_.Add(value);
+}
+inline void RecoveryRequest::add_blockids(int32_t value) {
+  _internal_add_blockids(value);
+  // @@protoc_insertion_point(field_add:proxy_proto.RecoveryRequest.blockids)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+RecoveryRequest::_internal_blockids() const {
+  return _impl_.blockids_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+RecoveryRequest::blockids() const {
+  // @@protoc_insertion_point(field_list:proxy_proto.RecoveryRequest.blockids)
+  return _internal_blockids();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+RecoveryRequest::_internal_mutable_blockids() {
+  return &_impl_.blockids_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+RecoveryRequest::mutable_blockids() {
+  // @@protoc_insertion_point(field_mutable_list:proxy_proto.RecoveryRequest.blockids)
+  return _internal_mutable_blockids();
+}
+
+// -------------------------------------------------------------------
+
 // AppendStripeDataPlacement
 
 // string key = 1;
@@ -6832,6 +8202,10 @@ inline void GetReply::set_getsuccess(bool value) {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

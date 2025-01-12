@@ -65,6 +65,16 @@ namespace ECProject
         grpc::ServerContext *context,
         const coordinator_proto::KeyAndClientIP *keyClient,
         coordinator_proto::RepIfGetSuccess *getReplyClient) override;
+    // degraded read
+    grpc::Status getDegradedReadValue(
+        grpc::ServerContext *context,
+        const coordinator_proto::KeyAndClientIP *keyClient,
+        coordinator_proto::RepIfGetSuccess *getReplyClient) override;
+    // recovery
+    grpc::Status getRecovery(
+        grpc::ServerContext *context,
+        const coordinator_proto::KeyAndClientIP *keyClient,
+        coordinator_proto::RepIfGetSuccess *getReplyClient) override;
     // delete
     grpc::Status delByKey(
         grpc::ServerContext *context,
@@ -103,6 +113,8 @@ namespace ECProject
     std::vector<int> get_recovery_group_ids(std::string code_type, int k, int r, int z, int failed_block_id);
     void init_recovery_group_lookup_table();
     void print_stripe_data_placement(Stripe &stripe);
+    int get_cluster_id_by_group_id(Stripe &stripe, int group_id);
+    bool recovery_one_stripe(int stripe_id, int failed_block_id);
     ECProject::Config *m_sys_config;
     ECProject::ToolBox *m_toolbox;
     int m_cur_cluster_id = 0;

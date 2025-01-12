@@ -754,6 +754,58 @@ namespace ECProject
 
     return false;
   }
+
+  bool Client::degraded_read(int stripe_id, int failed_block_id)
+  {
+    assert(failed_block_id >= 0 && failed_block_id < m_sys_config->k);
+
+    grpc::ClientContext context;
+    coordinator_proto::KeyAndClientIP request;
+    request.set_key(std::to_string(stripe_id) + "_" + std::to_string(failed_block_id));
+    request.set_clientip(m_clientIPForGet);
+    request.set_clientport(m_clientPortForGet);
+
+    coordinator_proto::RepIfGetSuccess reply;
+    grpc::Status status = m_coordinator_ptr->getDegradedReadValue(&context, request, &reply);
+
+    if (!status.ok())
+    {
+      std::cout << "[Client] degraded read failed!" << std::endl;
+      return false;
+    }
+
+    asio::ip::tcp::socket socket_data(io_context);
+    acceptor.accept(socket_data);
+    asio::error_code error;
+    std::vector<char> buf(m_sys_config->BlockSize);
+    asio::read(socket_data, asio::buffer(buf, m_sys_config->BlockSize), error);
+    asio::error_code ignore_ec;
+    socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
+    socket_data.close(ignore_ec);
+
+    return true;
+  }
+
+  bool Client::recovery(int stripe_id, int failed_block_id)
+  {
+    grpc::ClientContext context;
+    coordinator_proto::KeyAndClientIP request;
+    request.set_key(std::to_string(stripe_id) + "_" + std::to_string(failed_block_id));
+    request.set_clientip(m_clientIPForGet);
+    request.set_clientport(m_clientPortForGet);
+
+    coordinator_proto::RepIfGetSuccess reply;
+    grpc::Status status = m_coordinator_ptr->getRecovery(&context, request, &reply);
+
+    if (!status.ok())
+    {
+      std::cout << "[Client] recovery failed!" << std::endl;
+      return false;
+    }
+
+    return true;
+  }
+
   /*
     Function: get
     1. send the get request including the information of key and clientipport to the coordinator

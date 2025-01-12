@@ -53,6 +53,16 @@ namespace ECProject
         grpc::ServerContext *context,
         const proxy_proto::ObjectAndPlacement *object_and_placement,
         proxy_proto::GetReply *response) override;
+    // degraded read
+    grpc::Status degradedRead(
+        grpc::ServerContext *context,
+        const proxy_proto::DegradedReadRequest *degraded_read_request,
+        proxy_proto::GetReply *response) override;
+    // recovery
+    grpc::Status recovery(
+        grpc::ServerContext *context,
+        const proxy_proto::RecoveryRequest *recovery_request,
+        proxy_proto::GetReply *response) override;
     // delete
     grpc::Status deleteBlock(
         grpc::ServerContext *context,
@@ -68,6 +78,10 @@ namespace ECProject
     bool AppendToDatanode(const char *block_key, int block_id, size_t append_size, const char *append_buf, int append_offset, const char *ip, int port, bool is_serialized);
     bool MergeParityOnDatanode(const char *block_key, int block_id, const char *ip, int port, const std::string &append_mode);
     void printAppendStripeDataPlacement(const proxy_proto::AppendStripeDataPlacement *append_stripe_data_placement);
+    std::vector<unsigned char *> convertToUnsignedCharArray(std::vector<std::vector<char>> &input);
+    bool GetFromDatanode(const std::string &key, char *value, const size_t value_length, const char *ip, const int port);
+    bool RecoveryToDatanode(const char *block_key, int block_id, const char *buf, const char *ip, int port);
+    void get_from_node(const std::string &block_key, char *block_value, const size_t block_size, const char *datanode_ip, const int datanode_port, bool *status, int index);
 
   private:
     std::mutex m_mutex;
