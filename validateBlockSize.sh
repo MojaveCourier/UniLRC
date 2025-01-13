@@ -20,7 +20,7 @@
 # find . -type f -name "1_L00" -exec ls -lh {} \;
 # find . -type f -name "1_L01" -exec ls -lh {} \;
 
-stripe_num=1
+stripe_num=15
 
 # # azure lrc
 # k=30

@@ -285,11 +285,11 @@ namespace ECProject
                 std::string targetdir = "./storage/" + std::to_string(m_port) + "/";
                 std::string readpath = targetdir + block_key;
 
-                std::cout << "[Datanode" << m_port << "][Merge Parity Slices] readpath: " << readpath << std::endl;
+                // std::cout << "[Datanode" << m_port << "][Merge Parity Slices] readpath: " << readpath << std::endl;
 
                 if (access(readpath.c_str(), 0) == -1)
                 {
-                    std::cout << "[Datanode" << m_port << "][Merge Parity Slices] file does not exist!" << readpath << std::endl;
+                    std::cerr << "[Datanode" << m_port << "][Merge Parity Slices] file does not exist!" << readpath << std::endl;
                     exit(-1);
                 }
                 std::vector<ParitySlice> slices = deserialize(readpath);

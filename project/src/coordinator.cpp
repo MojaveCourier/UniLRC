@@ -574,17 +574,12 @@ namespace ECProject
 
     // 1. record metadata
     // logical offset within the block stripe
-    StripeOffset curStripeOffset;
     if (m_cur_offset_table.find(clientID) == m_cur_offset_table.end())
     {
       // first append
-      curStripeOffset.stripe_id = m_cur_stripe_id++;
-      curStripeOffset.offset = 0;
+      m_cur_offset_table[clientID] = StripeOffset(m_cur_stripe_id++, 0);
     }
-    else
-    {
-      curStripeOffset = m_cur_offset_table[clientID];
-    }
+    StripeOffset curStripeOffset = m_cur_offset_table[clientID];
 
     assert(curStripeOffset.offset + appendSizeBytes <= m_sys_config->BlockSize * m_sys_config->k && "append size is larger than the remaining size of the stripe!");
 
@@ -644,6 +639,7 @@ namespace ECProject
     proxyIPPort->set_sum_append_size(sum_append_size);
 
     m_cur_offset_table[clientID].offset += appendSizeBytes;
+    // std::cout << "[Coordinator] stripe_id: " << m_cur_offset_table[clientID].stripe_id << " offset: " << m_cur_offset_table[clientID].offset << " is_erase " << (m_cur_offset_table[clientID].offset == m_sys_config->BlockSize * m_sys_config->k) << std::endl;
     if (m_cur_offset_table[clientID].offset == m_sys_config->BlockSize * m_sys_config->k)
     {
       m_cur_offset_table.erase(clientID);

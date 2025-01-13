@@ -98,6 +98,9 @@ namespace ECProject
     // range: [0, k*blockSize)
     // stripe organization
     int offset;
+
+    StripeOffset() = default;
+    StripeOffset(int stripe_id, int offset) : stripe_id(stripe_id), offset(offset) {}
   } StripeOffset;
 
   typedef struct ParitySlice
