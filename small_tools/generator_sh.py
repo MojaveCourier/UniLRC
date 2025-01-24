@@ -1,36 +1,47 @@
 import os
+import socket
+import netifaces
 
 current_path = os.getcwd()
 parent_path = os.path.dirname(current_path)
-cluster_number = 12
-datanode_number_per_cluster = 10
+cluster_number = 18
+datanode_number_per_cluster = 30
 datanode_port_start = 17600
 cluster_id_start = 0
 iftest = False
 
 proxy_ip_list = [
-    ["10.0.0.2",50405],
-    ["10.0.0.3",50405],
-    ["10.0.0.5",50405],
-    ["10.0.0.6",50405],
-    ["10.0.0.7",50405],
-    ["10.0.0.8",50405],
-    ["10.0.0.9",50405],
-    ["10.0.0.10",50405],
-    ["10.0.0.11",50405],
-    ["10.0.0.12",50405],
-    ["10.0.0.13",50405],
-    ["10.0.0.14",50405],
-    ["10.0.0.15",50405],
-    ["10.0.0.16",50405],
-    ["10.0.0.17",50405],
-    ["10.0.0.18",50405]
+    ["10.10.1.3",50405],
+    ["10.10.1.4",50405],
+    ["10.10.1.5",50405],
+    ["10.10.1.6",50405],
+    ["10.10.1.7",50405],
+    ["10.10.1.8",50405],
+    ["10.10.1.9",50405],
+    ["10.10.1.10",50405],
+    ["10.10.1.11",50405],
+    ["10.10.1.12",50405],
+    ["10.10.1.13",50405],
+    ["10.10.1.14",50405],
+    ["10.10.1.15",50405],
+    ["10.10.1.16",50405],
+    ["10.10.1.17",50405],
+    ["10.10.1.18",50405],
+    ["10.10.1.19",50405],
+    ["10.10.1.20",50405]
 ]
-coordinator_ip = "10.0.0.4"
+coordinator_ip = "10.10.1.2"
 
 proxy_num = len(proxy_ip_list)
 
 #cluster_informtion = {cluster_id:{'proxy':0.0.0.0:50005,'datanode':[[ip,port],...]},}
+
+def get_local_ip(interface_name):
+    addresses = netifaces.ifaddresses(interface_name)
+    return addresses[netifaces.AF_INET][0]['addr']
+
+
+
 cluster_informtion = {}
 def generate_cluster_info_dict():
     for i in range(proxy_num):
@@ -47,20 +58,25 @@ def generate_cluster_info_dict():
         cluster_informtion[i] = new_cluster
             
 def generate_run_proxy_datanode_file():
+    local_ip = get_local_ip('eno1d1')
+    local_ip_last_segment = local_ip.split('.')[-1]
+    cluster_id = int(local_ip_last_segment) - 3
     file_name = parent_path + '/run_proxy_datanode.sh'
     with open(file_name, 'w') as f:
         f.write("pkill -9 run_datanode\n")
         f.write("pkill -9 run_proxy\n")
         f.write("\n")
-        for cluster_id in cluster_informtion.keys():
-            print("cluster_id",cluster_id)
-            for each_datanode in cluster_informtion[cluster_id]["datanode"]:
-                f.write("./project/cmake/build/run_datanode "+str(each_datanode[0])+":"+str(each_datanode[1])+"\n")
-            f.write("\n") 
-        for proxy_ip_port in proxy_ip_list:
-            f.write("./project/cmake/build/run_proxy "+str(proxy_ip_port[0])+":"+str(proxy_ip_port[1])+"\n")   
+        print("cluster_id",cluster_id)
+        for each_datanode in cluster_informtion[cluster_id]["datanode"]:
+            f.write("./project/cmake/build/run_datanode "+str(each_datanode[0])+":"+str(each_datanode[1])+" & \n")
         f.write("\n")
-
+        
+        f.write("sleep 5s\n")
+        
+        f.write("\n")
+        f.write("./project/cmake/build/run_proxy "+str(cluster_informtion[cluster_id]["proxy"])+" "+" & \n")
+        f.write("\n")
+        
 def generater_cluster_information_xml():
     file_name = parent_path + '/project/config/clusterInformation.xml'
     import xml.etree.ElementTree as ET
@@ -115,10 +131,10 @@ def cluster_generate_run_proxy_datanode_file(ip, port, i):
 if __name__ == "__main__":
     generate_cluster_info_dict()
     # print(cluster_informtion)
-    # generate_run_proxy_datanode_file()
+    generate_run_proxy_datanode_file()
     generater_cluster_information_xml()
-    cnt = 0
-    for proxy in proxy_ip_list:
-        cluster_generate_run_proxy_datanode_file(proxy[0], proxy[1], cnt)
-        cnt += 1
+    # cnt = 0
+    # for proxy in proxy_ip_list:
+        #cluster_generate_run_proxy_datanode_file(proxy[0], proxy[1], cnt)
+        #cnt += 1
     
