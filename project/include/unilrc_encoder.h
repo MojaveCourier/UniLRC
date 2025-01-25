@@ -366,6 +366,18 @@ namespace ECProject
 
     void gf_xor_idx_64(unsigned char *a, unsigned char *b, int *idx);
 
+    void
+    gf_gen_rs_matrix1(unsigned char *a, int m, int k);
+
+    void
+    ec_encode_data_avx2(int len, int k, int rows, unsigned char *g_tbls, unsigned char **data,
+                    unsigned char **coding);
+
+    void
+    ec_init_tables(int k, int rows, unsigned char *a, unsigned char *g_tbls);
+
+    void
+    gf_vect_mul_init(unsigned char c, unsigned char *tbl);
 
 }
 

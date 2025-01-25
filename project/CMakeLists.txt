@@ -1,8 +1,25 @@
 cmake_minimum_required(VERSION 3.15)
 project(project)
 
+# 启用汇编语言支持（NASM）
+enable_language(ASM)
+set(CMAKE_ASM_NASM_SOURCE_FILE_EXTENSIONS asm)  # 识别 .asm 文件
+set(CMAKE_ASM_NASM_COMPILER nasm)              # 指定 NASM 汇编器
+set(CMAKE_ASM_NASM_COMPILE_OBJECT "<CMAKE_ASM_NASM_COMPILER> <INCLUDES> <FLAGS> -f elf64 -o <OBJECT> <SOURCE>")
+
+set(ASM_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/asm/reg_sizes.asm
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/asm/gf_vect_dot_prod_avx2.asm
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/asm/gf_2vect_dot_prod_avx2.asm
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/asm/gf_3vect_dot_prod_avx2.asm
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/asm/gf_4vect_dot_prod_avx2.asm
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/asm/gf_5vect_dot_prod_avx2.asm
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/asm/gf_6vect_dot_prod_avx2.asm
+)
+
+
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "-g -Wall -std=c++11 -DASIO_STANDALONE")
+set(CMAKE_CXX_FLAGS "-g -Wall -std=c++11 -DASIO_STANDALONE -Ofast")
 
 find_package(Threads REQUIRED)
 
@@ -99,7 +116,7 @@ foreach (_target
             ${pn_grpc_srcs}
             ${dn_proto_srcs}
             ${dn_grpc_srcs}
-            
+            ${ASM_SOURCES}
             ${CMAKE_CURRENT_SOURCE_DIR}/src/client.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/src/coordinator.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/src/proxy.cpp
