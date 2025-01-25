@@ -992,6 +992,8 @@ void ECProject::encode_uniform_lrc_w_append_mode(int k, int r, int z, int data_n
 void ECProject::encode_unilrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **global_ptrs,
                               unsigned char **local_ptrs, int block_size)
 {
+    std::cout << "开始编码" << std::endl;
+    std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
     for(int i = 0; i < r; i++){
         memset(global_ptrs[i], 0, block_size);
     }
@@ -1024,6 +1026,9 @@ void ECProject::encode_unilrc(int k, int r, int z, unsigned char **data_ptrs, un
     }
 
     delete[] encode_matrix;
+    std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
+    auto encoding_duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    std::cout << "编码时间: " << encoding_duration.count() << " 微秒" << std::endl;
 }
 
 void ECProject::encode_azure_lrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **global_ptrs,
