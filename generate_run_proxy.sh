@@ -7,38 +7,37 @@ SOURCE_FILE="/users/qiliang/UniEC/small_tools/generator_sh.py"
 HOSTS_FILE="hosts"
 
 # 检查 hosts 文件是否存在
-if [[ ! -f "$HOSTS_FILE" ]]; then
+if [ ! -f "$HOSTS_FILE" ]; then
   echo "Error: hosts file not found!"
   exit 1
 fi
 
 # 读取 hosts 文件中的主机列表
-HOSTS=$(cat "$HOSTS_FILE" | tr '\n' ',' | sed 's/,$//')
+HOSTS=$(cat "$HOSTS_FILE")
 
-# 检查 pdsh 是否安装
-if ! command -v pdsh &> /dev/null; then
-  echo "Error: pdsh is not installed!"
-  exit 1
-fi
-
-# 使用 pdsh 复制文件到所有主机
+# 使用 scp 复制文件到所有主机
 echo "Copying $SOURCE_FILE to all hosts..."
-pdsh -w "$HOSTS" scp "$SOURCE_FILE" localhost:/users/qiliang/UniEC/small_tools/
-
-# 检查文件是否成功复制
-if [[ $? -eq 0 ]]; then
-  echo "Successfully copied to all hosts!"
-else
-  echo "Failed to copy to some hosts!"
-  exit 1
-fi
+for HOST in $HOSTS; do
+  echo "Copying to $HOST..."
+  scp "$SOURCE_FILE" "$HOST:/users/qiliang/UniEC/small_tools/"
+  if [ $? -eq 0 ]; then
+    echo "Successfully copied to $HOST!"
+  else
+    echo "Failed to copy to $HOST!"
+    exit 1
+  fi
+done
 
 # 使用 pdsh 在所有主机上运行 Python 脚本
+REMOTE_COMMAND="cd /users/qiliang/UniEC/small_tools/ && python generator_sh.py"
+PARALLEL=5
+USER="root"
+
 echo "Running generator_sh.py on all hosts..."
-pdsh -w "$HOSTS" python3 /users/qiliang/UniEC/small_tools/generator_sh.py
+pdsh -R ssh -w ^$HOSTS_FILE -l $USER -f $PARALLEL "$REMOTE_COMMAND"
 
 # 检查脚本是否成功运行
-if [[ $? -eq 0 ]]; then
+if [ $? -eq 0 ]; then
   echo "Successfully ran generator_sh.py on all hosts!"
 else
   echo "Failed to run generator_sh.py on some hosts!"
