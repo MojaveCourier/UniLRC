@@ -11,8 +11,8 @@ int main(int argc, char **argv)
     char buff[256];
     getcwd(buff, 256);
     std::string cwf = std::string(argv[0]);
-    // std::string sys_config_path = std::string(buff) + cwf.substr(1, cwf.rfind('/') - 1) + "/../../config/parameterConfiguration.xml";
-    std::string sys_config_path = "/home/GuanTian/lql/UniEC/project/config/parameterConfiguration.xml";
+    std::string sys_config_path = std::string(buff) + cwf.substr(1, cwf.rfind('/') - 1) + "/../../config/parameterConfiguration.xml";
+    //std::string sys_config_path = "/home/GuanTian/lql/UniEC/project/config/parameterConfiguration.xml";
     std::cout << "Current working directory: " << sys_config_path << std::endl;
 
     ECProject::Config *config = ECProject::Config::getInstance(sys_config_path);
@@ -31,6 +31,7 @@ int main(int argc, char **argv)
     //     4 * 1024};
 
     // alicloud trace
+    /*
     std::vector<int> append_sizes = {
         77824,
         12288,
@@ -1053,25 +1054,26 @@ int main(int argc, char **argv)
             break;
         }
     }
+    */
 
-    // // Test set() interface with three calls using loop
-    // std::cout << "\nTesting set() interface..." << std::endl;
+    //Test set() interface with three calls using loop
+    std::cout << "\nTesting set() interface..." << std::endl;
 
-    // const int NUM_TESTS = 2;
-    // for (int i = 0; i < NUM_TESTS; i++)
-    // {
-    //     std::cout << "\n[Test " << i + 1 << "/" << NUM_TESTS << "] Calling set()" << std::endl;
-    //     bool set_result = client.set();
-    //     if (set_result)
-    //     {
-    //         std::cout << "Set operation " << i + 1 << " succeeded" << std::endl;
-    //     }
-    //     else
-    //     {
-    //         std::cout << "Set operation " << i + 1 << " failed" << std::endl;
-    //         break;
-    //     }
-    // }
+    const int NUM_TESTS = 10;
+    for (int i = 0; i < NUM_TESTS; i++)
+    {
+        std::cout << "\n[Test " << i + 1 << "/" << NUM_TESTS << "] Calling set()" << std::endl;
+        bool set_result = client.set();
+        if (set_result)
+        {
+            std::cout << "Set operation " << i + 1 << " succeeded" << std::endl;
+        }
+        else
+        {
+            std::cout << "Set operation " << i + 1 << " failed" << std::endl;
+            break;
+        }
+    }
 
     return 0;
 }

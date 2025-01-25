@@ -4,8 +4,8 @@ import netifaces
 
 current_path = os.getcwd()
 parent_path = os.path.dirname(current_path)
-cluster_number = 18
-datanode_number_per_cluster = 30
+cluster_number = 8
+datanode_number_per_cluster = 12
 datanode_port_start = 17600
 cluster_id_start = 0
 iftest = False
@@ -18,17 +18,17 @@ proxy_ip_list = [
     ["10.10.1.7",50405],
     ["10.10.1.8",50405],
     ["10.10.1.9",50405],
-    ["10.10.1.10",50405],
-    ["10.10.1.11",50405],
-    ["10.10.1.12",50405],
-    ["10.10.1.13",50405],
-    ["10.10.1.14",50405],
-    ["10.10.1.15",50405],
-    ["10.10.1.16",50405],
-    ["10.10.1.17",50405],
-    ["10.10.1.18",50405],
-    ["10.10.1.19",50405],
-    ["10.10.1.20",50405]
+    ["10.10.1.10",50405]
+    #["10.10.1.11",50405],
+    #["10.10.1.12",50405],
+    #["10.10.1.13",50405],
+    #["10.10.1.14",50405],
+    #["10.10.1.15",50405],
+    #["10.10.1.16",50405],
+    #["10.10.1.17",50405],
+    #["10.10.1.18",50405],
+    #["10.10.1.19",50405],
+    #["10.10.1.20",50405]
 ]
 coordinator_ip = "10.10.1.2"
 
@@ -131,7 +131,10 @@ def cluster_generate_run_proxy_datanode_file(ip, port, i):
 if __name__ == "__main__":
     generate_cluster_info_dict()
     # print(cluster_informtion)
-    generate_run_proxy_datanode_file()
+    local_ip = get_local_ip('eno1d1')
+    local_ip_last_segment = local_ip.split('.')[-1]
+    if local_ip_last_segment >= '3':
+        generate_run_proxy_datanode_file()
     generater_cluster_information_xml()
     # cnt = 0
     # for proxy in proxy_ip_list:
