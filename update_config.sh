@@ -18,14 +18,14 @@ fi
 # 遍历 hosts 文件中的每一行
 while read -r REMOTE_HOST; do
   # 跳过空行和本机
-  if [ -z "$REMOTE_HOST" ] || [ "$REMOTE_HOST" == "$LOCAL_HOST" ]; then
+  if [ -z "$REMOTE_HOST" ] || [ "$REMOTE_HOST" = "$LOCAL_HOST" ]; then
     continue
   fi
 
   echo "Copying contents of $SOURCE_DIR to $REMOTE_HOST..."
 
   # 使用 scp 递归复制文件夹内容
-  scp -r "$SOURCE_DIR"/* "$REMOTE_HOST:/users/qiliang/UniEC/project/config/"
+  sudo scp -r "$SOURCE_DIR"/* "$REMOTE_HOST:/users/qiliang/UniEC/project/config/"
 
   # 检查 scp 是否成功
   if [ $? -eq 0 ]; then

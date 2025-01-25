@@ -2,9 +2,9 @@
 <Configuration>
     <AlignedSize>4096</AlignedSize>
     <UnitSize>8192</UnitSize>
-    <BlockSize>16384</BlockSize>
-    <DatanodeNumPerCluster>10</DatanodeNumPerCluster>
-    <ClusterNum>12</ClusterNum>
+    <BlockSize>67108864</BlockSize>
+    <DatanodeNumPerCluster>12</DatanodeNumPerCluster>
+    <ClusterNum>8</ClusterNum>
     <CoordinatorIP>10.10.1.2</CoordinatorIP>
     <CoordinatorPort>55555</CoordinatorPort>
     <!-- AppendMode: REP_MODE; UNILRC_MODE; CACHED_MODE -->

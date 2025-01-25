@@ -30,7 +30,7 @@ done
 
 # 使用 pdsh 在所有主机上运行 Python 脚本
 REMOTE_COMMAND="cd /users/qiliang/UniEC/small_tools/ && python generator_sh.py"
-PARALLEL=5
+PARALLEL=50
 USER="root"
 
 echo "Running generator_sh.py on all hosts..."
