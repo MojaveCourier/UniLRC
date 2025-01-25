@@ -318,6 +318,631 @@ void ECProject::gf_gen_rs_matrix(unsigned char **a, int m, int k)
     }
 }
 
+void ECProject::encode_unilrc_w_append_mode(int k, int r, int z, int data_num, unsigned char **data_ptrs,
+                                            const std::vector<int> *data_sizes, unsigned char **global_ptrs,
+                                            unsigned char **local_ptrs, int start_offset, int unit_size, bool is_cached)
+{
+    unsigned char **rs_matrix;
+    rs_matrix = new unsigned char *[r];
+    for (int i = 0; i < r; i++)
+    {
+        rs_matrix[i] = new unsigned char[k];
+    }
+    ECProject::gf_gen_rs_matrix(rs_matrix, k + r, k);
+    std::vector<int> block_idx;
+    if (data_num + start_offset < k)
+    {
+        for (int i = 0; i < data_num; i++)
+        {
+            block_idx.push_back(i + start_offset);
+        }
+    }
+    else
+    {
+        for (int i = 0; i < data_num + start_offset - k; i++)
+        {
+            block_idx.push_back(i);
+        }
+        for (int i = start_offset; i < k; i++)
+        {
+            block_idx.push_back(i);
+        }
+    }
+
+    int parity_size = 0;
+    for (int i = 0; i < data_num; i++)
+    {
+        if (block_idx[i] < start_offset)
+        {
+            if (parity_size < data_sizes->at(i) + unit_size)
+            {
+                parity_size = data_sizes->at(i) + unit_size;
+            }
+        }
+        else
+        {
+            if (parity_size < data_sizes->at(i))
+            {
+                parity_size = data_sizes->at(i);
+            }
+        }
+
+        if (block_idx[i] == start_offset && data_num > 1)
+        {
+            if (data_sizes->at(i) % unit_size != 0 && parity_size < (data_sizes->at(i) / unit_size + 1) * unit_size)
+            {
+                parity_size = (data_sizes->at(i) / unit_size + 1) * unit_size;
+            }
+        }
+    }
+
+    if (!is_cached)
+    {
+        for (int i = 0; i < r; i++)
+        {
+            memset(global_ptrs[i], 0, parity_size);
+        }
+        for (int i = 0; i < z; i++)
+        {
+            memset(local_ptrs[i], 0, parity_size);
+        }
+        
+    }
+
+    std::vector<int> block_start;
+    if (data_num == 1)
+    {
+        block_start.push_back(0);
+    }
+    else
+    {
+        for (int i = 0; i < data_num; i++)
+        {
+            if (block_idx[i] < start_offset)
+            {
+                block_start.push_back(unit_size);
+            }
+
+            else if (block_idx[i] == start_offset)
+            {
+                int remain = data_sizes->at(i) % unit_size;
+                if (remain == 0)
+                {
+                    block_start.push_back(0);
+                }
+
+                else
+                {
+                    block_start.push_back(unit_size - remain);
+                }
+            }
+
+            else
+            {
+                block_start.push_back(0);
+            }
+        }
+    }
+
+    for (int i = 0; i < data_num; i++)
+    {
+        int local_group = block_idx[i] / (k / z);
+        
+        for (int j = 0; j < r; j++){
+            const unsigned char *mul_table = gf_mul_table_base[rs_matrix[j][block_idx[i]]];
+            for(int l = 0; l <data_sizes->at(i) / 64; l+= 64){
+                gf_xor_mul_64(global_ptrs[j] + l + block_start[i], data_ptrs[i] + l, mul_table);
+            }
+            for(int l = data_sizes->at(i) / 64 * 64; l < data_sizes->at(i); l++){
+                global_ptrs[j][l + block_start[i]] ^= mul_table[data_ptrs[i][l]];
+            }
+        }
+
+        for(int j = 0; j < data_sizes->at(i) / 64; j+= 64){
+            int parity_index = j + block_start[i];
+            gf_xor_64(local_ptrs[local_group] + block_start[i] + j, data_ptrs[i] + j);
+        }
+        for(int j = data_sizes->at(i) / 64 * 64; j < data_sizes->at(i); j++){
+            local_ptrs[local_group][j + block_start[i]] ^= data_ptrs[i][j];
+        }
+
+
+    }
+
+    for (int i = 0; i < z; i++)
+    {
+        for (int j = 0; j < r / z; j++)
+        {
+            int global_idx = r / z * i + j;
+            
+            const unsigned char *mul_table = gf_mul_table_base[rs_matrix[global_idx][block_idx[i]]];
+            for (int l = 0; l < parity_size / 64; l+=64)
+            {
+                gf_xor_mul_64(local_ptrs[i] + l, global_ptrs[global_idx] + l, mul_table);
+            }
+            for(int l = parity_size / 64 * 64; l < parity_size; l++){
+                local_ptrs[i][l] ^= global_ptrs[global_idx][l];
+            }
+        }
+    }
+
+    for (int i = 0; i < r; i++)
+    {
+        delete[] rs_matrix[i];
+    }
+    delete[] rs_matrix;
+}
+
+void ECProject::encode_azure_lrc_w_append_mode(int k, int r, int z, int data_num, unsigned char **data_ptrs,
+                                                const std::vector<int> *data_sizes, unsigned char **global_ptrs,
+                                                unsigned char **local_ptrs, int start_offset, int unit_size)
+{
+    unsigned char **rs_matrix;
+    rs_matrix = new unsigned char *[r];
+    for (int i = 0; i < r; i++)
+    {
+        rs_matrix[i] = new unsigned char[k];
+    }
+    ECProject::gf_gen_rs_matrix(rs_matrix, k + r, k);
+    std::vector<int> block_idx;
+    if (data_num + start_offset < k)
+    {
+        for (int i = 0; i < data_num; i++)
+        {
+            block_idx.push_back(i + start_offset);
+        }
+    }
+    else
+    {
+        for (int i = 0; i < data_num + start_offset - k; i++)
+        {
+            block_idx.push_back(i);
+        }
+        for (int i = start_offset; i < k; i++)
+        {
+            block_idx.push_back(i);
+        }
+    }
+
+    int parity_size = 0;
+    for (int i = 0; i < data_num; i++)
+    {
+        if (block_idx[i] < start_offset)
+        {
+            if (parity_size < data_sizes->at(i) + unit_size)
+            {
+                parity_size = data_sizes->at(i) + unit_size;
+            }
+        }
+        else
+        {
+            if (parity_size < data_sizes->at(i))
+            {
+                parity_size = data_sizes->at(i);
+            }
+        }
+
+        if (block_idx[i] == start_offset && data_num > 1)
+        {
+            if (data_sizes->at(i) % unit_size != 0 && parity_size < (data_sizes->at(i) / unit_size + 1) * unit_size)
+            {
+                parity_size = (data_sizes->at(i) / unit_size + 1) * unit_size;
+            }
+        }
+    }
+
+
+    for (int i = 0; i < r; i++)
+    {
+        memset(global_ptrs[i], 0, parity_size);
+    }
+    for (int i = 0; i < z; i++)
+    {
+        memset(local_ptrs[i], 0, parity_size);
+    }
+        
+
+    std::vector<int> block_start;
+    if (data_num == 1)
+    {
+        block_start.push_back(0);
+    }
+    else
+    {
+        for (int i = 0; i < data_num; i++)
+        {
+            if (block_idx[i] < start_offset)
+            {
+                block_start.push_back(unit_size);
+            }
+
+            else if (block_idx[i] == start_offset)
+            {
+                int remain = data_sizes->at(i) % unit_size;
+                if (remain == 0)
+                {
+                    block_start.push_back(0);
+                }
+
+                else
+                {
+                    block_start.push_back(unit_size - remain);
+                }
+            }
+
+            else
+            {
+                block_start.push_back(0);
+            }
+        }
+    }
+
+    for (int i = 0; i < data_num; i++)
+    {
+        int local_group = block_idx[i] / (k / z);
+        
+        for (int j = 0; j < r; j++){
+            const unsigned char *mul_table = gf_mul_table_base[rs_matrix[j][block_idx[i]]];
+            for(int l = 0; l <data_sizes->at(i) / 64; l+= 64){
+                gf_xor_mul_64(global_ptrs[j] + l + block_start[i], data_ptrs[i] + l, mul_table);
+            }
+            for(int l = data_sizes->at(i) / 64 * 64; l < data_sizes->at(i); l++){
+                global_ptrs[j][l + block_start[i]] ^= mul_table[data_ptrs[i][l]];
+            }
+        }
+
+        for(int j = 0; j < data_sizes->at(i) / 64; j+= 64){
+            int parity_index = j + block_start[i];
+            gf_xor_64(local_ptrs[local_group] + block_start[i] + j, data_ptrs[i] + j);
+        }
+        for(int j = data_sizes->at(i) / 64 * 64; j < data_sizes->at(i); j++){
+            local_ptrs[local_group][j + block_start[i]] ^= data_ptrs[i][j];
+        }
+    }
+
+    for (int i = 0; i < r; i++)
+    {
+        delete[] rs_matrix[i];
+    }
+    delete[] rs_matrix;
+}
+
+void ECProject::encode_optimal_lrc_w_append_mode(int k, int r, int z, int data_num, unsigned char **data_ptrs,
+                                                const std::vector<int> *data_sizes, unsigned char **global_ptrs,
+                                                unsigned char **local_ptrs, int start_offset, int unit_size)
+{
+    unsigned char **cauchy_matrix;
+    cauchy_matrix = new unsigned char *[r];
+    unsigned char *local_vector;
+    local_vector = new unsigned char[k];
+
+    for (int i = 0; i < r; i++)
+    {
+        cauchy_matrix[i] = new unsigned char[k];
+    }
+    ECProject::gf_gen_cauchy_matrix(cauchy_matrix, k + r, k);
+    std::vector<int> block_idx;
+    if (data_num + start_offset < k)
+    {
+        for (int i = 0; i < data_num; i++)
+        {
+            block_idx.push_back(i + start_offset);
+        }
+    }
+    else
+    {
+        for (int i = 0; i < data_num + start_offset - k; i++)
+        {
+            block_idx.push_back(i);
+        }
+        for (int i = start_offset; i < k; i++)
+        {
+            block_idx.push_back(i);
+        }
+    }
+
+    int parity_size = 0;
+    for (int i = 0; i < data_num; i++)
+    {
+        if (block_idx[i] < start_offset)
+        {
+            if (parity_size < data_sizes->at(i) + unit_size)
+            {
+                parity_size = data_sizes->at(i) + unit_size;
+            }
+        }
+        else
+        {
+            if (parity_size < data_sizes->at(i))
+            {
+                parity_size = data_sizes->at(i);
+            }
+        }
+
+        if (block_idx[i] == start_offset && data_num > 1)
+        {
+            if (data_sizes->at(i) % unit_size != 0 && parity_size < (data_sizes->at(i) / unit_size + 1) * unit_size)
+            {
+                parity_size = (data_sizes->at(i) / unit_size + 1) * unit_size;
+            }
+        }
+    }
+
+
+    for (int i = 0; i < r; i++)
+    {
+        memset(global_ptrs[i], 0, parity_size);
+    }
+    for (int i = 0; i < z; i++)
+    {
+        memset(local_ptrs[i], 0, parity_size);
+    }
+        
+
+    std::vector<int> block_start;
+    if (data_num == 1)
+    {
+        block_start.push_back(0);
+    }
+    else
+    {
+        for (int i = 0; i < data_num; i++)
+        {
+            if (block_idx[i] < start_offset)
+            {
+                block_start.push_back(unit_size);
+            }
+
+            else if (block_idx[i] == start_offset)
+            {
+                int remain = data_sizes->at(i) % unit_size;
+                if (remain == 0)
+                {
+                    block_start.push_back(0);
+                }
+
+                else
+                {
+                    block_start.push_back(unit_size - remain);
+                }
+            }
+
+            else
+            {
+                block_start.push_back(0);
+            }
+        }
+    }
+
+    for (int i = 0; i < data_num; i++)
+    {
+        int local_group = block_idx[i] / (k / z);
+        
+        for (int j = 0; j < r; j++){
+            const unsigned char *mul_table = gf_mul_table_base[cauchy_matrix[j][block_idx[i]]];
+            for(int l = 0; l <data_sizes->at(i) / 64; l+= 64){
+                gf_xor_mul_64(global_ptrs[j] + l + block_start[i], data_ptrs[i] + l, mul_table);
+            }
+            for(int l = data_sizes->at(i) / 64 * 64; l < data_sizes->at(i); l++){
+                global_ptrs[j][l + block_start[i]] ^= mul_table[data_ptrs[i][l]];
+            }
+        }
+
+        const unsigned char *mul_table_local = gf_mul_table_base[local_vector[block_idx[i]]];
+        for(int j = 0; j < data_sizes->at(i) / 64; j+= 64){
+            
+            gf_xor_mul_64(local_ptrs[local_group] + block_start[i] + j, data_ptrs[i] + j, mul_table_local);
+        }
+        for(int j = data_sizes->at(i) / 64 * 64; j < data_sizes->at(i); j++){
+            local_ptrs[local_group][j + block_start[i]] ^= mul_table_local[data_ptrs[i][j]];
+        }
+    }
+
+    for(int i = 0; i < z; i++){
+        for(int j = 0; j < r / z; j++){
+            int global_idx = r / z * i + j;
+            const unsigned char *mul_table = gf_mul_table_base[cauchy_matrix[global_idx][block_idx[i]]];
+            for(int l = 0; l < parity_size / 64; l+=64){
+                gf_xor_mul_64(local_ptrs[i] + l, global_ptrs[global_idx] + l, mul_table);
+            }
+            for(int l = parity_size / 64 * 64; l < parity_size; l++){
+                local_ptrs[i][l] ^= global_ptrs[global_idx][l];
+            }
+        }
+    }
+
+    for (int i = 0; i < r; i++)
+    {
+        delete[] cauchy_matrix[i];
+    }
+    delete[] cauchy_matrix;
+}
+
+void ECProject::encode_uniform_lrc_w_append_mode(int k, int r, int z, int data_num, unsigned char **data_ptrs,
+                                                const std::vector<int> *data_sizes, unsigned char **global_ptrs,
+                                                unsigned char **local_ptrs, int start_offset, int unit_size)
+{
+    unsigned char **cauchy_matrix;
+    cauchy_matrix = new unsigned char *[r];
+    unsigned char *local_vector;
+    local_vector = new unsigned char[k];
+
+    for (int i = 0; i < r; i++)
+    {
+        cauchy_matrix[i] = new unsigned char[k];
+    }
+    ECProject::gf_gen_cauchy_matrix(cauchy_matrix, k + r, k);
+    std::vector<int> block_idx;
+    if (data_num + start_offset < k)
+    {
+        for (int i = 0; i < data_num; i++)
+        {
+            block_idx.push_back(i + start_offset);
+        }
+    }
+    else
+    {
+        for (int i = 0; i < data_num + start_offset - k; i++)
+        {
+            block_idx.push_back(i);
+        }
+        for (int i = start_offset; i < k; i++)
+        {
+            block_idx.push_back(i);
+        }
+    }
+
+    int parity_size = 0;
+    for (int i = 0; i < data_num; i++)
+    {
+        if (block_idx[i] < start_offset)
+        {
+            if (parity_size < data_sizes->at(i) + unit_size)
+            {
+                parity_size = data_sizes->at(i) + unit_size;
+            }
+        }
+        else
+        {
+            if (parity_size < data_sizes->at(i))
+            {
+                parity_size = data_sizes->at(i);
+            }
+        }
+
+        if (block_idx[i] == start_offset && data_num > 1)
+        {
+            if (data_sizes->at(i) % unit_size != 0 && parity_size < (data_sizes->at(i) / unit_size + 1) * unit_size)
+            {
+                parity_size = (data_sizes->at(i) / unit_size + 1) * unit_size;
+            }
+        }
+    }
+
+
+    for (int i = 0; i < r; i++)
+    {
+        memset(global_ptrs[i], 0, parity_size);
+    }
+    for (int i = 0; i < z; i++)
+    {
+        memset(local_ptrs[i], 0, parity_size);
+    }
+        
+
+    std::vector<int> block_start;
+    if (data_num == 1)
+    {
+        block_start.push_back(0);
+    }
+    else
+    {
+        for (int i = 0; i < data_num; i++)
+        {
+            if (block_idx[i] < start_offset)
+            {
+                block_start.push_back(unit_size);
+            }
+
+            else if (block_idx[i] == start_offset)
+            {
+                int remain = data_sizes->at(i) % unit_size;
+                if (remain == 0)
+                {
+                    block_start.push_back(0);
+                }
+
+                else
+                {
+                    block_start.push_back(unit_size - remain);
+                }
+            }
+
+            else
+            {
+                block_start.push_back(0);
+            }
+        }
+    }
+
+    for (int i = 0; i < data_num; i++)
+    {
+        int local_group = block_idx[i] / (k / z);
+        
+        for (int j = 0; j < r; j++){
+            const unsigned char *mul_table = gf_mul_table_base[cauchy_matrix[j][block_idx[i]]];
+            for(int l = 0; l <data_sizes->at(i) / 64; l+= 64){
+                gf_xor_mul_64(global_ptrs[j] + l + block_start[i], data_ptrs[i] + l, mul_table);
+            }
+            for(int l = data_sizes->at(i) / 64 * 64; l < data_sizes->at(i); l++){
+                global_ptrs[j][l + block_start[i]] ^= mul_table[data_ptrs[i][l]];
+            }
+        }
+
+        const unsigned char *mul_table_local = gf_mul_table_base[local_vector[block_idx[i]]];
+        for(int j = 0; j < data_sizes->at(i) / 64; j+= 64){
+            
+            gf_xor_mul_64(local_ptrs[local_group] + block_start[i] + j, data_ptrs[i] + j, mul_table_local);
+        }
+        for(int j = data_sizes->at(i) / 64 * 64; j < data_sizes->at(i); j++){
+            local_ptrs[local_group][j + block_start[i]] ^= mul_table_local[data_ptrs[i][j]];
+        }
+    }
+
+    int group_size = (k + r) / z;
+    int larger_group_num = (k + r) % z;
+    int larger_group_block_start = group_size * (z - larger_group_num);
+    for(int i = 0; i < z - larger_group_num; i++){
+        for(int j = 0; j < group_size; j++){
+            int data_idx = i * group_size + j;
+            for(int l = 0; l < parity_size / 64; l+=64){
+                gf_xor_64(local_ptrs[i] + l, data_ptrs[data_idx] + l);
+            }
+            for(int l = parity_size / 64 * 64; l < parity_size; l++){
+                local_ptrs[i][l] ^= data_ptrs[data_idx][l];
+            }
+        }
+    }
+    group_size++;
+    for(int i = z - larger_group_num; i < z - 1; i++){
+        for(int j = 0; j < group_size; j++){
+            int data_idx = larger_group_block_start + (i - z + larger_group_num) * group_size + j;
+            for(int l = 0; l < parity_size / 64; l+=64){
+                gf_xor_64(local_ptrs[i] + l, data_ptrs[data_idx] + l);
+            }
+            for(int l = parity_size / 64 * 64; l < parity_size; l++){
+                local_ptrs[i][l] ^= data_ptrs[data_idx][l];
+            }
+        }
+    }
+
+    for(int i = 0; i < r; i++){
+        for(int j = 0; j < parity_size / 64; j+=64){
+            gf_xor_64(local_ptrs[z - 1] + j, global_ptrs[i] + j);
+        }
+        for(int j = parity_size / 64 * 64; j < parity_size; j++){
+            local_ptrs[z - 1][j] ^= global_ptrs[i][j];
+        }
+    }
+
+    int data_idx_last_group = k - (group_size - r);
+    for(int i = 0; i < group_size - r; i++){
+        for(int j = 0; j < parity_size / 64; j+=64){
+            gf_xor_64(local_ptrs[z - 1] + j, data_ptrs[data_idx_last_group + i] + j);
+        }
+        for(int j = parity_size / 64 * 64; j < parity_size; j++){
+            local_ptrs[z - 1][j] ^= data_ptrs[data_idx_last_group + i][j];
+        }
+    }
+
+
+
+    for (int i = 0; i < r; i++)
+    {
+        delete[] cauchy_matrix[i];
+    }
+    delete[] cauchy_matrix;
+}
 
 void ECProject::encode_unilrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **global_ptrs,
                               unsigned char **local_ptrs, int block_size)
@@ -565,6 +1190,80 @@ void ECProject::encode_uniform_lrc(int k, int r, int z, unsigned char **data_ptr
     }
     delete[] cauchy_matrix;
     delete[] local_vector;
+}
+
+void ECProject::encode_unilrc_w_rep_mode(int k, int r, int z, unsigned char *data_ptrs, unsigned char *parity_ptr,
+                                         int block_size, int unit_size, int parity_block_id)
+{
+    unsigned char **rs_matrix;
+    rs_matrix = new unsigned char *[r];
+    for (int i = 0; i < r; i++)
+    {
+        rs_matrix[i] = new unsigned char[k];
+    }
+
+    gf_gen_rs_matrix(rs_matrix, k + r, k);
+
+    memset(parity_ptr, 0, block_size);
+
+    int block_idx[k][block_size];
+    for (int i = 0; i < block_size; i++)
+    {
+        for (int j = 0; j < k; j++)
+        {
+            block_idx[j][i] = (i / unit_size * k + j) * unit_size + i % unit_size;
+        }
+    }
+
+
+    if (parity_block_id >= k && parity_block_id < k + r)
+    {
+        int parity_idx = parity_block_id - k;
+        
+        for(int i = 0; i < k; i++){
+            const unsigned char *mul_table = gf_mul_table_base[rs_matrix[parity_idx][i]];
+            for(int j = 0; j < block_size / 64; j+=64){
+                gf_xor_mul_idx_64(parity_ptr + j, data_ptrs, block_idx[i] + j, mul_table);
+            }
+            for(int j = block_size / 64 * 64; j < block_size; j++){
+                parity_ptr[j] ^= mul_table[data_ptrs[block_idx[j][i]]];
+            }
+        }
+    }
+    else
+    {
+        int local_group = parity_block_id - k - r;
+        
+        for(int i = 0; i < k; i++){
+            for(int j = 0; j < r / z; j++){
+                const unsigned char *mul_table = gf_mul_table_base[rs_matrix[j + local_group * (r / z)][i]];
+                for(int l = 0; l < block_size / 64; l+=64){
+                    gf_xor_mul_idx_64(parity_ptr + l, data_ptrs, block_idx[i] + l, mul_table);
+                }
+                for(int l = block_size / 32 * 32; l < block_size; l++){
+                    parity_ptr[l] ^= mul_table[data_ptrs[block_idx[l][i]]];
+                }
+            }
+
+        }
+
+
+        for(int i = local_group * (r / z); i < (local_group + 1) * (r / z); i++){
+            for(int j = 0; j < block_size / 64; j+=64){
+                gf_xor_idx_64(parity_ptr + j, data_ptrs, block_idx[i] + j);
+            }
+            for(int j = block_size / 64 * 64; j < block_size; j++){
+                parity_ptr[j] ^= data_ptrs[block_idx[j][i]];
+            }
+        }
+
+    }
+
+    for (int i = 0; i < r; i++)
+    {
+        delete[] rs_matrix[i];
+    }
+    delete[] rs_matrix;
 }
 
 void ECProject::decode_unilrc(const int k, const int r, const int z, const int block_num,
