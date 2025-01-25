@@ -133,7 +133,7 @@ if __name__ == "__main__":
     # print(cluster_informtion)
     local_ip = get_local_ip('eno1d1')
     local_ip_last_segment = local_ip.split('.')[-1]
-    if local_ip_last_segment >= '3':
+    if int (local_ip_last_segment) >= 3:
         generate_run_proxy_datanode_file()
     generater_cluster_information_xml()
     # cnt = 0
