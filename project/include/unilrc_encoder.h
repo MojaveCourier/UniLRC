@@ -379,6 +379,8 @@ namespace ECProject
     void
     gf_vect_mul_init(unsigned char c, unsigned char *tbl);
 
+    unsigned char
+    gf_mul(unsigned char a, unsigned char b);
 }
 
 #endif

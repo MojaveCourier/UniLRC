@@ -329,7 +329,7 @@ void ECProject::gf_gen_rs_matrix(unsigned char **a, int m, int k)
 }
 
 void
-gf_gen_rs_matrix1(unsigned char *a, int m, int k)
+ECProject::gf_gen_rs_matrix1(unsigned char *a, int m, int k)
 {
         int i, j;
         unsigned char p, gen = 2;
@@ -349,7 +349,7 @@ gf_gen_rs_matrix1(unsigned char *a, int m, int k)
 }
 
 unsigned char
-gf_mul(unsigned char a, unsigned char b)
+ECProject::gf_mul(unsigned char a, unsigned char b)
 {
 #ifndef GF_LARGE_TABLES
         int i;
@@ -1391,7 +1391,7 @@ void ECProject::decode_uniform_lrc(const int k, const int r, const int z, const 
 }
 
 void
-ec_encode_data_avx2(int len, int k, int rows, unsigned char *g_tbls, unsigned char **data,
+ECProject::ec_encode_data_avx2(int len, int k, int rows, unsigned char *g_tbls, unsigned char **data,
                     unsigned char **coding)
 {
 
@@ -1428,7 +1428,7 @@ ec_encode_data_avx2(int len, int k, int rows, unsigned char *g_tbls, unsigned ch
 }
 
 void
-ec_init_tables(int k, int rows, unsigned char *a, unsigned char *g_tbls)
+ECProject::ec_init_tables(int k, int rows, unsigned char *a, unsigned char *g_tbls)
 {
         int i, j;
 
@@ -1441,7 +1441,7 @@ ec_init_tables(int k, int rows, unsigned char *a, unsigned char *g_tbls)
 }
 
 void
-gf_vect_mul_init(unsigned char c, unsigned char *tbl)
+ECProject::gf_vect_mul_init(unsigned char c, unsigned char *tbl)
 {
         unsigned char c2 = (c << 1) ^ ((c & 0x80) ? 0x1d : 0);   // Mult by GF{2}
         unsigned char c4 = (c2 << 1) ^ ((c2 & 0x80) ? 0x1d : 0); // Mult by GF{2}
