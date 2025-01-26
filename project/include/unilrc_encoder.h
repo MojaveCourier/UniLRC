@@ -354,6 +354,8 @@ namespace ECProject
 
     void gf_gen_cauchy_matrix(unsigned char **a, int m, int k);
 
+    void gf_gen_cauchy_matrix1(unsigned char *a, int m, int k);
+
     void gf_gen_local_vector(unsigned char *a, int k, int p);
 
     void gf_gen_rs_matrix(unsigned char **a, int m, int k);

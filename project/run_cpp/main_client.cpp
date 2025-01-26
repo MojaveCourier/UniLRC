@@ -1058,7 +1058,9 @@ int main(int argc, char **argv)
 
     //Test set() interface with three calls using loop
     std::cout << "\nTesting set() interface..." << std::endl;
-
+    //std::cout << "编码时间: " << encoding_duration.count() << " 微秒" << std::endl;
+    //std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
+    //auto encoding_duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
     const int NUM_TESTS = 10;
     for (int i = 0; i < NUM_TESTS; i++)
     {

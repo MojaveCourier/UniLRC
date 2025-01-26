@@ -348,6 +348,24 @@ ECProject::gf_gen_rs_matrix1(unsigned char *a, int m, int k)
         }
 }
 
+void
+ECProject::gf_gen_cauchy_matrix1(unsigned char *a, int m, int k)
+{
+        int i, j;
+        unsigned char *p;
+
+        // Identity matrix in high position
+        memset(a, 0, k * m);
+        for (i = 0; i < k; i++)
+                a[k * i + i] = 1;
+
+        // For the rest choose 1/(i + j) | i != j
+        p = &a[k * k];
+        for (i = k; i < m; i++)
+                for (j = 0; j < k; j++)
+                        *p++ = gf_inv(i ^ j);
+}
+
 unsigned char
 ECProject::gf_mul(unsigned char a, unsigned char b)
 {
@@ -992,8 +1010,6 @@ void ECProject::encode_uniform_lrc_w_append_mode(int k, int r, int z, int data_n
 void ECProject::encode_unilrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **global_ptrs,
                               unsigned char **local_ptrs, int block_size)
 {
-    std::cout << "开始编码" << std::endl;
-    std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
     for(int i = 0; i < r; i++){
         memset(global_ptrs[i], 0, block_size);
     }
@@ -1008,27 +1024,24 @@ void ECProject::encode_unilrc(int k, int r, int z, unsigned char **data_ptrs, un
     ec_init_tables(k, r, &encode_matrix[k * k], g_tbls);
     ec_encode_data_avx2(block_size, k, r, g_tbls, data_ptrs, global_ptrs);
 
-    for(int i = 0; i < k; i++){
-        int local_group = i / (k / z);
-        #pragma unroll(64)
-        #pragma omp simd
-        for(int j = 0; j < block_size; j++){
-            local_ptrs[local_group][j] ^= data_ptrs[i][j];
+    for(int i = 0; i < z; i++){
+        for(int j = i * (k / z); j < (i + 1) * (k / z); j++){
+            #pragma unroll(64)
+            #pragma omp simd
+            for(int l = 0; l < block_size; l++){
+                local_ptrs[i][l] ^= data_ptrs[j][l];
+            }
         }
-    }
-    for(int i = 0; i < r; i++){
-        int local_group = i / (r / z);
-        #pragma unroll(64)
-        #pragma omp simd
-        for(int j = 0; j < block_size; j++){
-            local_ptrs[local_group][j] ^= global_ptrs[i][j];
+        for(int j = i * (r / z); j < (i + 1) * (r / z); j++){
+            #pragma unroll(64)
+            #pragma omp simd
+            for(int l = 0; l < block_size; l++){
+                local_ptrs[i][l] ^= global_ptrs[j][l];
+            }
         }
     }
 
     delete[] encode_matrix;
-    std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
-    auto encoding_duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    std::cout << "编码时间: " << encoding_duration.count() << " 微秒" << std::endl;
 }
 
 void ECProject::encode_azure_lrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **global_ptrs,
@@ -1048,12 +1061,13 @@ void ECProject::encode_azure_lrc(int k, int r, int z, unsigned char **data_ptrs,
     ec_init_tables(k, r, &encode_matrix[k * k], g_tbls);
     ec_encode_data_avx2(block_size, k, r, g_tbls, data_ptrs, global_ptrs);
 
-    for(int i = 0; i < k; i++){
-        int local_group = i / (k / z);
-        #pragma unroll(64)
-        #pragma omp simd
-        for(int j = 0; j < block_size; j++){
-            local_ptrs[local_group][j] ^= data_ptrs[i][j];
+    for(int i = 0; i < z; i++){
+        for(int j = i * (k / z); j < (i + 1) * (k / z); j++){
+            #pragma unroll(64)
+            #pragma omp simd
+            for(int l = 0; l < block_size; l++){
+                local_ptrs[i][l] ^= data_ptrs[j][l];
+            }
         }
     }
 
@@ -1063,17 +1077,6 @@ void ECProject::encode_azure_lrc(int k, int r, int z, unsigned char **data_ptrs,
 void ECProject::encode_optimal_lrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **global_ptrs,
                                    unsigned char **local_ptrs, int block_size)
 {
-    unsigned char **cauchy_matrix;
-    unsigned char *local_vector;
-    cauchy_matrix = new unsigned char *[r];
-    for (int i = 0; i < r; i++)
-    {
-        cauchy_matrix[i] = new unsigned char[k];
-    }
-    local_vector = new unsigned char[k];
-    gf_gen_cauchy_matrix(cauchy_matrix, k + r, k);
-    gf_gen_local_vector(local_vector, k, r);
-
     for(int i = 0; i < r; i++){
         memset(global_ptrs[i], 0, block_size);
     }
@@ -1081,59 +1084,40 @@ void ECProject::encode_optimal_lrc(int k, int r, int z, unsigned char **data_ptr
         memset(local_ptrs[i], 0, block_size);
     }
 
-    for(int i = 0; i < k; i++){
-        int local_group = i / (k / z);
+    int m = k + r;
+    unsigned char *encode_matrix = new unsigned char[m * k];
+    gf_gen_cauchy_matrix1(encode_matrix, m, k);
+    unsigned char *g_tbls = new unsigned char[k * r * 32];
+    ec_init_tables(k, r, &encode_matrix[k * k], g_tbls);
+    ec_encode_data_avx2(block_size, k, r, g_tbls, data_ptrs, global_ptrs);
+
+
+    unsigned char *local_vector = new unsigned char[k];
+    gf_gen_local_vector(local_vector, k, r);
+    for(int i = 0; i < z; i++){
+        for(int j = i * (k / z); j < (i + 1) * (k / z); j++){
+            const unsigned char *mul_table = gf_mul_table_base[local_vector[j]];
+            #pragma unroll(64)
+            #pragma omp simd
+            for(int l = 0; l < block_size; l++){
+                local_ptrs[i][l] ^= mul_table[data_ptrs[j][l]];
+            }
+        }
         for(int j = 0; j < r; j++){
-            const unsigned char *mul_table = gf_mul_table_base[cauchy_matrix[j][i]];
-            for(int l = 0; l < block_size / 64; l+=64){
-                gf_xor_mul_64(global_ptrs[j] + l, data_ptrs[i] + l, mul_table);
-            }
-            for(int l = block_size / 64 * 64; l < block_size; l++){
-                global_ptrs[j][l] ^= mul_table[data_ptrs[i][l]];
-            }
-        }
-        const unsigned char *mul_table_local = gf_mul_table_base[local_vector[i]];
-        for(int j = 0; j < block_size / 64; j+=64){
-            gf_xor_mul_64(local_ptrs[local_group] + j, data_ptrs[i] + j, mul_table_local);
-        }
-        for(int j = block_size / 64 * 64; j < block_size; j++){
-            local_ptrs[local_group][j] ^= mul_table_local[data_ptrs[i][j]];
-        }
-    }
-
-
-    for (int i = 0; i < z; i++)
-    {
-        for (int j = 0; j < r; j++)
-        {
-            for (int l = 0; l < block_size / 64; l+=64)
-            {
-                gf_xor_64(local_ptrs[i] + l, global_ptrs[j] + l);
+            #pragma unroll(64)
+            #pragma omp simd
+            for(int l = 0; l < block_size; l++){
+                local_ptrs[i][l] ^= global_ptrs[j][l];
             }
         }
     }
 
-    for (int i = 0; i < r; i++)
-    {
-        delete[] cauchy_matrix[i];
-    }
-    delete[] cauchy_matrix;
-    delete[] local_vector;
+    delete[] encode_matrix;
 }
 
 void ECProject::encode_uniform_lrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **global_ptrs,
                                    unsigned char **local_ptrs, int block_size)
 {
-    unsigned char **cauchy_matrix;
-    unsigned char *local_vector;
-    cauchy_matrix = new unsigned char *[r];
-    for (int i = 0; i < r; i++)
-    {
-        cauchy_matrix[i] = new unsigned char[k];
-    }
-    local_vector = new unsigned char[k];
-    gf_gen_cauchy_matrix(cauchy_matrix, k + r, k);
-    gf_gen_local_vector(local_vector, k, r);
 
     for(int i = 0; i < r; i++){
         memset(global_ptrs[i], 0, block_size);
@@ -1142,60 +1126,55 @@ void ECProject::encode_uniform_lrc(int k, int r, int z, unsigned char **data_ptr
         memset(local_ptrs[i], 0, block_size);
     }
 
-  
+    int m = k + r;
+    unsigned char *encode_matrix = new unsigned char[m * k];
+    gf_gen_cauchy_matrix1(encode_matrix, m, k);
+    unsigned char *g_tbls = new unsigned char[k * r * 32];
+    ec_init_tables(k, r, &encode_matrix[k * k], g_tbls);
+    ec_encode_data_avx2(block_size, k, r, g_tbls, data_ptrs, global_ptrs);
 
-    for(int i = 0; i < k; i++){
-        for(int j = 0; j < r; j++){
-            const unsigned char *mul_table = gf_mul_table_base[cauchy_matrix[j][i]];
-            for(int l = 0; l < block_size / 64; l+=64){
-                gf_xor_mul_64(global_ptrs[j] + l, data_ptrs[i] + l, mul_table);
-            }
-            for(int l = block_size / 64 * 64; l < block_size; l++){
-                global_ptrs[j][l] ^= mul_table[data_ptrs[i][l]];
-            }
-        }
-    }
+
+    unsigned char *local_vector = new unsigned char[k];
+    gf_gen_local_vector(local_vector, k, r);
+
 
     int local_group_size = (k + r) / z;
     int larger_local_group_num = (k + r) % z;
     int node_num_in_small_group = local_group_size * (z - larger_local_group_num); 
     for(int i = 0; i < z - larger_local_group_num; i++){
         for(int j = 0; j < local_group_size; j++){
-            for(int l = 0; l < block_size / 64; l+=64){
-                gf_xor_64(local_ptrs[i] + l, data_ptrs[i * local_group_size + j] + l);
-            }
-            for(int l = block_size / 64 * 64; l < block_size; l++){
-                local_ptrs[i][l] ^= data_ptrs[i * local_group_size + j][l];
+            int data_idx = i * local_group_size + j;
+            const unsigned char *mul_table = gf_mul_table_base[local_vector[data_idx]];
+            #pragma unroll(64)
+            #pragma omp simd
+            for(int l = block_size; l < block_size; l++){
+                local_ptrs[i][l] ^= mul_table[data_ptrs[data_idx][l]];
             }
         }
     }
     local_group_size++;
     for(int i = z - larger_local_group_num; i < z - 1; i++){
-        int data_idx = node_num_in_small_group + (i - z + larger_local_group_num) * local_group_size;
         for(int j = 0; j < local_group_size; j++){
-            for(int l = 0; l < block_size / 64; l+=64){
-                gf_xor_64(local_ptrs[i] + l, data_ptrs[data_idx + j] + l);
-            }
-            for(int l = block_size / 64 * 64; l < block_size; l++){
-                local_ptrs[i][l] ^= data_ptrs[data_idx + j][l];
+            int data_idx = node_num_in_small_group + (i - z + larger_local_group_num) * local_group_size + j;
+            const unsigned char *mul_table = gf_mul_table_base[local_vector[data_idx + j]];
+            #pragma unroll(64)
+            #pragma omp simd
+            for(int l = block_size; l < block_size; l++){
+                local_ptrs[i][l] ^= mul_table[data_ptrs[data_idx + j][l]];
             }
         }
     }
     for(int i = 0; i < r; i++){
-        for(int j = 0; j < block_size / 64; j+=64){
-            gf_xor_64(local_ptrs[z - 1] + j, global_ptrs[i] + j);
-        }
-        for(int j = block_size / 64 * 64; j < block_size; j++){
+        #pragma unroll(64)
+        #pragma omp simd
+        for(int j = block_size; j < block_size; j++){
             local_ptrs[z - 1][j] ^= global_ptrs[i][j];
         }
     }
 
-    for (int i = 0; i < r; i++)
-    {
-        delete[] cauchy_matrix[i];
-    }
-    delete[] cauchy_matrix;
     delete[] local_vector;
+
+    delete[] encode_matrix;
 }
 
 void ECProject::encode_unilrc_w_rep_mode(int k, int r, int z, unsigned char *data_ptrs, unsigned char *parity_ptr,
