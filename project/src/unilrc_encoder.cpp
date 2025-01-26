@@ -1026,15 +1026,15 @@ void ECProject::encode_unilrc(int k, int r, int z, unsigned char **data_ptrs, un
 
     for(int i = 0; i < z; i++){
         for(int j = i * (k / z); j < (i + 1) * (k / z); j++){
-            #pragma unroll(64)
-            #pragma omp simd
+            #pragma GCC unroll(64)
+            #pragma GCC omp simd
             for(int l = 0; l < block_size; l++){
                 local_ptrs[i][l] ^= data_ptrs[j][l];
             }
         }
         for(int j = i * (r / z); j < (i + 1) * (r / z); j++){
-            #pragma unroll(64)
-            #pragma omp simd
+            #pragma GCC unroll(64)
+            #pragma GCC omp simd
             for(int l = 0; l < block_size; l++){
                 local_ptrs[i][l] ^= global_ptrs[j][l];
             }
@@ -1063,8 +1063,8 @@ void ECProject::encode_azure_lrc(int k, int r, int z, unsigned char **data_ptrs,
 
     for(int i = 0; i < z; i++){
         for(int j = i * (k / z); j < (i + 1) * (k / z); j++){
-            #pragma unroll(64)
-            #pragma omp simd
+            #pragma GCC unroll(64)
+            #pragma GCC omp simd
             for(int l = 0; l < block_size; l++){
                 local_ptrs[i][l] ^= data_ptrs[j][l];
             }
@@ -1097,15 +1097,15 @@ void ECProject::encode_optimal_lrc(int k, int r, int z, unsigned char **data_ptr
     for(int i = 0; i < z; i++){
         for(int j = i * (k / z); j < (i + 1) * (k / z); j++){
             const unsigned char *mul_table = gf_mul_table_base[local_vector[j]];
-            #pragma unroll(64)
-            #pragma omp simd
+            #pragma GCC unroll(64)
+            #pragma GCC omp simd
             for(int l = 0; l < block_size; l++){
                 local_ptrs[i][l] ^= mul_table[data_ptrs[j][l]];
             }
         }
         for(int j = 0; j < r; j++){
-            #pragma unroll(64)
-            #pragma omp simd
+            #pragma GCC unroll(64)
+            #pragma GCC omp simd
             for(int l = 0; l < block_size; l++){
                 local_ptrs[i][l] ^= global_ptrs[j][l];
             }
@@ -1145,8 +1145,8 @@ void ECProject::encode_uniform_lrc(int k, int r, int z, unsigned char **data_ptr
         for(int j = 0; j < local_group_size; j++){
             int data_idx = i * local_group_size + j;
             const unsigned char *mul_table = gf_mul_table_base[local_vector[data_idx]];
-            #pragma unroll(64)
-            #pragma omp simd
+            #pragma GCC unroll(64)
+            #pragma GCC omp simd
             for(int l = block_size; l < block_size; l++){
                 local_ptrs[i][l] ^= mul_table[data_ptrs[data_idx][l]];
             }
@@ -1157,16 +1157,16 @@ void ECProject::encode_uniform_lrc(int k, int r, int z, unsigned char **data_ptr
         for(int j = 0; j < local_group_size; j++){
             int data_idx = node_num_in_small_group + (i - z + larger_local_group_num) * local_group_size + j;
             const unsigned char *mul_table = gf_mul_table_base[local_vector[data_idx + j]];
-            #pragma unroll(64)
-            #pragma omp simd
+            #pragma GCC unroll(64)
+            #pragma GCC omp simd
             for(int l = block_size; l < block_size; l++){
                 local_ptrs[i][l] ^= mul_table[data_ptrs[data_idx + j][l]];
             }
         }
     }
     for(int i = 0; i < r; i++){
-        #pragma unroll(64)
-        #pragma omp simd
+        #pragma GCC unroll(64)
+        #pragma GCC omp simd
         for(int j = block_size; j < block_size; j++){
             local_ptrs[z - 1][j] ^= global_ptrs[i][j];
         }

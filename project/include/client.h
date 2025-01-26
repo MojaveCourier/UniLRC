@@ -76,6 +76,7 @@ namespace ECProject
     bool set(std::string key, std::string value);
     bool SetParameterByGrpc(ECSchema input_ecschema);
     bool get(std::string key, std::string &value);
+    bool get1(std::string &value);
     bool delete_key(std::string key);
     bool delete_stripe(int stripe_id);
     bool delete_all_stripes();

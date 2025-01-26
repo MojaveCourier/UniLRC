@@ -811,6 +811,12 @@ namespace ECProject
     1. send the get request including the information of key and clientipport to the coordinator
     2. accept the value transferred from the proxy
   */
+
+  bool Client::get1(std::string &value)
+  {
+    get(m_clientID, value);
+  }
+
   bool Client::get(std::string key, std::string &value)
   {
     grpc::ClientContext context;

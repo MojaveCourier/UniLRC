@@ -2,7 +2,7 @@
 <Configuration>
     <AlignedSize>4096</AlignedSize>
     <UnitSize>8192</UnitSize>
-    <BlockSize>33554432</BlockSize>
+    <BlockSize>8192</BlockSize>
     <DatanodeNumPerCluster>12</DatanodeNumPerCluster>
     <ClusterNum>8</ClusterNum>
     <CoordinatorIP>10.10.1.2</CoordinatorIP>

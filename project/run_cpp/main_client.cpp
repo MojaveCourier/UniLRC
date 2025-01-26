@@ -1057,7 +1057,7 @@ int main(int argc, char **argv)
     */
 
     //Test set() interface with three calls using loop
-    std::cout << "\nTesting set() interface..." << std::endl;
+    /*std::cout << "\nTesting set() interface..." << std::endl;
     //std::cout << "编码时间: " << encoding_duration.count() << " 微秒" << std::endl;
     //std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
     //auto encoding_duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
@@ -1075,7 +1075,26 @@ int main(int argc, char **argv)
             std::cout << "Set operation " << i + 1 << " failed" << std::endl;
             break;
         }
-    }
+    }*/
+    /*bool set_success = client.set();
+    if (set_success) {
+        std::cout << "Data set successfully! Proceeding to get..." << std::endl;
+
+
+        std::string value;            // 用于存储检索到的数据
+        bool get_success = client.get1(value);
+
+        if (get_success) {
+            std::cout << "Data retrieved successfully!" << std::endl;
+            std::cout << "Value: " << value << std::endl;
+        } else {
+            std::cerr << "Failed to retrieve data." << std::endl;
+        }
+    } else {
+        std::cerr << "Failed to set data. Cannot proceed to get." << std::endl;
+    }*/
+
+
 /*
         // get
     std::cout << "[GET BEGIN]" << std::endl;
