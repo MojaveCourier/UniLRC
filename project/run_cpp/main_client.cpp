@@ -1076,6 +1076,34 @@ int main(int argc, char **argv)
             break;
         }
     }
+/*
+        // get
+    std::cout << "[GET BEGIN]" << std::endl;
+    for (int i = 0; i < 10; i++)
+    {
+        std::string value;
+        std::string key = "Object" + std::to_string(i);
+        std::string targetdir = "./client_get/";
+        std::string writepath = targetdir + key;
+        // if (!std::filesystem::exists(std::filesystem::path{"./client_get/"}))
+        // {
+        //   std::filesystem::create_directory("./client_get/");
+        // }
+        if (access(targetdir.c_str(), 0) == -1)
+        {
+        mkdir(targetdir.c_str(), S_IRWXU);
+        }
+        client.get(key, value);
+        std::cout << "[run_client] value size " << value.size() << std::endl;
+        std::ofstream ofs(writepath, std::ios::binary | std::ios::out | std::ios::trunc);
+        ofs.write(value.c_str(), value.size());
+        ofs.flush();
+        ofs.close();
+    }
+    std::cout << "[GET END]" << std::endl
+                << std::endl;
+
+*/
 
     return 0;
 }
