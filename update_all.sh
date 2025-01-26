@@ -6,33 +6,29 @@ SOURCE_DIR="/users/qiliang/UniEC"
 # 定义 hosts 文件路径
 HOSTS_FILE="hosts"
 
-# 获取本机的主机名
-LOCAL_HOST=$(hostname)
+# 定义远程目标文件夹路径
+REMOTE_DIR="/users/qiliang/UniEC"
 
 # 检查 hosts 文件是否存在
-if [ ! -f "$HOSTS_FILE" ]; then
-  echo "Error: hosts file not found!"
-  exit 1
+if [[ ! -f "$HOSTS_FILE" ]]; then
+    echo "Error: hosts file not found!"
+    exit 1
 fi
 
-# 遍历 hosts 文件中的每一行
-while read -r REMOTE_HOST; do
-  # 跳过空行和本机
-  if [ -z "$REMOTE_HOST" || "$REMOTE_HOST" == "$LOCAL_HOST" ]; then
-    continue
-  fi
+# 遍历 hosts 文件中的每个 IP 地址
+while read -r ip; do
 
-  echo "Copying $SOURCE_DIR to $REMOTE_HOST..."
+    echo "Copying to host: $ip..."
 
-  # 使用 scp 递归复制文件夹
-  scp -r "$SOURCE_DIR" "$REMOTE_HOST:/users/qiliang/"
+    # 使用 rsync 复制文件夹，排除 third_party 子文件夹
+    rsync -avz --exclude='third_party' -e ssh "$SOURCE_DIR/" "$ip:$REMOTE_DIR/"
 
-  # 检查 scp 是否成功
-  if [ $? -eq 0 ]; then
-    echo "Successfully copied to $REMOTE_HOST!"
-  else
-    echo "Failed to copy to $REMOTE_HOST!"
-  fi
+    # 检查 rsync 是否成功
+    if [ $? -eq 0 ]; then
+        echo "Successfully copied to $ip!"
+    else
+        echo "Failed to copy to $ip!"
+    fi
 
 done < "$HOSTS_FILE"
 

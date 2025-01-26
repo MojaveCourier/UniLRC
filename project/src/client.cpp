@@ -244,7 +244,7 @@ namespace ECProject
 
     while (tmp_append_size > 0)
     {
-      int sub_append_size = std::min(tmp_append_size, m_sys_config->BlockSize * m_sys_config->k - m_append_logical_offset);
+      int sub_append_size = std::min(static_cast<unsigned int>(tmp_append_size), m_sys_config->BlockSize * m_sys_config->k - m_append_logical_offset);
 
       bool if_append_success = false;
       if (m_sys_config->AppendMode == "UNILRC_MODE" || m_sys_config->AppendMode == "CACHED_MODE")

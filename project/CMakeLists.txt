@@ -1,11 +1,16 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.22)
 project(project)
 
 # 启用汇编语言支持（NASM）
-enable_language(ASM)
+enable_language(ASM_NASM)
+
 set(CMAKE_ASM_NASM_SOURCE_FILE_EXTENSIONS asm)  # 识别 .asm 文件
-set(CMAKE_ASM_NASM_COMPILER nasm)              # 指定 NASM 汇编器
+set(CMAKE_ASM_NASM_COMPILER "/usr/bin/nasm")              # 指定 NASM 汇编器
+set(CMAKE_ASM_NASM_OBJECT_FORMAT elf64)
 set(CMAKE_ASM_NASM_COMPILE_OBJECT "<CMAKE_ASM_NASM_COMPILER> <INCLUDES> <FLAGS> -f elf64 -o <OBJECT> <SOURCE>")
+set(CMAKE_ASM_NASM_OUTPUT_EXTENSION .o)  
+# 设置 NASM 编译选项时添加包含路径
+set(CMAKE_ASM_NASM_FLAGS "-f elf64 -I${CMAKE_CURRENT_SOURCE_DIR}/src/asm")
 
 set(ASM_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/asm/reg_sizes.asm
@@ -17,9 +22,15 @@ set(ASM_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/asm/gf_6vect_dot_prod_avx2.asm
 )
 
+# 标记为 NASM 汇编文件
+set_source_files_properties(
+    ${ASM_SOURCES}
+    PROPERTIES
+    LANGUAGE ASM_NASM
+)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "-g -Wall -std=c++11 -DASIO_STANDALONE -Ofast")
+set(CMAKE_CXX_FLAGS "-gdwarf-4 -gstrict-dwarf -g -Wall -std=c++11 -DASIO_STANDALONE -Ofast -funroll-loops")
 
 find_package(Threads REQUIRED)
 
@@ -99,7 +110,7 @@ set(Boost_USE_STATIC_LIBS ON)
 #find_package(Boost COMPONENTS thread REQUIRED)
 
 # for gdb debug
-add_compile_options(-gdwarf-4 -gstrict-dwarf)
+# add_compile_options(-gdwarf-4 -gstrict-dwarf)
 
 # set(testsrc ${CMAKE_CURRENT_SOURCE_DIR}/test/test.cpp)
 # add_executable(unittest ${testsrc})
