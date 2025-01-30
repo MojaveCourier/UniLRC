@@ -1,5 +1,9 @@
 #!/bin/bash
 
+cd /users/qiliang
+sudo chmod 777 -R UniEC
+
+
 # 定义源文件夹路径
 SOURCE_DIR="/users/qiliang/UniEC"
 
@@ -31,5 +35,8 @@ while read -r ip; do
     fi
 
 done < "$HOSTS_FILE"
+
+cd /users/qiliang/UniEC
+sh generate_run_proxy.sh
 
 echo "All done!"

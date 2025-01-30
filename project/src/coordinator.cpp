@@ -763,7 +763,7 @@ namespace ECProject
       if (failed_block_id >= k && failed_block_id < k + r)
       {
         recovery_group_ids.push_back(z);
-        for (int i = 0; i < z; i++)
+        for (int i = 1; i < k + r; i++)
         {
           recovery_group_ids.push_back(i);
         }

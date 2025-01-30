@@ -1076,8 +1076,8 @@ int main(int argc, char **argv)
             break;
         }
     }*/
-    /*bool set_success = client.set();
-    if (set_success) {
+    bool set_success = client.set();
+    /*if (set_success) {
         std::cout << "Data set successfully! Proceeding to get..." << std::endl;
 
 

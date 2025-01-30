@@ -4,7 +4,7 @@ HOSTS_FILE="hosts"
 
 USER="root"
 
-REMOTE_COMMAND="sh /users/qiliang/UniEC/kill_all.sh"
+REMOTE_COMMAND="cd /users/qiliang/UniEC && sh kill_all.sh"
 
 PARALLEL=5
 

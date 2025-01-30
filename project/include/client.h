@@ -68,6 +68,7 @@ namespace ECProject
     bool sub_append(int append_size);
     bool sub_append_in_rep_mode(int append_size);
     bool set();
+    bool read();
     bool degraded_read(int stripe_id, int failed_block_id);
     bool recovery(int stripe_id, int failed_block_id);
     std::vector<int> get_data_block_num_per_group(int k, int r, int z, std::string code_type);

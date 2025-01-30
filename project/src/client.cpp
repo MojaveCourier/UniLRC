@@ -667,6 +667,53 @@ namespace ECProject
     return false;
   }
 
+  bool Client::read()
+  {
+      // 1. 获取数据块的存储位置
+      grpc::ClientContext context;
+      coordinator_proto::RequestRead request;
+      coordinator_proto::ReplyProxyIPsPorts reply;
+
+      request.set_key(m_clientID); // 设置要读取的键
+      grpc::Status status = m_coordinator_ptr->getProxyIPPortForRead(&context, request, &reply);
+
+      if (!status.ok())
+      {
+          std::cout << "[READ402] Failed to get proxy IP and port for read!" << std::endl;
+          return false;
+      }
+
+      // 2. 从代理服务器读取数据块
+      std::vector<char*> data_blocks; // 用于存储读取的数据块
+      for (int i = 0; i < reply.append_keys_size(); i++)
+      {
+          grpc::ClientContext read_context;
+          proxy_proto::RequestReadBlock read_request;
+          proxy_proto::ReplyReadBlock read_reply;
+
+          read_request.set_key(reply.append_keys(i)); // 设置要读取的数据块键
+          read_request.set_proxyip(reply.proxyips(i)); // 设置代理服务器IP
+          read_request.set_proxyport(reply.proxyports(i)); // 设置代理服务器端口
+
+          grpc::Status read_status = m_proxy_ptr->readDataBlock(&read_context, read_request, &read_reply);
+
+          if (!read_status.ok())
+          {
+              std::cout << "[READ410] Failed to read data block from proxy!" << std::endl;
+              return false;
+          }
+
+          // 将读取的数据块存储到 data_blocks 中
+          data_blocks.push_back(read_reply.data());
+      }
+
+      // 3. 处理读取的数据
+      std::cout << "[READ437] Data read successfully!" << std::endl;
+      // 可以将 data_blocks 中的数据返回给调用者，或者进行进一步处理
+      return true;
+  }
+
+
   /*
     Function: append within a block stripe
     1. send the append request including the information of the value to the coordinator
@@ -811,11 +858,6 @@ namespace ECProject
     1. send the get request including the information of key and clientipport to the coordinator
     2. accept the value transferred from the proxy
   */
-
-  bool Client::get1(std::string &value)
-  {
-    get(m_clientID, value);
-  }
 
   bool Client::get(std::string key, std::string &value)
   {
