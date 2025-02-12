@@ -1079,14 +1079,13 @@ int main(int argc, char **argv)
     bool set_success = client.set();
     if (set_success) {
         std::cout << "Data set successfully! Proceeding to get..." << std::endl;
-
+        sleep(5);
         std::string key = "0";
         std::string value;            // 用于存储检索到的数据
-        bool get_success = client.get(key, value);
+        bool get_success = client.degraded_read(0, 0);
 
         if (get_success) {
             std::cout << "Data retrieved successfully!" << std::endl;
-            std::cout << "Value: " << value << std::endl;
         } else {
             std::cerr << "Failed to retrieve data." << std::endl;
         }

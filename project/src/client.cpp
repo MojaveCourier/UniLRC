@@ -820,12 +820,18 @@ namespace ECProject
       std::cout << "[Client] degraded read failed!" << std::endl;
       return false;
     }
+    else
+    {
+      std::cout << "[Client] degraded read success!" << std::endl;
+    }
 
     asio::ip::tcp::socket socket_data(io_context);
     acceptor.accept(socket_data);
+    std::cout << "[Client] accept from proxy done!" << std::endl;
     asio::error_code error;
     std::vector<char> buf(m_sys_config->BlockSize);
     asio::read(socket_data, asio::buffer(buf, m_sys_config->BlockSize), error);
+    std::cout << "[Client] read from proxy done!" << std::endl;
     asio::error_code ignore_ec;
     socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
     socket_data.close(ignore_ec);
@@ -862,12 +868,16 @@ namespace ECProject
     request.set_clientport(m_clientPortForGet);
 
     coordinator_proto::ReplyProxyIPsPorts reply;
+    std::cout << "geting stripe" << std::endl;
     grpc::Status status = m_coordinator_ptr->getStripe(&context, request, &reply);
+
     if(!status.ok())
     {
       std::cout << "[Client] get stripe failed!" << std::endl;
       return false;
     }
+
+
     int group_num = reply.proxyips_size();
     std::unordered_map<std::string, int> proxy_ip_to_group_id;
     for (int i = 0; i < reply.proxyips_size(); i++)
@@ -877,10 +887,10 @@ namespace ECProject
     std::vector<std::string> data_bufs(group_num);
 
 
-    auto get_from_proxy = [&data_bufs, &proxy_ip_to_group_id, acceptor]()mutable {
+    auto get_from_proxy = [this, &data_bufs, &proxy_ip_to_group_id]()mutable {
         asio::io_context io_context;
         asio::ip::tcp::socket socket_data(io_context);
-        acceptor.accept(socket_data);
+        this->acceptor.accept(socket_data);
         asio::error_code error;
         std::vector<char> buf(1024);
         size_t len = asio::read(socket_data, asio::buffer(buf, 1024), error);
@@ -888,12 +898,14 @@ namespace ECProject
         data_bufs[proxy_ip_to_group_id[ip]] = std::string(buf.data(), len);
         asio::error_code ignore_ec;
         socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
+        std::cout << "reading stripe from proxy" << ip << "done" << std::endl;  
     };
     std::vector<std::thread> threads;
     for (int i = 0; i < group_num; i++)
     {
       threads.push_back(std::thread(get_from_proxy));
     }
+    std::cout << "reading stripe" << std::endl;
     for (auto &thread : threads)
     {
       thread.join();

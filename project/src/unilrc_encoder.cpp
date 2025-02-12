@@ -1263,6 +1263,7 @@ void ECProject::decode_unilrc(const int k, const int r, const int z, const int b
             res_ptr[j] ^= block_ptrs[block_indexes->at(i)][j];
         }
     }
+    std::cout << "decode unilrc done" << std::endl;
 }
 
 void ECProject::decode_azure_lrc(const int k, const int r, const int z, const int block_num,

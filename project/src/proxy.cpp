@@ -926,7 +926,15 @@ namespace ECProject
       asio::connect(sock_data, endpoints);
 
       asio::write(sock_data, asio::buffer(key, key.size()), error);
+      if(error)
+      {
+        std::cout << "error in write key" << std::endl;
+      }
       asio::write(sock_data, asio::buffer(value, value_size_bytes), error);
+      if(error)
+      {
+        std::cout << "error in write value" << std::endl;
+      }
       asio::error_code ignore_ec;
       sock_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);
       sock_data.close(ignore_ec);
@@ -1019,11 +1027,11 @@ namespace ECProject
         }
         std::vector<unsigned char *> block_ptrs = convertToUnsignedCharArray(get_bufs);
 
-        if (code_type == "unilrc")
+        if (code_type == "UniLRC")
         {
           decode_unilrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, request_copy->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf.data()), m_sys_config->BlockSize);
         }
-        else if (code_type == "azure_lrc")
+        else if (code_type == "AzureLRC")
         {
           decode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, request_copy->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf.data()), m_sys_config->BlockSize, request_copy->failed_block_id());
         }
@@ -1033,6 +1041,8 @@ namespace ECProject
           exit(1);
         }
 
+        std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] send to the client" << std::endl;
+
         std::string client_ip = request_copy->clientip();
         int client_port = request_copy->clientport();
 
@@ -1041,9 +1051,18 @@ namespace ECProject
         asio::ip::tcp::resolver resolver(io_context);
         asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(client_ip, std::to_string(client_port));
         asio::ip::tcp::socket sock_data(io_context);
-        asio::connect(sock_data, endpoints);
+        //asio::connect(sock_data, endpoints);
+        sock_data.connect(*endpoints, error);
+        if (error)
+        {
+          std::cout << "error in connect" << std::endl;
+        }
 
         asio::write(sock_data, asio::buffer(res_buf.data(), m_sys_config->BlockSize), error);
+        if (error)
+        {
+          std::cout << "error in write" << std::endl;
+        }
         asio::error_code ignore_ec;
         sock_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);
         sock_data.close(ignore_ec);
@@ -1123,11 +1142,11 @@ namespace ECProject
         std::string replaced_node_ip = recovery_request->replaced_node_ip();
         int replaced_node_port = recovery_request->replaced_node_port();
 
-        if (code_type == "unilrc")
+        if (code_type == "UniLRC")
         {
           decode_unilrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, recovery_request->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf.data()), m_sys_config->BlockSize);
         }
-        else if (code_type == "azure_lrc")
+        else if (code_type == "AzureLRC")
         {
           decode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, recovery_request->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf.data()), m_sys_config->BlockSize, failed_block_id);
         }
@@ -1263,7 +1282,6 @@ namespace ECProject
     asio::ip::tcp::resolver resolver(io_context);
     asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(request.clientip(), std::to_string(request.clientport()));
     asio::connect(sock_data, endpoints);
-    
     asio::write(sock_data, asio::buffer(buf, buf.size()), error);
     asio::error_code ignore_ec;
     sock_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);  
