@@ -107,6 +107,14 @@ class proxyService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::SetReply>> PrepareAsyncscheduleAppend2Datanode(::grpc::ClientContext* context, const ::proxy_proto::AppendStripeDataPlacement& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::SetReply>>(PrepareAsyncscheduleAppend2DatanodeRaw(context, request, cq));
     }
+    // get stripe
+    virtual ::grpc::Status getBlocks(::grpc::ClientContext* context, const ::proxy_proto::StripeAndBlockIDs& request, ::proxy_proto::GetReply* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>> AsyncgetBlocks(::grpc::ClientContext* context, const ::proxy_proto::StripeAndBlockIDs& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>>(AsyncgetBlocksRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>> PrepareAsyncgetBlocks(::grpc::ClientContext* context, const ::proxy_proto::StripeAndBlockIDs& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>>(PrepareAsyncgetBlocksRaw(context, request, cq));
+    }
     class async_interface {
      public:
       virtual ~async_interface() {}
@@ -131,6 +139,9 @@ class proxyService final {
       // append
       virtual void scheduleAppend2Datanode(::grpc::ClientContext* context, const ::proxy_proto::AppendStripeDataPlacement* request, ::proxy_proto::SetReply* response, std::function<void(::grpc::Status)>) = 0;
       virtual void scheduleAppend2Datanode(::grpc::ClientContext* context, const ::proxy_proto::AppendStripeDataPlacement* request, ::proxy_proto::SetReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      // get stripe
+      virtual void getBlocks(::grpc::ClientContext* context, const ::proxy_proto::StripeAndBlockIDs* request, ::proxy_proto::GetReply* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void getBlocks(::grpc::ClientContext* context, const ::proxy_proto::StripeAndBlockIDs* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
     };
     typedef class async_interface experimental_async_interface;
     virtual class async_interface* async() { return nullptr; }
@@ -150,6 +161,8 @@ class proxyService final {
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DelReply>* PrepareAsyncdeleteBlockRaw(::grpc::ClientContext* context, const ::proxy_proto::NodeAndBlock& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::SetReply>* AsyncscheduleAppend2DatanodeRaw(::grpc::ClientContext* context, const ::proxy_proto::AppendStripeDataPlacement& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::SetReply>* PrepareAsyncscheduleAppend2DatanodeRaw(::grpc::ClientContext* context, const ::proxy_proto::AppendStripeDataPlacement& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>* AsyncgetBlocksRaw(::grpc::ClientContext* context, const ::proxy_proto::StripeAndBlockIDs& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>* PrepareAsyncgetBlocksRaw(::grpc::ClientContext* context, const ::proxy_proto::StripeAndBlockIDs& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
@@ -203,6 +216,13 @@ class proxyService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::SetReply>> PrepareAsyncscheduleAppend2Datanode(::grpc::ClientContext* context, const ::proxy_proto::AppendStripeDataPlacement& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::SetReply>>(PrepareAsyncscheduleAppend2DatanodeRaw(context, request, cq));
     }
+    ::grpc::Status getBlocks(::grpc::ClientContext* context, const ::proxy_proto::StripeAndBlockIDs& request, ::proxy_proto::GetReply* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>> AsyncgetBlocks(::grpc::ClientContext* context, const ::proxy_proto::StripeAndBlockIDs& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>>(AsyncgetBlocksRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>> PrepareAsyncgetBlocks(::grpc::ClientContext* context, const ::proxy_proto::StripeAndBlockIDs& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>>(PrepareAsyncgetBlocksRaw(context, request, cq));
+    }
     class async final :
       public StubInterface::async_interface {
      public:
@@ -220,6 +240,8 @@ class proxyService final {
       void deleteBlock(::grpc::ClientContext* context, const ::proxy_proto::NodeAndBlock* request, ::proxy_proto::DelReply* response, ::grpc::ClientUnaryReactor* reactor) override;
       void scheduleAppend2Datanode(::grpc::ClientContext* context, const ::proxy_proto::AppendStripeDataPlacement* request, ::proxy_proto::SetReply* response, std::function<void(::grpc::Status)>) override;
       void scheduleAppend2Datanode(::grpc::ClientContext* context, const ::proxy_proto::AppendStripeDataPlacement* request, ::proxy_proto::SetReply* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void getBlocks(::grpc::ClientContext* context, const ::proxy_proto::StripeAndBlockIDs* request, ::proxy_proto::GetReply* response, std::function<void(::grpc::Status)>) override;
+      void getBlocks(::grpc::ClientContext* context, const ::proxy_proto::StripeAndBlockIDs* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) override;
      private:
       friend class Stub;
       explicit async(Stub* stub): stub_(stub) { }
@@ -245,6 +267,8 @@ class proxyService final {
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::DelReply>* PrepareAsyncdeleteBlockRaw(::grpc::ClientContext* context, const ::proxy_proto::NodeAndBlock& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::SetReply>* AsyncscheduleAppend2DatanodeRaw(::grpc::ClientContext* context, const ::proxy_proto::AppendStripeDataPlacement& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::SetReply>* PrepareAsyncscheduleAppend2DatanodeRaw(::grpc::ClientContext* context, const ::proxy_proto::AppendStripeDataPlacement& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* AsyncgetBlocksRaw(::grpc::ClientContext* context, const ::proxy_proto::StripeAndBlockIDs& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* PrepareAsyncgetBlocksRaw(::grpc::ClientContext* context, const ::proxy_proto::StripeAndBlockIDs& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_checkalive_;
     const ::grpc::internal::RpcMethod rpcmethod_encodeAndSetObject_;
     const ::grpc::internal::RpcMethod rpcmethod_decodeAndGetObject_;
@@ -252,6 +276,7 @@ class proxyService final {
     const ::grpc::internal::RpcMethod rpcmethod_recovery_;
     const ::grpc::internal::RpcMethod rpcmethod_deleteBlock_;
     const ::grpc::internal::RpcMethod rpcmethod_scheduleAppend2Datanode_;
+    const ::grpc::internal::RpcMethod rpcmethod_getBlocks_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -273,6 +298,8 @@ class proxyService final {
     virtual ::grpc::Status deleteBlock(::grpc::ServerContext* context, const ::proxy_proto::NodeAndBlock* request, ::proxy_proto::DelReply* response);
     // append
     virtual ::grpc::Status scheduleAppend2Datanode(::grpc::ServerContext* context, const ::proxy_proto::AppendStripeDataPlacement* request, ::proxy_proto::SetReply* response);
+    // get stripe
+    virtual ::grpc::Status getBlocks(::grpc::ServerContext* context, const ::proxy_proto::StripeAndBlockIDs* request, ::proxy_proto::GetReply* response);
   };
   template <class BaseClass>
   class WithAsyncMethod_checkalive : public BaseClass {
@@ -414,7 +441,27 @@ class proxyService final {
       ::grpc::Service::RequestAsyncUnary(6, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_checkalive<WithAsyncMethod_encodeAndSetObject<WithAsyncMethod_decodeAndGetObject<WithAsyncMethod_degradedRead<WithAsyncMethod_recovery<WithAsyncMethod_deleteBlock<WithAsyncMethod_scheduleAppend2Datanode<Service > > > > > > > AsyncService;
+  template <class BaseClass>
+  class WithAsyncMethod_getBlocks : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithAsyncMethod_getBlocks() {
+      ::grpc::Service::MarkMethodAsync(7);
+    }
+    ~WithAsyncMethod_getBlocks() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status getBlocks(::grpc::ServerContext* /*context*/, const ::proxy_proto::StripeAndBlockIDs* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestgetBlocks(::grpc::ServerContext* context, ::proxy_proto::StripeAndBlockIDs* request, ::grpc::ServerAsyncResponseWriter< ::proxy_proto::GetReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(7, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  typedef WithAsyncMethod_checkalive<WithAsyncMethod_encodeAndSetObject<WithAsyncMethod_decodeAndGetObject<WithAsyncMethod_degradedRead<WithAsyncMethod_recovery<WithAsyncMethod_deleteBlock<WithAsyncMethod_scheduleAppend2Datanode<WithAsyncMethod_getBlocks<Service > > > > > > > > AsyncService;
   template <class BaseClass>
   class WithCallbackMethod_checkalive : public BaseClass {
    private:
@@ -604,7 +651,34 @@ class proxyService final {
     virtual ::grpc::ServerUnaryReactor* scheduleAppend2Datanode(
       ::grpc::CallbackServerContext* /*context*/, const ::proxy_proto::AppendStripeDataPlacement* /*request*/, ::proxy_proto::SetReply* /*response*/)  { return nullptr; }
   };
-  typedef WithCallbackMethod_checkalive<WithCallbackMethod_encodeAndSetObject<WithCallbackMethod_decodeAndGetObject<WithCallbackMethod_degradedRead<WithCallbackMethod_recovery<WithCallbackMethod_deleteBlock<WithCallbackMethod_scheduleAppend2Datanode<Service > > > > > > > CallbackService;
+  template <class BaseClass>
+  class WithCallbackMethod_getBlocks : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithCallbackMethod_getBlocks() {
+      ::grpc::Service::MarkMethodCallback(7,
+          new ::grpc::internal::CallbackUnaryHandler< ::proxy_proto::StripeAndBlockIDs, ::proxy_proto::GetReply>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::proxy_proto::StripeAndBlockIDs* request, ::proxy_proto::GetReply* response) { return this->getBlocks(context, request, response); }));}
+    void SetMessageAllocatorFor_getBlocks(
+        ::grpc::MessageAllocator< ::proxy_proto::StripeAndBlockIDs, ::proxy_proto::GetReply>* allocator) {
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(7);
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::proxy_proto::StripeAndBlockIDs, ::proxy_proto::GetReply>*>(handler)
+              ->SetMessageAllocator(allocator);
+    }
+    ~WithCallbackMethod_getBlocks() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status getBlocks(::grpc::ServerContext* /*context*/, const ::proxy_proto::StripeAndBlockIDs* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* getBlocks(
+      ::grpc::CallbackServerContext* /*context*/, const ::proxy_proto::StripeAndBlockIDs* /*request*/, ::proxy_proto::GetReply* /*response*/)  { return nullptr; }
+  };
+  typedef WithCallbackMethod_checkalive<WithCallbackMethod_encodeAndSetObject<WithCallbackMethod_decodeAndGetObject<WithCallbackMethod_degradedRead<WithCallbackMethod_recovery<WithCallbackMethod_deleteBlock<WithCallbackMethod_scheduleAppend2Datanode<WithCallbackMethod_getBlocks<Service > > > > > > > > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_checkalive : public BaseClass {
@@ -721,6 +795,23 @@ class proxyService final {
     }
     // disable synchronous version of this method
     ::grpc::Status scheduleAppend2Datanode(::grpc::ServerContext* /*context*/, const ::proxy_proto::AppendStripeDataPlacement* /*request*/, ::proxy_proto::SetReply* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
+  class WithGenericMethod_getBlocks : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithGenericMethod_getBlocks() {
+      ::grpc::Service::MarkMethodGeneric(7);
+    }
+    ~WithGenericMethod_getBlocks() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status getBlocks(::grpc::ServerContext* /*context*/, const ::proxy_proto::StripeAndBlockIDs* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -863,6 +954,26 @@ class proxyService final {
     }
     void RequestscheduleAppend2Datanode(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(6, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
+  class WithRawMethod_getBlocks : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawMethod_getBlocks() {
+      ::grpc::Service::MarkMethodRaw(7);
+    }
+    ~WithRawMethod_getBlocks() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status getBlocks(::grpc::ServerContext* /*context*/, const ::proxy_proto::StripeAndBlockIDs* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestgetBlocks(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(7, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1017,6 +1128,28 @@ class proxyService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     virtual ::grpc::ServerUnaryReactor* scheduleAppend2Datanode(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
+  };
+  template <class BaseClass>
+  class WithRawCallbackMethod_getBlocks : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawCallbackMethod_getBlocks() {
+      ::grpc::Service::MarkMethodRawCallback(7,
+          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->getBlocks(context, request, response); }));
+    }
+    ~WithRawCallbackMethod_getBlocks() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status getBlocks(::grpc::ServerContext* /*context*/, const ::proxy_proto::StripeAndBlockIDs* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* getBlocks(
       ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
@@ -1208,9 +1341,36 @@ class proxyService final {
     // replace default version of method with streamed unary
     virtual ::grpc::Status StreamedscheduleAppend2Datanode(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proxy_proto::AppendStripeDataPlacement,::proxy_proto::SetReply>* server_unary_streamer) = 0;
   };
-  typedef WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_encodeAndSetObject<WithStreamedUnaryMethod_decodeAndGetObject<WithStreamedUnaryMethod_degradedRead<WithStreamedUnaryMethod_recovery<WithStreamedUnaryMethod_deleteBlock<WithStreamedUnaryMethod_scheduleAppend2Datanode<Service > > > > > > > StreamedUnaryService;
+  template <class BaseClass>
+  class WithStreamedUnaryMethod_getBlocks : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithStreamedUnaryMethod_getBlocks() {
+      ::grpc::Service::MarkMethodStreamed(7,
+        new ::grpc::internal::StreamedUnaryHandler<
+          ::proxy_proto::StripeAndBlockIDs, ::proxy_proto::GetReply>(
+            [this](::grpc::ServerContext* context,
+                   ::grpc::ServerUnaryStreamer<
+                     ::proxy_proto::StripeAndBlockIDs, ::proxy_proto::GetReply>* streamer) {
+                       return this->StreamedgetBlocks(context,
+                         streamer);
+                  }));
+    }
+    ~WithStreamedUnaryMethod_getBlocks() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable regular version of this method
+    ::grpc::Status getBlocks(::grpc::ServerContext* /*context*/, const ::proxy_proto::StripeAndBlockIDs* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    // replace default version of method with streamed unary
+    virtual ::grpc::Status StreamedgetBlocks(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proxy_proto::StripeAndBlockIDs,::proxy_proto::GetReply>* server_unary_streamer) = 0;
+  };
+  typedef WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_encodeAndSetObject<WithStreamedUnaryMethod_decodeAndGetObject<WithStreamedUnaryMethod_degradedRead<WithStreamedUnaryMethod_recovery<WithStreamedUnaryMethod_deleteBlock<WithStreamedUnaryMethod_scheduleAppend2Datanode<WithStreamedUnaryMethod_getBlocks<Service > > > > > > > > StreamedUnaryService;
   typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_encodeAndSetObject<WithStreamedUnaryMethod_decodeAndGetObject<WithStreamedUnaryMethod_degradedRead<WithStreamedUnaryMethod_recovery<WithStreamedUnaryMethod_deleteBlock<WithStreamedUnaryMethod_scheduleAppend2Datanode<Service > > > > > > > StreamedService;
+  typedef WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_encodeAndSetObject<WithStreamedUnaryMethod_decodeAndGetObject<WithStreamedUnaryMethod_degradedRead<WithStreamedUnaryMethod_recovery<WithStreamedUnaryMethod_deleteBlock<WithStreamedUnaryMethod_scheduleAppend2Datanode<WithStreamedUnaryMethod_getBlocks<Service > > > > > > > > StreamedService;
 };
 
 }  // namespace proxy_proto

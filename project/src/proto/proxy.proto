@@ -33,6 +33,8 @@ service proxyService {
   rpc deleteBlock(NodeAndBlock) returns (DelReply);
   // append
   rpc scheduleAppend2Datanode(AppendStripeDataPlacement) returns (SetReply);
+  // get stripe
+  rpc getBlocks(StripeAndBlockIDs) returns (GetReply);
 }
 
 // parity block recalculation
@@ -192,4 +194,13 @@ message SetReply {
 }
 message GetReply {
   bool getsuccess = 1;
+}
+message StripeAndBlockIDs{
+  int32 stripe_id = 1;
+  string clientip = 2;
+  int32 clientport = 3;
+  repeated int32 block_ids = 4;
+  repeated string block_keys = 5;
+  repeated string datanodeips = 6;
+  repeated int32 datanodeports = 7;
 }

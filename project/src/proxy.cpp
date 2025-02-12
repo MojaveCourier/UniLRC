@@ -1222,4 +1222,52 @@ namespace ECProject
 
     return grpc::Status::OK;
   }
+  grpc::Status ProxyImpl::getBlocks(grpc::ServerContext *context,
+    const proxy_proto::StripeAndBlockIDs &request, proxy_proto::GetReply *response)
+  {
+    std::vector<char*> blocks(request.block_ids_size());
+    for(int i = 0; i < request.block_ids_size(); i++)
+    {
+      blocks[i] = new char[m_sys_config->BlockSize];
+    }
+
+    std::vector<std::thread> get_threads;
+    for(int i = 0; i < request.block_ids_size(); i++)
+    {
+      /*get_threads.push_back(std::thread(&ProxyImpl::GetFromDatanode, this, static_cast<const std::string>(request.block_keys(i)), 
+        blocks[i], static_cast<const size_t>(m_sys_config->BlockSize), static_cast<const char*>(request.datanodeips(i).c_str()), 
+        static_cast<const int>(request.datanodeports(i))));*/
+      get_threads.push_back(std::thread([this, i, &blocks, &request]() {
+        this->GetFromDatanode(
+            request.block_keys(i), 
+            blocks[i], 
+            static_cast<size_t>(m_sys_config->BlockSize), 
+            request.datanodeips(i).c_str(), 
+            static_cast<int>(request.datanodeports(i))
+        );
+    }));
+    }
+    for(int i = 0; i < request.block_ids_size(); i++)
+    {
+      get_threads[i].join();
+    }
+    std::string buf;
+    for(int i = 0; i < request.block_ids_size(); i++)
+    {
+      buf += std::string(blocks[i]);
+    }
+  
+
+    asio::error_code error;
+    asio::ip::tcp::socket sock_data(io_context);
+    asio::ip::tcp::resolver resolver(io_context);
+    asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(request.clientip(), std::to_string(request.clientport()));
+    asio::connect(sock_data, endpoints);
+    
+    asio::write(sock_data, asio::buffer(buf, buf.size()), error);
+    asio::error_code ignore_ec;
+    sock_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);  
+
+    return grpc::Status();
+  }
 } // namespace ECProject

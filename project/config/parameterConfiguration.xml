@@ -3,18 +3,18 @@
     <AlignedSize>4096</AlignedSize>
     <UnitSize>8192</UnitSize>
     <BlockSize>8192</BlockSize>
-    <DatanodeNumPerCluster>12</DatanodeNumPerCluster>
-    <ClusterNum>8</ClusterNum>
-    <CoordinatorIP>10.10.1.2</CoordinatorIP>
+    <DatanodeNumPerCluster>4</DatanodeNumPerCluster>
+    <ClusterNum>3</ClusterNum>
+    <CoordinatorIP>0.0.0.0</CoordinatorIP>
     <CoordinatorPort>55555</CoordinatorPort>
     <!-- AppendMode: REP_MODE; UNILRC_MODE; CACHED_MODE -->
     <AppendMode>UNILRC_MODE</AppendMode>
     <alpha>1</alpha>
     <!-- LRC: UniLRC; AzureLRC; OptimalLRC; UniformLRC -->
     <CodeType>UniLRC</CodeType>
-    <k>30</k>
-    <r>6</r>
-    <z>6</z>
+    <k>2</k>
+    <r>2</r>
+    <z>2</z>
     <!-- <CodeType>UniformLRC</CodeType>
     <k>30</k>
     <r>7</r>

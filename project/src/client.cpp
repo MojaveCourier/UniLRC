@@ -667,7 +667,7 @@ namespace ECProject
     return false;
   }
 
-  bool Client::read()
+  /*bool Client::read()
   {
       // 1. 获取数据块的存储位置
       grpc::ClientContext context;
@@ -711,7 +711,7 @@ namespace ECProject
       std::cout << "[READ437] Data read successfully!" << std::endl;
       // 可以将 data_blocks 中的数据返回给调用者，或者进行进一步处理
       return true;
-  }
+  }*/
 
 
   /*
@@ -853,13 +853,67 @@ namespace ECProject
     return true;
   }
 
+  bool Client::get(std::string key, std::string &value)
+  {
+    grpc::ClientContext context;
+    coordinator_proto::KeyAndClientIP request;
+    request.set_key(key);
+    request.set_clientip(m_clientIPForGet);
+    request.set_clientport(m_clientPortForGet);
+
+    coordinator_proto::ReplyProxyIPsPorts reply;
+    grpc::Status status = m_coordinator_ptr->getStripe(&context, request, &reply);
+    if(!status.ok())
+    {
+      std::cout << "[Client] get stripe failed!" << std::endl;
+      return false;
+    }
+    int group_num = reply.proxyips_size();
+    std::unordered_map<std::string, int> proxy_ip_to_group_id;
+    for (int i = 0; i < reply.proxyips_size(); i++)
+    {
+      proxy_ip_to_group_id[reply.proxyips(i)] = i;
+    }
+    std::vector<std::string> data_bufs(group_num);
+
+
+    auto get_from_proxy = [&data_bufs, &proxy_ip_to_group_id, acceptor]()mutable {
+        asio::io_context io_context;
+        asio::ip::tcp::socket socket_data(io_context);
+        acceptor.accept(socket_data);
+        asio::error_code error;
+        std::vector<char> buf(1024);
+        size_t len = asio::read(socket_data, asio::buffer(buf, 1024), error);
+        std::string ip = socket_data.remote_endpoint().address().to_string();
+        data_bufs[proxy_ip_to_group_id[ip]] = std::string(buf.data(), len);
+        asio::error_code ignore_ec;
+        socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
+    };
+    std::vector<std::thread> threads;
+    for (int i = 0; i < group_num; i++)
+    {
+      threads.push_back(std::thread(get_from_proxy));
+    }
+    for (auto &thread : threads)
+    {
+      thread.join();
+    }
+    for(auto &data_buf : data_bufs)
+    {
+      value += data_buf;
+    }
+
+    return true;
+  }
+  
+
   /*
     Function: get
     1. send the get request including the information of key and clientipport to the coordinator
     2. accept the value transferred from the proxy
   */
 
-  bool Client::get(std::string key, std::string &value)
+  /*bool Client::get(std::string key, std::string &value)
   {
     grpc::ClientContext context;
     coordinator_proto::KeyAndClientIP request;
@@ -902,7 +956,7 @@ namespace ECProject
     }
     value = std::string(buf.data(), buf.size());
     return true;
-  }
+  }*/
 
   /*
     Function: delete

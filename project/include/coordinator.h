@@ -65,6 +65,11 @@ namespace ECProject
         grpc::ServerContext *context,
         const coordinator_proto::KeyAndClientIP *keyClient,
         coordinator_proto::RepIfGetSuccess *getReplyClient) override;
+    // get stripe
+    grpc::Status getStripe(
+        grpc::ServerContext *context,
+        const coordinator_proto::KeyAndClientIP *keyClient,
+        coordinator_proto::ReplyProxyIPsPorts *proxyIPPort) override;
     // degraded read
     grpc::Status getDegradedReadValue(
         grpc::ServerContext *context,
@@ -114,6 +119,7 @@ namespace ECProject
     void init_recovery_group_lookup_table();
     void print_stripe_data_placement(Stripe &stripe);
     int get_cluster_id_by_group_id(Stripe &stripe, int group_id);
+    void getStripeFromProxy(std::string client_ip, int client_port, std::string proxy_ip, int proxy_port, int stripe_id, std::vector<int> block_ids);
     bool recovery_one_stripe(int stripe_id, int failed_block_id);
     ECProject::Config *m_sys_config;
     ECProject::ToolBox *m_toolbox;
@@ -126,6 +132,8 @@ namespace ECProject
     std::map<int, Stripe> m_stripe_table;
     std::map<std::string, StripeOffset> m_cur_offset_table;
     std::map<int, std::vector<int>> m_recovery_group_lookup_table;
+    
+    std::vector<int> get_data_block_num_per_group(int k, int r, int z, std::string code_type);
 
   private:
     std::mutex m_mutex;
@@ -196,6 +204,7 @@ namespace ECProject
       std::cout << "Server listening on " << server_address << std::endl;
       server->Wait();
     }
+
 
   private:
     std::string m_coordinator_ip_port;

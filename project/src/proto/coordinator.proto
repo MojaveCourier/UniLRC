@@ -34,6 +34,9 @@ service coordinatorService {
   rpc uploadAppendValue (RequestProxyIPPort) returns (ReplyProxyIPsPorts) {};
   // get
   rpc getValue(KeyAndClientIP) returns (RepIfGetSuccess) {};
+
+  rpc getStripe(KeyAndClientIP) returns (ReplyProxyIPsPorts) {};
+
   // degraded read
   rpc getDegradedReadValue(KeyAndClientIP) returns (RepIfGetSuccess) {};
   // recovery

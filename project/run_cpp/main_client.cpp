@@ -1077,12 +1077,12 @@ int main(int argc, char **argv)
         }
     }*/
     bool set_success = client.set();
-    /*if (set_success) {
+    if (set_success) {
         std::cout << "Data set successfully! Proceeding to get..." << std::endl;
 
-
+        std::string key = "0";
         std::string value;            // 用于存储检索到的数据
-        bool get_success = client.get1(value);
+        bool get_success = client.get(key, value);
 
         if (get_success) {
             std::cout << "Data retrieved successfully!" << std::endl;
@@ -1092,7 +1092,7 @@ int main(int argc, char **argv)
         }
     } else {
         std::cerr << "Failed to set data. Cannot proceed to get." << std::endl;
-    }*/
+    }
 
 
 /*

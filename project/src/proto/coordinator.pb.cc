@@ -464,7 +464,7 @@ const char descriptor_table_protodef_coordinator_2eproto[] PROTOBUF_SECTION_VARI
   "zebytes\030\002 \001(\005\"\034\n\rKeyFromClient\022\013\n\003key\030\001 "
   "\001(\t\"\'\n\022StripeIdFromClient\022\021\n\tstripe_id\030\001"
   " \001(\005\"\037\n\013RepIfDeling\022\020\n\010ifdeling\030\001 \001(\010\"\"\n"
-  "\014RepStripeIds\022\022\n\nstripe_ids\030\001 \003(\0052\264\n\n\022co"
+  "\014RepStripeIds\022\022\n\nstripe_ids\030\001 \003(\0052\215\013\n\022co"
   "ordinatorService\022k\n\025sayHelloToCoordinato"
   "r\022\'.coordinator_proto.RequestToCoordinat"
   "or\032\'.coordinator_proto.ReplyFromCoordina"
@@ -487,22 +487,24 @@ const char descriptor_table_protodef_coordinator_2eproto[] PROTOBUF_SECTION_VARI
   ".coordinator_proto.ReplyProxyIPsPorts\"\000\022"
   "S\n\010getValue\022!.coordinator_proto.KeyAndCl"
   "ientIP\032\".coordinator_proto.RepIfGetSucce"
-  "ss\"\000\022_\n\024getDegradedReadValue\022!.coordinat"
-  "or_proto.KeyAndClientIP\032\".coordinator_pr"
-  "oto.RepIfGetSuccess\"\000\022V\n\013getRecovery\022!.c"
-  "oordinator_proto.KeyAndClientIP\032\".coordi"
-  "nator_proto.RepIfGetSuccess\"\000\022N\n\010delByKe"
-  "y\022 .coordinator_proto.KeyFromClient\032\036.co"
-  "ordinator_proto.RepIfDeling\"\000\022V\n\013delBySt"
-  "ripe\022%.coordinator_proto.StripeIdFromCli"
-  "ent\032\036.coordinator_proto.RepIfDeling\"\000\022Y\n"
-  "\013listStripes\022\'.coordinator_proto.Request"
-  "ToCoordinator\032\037.coordinator_proto.RepStr"
-  "ipeIds\"\000b\006proto3"
+  "ss\"\000\022W\n\tgetStripe\022!.coordinator_proto.Ke"
+  "yAndClientIP\032%.coordinator_proto.ReplyPr"
+  "oxyIPsPorts\"\000\022_\n\024getDegradedReadValue\022!."
+  "coordinator_proto.KeyAndClientIP\032\".coord"
+  "inator_proto.RepIfGetSuccess\"\000\022V\n\013getRec"
+  "overy\022!.coordinator_proto.KeyAndClientIP"
+  "\032\".coordinator_proto.RepIfGetSuccess\"\000\022N"
+  "\n\010delByKey\022 .coordinator_proto.KeyFromCl"
+  "ient\032\036.coordinator_proto.RepIfDeling\"\000\022V"
+  "\n\013delByStripe\022%.coordinator_proto.Stripe"
+  "IdFromClient\032\036.coordinator_proto.RepIfDe"
+  "ling\"\000\022Y\n\013listStripes\022\'.coordinator_prot"
+  "o.RequestToCoordinator\032\037.coordinator_pro"
+  "to.RepStripeIds\"\000b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_coordinator_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_coordinator_2eproto = {
-    false, false, 2496, descriptor_table_protodef_coordinator_2eproto,
+    false, false, 2585, descriptor_table_protodef_coordinator_2eproto,
     "coordinator.proto",
     &descriptor_table_coordinator_2eproto_once, nullptr, 0, 16,
     schemas, file_default_instances, TableStruct_coordinator_2eproto::offsets,

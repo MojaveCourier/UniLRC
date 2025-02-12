@@ -4,21 +4,24 @@ import netifaces
 
 current_path = os.getcwd()
 parent_path = os.path.dirname(current_path)
-cluster_number = 8
-datanode_number_per_cluster = 12
+cluster_number = 2
+datanode_number_per_cluster = 4
 datanode_port_start = 17600
 cluster_id_start = 0
 iftest = False
 
 proxy_ip_list = [
-    ["10.10.1.3",50405],
-    ["10.10.1.4",50405],
-    ["10.10.1.5",50405],
-    ["10.10.1.6",50405],
-    ["10.10.1.7",50405],
-    ["10.10.1.8",50405],
-    ["10.10.1.9",50405],
-    ["10.10.1.10",50405]
+    ["0.0.0.0",50405], # for test
+    ["0.0.0.0",50405], # for test
+    ["0.0.0.0",50405] # for test
+    #["10.10.1.3",50405],
+    #["10.10.1.4",50405],
+    #["10.10.1.5",50405],
+    #["10.10.1.6",50405],
+    #["10.10.1.7",50405],
+    #["10.10.1.8",50405],
+    #["10.10.1.9",50405],
+    #["10.10.1.10",50405]
     #["10.10.1.11",50405],
     #["10.10.1.12",50405],
     #["10.10.1.13",50405],
@@ -30,7 +33,7 @@ proxy_ip_list = [
     #["10.10.1.19",50405],
     #["10.10.1.20",50405]
 ]
-coordinator_ip = "10.10.1.2"
+coordinator_ip = "0.0.0.0"
 
 proxy_num = len(proxy_ip_list)
 
@@ -58,9 +61,11 @@ def generate_cluster_info_dict():
         cluster_informtion[i] = new_cluster
             
 def generate_run_proxy_datanode_file():
-    local_ip = get_local_ip('eno1d1')
+    #local_ip = get_local_ip('eno1d1')
+    local_ip = "0.0.0.0" # for test
     local_ip_last_segment = local_ip.split('.')[-1]
-    cluster_id = int(local_ip_last_segment) - 3
+    #cluster_id = int(local_ip_last_segment) - 3
+    cluster_id = 0 # for test
     file_name = parent_path + '/run_proxy_datanode.sh'
     with open(file_name, 'w') as f:
         f.write("pkill -9 run_datanode\n")
@@ -131,11 +136,15 @@ def cluster_generate_run_proxy_datanode_file(ip, port, i):
 if __name__ == "__main__":
     generate_cluster_info_dict()
     # print(cluster_informtion)
-    local_ip = get_local_ip('eno1d1')
+    #local_ip = get_local_ip('eno1d1')
+    local_ip = "0.0.0.0"
     local_ip_last_segment = local_ip.split('.')[-1]
-    if int (local_ip_last_segment) >= 3:
-        generate_run_proxy_datanode_file()
+    #if int (local_ip_last_segment) >= 3: 
+    #    generate_run_proxy_datanode_file()
+    #generater_cluster_information_xml()
+    generate_run_proxy_datanode_file() # for test
     generater_cluster_information_xml()
+    
     # cnt = 0
     # for proxy in proxy_ip_list:
         #cluster_generate_run_proxy_datanode_file(proxy[0], proxy[1], cnt)

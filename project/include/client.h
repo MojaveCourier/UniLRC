@@ -68,7 +68,6 @@ namespace ECProject
     bool sub_append(int append_size);
     bool sub_append_in_rep_mode(int append_size);
     bool set();
-    bool read();
     bool degraded_read(int stripe_id, int failed_block_id);
     bool recovery(int stripe_id, int failed_block_id);
     std::vector<int> get_data_block_num_per_group(int k, int r, int z, std::string code_type);
@@ -77,7 +76,6 @@ namespace ECProject
     bool set(std::string key, std::string value);
     bool SetParameterByGrpc(ECSchema input_ecschema);
     bool get(std::string key, std::string &value);
-    bool get1(std::string &value);
     bool delete_key(std::string key);
     bool delete_stripe(int stripe_id);
     bool delete_all_stripes();

@@ -917,6 +917,153 @@ namespace ECProject
     }
   }
 
+  std::vector<int> CoordinatorImpl::get_data_block_num_per_group(int k, int r, int z, std::string code_type)
+  {
+    std::vector<int> data_block_num_per_group;
+    if (code_type == "AzureLRC")
+    {
+      for (int i = 0; i < z; i++)
+      {
+        data_block_num_per_group.push_back((k / z));
+      }
+      data_block_num_per_group.push_back(0);
+    }
+    else if (code_type == "OptimalLRC")
+    {
+      int group_size = r + 1;
+      int local_group_size = (k / z);
+      int group_num_of_one_local_group = local_group_size / group_size + 1;
+      int group_num = z * group_num_of_one_local_group + 1;
+      for (int i = 0; i < group_num - 1; i++)
+      {
+        if ((i + 1) % group_num_of_one_local_group)
+        {
+          data_block_num_per_group.push_back(group_size);
+        }
+        else
+        {
+          data_block_num_per_group.push_back(local_group_size % group_size);
+        }
+      }
+      data_block_num_per_group.push_back(0);
+    }
+    else if (code_type == "UniformLRC")
+    {
+      int group_size = r;
+      int local_group_size = int((k + r) / z);
+      int larger_local_group_num = int((k + r) % z);
+      int group_num = -1;
+      int group_num_of_one_local_group = local_group_size / group_size + (bool)(local_group_size % group_size);
+      for (int i = 0; i < z - 1; i++)
+      {
+        if (i + larger_local_group_num == z)
+        {
+          local_group_size++;
+          group_num_of_one_local_group = local_group_size / group_size + (bool)(local_group_size % group_size);
+        }
+        for (int j = 0; j < group_num_of_one_local_group; j++)
+        {
+          if (j > 0 && j == group_num_of_one_local_group - 1)
+          {
+            data_block_num_per_group.push_back(local_group_size % group_size);
+          }
+          else
+          {
+            data_block_num_per_group.push_back(group_size);
+          }
+        }
+      }
+      data_block_num_per_group.push_back(local_group_size - r);
+      data_block_num_per_group.push_back(0);
+    }
+    else if (code_type == "UniLRC")
+    {
+      int local_data_num = k / z;
+      for (int i = 0; i < z; i++)
+      {
+        data_block_num_per_group.push_back(local_data_num);
+      }
+    }
+    return data_block_num_per_group;
+  }
+
+  
+  void CoordinatorImpl::getStripeFromProxy(std::string client_ip, int client_port, std::string proxy_ip, int proxy_port, int stripe_id, std::vector<int> block_ids)
+  {
+    grpc::ClientContext cont;
+    proxy_proto::StripeAndBlockIDs stripe_block_ids;
+    proxy_proto::GetReply stripe_reply;
+    stripe_block_ids.set_stripe_id(stripe_id);
+    stripe_block_ids.set_clientip(client_ip);
+    stripe_block_ids.set_clientport(client_port);
+    for (int i = 0; i < block_ids.size(); i++)
+    {
+      if(block_ids[i] < m_sys_config->k){
+        stripe_block_ids.add_block_ids(block_ids[i]);
+        stripe_block_ids.add_block_keys(m_stripe_table[stripe_id].blocks[block_ids[i]]->block_key);
+        stripe_block_ids.add_datanodeips(m_node_table[m_stripe_table[stripe_id].blocks[block_ids[i]]->map2node].node_ip);
+        stripe_block_ids.add_datanodeports(m_node_table[m_stripe_table[stripe_id].blocks[block_ids[i]]->map2node].node_port);
+      }
+    }
+    grpc::Status status = m_proxy_ptrs[proxy_ip + ":" + std::to_string(proxy_port)]->getBlocks(&cont, stripe_block_ids, &stripe_reply);
+    if (status.ok())
+    {
+      std::cout << "[GET] getting stripe " << stripe_id << " from proxy " << proxy_ip << ":" << proxy_port << std::endl;
+    }
+  }
+
+
+  grpc::Status 
+  CoordinatorImpl::getStripe(
+      grpc::ServerContext *context,
+      const coordinator_proto::KeyAndClientIP *keyClient,
+      coordinator_proto::ReplyProxyIPsPorts *proxyIPPort)
+  {
+    try
+    {
+      int stripe_id = std::stoi(keyClient->key());
+      Stripe &t_stripe = m_stripe_table[stripe_id];
+      int k = t_stripe.k;
+      int num_data_groups = t_stripe.num_groups - 1;
+      std::string code_type = m_sys_config->CodeType;
+      if(code_type == "UniLRC"){
+        num_data_groups++;
+      }
+      std::vector<int> block_num_per_group = get_data_block_num_per_group(k, m_sys_config->r, m_sys_config->z, code_type);
+      std::vector<int> get_cluster_ids;
+      for (int i = 0; i < num_data_groups; i++)
+      {
+        get_cluster_ids.push_back(t_stripe.blocks[t_stripe.group_to_blocks[i][0]]->map2cluster);
+      }
+      for (int i = 0; i < num_data_groups; i++)
+      {
+        proxyIPPort->add_proxyips(m_cluster_table[get_cluster_ids[i]].proxy_ip);
+        proxyIPPort->add_proxyports(m_cluster_table[get_cluster_ids[i]].proxy_port);
+        proxyIPPort->add_cluster_slice_sizes(block_num_per_group[i]);
+      }
+      /*for(int i = 0; i < t_stripe.num_groups; i++){
+        m_proxy_ptrs[proxyIPPort->proxyips(i) + ":" + std::to_string(proxyIPPort->proxyports(i))]->getStripe(stripe_id, t_stripe.group_to_blocks[i]);
+      }*/
+     std::vector<std::thread> threads;
+      for (int i = 0; i < num_data_groups; i++)
+      {
+        threads.push_back(std::thread(&CoordinatorImpl::getStripeFromProxy, this, keyClient->clientip(), keyClient->clientport(), 
+          proxyIPPort->proxyips(i), proxyIPPort->proxyports(i), stripe_id, t_stripe.group_to_blocks[i]));
+      }
+      for (auto &thread : threads)
+      {
+        thread.join();
+      }
+    }
+    catch (std::exception &e)
+    {
+      std::cout << "getStripe exception" << std::endl;
+      std::cout << e.what() << std::endl;
+    }
+    return grpc::Status::OK;
+  }
+  
+
   grpc::Status
   CoordinatorImpl::getValue(
       grpc::ServerContext *context,
