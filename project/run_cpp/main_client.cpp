@@ -1082,7 +1082,7 @@ int main(int argc, char **argv)
         sleep(5);
         std::string key = "0";
         std::string value;            // 用于存储检索到的数据
-        bool get_success = client.degraded_read(0, 0);
+        bool get_success = client.get(key, value);
 
         if (get_success) {
             std::cout << "Data retrieved successfully!" << std::endl;

@@ -1029,6 +1029,7 @@ namespace ECProject
 
         if (code_type == "UniLRC")
         {
+          std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] decode_unilrc" << std::endl;
           decode_unilrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, request_copy->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf.data()), m_sys_config->BlockSize);
         }
         else if (code_type == "AzureLRC")

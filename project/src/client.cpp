@@ -891,6 +891,8 @@ namespace ECProject
         asio::io_context io_context;
         asio::ip::tcp::socket socket_data(io_context);
         this->acceptor.accept(socket_data);
+        asio::ip::tcp::endpoint remote_ep = socket_data.remote_endpoint();
+        std::cout << "reading stripe from proxy" << remote_ep.address().to_string() << std::endl;
         asio::error_code error;
         std::vector<char> buf(1024);
         size_t len = asio::read(socket_data, asio::buffer(buf, 1024), error);

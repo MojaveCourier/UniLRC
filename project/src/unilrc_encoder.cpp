@@ -1256,14 +1256,15 @@ void ECProject::decode_unilrc(const int k, const int r, const int z, const int b
 {
     for (int i = 0; i < block_num; i++)
     {
-        for(int j = 0; j < block_size / 64; j+=64){
+        /*for(int j = 0; j < block_size / 64 * 64; j+=64){
             gf_xor_64(res_ptr + j, block_ptrs[block_indexes->at(i)] + j);
-        }
-        for(int j = block_size / 64 * 64; j < block_size; j++){
-            res_ptr[j] ^= block_ptrs[block_indexes->at(i)][j];
+        }*/
+        for(int j = 0; j < block_size; j++){
+            res_ptr[j] ^= block_ptrs[i][j];
         }
     }
     std::cout << "decode unilrc done" << std::endl;
+    return;
 }
 
 void ECProject::decode_azure_lrc(const int k, const int r, const int z, const int block_num,

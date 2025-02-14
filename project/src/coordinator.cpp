@@ -990,6 +990,7 @@ namespace ECProject
   
   void CoordinatorImpl::getStripeFromProxy(std::string client_ip, int client_port, std::string proxy_ip, int proxy_port, int stripe_id, std::vector<int> block_ids)
   {
+    std::cout << "[GET] getting stripe " << stripe_id << " from proxy " << proxy_ip << ":" << proxy_port << std::endl;
     grpc::ClientContext cont;
     proxy_proto::StripeAndBlockIDs stripe_block_ids;
     proxy_proto::GetReply stripe_reply;
@@ -998,17 +999,19 @@ namespace ECProject
     stripe_block_ids.set_clientport(client_port);
     for (int i = 0; i < block_ids.size(); i++)
     {
-      if(block_ids[i] < m_sys_config->k){
-        stripe_block_ids.add_block_ids(block_ids[i]);
-        stripe_block_ids.add_block_keys(m_stripe_table[stripe_id].blocks[block_ids[i]]->block_key);
-        stripe_block_ids.add_datanodeips(m_node_table[m_stripe_table[stripe_id].blocks[block_ids[i]]->map2node].node_ip);
-        stripe_block_ids.add_datanodeports(m_node_table[m_stripe_table[stripe_id].blocks[block_ids[i]]->map2node].node_port);
-      }
+      stripe_block_ids.add_block_ids(block_ids[i]);
+      stripe_block_ids.add_block_keys(m_stripe_table[stripe_id].blocks[block_ids[i]]->block_key);
+      stripe_block_ids.add_datanodeips(m_node_table[m_stripe_table[stripe_id].blocks[block_ids[i]]->map2node].node_ip);
+      stripe_block_ids.add_datanodeports(m_node_table[m_stripe_table[stripe_id].blocks[block_ids[i]]->map2node].node_port);
     }
     grpc::Status status = m_proxy_ptrs[proxy_ip + ":" + std::to_string(proxy_port)]->getBlocks(&cont, stripe_block_ids, &stripe_reply);
     if (status.ok())
     {
       std::cout << "[GET] getting stripe " << stripe_id << " from proxy " << proxy_ip << ":" << proxy_port << std::endl;
+    }
+    else
+    {
+      std::cout << "[GET] getting stripe " << stripe_id << " from proxy " << proxy_ip << ":" << proxy_port << " failed!" << std::endl;
     }
   }
 
