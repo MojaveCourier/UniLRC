@@ -4376,15 +4376,16 @@ class StripeAndBlockIDs final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kBlockIdsFieldNumber = 4,
-    kBlockKeysFieldNumber = 5,
-    kDatanodeipsFieldNumber = 6,
-    kDatanodeportsFieldNumber = 7,
-    kClientipFieldNumber = 2,
+    kBlockIdsFieldNumber = 5,
+    kBlockKeysFieldNumber = 6,
+    kDatanodeipsFieldNumber = 7,
+    kDatanodeportsFieldNumber = 8,
+    kClientipFieldNumber = 3,
     kStripeIdFieldNumber = 1,
-    kClientportFieldNumber = 3,
+    kGroupIdFieldNumber = 2,
+    kClientportFieldNumber = 4,
   };
-  // repeated int32 block_ids = 4;
+  // repeated int32 block_ids = 5;
   int block_ids_size() const;
   private:
   int _internal_block_ids_size() const;
@@ -4406,7 +4407,7 @@ class StripeAndBlockIDs final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
       mutable_block_ids();
 
-  // repeated string block_keys = 5;
+  // repeated string block_keys = 6;
   int block_keys_size() const;
   private:
   int _internal_block_keys_size() const;
@@ -4430,7 +4431,7 @@ class StripeAndBlockIDs final :
   std::string* _internal_add_block_keys();
   public:
 
-  // repeated string datanodeips = 6;
+  // repeated string datanodeips = 7;
   int datanodeips_size() const;
   private:
   int _internal_datanodeips_size() const;
@@ -4454,7 +4455,7 @@ class StripeAndBlockIDs final :
   std::string* _internal_add_datanodeips();
   public:
 
-  // repeated int32 datanodeports = 7;
+  // repeated int32 datanodeports = 8;
   int datanodeports_size() const;
   private:
   int _internal_datanodeports_size() const;
@@ -4476,7 +4477,7 @@ class StripeAndBlockIDs final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
       mutable_datanodeports();
 
-  // string clientip = 2;
+  // string clientip = 3;
   void clear_clientip();
   const std::string& clientip() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -4499,7 +4500,16 @@ class StripeAndBlockIDs final :
   void _internal_set_stripe_id(int32_t value);
   public:
 
-  // int32 clientport = 3;
+  // int32 group_id = 2;
+  void clear_group_id();
+  int32_t group_id() const;
+  void set_group_id(int32_t value);
+  private:
+  int32_t _internal_group_id() const;
+  void _internal_set_group_id(int32_t value);
+  public:
+
+  // int32 clientport = 4;
   void clear_clientport();
   int32_t clientport() const;
   void set_clientport(int32_t value);
@@ -4524,6 +4534,7 @@ class StripeAndBlockIDs final :
     mutable std::atomic<int> _datanodeports_cached_byte_size_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr clientip_;
     int32_t stripe_id_;
+    int32_t group_id_;
     int32_t clientport_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -8504,7 +8515,27 @@ inline void StripeAndBlockIDs::set_stripe_id(int32_t value) {
   // @@protoc_insertion_point(field_set:proxy_proto.StripeAndBlockIDs.stripe_id)
 }
 
-// string clientip = 2;
+// int32 group_id = 2;
+inline void StripeAndBlockIDs::clear_group_id() {
+  _impl_.group_id_ = 0;
+}
+inline int32_t StripeAndBlockIDs::_internal_group_id() const {
+  return _impl_.group_id_;
+}
+inline int32_t StripeAndBlockIDs::group_id() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.StripeAndBlockIDs.group_id)
+  return _internal_group_id();
+}
+inline void StripeAndBlockIDs::_internal_set_group_id(int32_t value) {
+  
+  _impl_.group_id_ = value;
+}
+inline void StripeAndBlockIDs::set_group_id(int32_t value) {
+  _internal_set_group_id(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.StripeAndBlockIDs.group_id)
+}
+
+// string clientip = 3;
 inline void StripeAndBlockIDs::clear_clientip() {
   _impl_.clientip_.ClearToEmpty();
 }
@@ -8554,7 +8585,7 @@ inline void StripeAndBlockIDs::set_allocated_clientip(std::string* clientip) {
   // @@protoc_insertion_point(field_set_allocated:proxy_proto.StripeAndBlockIDs.clientip)
 }
 
-// int32 clientport = 3;
+// int32 clientport = 4;
 inline void StripeAndBlockIDs::clear_clientport() {
   _impl_.clientport_ = 0;
 }
@@ -8574,7 +8605,7 @@ inline void StripeAndBlockIDs::set_clientport(int32_t value) {
   // @@protoc_insertion_point(field_set:proxy_proto.StripeAndBlockIDs.clientport)
 }
 
-// repeated int32 block_ids = 4;
+// repeated int32 block_ids = 5;
 inline int StripeAndBlockIDs::_internal_block_ids_size() const {
   return _impl_.block_ids_.size();
 }
@@ -8621,7 +8652,7 @@ StripeAndBlockIDs::mutable_block_ids() {
   return _internal_mutable_block_ids();
 }
 
-// repeated string block_keys = 5;
+// repeated string block_keys = 6;
 inline int StripeAndBlockIDs::_internal_block_keys_size() const {
   return _impl_.block_keys_.size();
 }
@@ -8696,7 +8727,7 @@ StripeAndBlockIDs::mutable_block_keys() {
   return &_impl_.block_keys_;
 }
 
-// repeated string datanodeips = 6;
+// repeated string datanodeips = 7;
 inline int StripeAndBlockIDs::_internal_datanodeips_size() const {
   return _impl_.datanodeips_.size();
 }
@@ -8771,7 +8802,7 @@ StripeAndBlockIDs::mutable_datanodeips() {
   return &_impl_.datanodeips_;
 }
 
-// repeated int32 datanodeports = 7;
+// repeated int32 datanodeports = 8;
 inline int StripeAndBlockIDs::_internal_datanodeports_size() const {
   return _impl_.datanodeports_.size();
 }

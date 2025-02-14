@@ -1083,6 +1083,7 @@ int main(int argc, char **argv)
         std::string key = "0";
         std::string value;            // 用于存储检索到的数据
         bool get_success = client.get(key, value);
+        std::cout << "value size " << value.size() << std::endl;
 
         if (get_success) {
             std::cout << "Data retrieved successfully!" << std::endl;

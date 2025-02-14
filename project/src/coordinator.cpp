@@ -988,15 +988,20 @@ namespace ECProject
   }
 
   
-  void CoordinatorImpl::getStripeFromProxy(std::string client_ip, int client_port, std::string proxy_ip, int proxy_port, int stripe_id, std::vector<int> block_ids)
+  void CoordinatorImpl::getStripeFromProxy(std::string client_ip, int client_port, std::string proxy_ip, int proxy_port, int stripe_id, int group_id, std::vector<int> block_ids)
   {
     std::cout << "[GET] getting stripe " << stripe_id << " from proxy " << proxy_ip << ":" << proxy_port << std::endl;
+    for(int i = 0; i < block_ids.size(); i++){
+      std::cout << "block_id: " << block_ids[i] << std::endl;
+    }
     grpc::ClientContext cont;
     proxy_proto::StripeAndBlockIDs stripe_block_ids;
     proxy_proto::GetReply stripe_reply;
     stripe_block_ids.set_stripe_id(stripe_id);
     stripe_block_ids.set_clientip(client_ip);
     stripe_block_ids.set_clientport(client_port);
+    stripe_block_ids.set_group_id(group_id);
+
     for (int i = 0; i < block_ids.size(); i++)
     {
       stripe_block_ids.add_block_ids(block_ids[i]);
@@ -1007,7 +1012,7 @@ namespace ECProject
     grpc::Status status = m_proxy_ptrs[proxy_ip + ":" + std::to_string(proxy_port)]->getBlocks(&cont, stripe_block_ids, &stripe_reply);
     if (status.ok())
     {
-      std::cout << "[GET] getting stripe " << stripe_id << " from proxy " << proxy_ip << ":" << proxy_port << std::endl;
+      std::cout << "[GET] getting stripe " << stripe_id << " from proxy " << proxy_ip << ":" << proxy_port << " succeeded!" << std::endl;
     }
     else
     {
@@ -1027,16 +1032,18 @@ namespace ECProject
       int stripe_id = std::stoi(keyClient->key());
       Stripe &t_stripe = m_stripe_table[stripe_id];
       int k = t_stripe.k;
-      int num_data_groups = t_stripe.num_groups - 1;
+      int num_data_groups = t_stripe.num_groups;
       std::string code_type = m_sys_config->CodeType;
-      if(code_type == "UniLRC"){
-        num_data_groups++;
+      if(code_type != "UniLRC"){
+        num_data_groups--;
       }
+      std::cout << "[GET] getting stripe " << stripe_id << " with " << num_data_groups << " data groups" << std::endl;
       std::vector<int> block_num_per_group = get_data_block_num_per_group(k, m_sys_config->r, m_sys_config->z, code_type);
       std::vector<int> get_cluster_ids;
       for (int i = 0; i < num_data_groups; i++)
       {
         get_cluster_ids.push_back(t_stripe.blocks[t_stripe.group_to_blocks[i][0]]->map2cluster);
+        std::cout << "group " << i << " is mapped to cluster " << get_cluster_ids[i] << std::endl;
       }
       for (int i = 0; i < num_data_groups; i++)
       {
@@ -1050,8 +1057,15 @@ namespace ECProject
      std::vector<std::thread> threads;
       for (int i = 0; i < num_data_groups; i++)
       {
+        std::vector<int> block_ids;
+        for (int j = 0; j < t_stripe.group_to_blocks[i].size(); j++)
+        {
+          if(t_stripe.blocks[t_stripe.group_to_blocks[i][j]]->block_id < k){
+            block_ids.push_back(t_stripe.group_to_blocks[i][j]);
+          }
+        }
         threads.push_back(std::thread(&CoordinatorImpl::getStripeFromProxy, this, keyClient->clientip(), keyClient->clientport(), 
-          proxyIPPort->proxyips(i), proxyIPPort->proxyports(i), stripe_id, t_stripe.group_to_blocks[i]));
+          proxyIPPort->proxyips(i), proxyIPPort->proxyports(i), stripe_id, i, block_ids));
       }
       for (auto &thread : threads)
       {

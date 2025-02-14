@@ -886,18 +886,26 @@ namespace ECProject
     }
     std::vector<std::string> data_bufs(group_num);
 
-
+    //int BlockSize = m_sys_config->BlockSize;
     auto get_from_proxy = [this, &data_bufs, &proxy_ip_to_group_id]()mutable {
         asio::io_context io_context;
         asio::ip::tcp::socket socket_data(io_context);
         this->acceptor.accept(socket_data);
-        asio::ip::tcp::endpoint remote_ep = socket_data.remote_endpoint();
-        std::cout << "reading stripe from proxy" << remote_ep.address().to_string() << std::endl;
+        //asio::ip::tcp::endpoint remote_ep = socket_data.remote_endpoint();
+        //std::cout << "reading stripe from proxy" << remote_ep.address().to_string() << std::endl;
+        /*std::string proxy_ip(16, 0);
+        asio::read(socket_data, asio::buffer(proxy_ip, 16));*/
+        uint32_t group_id;
+        asio::read(socket_data, asio::buffer(&group_id, sizeof(uint32_t)));
+        uint32_t data_size;
+        asio::read(socket_data, asio::buffer(&data_size, sizeof(uint32_t)));
+        std::cout << "reading stripe from proxy" << "data_size: " << data_size << std::endl;
         asio::error_code error;
-        std::vector<char> buf(1024);
-        size_t len = asio::read(socket_data, asio::buffer(buf, 1024), error);
+        std::vector<char> buf(data_size);
+        size_t len = asio::read(socket_data, asio::buffer(buf), error);
+        std::cout << "reading stripe from proxy done. " << "len: " << len << std::endl;
         std::string ip = socket_data.remote_endpoint().address().to_string();
-        data_bufs[proxy_ip_to_group_id[ip]] = std::string(buf.data(), len);
+        data_bufs[group_id] = std::string(buf.data(), len);
         asio::error_code ignore_ec;
         socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
         std::cout << "reading stripe from proxy" << ip << "done" << std::endl;  

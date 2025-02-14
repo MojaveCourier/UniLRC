@@ -197,10 +197,11 @@ message GetReply {
 }
 message StripeAndBlockIDs{
   int32 stripe_id = 1;
-  string clientip = 2;
-  int32 clientport = 3;
-  repeated int32 block_ids = 4;
-  repeated string block_keys = 5;
-  repeated string datanodeips = 6;
-  repeated int32 datanodeports = 7;
+  int32 group_id = 2;
+  string clientip = 3;
+  int32 clientport = 4;
+  repeated int32 block_ids = 5;
+  repeated string block_keys = 6;
+  repeated string datanodeips = 7;
+  repeated int32 datanodeports = 8;
 }

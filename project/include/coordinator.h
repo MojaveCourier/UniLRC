@@ -119,7 +119,7 @@ namespace ECProject
     void init_recovery_group_lookup_table();
     void print_stripe_data_placement(Stripe &stripe);
     int get_cluster_id_by_group_id(Stripe &stripe, int group_id);
-    void getStripeFromProxy(std::string client_ip, int client_port, std::string proxy_ip, int proxy_port, int stripe_id, std::vector<int> block_ids);
+    void getStripeFromProxy(std::string client_ip, int client_port, std::string proxy_ip, int proxy_port, int stripe_id, int group_id, std::vector<int> block_ids);
     bool recovery_one_stripe(int stripe_id, int failed_block_id);
     ECProject::Config *m_sys_config;
     ECProject::ToolBox *m_toolbox;

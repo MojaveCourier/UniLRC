@@ -309,11 +309,9 @@ namespace ECProject
   {
     try
     {
-      if (IF_DEBUG)
-      {
-        std::cout << "[Proxy" << m_self_cluster_id << "][GET]"
-                  << " Ready to recieve data from datanode " << std::endl;
-      }
+
+      std::cout << "[Proxy" << m_self_cluster_id << "][GET]"
+                << " Ready to recieve data from datanode " << std::endl;
 
       grpc::ClientContext context;
       datanode_proto::GetInfo get_info;
@@ -351,6 +349,8 @@ namespace ECProject
         std::cout << "[Proxy" << m_self_cluster_id << "][GET]"
                   << " Read data from socket with length of " << value_length << std::endl;
       }
+      std::cout << "[Proxy" << m_self_cluster_id << "][GET]"
+      << " Read data from socket with length of " << value_length << std::endl;
     }
     catch (const std::exception &e)
     {
@@ -1243,49 +1243,58 @@ namespace ECProject
     return grpc::Status::OK;
   }
   grpc::Status ProxyImpl::getBlocks(grpc::ServerContext *context,
-    const proxy_proto::StripeAndBlockIDs &request, proxy_proto::GetReply *response)
+    const proxy_proto::StripeAndBlockIDs *request, proxy_proto::GetReply *response)
   {
-    std::vector<char*> blocks(request.block_ids_size());
-    for(int i = 0; i < request.block_ids_size(); i++)
-    {
-      blocks[i] = new char[m_sys_config->BlockSize];
-    }
+    std::cout << "getting blocks" << "[" << request->block_ids(0) << "]" << "to" << "[" << request->block_ids(request->block_ids_size() - 1) << "]" << std::endl;
+    int BlockSize = m_sys_config->BlockSize;
+    char *blocks = new char[BlockSize * request->block_ids_size()];
 
     std::vector<std::thread> get_threads;
-    for(int i = 0; i < request.block_ids_size(); i++)
+    for(int i = 0; i < request->block_ids_size(); i++)
     {
       /*get_threads.push_back(std::thread(&ProxyImpl::GetFromDatanode, this, static_cast<const std::string>(request.block_keys(i)), 
         blocks[i], static_cast<const size_t>(m_sys_config->BlockSize), static_cast<const char*>(request.datanodeips(i).c_str()), 
         static_cast<const int>(request.datanodeports(i))));*/
-      get_threads.push_back(std::thread([this, i, &blocks, &request]() {
+      get_threads.push_back(std::thread([this, i, &blocks, &request, BlockSize]() {
         this->GetFromDatanode(
-            request.block_keys(i), 
-            blocks[i], 
+            request->block_keys(i), 
+            blocks + i * BlockSize,
             static_cast<size_t>(m_sys_config->BlockSize), 
-            request.datanodeips(i).c_str(), 
-            static_cast<int>(request.datanodeports(i))
+            request->datanodeips(i).c_str(), 
+            static_cast<int>(request->datanodeports(i))
         );
     }));
     }
-    for(int i = 0; i < request.block_ids_size(); i++)
+    for(int i = 0; i < request->block_ids_size(); i++)
     {
       get_threads[i].join();
     }
-    std::string buf;
-    for(int i = 0; i < request.block_ids_size(); i++)
-    {
-      buf += std::string(blocks[i]);
-    }
   
+    uint32_t total_size = BlockSize * request->block_ids_size();
+    std::cout << "total size to send is " << total_size << std::endl;
+    uint32_t group_id = request->group_id();
+    std::cout << "group id is " << group_id << std::endl;
 
     asio::error_code error;
     asio::ip::tcp::socket sock_data(io_context);
     asio::ip::tcp::resolver resolver(io_context);
-    asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(request.clientip(), std::to_string(request.clientport()));
+    asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(request->clientip(), std::to_string(request->clientport()));
     asio::connect(sock_data, endpoints);
-    asio::write(sock_data, asio::buffer(buf, buf.size()), error);
+    asio::write(sock_data, asio::buffer(&group_id, sizeof(uint32_t)), error);
+    asio::write(sock_data, asio::buffer(&total_size, sizeof(uint32_t)), error);
+    asio::write(sock_data, asio::buffer(blocks, total_size), error);
+    if (error)
+    {
+      std::cout << "[Proxy" << m_self_cluster_id << "][GET]"
+                << "error in writing to client" << std::endl;
+    }
+    else
+    {
+      std::cout << "[Proxy" << m_self_cluster_id << "][GET]"
+                << "sending to the client done" << std::endl;
+    }
     asio::error_code ignore_ec;
-    sock_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);  
+    //sock_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);  
 
     return grpc::Status();
   }

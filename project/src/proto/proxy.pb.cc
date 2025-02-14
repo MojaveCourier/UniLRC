@@ -360,6 +360,7 @@ PROTOBUF_CONSTEXPR StripeAndBlockIDs::StripeAndBlockIDs(
   , /*decltype(_impl_._datanodeports_cached_byte_size_)*/{0}
   , /*decltype(_impl_.clientip_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.stripe_id_)*/0
+  , /*decltype(_impl_.group_id_)*/0
   , /*decltype(_impl_.clientport_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct StripeAndBlockIDsDefaultTypeInternal {
@@ -587,6 +588,7 @@ const uint32_t TableStruct_proxy_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(pr
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::proxy_proto::StripeAndBlockIDs, _impl_.stripe_id_),
+  PROTOBUF_FIELD_OFFSET(::proxy_proto::StripeAndBlockIDs, _impl_.group_id_),
   PROTOBUF_FIELD_OFFSET(::proxy_proto::StripeAndBlockIDs, _impl_.clientip_),
   PROTOBUF_FIELD_OFFSET(::proxy_proto::StripeAndBlockIDs, _impl_.clientport_),
   PROTOBUF_FIELD_OFFSET(::proxy_proto::StripeAndBlockIDs, _impl_.block_ids_),
@@ -694,30 +696,31 @@ const char descriptor_table_protodef_proxy_2eproto[] PROTOBUF_SECTION_VARIABLE(p
   "sizes\030\n \003(\005\022\027\n\017is_merge_parity\030\013 \001(\010\022\023\n\013"
   "append_mode\030\014 \001(\t\022\025\n\ris_serialized\030\r \001(\010"
   "\"\034\n\010SetReply\022\020\n\010ifcommit\030\001 \001(\010\"\036\n\010GetRep"
-  "ly\022\022\n\ngetsuccess\030\001 \001(\010\"\237\001\n\021StripeAndBloc"
-  "kIDs\022\021\n\tstripe_id\030\001 \001(\005\022\020\n\010clientip\030\002 \001("
-  "\t\022\022\n\nclientport\030\003 \001(\005\022\021\n\tblock_ids\030\004 \003(\005"
-  "\022\022\n\nblock_keys\030\005 \003(\t\022\023\n\013datanodeips\030\006 \003("
-  "\t\022\025\n\rdatanodeports\030\007 \003(\0052\331\004\n\014proxyServic"
-  "e\022D\n\ncheckalive\022\032.proxy_proto.Checkalive"
-  "CMD\032\032.proxy_proto.RequestResult\022L\n\022encod"
-  "eAndSetObject\022\037.proxy_proto.ObjectAndPla"
-  "cement\032\025.proxy_proto.SetReply\022L\n\022decodeA"
-  "ndGetObject\022\037.proxy_proto.ObjectAndPlace"
-  "ment\032\025.proxy_proto.GetReply\022G\n\014degradedR"
-  "ead\022 .proxy_proto.DegradedReadRequest\032\025."
-  "proxy_proto.GetReply\022\?\n\010recovery\022\034.proxy"
-  "_proto.RecoveryRequest\032\025.proxy_proto.Get"
-  "Reply\022\?\n\013deleteBlock\022\031.proxy_proto.NodeA"
-  "ndBlock\032\025.proxy_proto.DelReply\022X\n\027schedu"
-  "leAppend2Datanode\022&.proxy_proto.AppendSt"
-  "ripeDataPlacement\032\025.proxy_proto.SetReply"
-  "\022B\n\tgetBlocks\022\036.proxy_proto.StripeAndBlo"
-  "ckIDs\032\025.proxy_proto.GetReplyb\006proto3"
+  "ly\022\022\n\ngetsuccess\030\001 \001(\010\"\261\001\n\021StripeAndBloc"
+  "kIDs\022\021\n\tstripe_id\030\001 \001(\005\022\020\n\010group_id\030\002 \001("
+  "\005\022\020\n\010clientip\030\003 \001(\t\022\022\n\nclientport\030\004 \001(\005\022"
+  "\021\n\tblock_ids\030\005 \003(\005\022\022\n\nblock_keys\030\006 \003(\t\022\023"
+  "\n\013datanodeips\030\007 \003(\t\022\025\n\rdatanodeports\030\010 \003"
+  "(\0052\331\004\n\014proxyService\022D\n\ncheckalive\022\032.prox"
+  "y_proto.CheckaliveCMD\032\032.proxy_proto.Requ"
+  "estResult\022L\n\022encodeAndSetObject\022\037.proxy_"
+  "proto.ObjectAndPlacement\032\025.proxy_proto.S"
+  "etReply\022L\n\022decodeAndGetObject\022\037.proxy_pr"
+  "oto.ObjectAndPlacement\032\025.proxy_proto.Get"
+  "Reply\022G\n\014degradedRead\022 .proxy_proto.Degr"
+  "adedReadRequest\032\025.proxy_proto.GetReply\022\?"
+  "\n\010recovery\022\034.proxy_proto.RecoveryRequest"
+  "\032\025.proxy_proto.GetReply\022\?\n\013deleteBlock\022\031"
+  ".proxy_proto.NodeAndBlock\032\025.proxy_proto."
+  "DelReply\022X\n\027scheduleAppend2Datanode\022&.pr"
+  "oxy_proto.AppendStripeDataPlacement\032\025.pr"
+  "oxy_proto.SetReply\022B\n\tgetBlocks\022\036.proxy_"
+  "proto.StripeAndBlockIDs\032\025.proxy_proto.Ge"
+  "tReplyb\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_proxy_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_proxy_2eproto = {
-    false, false, 2996, descriptor_table_protodef_proxy_2eproto,
+    false, false, 3014, descriptor_table_protodef_proxy_2eproto,
     "proxy.proto",
     &descriptor_table_proxy_2eproto_once, nullptr, 0, 19,
     schemas, file_default_instances, TableStruct_proxy_2eproto::offsets,
@@ -6865,6 +6868,7 @@ StripeAndBlockIDs::StripeAndBlockIDs(const StripeAndBlockIDs& from)
     , /*decltype(_impl_._datanodeports_cached_byte_size_)*/{0}
     , decltype(_impl_.clientip_){}
     , decltype(_impl_.stripe_id_){}
+    , decltype(_impl_.group_id_){}
     , decltype(_impl_.clientport_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
@@ -6896,6 +6900,7 @@ inline void StripeAndBlockIDs::SharedCtor(
     , /*decltype(_impl_._datanodeports_cached_byte_size_)*/{0}
     , decltype(_impl_.clientip_){}
     , decltype(_impl_.stripe_id_){0}
+    , decltype(_impl_.group_id_){0}
     , decltype(_impl_.clientport_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };
@@ -6958,9 +6963,17 @@ const char* StripeAndBlockIDs::_InternalParse(const char* ptr, ::_pbi::ParseCont
         } else
           goto handle_unusual;
         continue;
-      // string clientip = 2;
+      // int32 group_id = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          _impl_.group_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // string clientip = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           auto str = _internal_mutable_clientip();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -6968,28 +6981,28 @@ const char* StripeAndBlockIDs::_InternalParse(const char* ptr, ::_pbi::ParseCont
         } else
           goto handle_unusual;
         continue;
-      // int32 clientport = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
+      // int32 clientport = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
           _impl_.clientport_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // repeated int32 block_ids = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+      // repeated int32 block_ids = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_block_ids(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 32) {
+        } else if (static_cast<uint8_t>(tag) == 40) {
           _internal_add_block_ids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // repeated string block_keys = 5;
-      case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+      // repeated string block_keys = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -6998,13 +7011,13 @@ const char* StripeAndBlockIDs::_InternalParse(const char* ptr, ::_pbi::ParseCont
             CHK_(ptr);
             CHK_(::_pbi::VerifyUTF8(str, "proxy_proto.StripeAndBlockIDs.block_keys"));
             if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<42>(ptr));
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<50>(ptr));
         } else
           goto handle_unusual;
         continue;
-      // repeated string datanodeips = 6;
-      case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+      // repeated string datanodeips = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -7013,16 +7026,16 @@ const char* StripeAndBlockIDs::_InternalParse(const char* ptr, ::_pbi::ParseCont
             CHK_(ptr);
             CHK_(::_pbi::VerifyUTF8(str, "proxy_proto.StripeAndBlockIDs.datanodeips"));
             if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<50>(ptr));
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<58>(ptr));
         } else
           goto handle_unusual;
         continue;
-      // repeated int32 datanodeports = 7;
-      case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+      // repeated int32 datanodeports = 8;
+      case 8:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_datanodeports(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 56) {
+        } else if (static_cast<uint8_t>(tag) == 64) {
           _internal_add_datanodeports(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
           CHK_(ptr);
         } else
@@ -7063,57 +7076,63 @@ uint8_t* StripeAndBlockIDs::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_stripe_id(), target);
   }
 
-  // string clientip = 2;
+  // int32 group_id = 2;
+  if (this->_internal_group_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(2, this->_internal_group_id(), target);
+  }
+
+  // string clientip = 3;
   if (!this->_internal_clientip().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_clientip().data(), static_cast<int>(this->_internal_clientip().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "proxy_proto.StripeAndBlockIDs.clientip");
     target = stream->WriteStringMaybeAliased(
-        2, this->_internal_clientip(), target);
+        3, this->_internal_clientip(), target);
   }
 
-  // int32 clientport = 3;
+  // int32 clientport = 4;
   if (this->_internal_clientport() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteInt32ToArray(3, this->_internal_clientport(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(4, this->_internal_clientport(), target);
   }
 
-  // repeated int32 block_ids = 4;
+  // repeated int32 block_ids = 5;
   {
     int byte_size = _impl_._block_ids_cached_byte_size_.load(std::memory_order_relaxed);
     if (byte_size > 0) {
       target = stream->WriteInt32Packed(
-          4, _internal_block_ids(), byte_size, target);
+          5, _internal_block_ids(), byte_size, target);
     }
   }
 
-  // repeated string block_keys = 5;
+  // repeated string block_keys = 6;
   for (int i = 0, n = this->_internal_block_keys_size(); i < n; i++) {
     const auto& s = this->_internal_block_keys(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       s.data(), static_cast<int>(s.length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "proxy_proto.StripeAndBlockIDs.block_keys");
-    target = stream->WriteString(5, s, target);
+    target = stream->WriteString(6, s, target);
   }
 
-  // repeated string datanodeips = 6;
+  // repeated string datanodeips = 7;
   for (int i = 0, n = this->_internal_datanodeips_size(); i < n; i++) {
     const auto& s = this->_internal_datanodeips(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       s.data(), static_cast<int>(s.length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "proxy_proto.StripeAndBlockIDs.datanodeips");
-    target = stream->WriteString(6, s, target);
+    target = stream->WriteString(7, s, target);
   }
 
-  // repeated int32 datanodeports = 7;
+  // repeated int32 datanodeports = 8;
   {
     int byte_size = _impl_._datanodeports_cached_byte_size_.load(std::memory_order_relaxed);
     if (byte_size > 0) {
       target = stream->WriteInt32Packed(
-          7, _internal_datanodeports(), byte_size, target);
+          8, _internal_datanodeports(), byte_size, target);
     }
   }
 
@@ -7133,7 +7152,7 @@ size_t StripeAndBlockIDs::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated int32 block_ids = 4;
+  // repeated int32 block_ids = 5;
   {
     size_t data_size = ::_pbi::WireFormatLite::
       Int32Size(this->_impl_.block_ids_);
@@ -7147,7 +7166,7 @@ size_t StripeAndBlockIDs::ByteSizeLong() const {
     total_size += data_size;
   }
 
-  // repeated string block_keys = 5;
+  // repeated string block_keys = 6;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(_impl_.block_keys_.size());
   for (int i = 0, n = _impl_.block_keys_.size(); i < n; i++) {
@@ -7155,7 +7174,7 @@ size_t StripeAndBlockIDs::ByteSizeLong() const {
       _impl_.block_keys_.Get(i));
   }
 
-  // repeated string datanodeips = 6;
+  // repeated string datanodeips = 7;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(_impl_.datanodeips_.size());
   for (int i = 0, n = _impl_.datanodeips_.size(); i < n; i++) {
@@ -7163,7 +7182,7 @@ size_t StripeAndBlockIDs::ByteSizeLong() const {
       _impl_.datanodeips_.Get(i));
   }
 
-  // repeated int32 datanodeports = 7;
+  // repeated int32 datanodeports = 8;
   {
     size_t data_size = ::_pbi::WireFormatLite::
       Int32Size(this->_impl_.datanodeports_);
@@ -7177,7 +7196,7 @@ size_t StripeAndBlockIDs::ByteSizeLong() const {
     total_size += data_size;
   }
 
-  // string clientip = 2;
+  // string clientip = 3;
   if (!this->_internal_clientip().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
@@ -7189,7 +7208,12 @@ size_t StripeAndBlockIDs::ByteSizeLong() const {
     total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_stripe_id());
   }
 
-  // int32 clientport = 3;
+  // int32 group_id = 2;
+  if (this->_internal_group_id() != 0) {
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_group_id());
+  }
+
+  // int32 clientport = 4;
   if (this->_internal_clientport() != 0) {
     total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_clientport());
   }
@@ -7221,6 +7245,9 @@ void StripeAndBlockIDs::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, cons
   }
   if (from._internal_stripe_id() != 0) {
     _this->_internal_set_stripe_id(from._internal_stripe_id());
+  }
+  if (from._internal_group_id() != 0) {
+    _this->_internal_set_group_id(from._internal_group_id());
   }
   if (from._internal_clientport() != 0) {
     _this->_internal_set_clientport(from._internal_clientport());

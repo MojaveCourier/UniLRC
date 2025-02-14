@@ -71,8 +71,8 @@ namespace ECProject
     // get stripe
     grpc::Status getBlocks(
         grpc::ServerContext *context,
-        const proxy_proto::StripeAndBlockIDs &request,
-        proxy_proto::GetReply *response); //override
+        const proxy_proto::StripeAndBlockIDs *request,
+        proxy_proto::GetReply *response) override;
 
     bool SetToDatanode(const char *key, size_t key_length, const char *value, size_t value_length, const char *ip, int port, int offset);
     bool GetFromDatanode(const char *key, size_t key_length, char *value, size_t value_length, const char *ip, int port, int offset);
