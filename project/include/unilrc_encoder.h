@@ -321,17 +321,13 @@ namespace ECProject
                                         const std::vector<int> *data_sizes, unsigned char **global_ptrs,
                                         unsigned char **local_ptrs, int start_offset, int unit_size);
 
-    void encode_unilrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **global_ptrs,
-                       unsigned char **local_ptrs, int block_size);
+    void encode_unilrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **parity_ptrs, int block_size);
 
-    void encode_azure_lrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **global_ptrs,
-                          unsigned char **local_ptrs, int block_size);
+    void encode_azure_lrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **parity_ptrs, int block_size);
 
-    void encode_optimal_lrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **global_ptrs,
-                            unsigned char **local_ptrs, int block_size);
+    void encode_optimal_lrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **parity_ptrs, int block_size);
 
-    void encode_uniform_lrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **global_ptrs,
-                            unsigned char **local_ptrs, int block_size);
+    void encode_uniform_lrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **parity_ptrs, int block_size);
 
     void encode_unilrc_w_rep_mode(int k, int r, int z, unsigned char *data_ptrs, unsigned char *parity_ptr,
                                   int block_size, int unit_size, int parity_block_id);
@@ -370,6 +366,10 @@ namespace ECProject
 
     void
     gf_gen_rs_matrix1(unsigned char *a, int m, int k);
+
+    void
+    ec_encode_data_base(int len, int srcs, int dests, unsigned char *v, unsigned char **src,
+                    unsigned char **dest);
 
     void
     ec_encode_data_avx2(int len, int k, int rows, unsigned char *g_tbls, unsigned char **data,
