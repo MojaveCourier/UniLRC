@@ -2,6 +2,7 @@
 
 cd /users/qiliang
 sudo chmod 777 -R UniEC
+cd UniEC
 
 
 # 定义源文件夹路径
@@ -26,6 +27,7 @@ while read -r ip; do
 
     # 使用 rsync 复制文件夹，排除 third_party 子文件夹
     rsync -avz --exclude='third_party' -e ssh "$SOURCE_DIR/" "$ip:$REMOTE_DIR/"
+    #rsync -avz -e ssh "$SOURCE_DIR/" "$ip:$REMOTE_DIR/"
 
     # 检查 rsync 是否成功
     if [ $? -eq 0 ]; then

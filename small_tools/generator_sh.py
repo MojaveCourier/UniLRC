@@ -4,34 +4,31 @@ import netifaces
 
 current_path = os.getcwd()
 parent_path = os.path.dirname(current_path)
-cluster_number = 2
-datanode_number_per_cluster = 4
+cluster_number = 18
+datanode_number_per_cluster = 30
 datanode_port_start = 17600
 cluster_id_start = 0
 iftest = False
 
 proxy_ip_list = [
-    ["0.0.0.0",50405], # for test
-    ["0.0.0.0",50405], # for test
-    ["0.0.0.0",50405] # for test
-    #["10.10.1.3",50405],
-    #["10.10.1.4",50405],
-    #["10.10.1.5",50405],
-    #["10.10.1.6",50405],
-    #["10.10.1.7",50405],
-    #["10.10.1.8",50405],
-    #["10.10.1.9",50405],
-    #["10.10.1.10",50405]
-    #["10.10.1.11",50405],
-    #["10.10.1.12",50405],
-    #["10.10.1.13",50405],
-    #["10.10.1.14",50405],
-    #["10.10.1.15",50405],
-    #["10.10.1.16",50405],
-    #["10.10.1.17",50405],
-    #["10.10.1.18",50405],
-    #["10.10.1.19",50405],
-    #["10.10.1.20",50405]
+    ["10.10.1.3",50405],
+    ["10.10.1.4",50405],
+    ["10.10.1.5",50405],
+    ["10.10.1.6",50405],
+    ["10.10.1.7",50405],
+    ["10.10.1.8",50405],
+    ["10.10.1.9",50405],
+    ["10.10.1.10",50405],
+    ["10.10.1.11",50405],
+    ["10.10.1.12",50405],
+    ["10.10.1.13",50405],
+    ["10.10.1.14",50405],
+    ["10.10.1.15",50405],
+    ["10.10.1.16",50405],
+    ["10.10.1.17",50405],
+    ["10.10.1.18",50405],
+    ["10.10.1.19",50405],
+    ["10.10.1.20",50405]
 ]
 coordinator_ip = "0.0.0.0"
 
@@ -43,6 +40,19 @@ def get_local_ip(interface_name):
     addresses = netifaces.ifaddresses(interface_name)
     return addresses[netifaces.AF_INET][0]['addr']
 
+def get_interface_with_ip_prefix(prefix="10.10.1"):
+    interfaces = netifaces.interfaces()
+    for interface in interfaces:
+        try:
+            addresses = netifaces.ifaddresses(interface)
+            if netifaces.AF_INET in addresses:  # 检查是否有IPv4地址
+                for addr in addresses[netifaces.AF_INET]:
+                    ip = addr['addr']
+                    if ip.startswith(prefix):  # 检查IP地址是否以指定前缀开头
+                        return ip
+        except Exception as e:
+            print(f"Error processing interface {interface}: {e}")
+    return None, None
 
 
 cluster_informtion = {}
@@ -61,11 +71,11 @@ def generate_cluster_info_dict():
         cluster_informtion[i] = new_cluster
             
 def generate_run_proxy_datanode_file():
-    #local_ip = get_local_ip('eno1d1')
-    local_ip = "0.0.0.0" # for test
+    local_ip = get_interface_with_ip_prefix(prefix="10.10.1")
+    #local_ip = "0.0.0.0" # for test
     local_ip_last_segment = local_ip.split('.')[-1]
-    #cluster_id = int(local_ip_last_segment) - 3
-    cluster_id = 0 # for test
+    cluster_id = int(local_ip_last_segment) - 3
+    #cluster_id = 0 # for test
     file_name = parent_path + '/run_proxy_datanode.sh'
     with open(file_name, 'w') as f:
         f.write("pkill -9 run_datanode\n")
@@ -136,13 +146,13 @@ def cluster_generate_run_proxy_datanode_file(ip, port, i):
 if __name__ == "__main__":
     generate_cluster_info_dict()
     # print(cluster_informtion)
-    #local_ip = get_local_ip('eno1d1')
-    local_ip = "0.0.0.0"
+    local_ip = get_interface_with_ip_prefix(prefix="10.10.1")
+    #local_ip = "0.0.0.0" # for test
     local_ip_last_segment = local_ip.split('.')[-1]
-    #if int (local_ip_last_segment) >= 3: 
-    #    generate_run_proxy_datanode_file()
+    if int (local_ip_last_segment) >= 3: 
+        generate_run_proxy_datanode_file()
     #generater_cluster_information_xml()
-    generate_run_proxy_datanode_file() # for test
+    #generate_run_proxy_datanode_file() # for test
     generater_cluster_information_xml()
     
     # cnt = 0

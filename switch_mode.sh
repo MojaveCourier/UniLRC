@@ -13,9 +13,7 @@ if [[ ! -f "$HOSTS_FILE" ]]; then
 fi
 
 # 读取 hosts 文件中的主机列表
-HOSTS=$(cat "$HOSTS_FILE" | tr '\n' ',' | sed 's/,$//')
-
-
+HOSTS=$(cat "$HOSTS_FILE")
 
 # 提示用户输入字符串 XXX
 read -p "Enter the string XXX: " XXX
@@ -30,16 +28,30 @@ fi
 SOURCE_FILE="$CONFIG_DIR/$XXX.xml"
 TARGET_FILE="$CONFIG_DIR/parameterConfiguration.xml"
 
-# 使用 pdsh 在所有主机上复制文件
-echo "Copying $SOURCE_FILE to $TARGET_FILE on all hosts..."
-pdsh -w "$HOSTS" cp "$SOURCE_FILE" "$TARGET_FILE"
-
-# 检查是否成功复制
-if [[ $? -eq 0 ]]; then
-  echo "Successfully copied $SOURCE_FILE to $TARGET_FILE on all hosts!"
-else
-  echo "Failed to copy $SOURCE_FILE to $TARGET_FILE on some hosts!"
+# 检查源文件是否存在
+if [[ ! -f "$SOURCE_FILE" ]]; then
+  echo "Error: Source file $SOURCE_FILE does not exist!"
   exit 1
 fi
 
+# 在本地主机上复制并覆盖目标文件
+echo "Copying $SOURCE_FILE to $TARGET_FILE on the local host..."
+cp "$SOURCE_FILE" "$TARGET_FILE"
+if [[ $? -ne 0 ]]; then
+  echo "Failed to copy $SOURCE_FILE to $TARGET_FILE on the local host!"
+  exit 1
+fi
+
+# 使用 rsync 将修改后的文件同步到所有远程主机
+echo "Syncing $TARGET_FILE to all remote hosts..."
+for host in $HOSTS; do
+  echo "Syncing to $host..."
+  rsync -avz --progress "$TARGET_FILE" "$host:$TARGET_FILE"
+  if [[ $? -ne 0 ]]; then
+    echo "Failed to sync $TARGET_FILE to $host!"
+    exit 1
+  fi
+done
+
+echo "Successfully synced $TARGET_FILE to all remote hosts!"
 echo "All done!"
