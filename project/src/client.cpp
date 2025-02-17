@@ -868,7 +868,7 @@ namespace ECProject
     request.set_clientport(m_clientPortForGet);
 
     coordinator_proto::ReplyProxyIPsPorts reply;
-    std::cout << "geting stripe" << std::endl;
+    std::cout << "getting stripe" << std::endl;
     grpc::Status status = m_coordinator_ptr->getStripe(&context, request, &reply);
 
     if(!status.ok())
@@ -876,6 +876,7 @@ namespace ECProject
       std::cout << "[Client] get stripe failed!" << std::endl;
       return false;
     }
+    std::cout << "getting stripe done" << std::endl;
 
 
     int group_num = reply.proxyips_size();
@@ -887,10 +888,12 @@ namespace ECProject
     std::vector<std::string> data_bufs(group_num);
 
     //int BlockSize = m_sys_config->BlockSize;
-    auto get_from_proxy = [this, &data_bufs, &proxy_ip_to_group_id]()mutable {
+    auto get_from_proxy = [this, &data_bufs]()mutable {
+        std::cout << "connecting to proxy" << std::endl;
         asio::io_context io_context;
         asio::ip::tcp::socket socket_data(io_context);
         this->acceptor.accept(socket_data);
+        std::cout << "connected to proxy" << std::endl;
         //asio::ip::tcp::endpoint remote_ep = socket_data.remote_endpoint();
         //std::cout << "reading stripe from proxy" << remote_ep.address().to_string() << std::endl;
         /*std::string proxy_ip(16, 0);

@@ -1276,13 +1276,36 @@ namespace ECProject
     std::cout << "group id is " << group_id << std::endl;
 
     asio::error_code error;
-    asio::ip::tcp::socket sock_data(io_context);
+    asio::ip::tcp::socket socket_data(io_context);
     asio::ip::tcp::resolver resolver(io_context);
-    asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(request->clientip(), std::to_string(request->clientport()));
-    asio::connect(sock_data, endpoints);
-    asio::write(sock_data, asio::buffer(&group_id, sizeof(uint32_t)), error);
-    asio::write(sock_data, asio::buffer(&total_size, sizeof(uint32_t)), error);
-    asio::write(sock_data, asio::buffer(blocks, total_size), error);
+    asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(request->clientip(), std::to_string(request->clientport()));;
+    //asio::connect(sock_data, endpoints);
+    socket_data.connect(*endpoints, error);
+    if (error)
+    {
+      std::cout << "error in connect" << std::endl;
+    }
+    std::cout << "connected to client" << std::endl;
+
+    /*asio::ip::tcp::socket socket_data(io_context);
+    acceptor.accept(socket_data);*/
+
+
+    asio::write(socket_data, asio::buffer(&group_id, sizeof(uint32_t)), error);
+    asio::write(socket_data, asio::buffer(&total_size, sizeof(uint32_t)), error);
+    //asio::write(socket_data, asio::buffer(blocks, total_size), error);
+    std::vector<std::thread> threads;
+    for (int i = 0; i < request->block_ids_size(); i++)
+    {
+      threads.push_back(std::thread([&socket_data, &blocks, i, BlockSize, &error]() {
+        asio::write(socket_data, asio::buffer(blocks + i * BlockSize, BlockSize), error);
+      }));
+    }
+    for (int i = 0; i < request->block_ids_size(); i++)
+    {
+      threads[i].join();
+    }
+
     if (error)
     {
       std::cout << "[Proxy" << m_self_cluster_id << "][GET]"

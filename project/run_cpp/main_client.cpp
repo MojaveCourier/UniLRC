@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     std::cout << "Current working directory: " << sys_config_path << std::endl;
 
     ECProject::Config *config = ECProject::Config::getInstance(sys_config_path);
-    std::string client_ip = "0.0.0.0";
+    std::string client_ip = "10.10.1.1";
     int client_port = 44444;
     ECProject::Client client(client_ip, client_port, config->CoordinatorIP + ":" + std::to_string(config->CoordinatorPort), sys_config_path);
     std::cout << client.sayHelloToCoordinatorByGrpc("Client ID: " + client_ip + ":" + std::to_string(client_port)) << std::endl;
@@ -1079,13 +1079,14 @@ int main(int argc, char **argv)
     bool set_success = client.set();
     if (set_success) {
         std::cout << "Data set successfully! Proceeding to get..." << std::endl;
-        sleep(5);
+        //sleep(5);
         std::string key = "0";
         std::string value;            // 用于存储检索到的数据
-        bool get_success = client.get(key, value);
+        bool success = client.get(key, value);
+        //bool success = client.degraded_read(0, 0);
         std::cout << "value size " << value.size() << std::endl;
 
-        if (get_success) {
+        if (success) {
             std::cout << "Data retrieved successfully!" << std::endl;
         } else {
             std::cerr << "Failed to retrieve data." << std::endl;
