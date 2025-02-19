@@ -1,5 +1,6 @@
 #include "unilrc_encoder.h"
 #include <iostream>
+#include <unordered_map>
 
 extern "C" {
     void gf_vect_dot_prod_avx2(int len, int vec, unsigned char *g_tbls, unsigned char **buffs, unsigned char*dests);
@@ -11,6 +12,10 @@ extern "C" {
     int xor_gen_avx(int vects, int len, void **array);
 }
 
+int xor_avx(int vects, int len, void **array)
+{
+    return xor_gen_avx(vects, len, array);
+}
 
 unsigned char
 ECProject::gf_inv(unsigned char a)
@@ -82,6 +87,63 @@ ECProject::gf_mul(unsigned char a, unsigned char b)
         return gf_mul_table_base[b * 256 + a];
 #endif
 }
+
+int
+ECProject::gf_invert_matrix(unsigned char *in_mat, unsigned char *out_mat, const int n)
+{
+        int i, j, k;
+        unsigned char temp;
+
+        // Set out_mat[] to the identity matrix
+        for (i = 0; i < n * n; i++) // memset(out_mat, 0, n*n)
+                out_mat[i] = 0;
+
+        for (i = 0; i < n; i++)
+                out_mat[i * n + i] = 1;
+
+        // Inverse
+        for (i = 0; i < n; i++) {
+                // Check for 0 in pivot element
+                if (in_mat[i * n + i] == 0) {
+                        // Find a row with non-zero in current column and swap
+                        for (j = i + 1; j < n; j++)
+                                if (in_mat[j * n + i])
+                                        break;
+
+                        if (j == n) // Couldn't find means it's singular
+                                return -1;
+
+                        for (k = 0; k < n; k++) { // Swap rows i,j
+                                temp = in_mat[i * n + k];
+                                in_mat[i * n + k] = in_mat[j * n + k];
+                                in_mat[j * n + k] = temp;
+
+                                temp = out_mat[i * n + k];
+                                out_mat[i * n + k] = out_mat[j * n + k];
+                                out_mat[j * n + k] = temp;
+                        }
+                }
+
+                temp = gf_inv(in_mat[i * n + i]); // 1/pivot
+                for (j = 0; j < n; j++) {         // Scale row i by 1/pivot
+                        in_mat[i * n + j] = gf_mul(in_mat[i * n + j], temp);
+                        out_mat[i * n + j] = gf_mul(out_mat[i * n + j], temp);
+                }
+
+                for (j = 0; j < n; j++) {
+                        if (j == i)
+                                continue;
+
+                        temp = in_mat[j * n + i];
+                        for (k = 0; k < n; k++) {
+                                out_mat[j * n + k] ^= gf_mul(temp, out_mat[i * n + k]);
+                                in_mat[j * n + k] ^= gf_mul(temp, in_mat[i * n + k]);
+                        }
+                }
+        }
+        return 0;
+}
+
 
 void ECProject::encode_unilrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **parity_ptrs, int block_size)
 {
@@ -216,7 +278,7 @@ void ECProject::decode_azure_lrc(const int k, const int r, const int z, const in
 {
     if (failed_block_id >= k && failed_block_id < k + r)
     {
-        unsigned char **rs_matrix;
+        /*unsigned char **rs_matrix;
         rs_matrix = new unsigned char *[r];
         for (int i = 0; i < r; i++)
         {
@@ -238,7 +300,50 @@ void ECProject::decode_azure_lrc(const int k, const int r, const int z, const in
         {
             delete[] rs_matrix[i];
         }
-        delete[] rs_matrix;
+        delete[] rs_matrix;*/
+        int m = k + r;
+        unsigned char *encode_matrix = new unsigned char[m * k];
+        memset(encode_matrix, 0,  m * k);
+        gf_gen_rs_matrix1(encode_matrix, m, k);
+        unsigned char *decode_matrix = new unsigned char[k * k];
+        memset(decode_matrix, 0, k * k);
+        unsigned char *temp_matrix = new unsigned char[k * k];
+        memset(temp_matrix, 0, k * k);
+        int used_row[r];
+        std::unordered_map<int, int> idx_to_row;
+        for(int i = k / z, j = 0; j < r && i < k + r; i++){
+            if(i != failed_block_id){
+                used_row[j] = i;
+                idx_to_row[i] = j;
+                j++;
+            }
+        }
+        for(int i = 0; i < k; i++){
+            for(int j = 0; j < k; j++){
+                temp_matrix[i * k + j] = encode_matrix[used_row[i] * k + j];
+            }
+        }
+        unsigned char *invert_matrix = new unsigned char[k * k];
+        gf_invert_matrix(temp_matrix, invert_matrix, k);
+        unsigned char * vect_all = new unsigned char[k];
+        gf_mul_vect_matrix(encode_matrix + failed_block_id * k, invert_matrix, vect_all, k);
+        unsigned char *decode_vector = new unsigned char[block_num];
+        for(int i = 0; i < block_num; i++){
+            decode_vector[i] = vect_all[block_indexes->at(i)];
+        }
+        unsigned char *g_tbls = new unsigned char[k * (r + z) * 32];
+        ec_init_tables(block_num, 1, decode_vector, g_tbls);
+        unsigned char **res_ptr_ptr = new unsigned char *[1];
+        res_ptr_ptr[0] = res_ptr;
+        ec_encode_data_avx2(block_size, block_num, 1, g_tbls, block_ptrs, res_ptr_ptr);
+        delete[] encode_matrix;
+        delete[] decode_matrix;
+        delete[] temp_matrix;
+        delete[] invert_matrix;
+        delete[] vect_all;
+        delete[] decode_vector;
+        delete[] g_tbls;
+        delete[] res_ptr_ptr;
     }
     else
     {   
@@ -533,4 +638,14 @@ ECProject::gf_vect_mul_init(unsigned char c, unsigned char *tbl)
         tbl[31] = c31;
 
 #endif //__WORDSIZE == 64 || _WIN64 || __x86_64__
+}
+
+void
+ECProject::gf_mul_vect_matrix(unsigned char* vect, unsigned char* matrix, unsigned char *dest, int k){
+    for(int i = 0; i < k; i++){
+        dest[i] = 0;
+        for(int j = 0; j < k; j++){
+            dest[i] ^= gf_mul(vect[j], matrix[j * k + i]);
+        }
+    }
 }

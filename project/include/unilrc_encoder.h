@@ -70,6 +70,8 @@ namespace ECProject
                             const std::vector<int> *block_indexes, unsigned char **block_ptrs, unsigned char *res_ptr, int block_size,
                             int failed_block_id);
 
+    int xor_avx(int vects, int len, void **array);
+
     unsigned char
     gf_inv(unsigned char a);
 
@@ -96,6 +98,12 @@ namespace ECProject
 
     unsigned char
     gf_mul(unsigned char a, unsigned char b);
+
+    int
+    gf_invert_matrix(unsigned char *in_mat, unsigned char *out_mat, const int n);
+
+    void
+    gf_mul_vect_matrix(unsigned char* vect, unsigned char* matrix, unsigned char *dest, int k);
 }
 
 #endif
