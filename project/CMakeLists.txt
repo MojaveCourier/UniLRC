@@ -20,6 +20,7 @@ set(ASM_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/asm/gf_4vect_dot_prod_avx2.asm
     ${CMAKE_CURRENT_SOURCE_DIR}/src/asm/gf_5vect_dot_prod_avx2.asm
     ${CMAKE_CURRENT_SOURCE_DIR}/src/asm/gf_6vect_dot_prod_avx2.asm
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/asm/xor_gen_avx.asm
 )
 
 # 标记为 NASM 汇编文件
