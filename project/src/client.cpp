@@ -236,6 +236,7 @@ namespace ECProject
     }
   }
 
+  /*
   bool Client::append(int append_size)
   {
     int tmp_append_size = append_size;
@@ -266,8 +267,9 @@ namespace ECProject
 
     return true;
   }
-
-  bool Client::sub_append_in_rep_mode(int append_size)
+  */
+ 
+  /*bool Client::sub_append_in_rep_mode(int append_size)
   {
     grpc::ClientContext get_proxy_ip_port;
     coordinator_proto::RequestProxyIPPort request;
@@ -316,7 +318,7 @@ namespace ECProject
     }
 
     return true;
-  }
+  }*/
 
   void Client::async_append_to_proxies(char *cluster_slice_data, std::string append_key, int cluster_slice_size, std::string proxy_ip, int proxy_port, int index, bool *if_commit_arr)
   {
@@ -680,6 +682,8 @@ namespace ECProject
     2. get the address of proxy
     3. send the value to the proxy by socket
   */
+
+  /*
   bool
   Client::sub_append(int append_size)
   {
@@ -761,6 +765,7 @@ namespace ECProject
 
     return false;
   }
+  */
 
   bool Client::degraded_read(int stripe_id, int failed_block_id)
   {
@@ -828,62 +833,45 @@ namespace ECProject
     request.set_clientport(m_clientPortForGet);
 
     coordinator_proto::ReplyProxyIPsPorts reply;
-    std::cout << "geting stripe" << std::endl;
+    std::cout << "getting stripe" << std::endl;
     grpc::Status status = m_coordinator_ptr->getStripe(&context, request, &reply);
 
-    if(!status.ok())
+    /*if(!status.ok())
     {
       std::cout << "[Client] get stripe failed!" << std::endl;
       return false;
     }
+    std::cout << "getting stripe done" << std::endl;*/
 
 
     int group_num = reply.proxyips_size();
-    std::unordered_map<std::string, int> proxy_ip_to_group_id;
-    for (int i = 0; i < reply.proxyips_size(); i++)
+    int data_block_num = m_sys_config->k;
+    int block_size = m_sys_config->BlockSize;
+    char * data_ptr_array = new char[data_block_num * block_size];
+    std::vector<std::thread> threads;
+    for(int i = 0; i < data_block_num; i++)
     {
-      proxy_ip_to_group_id[reply.proxyips(i)] = i;
-    }
-    std::vector<std::string> data_bufs(group_num);
-
-    //int BlockSize = m_sys_config->BlockSize;
-    auto get_from_proxy = [this, &data_bufs, &proxy_ip_to_group_id]()mutable {
+      threads.push_back(std::thread(([this, &reply, i, data_ptr_array, block_size]()mutable {
         asio::io_context io_context;
         asio::ip::tcp::socket socket_data(io_context);
         this->acceptor.accept(socket_data);
-        //asio::ip::tcp::endpoint remote_ep = socket_data.remote_endpoint();
-        //std::cout << "reading stripe from proxy" << remote_ep.address().to_string() << std::endl;
-        /*std::string proxy_ip(16, 0);
-        asio::read(socket_data, asio::buffer(proxy_ip, 16));*/
-        uint32_t group_id;
-        asio::read(socket_data, asio::buffer(&group_id, sizeof(uint32_t)));
-        uint32_t data_size;
-        asio::read(socket_data, asio::buffer(&data_size, sizeof(uint32_t)));
-        std::cout << "reading stripe from proxy" << "data_size: " << data_size << std::endl;
+        uint32_t block_id;
+        //asio::read(socket_data, asio::buffer(&block_id, sizeof(uint32_t)));
+        socket_data.receive(asio::buffer(&block_id, sizeof(uint32_t)));
+        std::cout << "reading stripe from proxy" << ", block_id: " << block_id << std::endl;
         asio::error_code error;
-        std::vector<char> buf(data_size);
-        size_t len = asio::read(socket_data, asio::buffer(buf), error);
-        std::cout << "reading stripe from proxy done. " << "len: " << len << std::endl;
-        std::string ip = socket_data.remote_endpoint().address().to_string();
-        data_bufs[group_id] = std::string(buf.data(), len);
+        //size_t len = asio::read(socket_data, asio::buffer(data_ptr_array + block_id * block_size, block_size), error);
+        socket_data.receive(asio::buffer(data_ptr_array + block_id * block_size, block_size));
         asio::error_code ignore_ec;
         socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
-        std::cout << "reading stripe from proxy" << ip << "done" << std::endl;  
-    };
-    std::vector<std::thread> threads;
-    for (int i = 0; i < group_num; i++)
-    {
-      threads.push_back(std::thread(get_from_proxy));
+        socket_data.close(ignore_ec);
+      })));
     }
-    std::cout << "reading stripe" << std::endl;
-    for (auto &thread : threads)
+    for(auto &thread : threads)
     {
       thread.join();
     }
-    for(auto &data_buf : data_bufs)
-    {
-      value += data_buf;
-    }
+    value = std::string(data_ptr_array, data_block_num * block_size);
 
     return true;
   }

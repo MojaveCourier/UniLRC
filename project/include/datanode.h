@@ -45,10 +45,10 @@ namespace ECProject
             const datanode_proto::MergeParityInfo *merge_parity_info,
             datanode_proto::RequestResult *response) override;
         // merge parity with rep
-        grpc::Status handleMergeParityWithRep(
+        /*grpc::Status handleMergeParityWithRep(
             grpc::ServerContext *context,
             const datanode_proto::MergeParityInfo *merge_parity_info,
-            datanode_proto::RequestResult *response) override;
+            datanode_proto::RequestResult *response) override;*/
         // recovery
         grpc::Status handleRecovery(
             grpc::ServerContext *context,
