@@ -256,6 +256,29 @@ void ECProject::decode_optimal_lrc(const int k, const int r, const int z, const 
     unsigned char *local_vector;
     local_vector = new unsigned char[k];
     gf_gen_local_vector(local_vector, k, r);
+    unsigned char *decode_vector = new unsigned char[block_num];
+    if(block_indexes->at(0) >= k){
+        for(int i = 0; i < block_num; i++){
+            decode_vector[i] = 1;
+        }
+    }
+    else{
+        for(int i = 0; i < block_num; i++){
+            decode_vector[i] = local_vector[block_indexes->at(i)];
+        }
+    }
+    if(failed_block_id < k){
+        unsigned char factor = gf_inv(local_vector[failed_block_id]);
+        for(int i = 0; i < block_num; i++){
+            decode_vector[i] = gf_mul(decode_vector[i], factor);
+        }
+    }
+
+    unsigned char *g_tbls = new unsigned char[k * (r + z) * 32];
+    unsigned char **res_ptr_ptr = new unsigned char *[1];
+    res_ptr_ptr[0] = res_ptr;
+    ec_init_tables(block_num, 1, decode_vector, g_tbls);
+    ec_encode_data_avx2(block_size, block_num, 1, g_tbls, block_ptrs, res_ptr_ptr);
     /*for (int i = 0; i < block_num; i++)
     {
         int block_index = block_indexes->at(i);
@@ -276,11 +299,14 @@ void ECProject::decode_optimal_lrc(const int k, const int r, const int z, const 
     }*/
     
     delete[] local_vector;
+    delete[] decode_vector;
+    delete[] g_tbls;
+    delete[] res_ptr_ptr;
 }
 void ECProject::decode_uniform_lrc(const int k, const int r, const int z, const int block_num,
-                                   const std::vector<int> *block_indexes, unsigned char **block_ptrs, unsigned char *res_ptr, int block_size)
+                                   const std::vector<int> *block_indexes, unsigned char **block_ptrs, unsigned char *res_ptr, int block_size, int failed_block_id)
 {
-    unsigned char *local_vector;
+    /*unsigned char *local_vector;
     local_vector = new unsigned char[k];
     gf_gen_local_vector(local_vector, k, r);
     for (int i = 0; i < block_num; i++)
@@ -301,7 +327,37 @@ void ECProject::decode_uniform_lrc(const int k, const int r, const int z, const 
             }
         }
     }
+    delete[] local_vector;*/
+    unsigned char *local_vector;
+    local_vector = new unsigned char[k];
+    gf_gen_local_vector(local_vector, k, r);
+    unsigned char *decode_vector = new unsigned char[block_num];
+
+    for(int i = 0; i < block_num; i++){
+        if(block_indexes->at(i) < k){
+            decode_vector[i] = local_vector[block_indexes->at(i)];
+        }
+        else{
+            decode_vector[i] = 1;
+        }
+    }
+    if(failed_block_id < k){
+        unsigned char factor = gf_inv(local_vector[failed_block_id]);
+        for(int i = 0; i < block_num; i++){
+            decode_vector[i] = gf_mul(decode_vector[i], factor);
+        }
+    }
+
+    unsigned char *g_tbls = new unsigned char[k * (r + z) * 32];
+    unsigned char **res_ptr_ptr = new unsigned char *[1];
+    res_ptr_ptr[0] = res_ptr;
+    ec_init_tables(block_num, 1, decode_vector, g_tbls);
+    ec_encode_data_avx2(block_size, block_num, 1, g_tbls, block_ptrs, res_ptr_ptr);
+
     delete[] local_vector;
+    delete[] decode_vector;
+    delete[] g_tbls;
+    delete[] res_ptr_ptr;
 }
 
 void
