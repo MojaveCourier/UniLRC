@@ -813,8 +813,13 @@ namespace ECProject
     for(auto &thread : threads){
       thread.join();
     }
-    xor_avx(block_num + 1, m_sys_config->BlockSize, (void **)block_ptrs);
-    value = std::string(block_ptrs[block_num], m_sys_config->BlockSize);
+    if(block_num > 1){
+      xor_avx(block_num + 1, m_sys_config->BlockSize, (void **)block_ptrs);
+      value = std::string(block_ptrs[block_num], m_sys_config->BlockSize);      
+    }
+    else{
+      value = std::string(block_ptrs[0], m_sys_config->BlockSize);
+    }
     for(int i = 0; i < block_num + 1; i++){
       free(block_ptrs[i]);
     }

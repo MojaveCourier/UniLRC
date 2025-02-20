@@ -24,4 +24,12 @@
 			<datanode uri="0.0.0.0:17603" />
 		</datanodes>
 	</cluster>
+	<cluster id="3" proxy="0.0.0.0:50405">
+		<datanodes>
+			<datanode uri="0.0.0.0:17600" />
+			<datanode uri="0.0.0.0:17601" />
+			<datanode uri="0.0.0.0:17602" />
+			<datanode uri="0.0.0.0:17603" />
+		</datanodes>
+	</cluster>
 </clusters>

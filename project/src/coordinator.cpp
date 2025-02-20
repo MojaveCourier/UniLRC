@@ -762,8 +762,7 @@ namespace ECProject
     {
       if (failed_block_id >= k && failed_block_id < k + r)
       {
-        recovery_group_ids.push_back(z);
-        for (int i = 1; i < k + r; i++)
+        for (int i = 1; i <= z; i++)
         {
           recovery_group_ids.push_back(i);
         }
@@ -1169,7 +1168,7 @@ namespace ECProject
 
     if (recovery_group_ids.size() == 1)
     {
-      assert((code_type == "UniLRC") || (code_type == "AzureLRC" && failed_block_id >= m_sys_config->k && failed_block_id < m_sys_config->k + m_sys_config->r));
+      assert((code_type == "UniLRC") || (code_type == "AzureLRC" && (failed_block_id < m_sys_config->k || failed_block_id >= m_sys_config->k + m_sys_config->r)));
 
       grpc::ClientContext degraded_read_context;
       proxy_proto::DegradedReadRequest degraded_read_request;
@@ -1208,10 +1207,13 @@ namespace ECProject
       std::vector<int> chosen_cluster_ids;
       for(int i = 0; i < recovery_group_ids.size(); i++){
         chosen_cluster_ids.push_back(get_cluster_id_by_group_id(t_stripe, recovery_group_ids[i]));
+        //std::cout << "group " << recovery_group_ids[i] << " is mapped to cluster " << chosen_cluster_ids[i] << std::endl;
       }
       std::vector<std::string> chosen_proxies;
+
       for(int i = 0; i < chosen_cluster_ids.size(); i++){
         chosen_proxies.push_back(m_cluster_table[chosen_cluster_ids[i]].proxy_ip + ":" + std::to_string(m_cluster_table[chosen_cluster_ids[i]].proxy_port));
+        //std::cout << "group " << recovery_group_ids[i] << " is mapped to proxy " << chosen_proxies[i] << std::endl;
       }
       std::vector<std::thread> threads;
       for(int i = 0; i < recovery_group_ids.size(); i++){
@@ -1236,11 +1238,11 @@ namespace ECProject
             degraded_read_request.add_blockids(t_block->block_id);
           }
           grpc::Status status = this->m_proxy_ptrs[chosen_proxies[i]]->degradedRead(&degraded_read_context, degraded_read_request, &degraded_read_reply);
-          if (status.ok() && IF_DEBUG)
+          if (status.ok())
           {
             std::cout << "[Coordinator] degraded read of " << failed_block_id << " success!" << std::endl;
           }
-          else if (IF_DEBUG)
+          else
           {
             std::cout << "[Coordinator] degraded read of " << failed_block_id << " failed!" << std::endl;
           }
