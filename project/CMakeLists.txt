@@ -30,8 +30,8 @@ set_source_files_properties(
     LANGUAGE ASM_NASM
 )
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "-gdwarf-4 -gstrict-dwarf -g -Wall -std=c++11 -DASIO_STANDALONE -O3 -funroll-loops")
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS "-gdwarf-4 -gstrict-dwarf -g -Wall -std=c++17 -DASIO_STANDALONE -O3 -funroll-loops -fdata-sections -ffunction-sections")
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -funroll-loops -ftree-vectorize -march=native")

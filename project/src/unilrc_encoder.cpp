@@ -12,7 +12,7 @@ extern "C" {
     int xor_gen_avx(int vects, int len, void **array);
 }
 
-int xor_avx(int vects, int len, void **array)
+int ECProject::xor_avx(int vects, int len, void **array)
 {
     return xor_gen_avx(vects, len, array);
 }
@@ -269,6 +269,7 @@ void ECProject::decode_unilrc(const int k, const int r, const int z, const int b
     for(int i = 0; i < block_num; i++){
         vect_ptrs[i] = block_ptrs[i];
     }
+    vect_ptrs[block_num] = res_ptr;
     xor_gen_avx(block_num + 1, block_size, (void **)vect_ptrs);
 }
 
@@ -351,6 +352,7 @@ void ECProject::decode_azure_lrc(const int k, const int r, const int z, const in
         for(int i = 0; i < block_num; i++){
             vect_ptrs[i] = block_ptrs[i];
         }
+        vect_ptrs[block_num] = res_ptr;
         xor_gen_avx(block_num + 1, block_size, (void **)vect_ptrs);
     }
 }

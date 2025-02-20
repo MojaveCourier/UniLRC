@@ -1069,7 +1069,7 @@ namespace ECProject
       }
       for (auto &thread : threads)
       {
-        thread.join();
+        thread.detach();
       }
     }
     catch (std::exception &e)
@@ -1194,21 +1194,67 @@ namespace ECProject
         degraded_read_request.add_blockids(t_block->block_id);
       }
       status = m_proxy_ptrs[chosen_proxy]->degradedRead(&degraded_read_context, degraded_read_request, &degraded_read_reply);
-      if (status.ok() && IF_DEBUG)
+      if (status.ok())
       {
         std::cout << "[Coordinator] degraded read of " << keyClient->key() << " success!" << std::endl;
       }
-      else if (IF_DEBUG)
+      else
       {
         std::cout << "[Coordinator] degraded read of " << keyClient->key() << " failed!" << std::endl;
       }
     }
     else
     {
-      std::cout << "[Coordinator] degraded read across multiple groups has not been implemented!" << std::endl;
-      return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "Degraded read across multiple groups has not been implemented!");
-    }
+      std::vector<int> chosen_cluster_ids;
+      for(int i = 0; i < recovery_group_ids.size(); i++){
+        chosen_cluster_ids.push_back(get_cluster_id_by_group_id(t_stripe, recovery_group_ids[i]));
+      }
+      std::vector<std::string> chosen_proxies;
+      for(int i = 0; i < chosen_cluster_ids.size(); i++){
+        chosen_proxies.push_back(m_cluster_table[chosen_cluster_ids[i]].proxy_ip + ":" + std::to_string(m_cluster_table[chosen_cluster_ids[i]].proxy_port));
+      }
+      std::vector<std::thread> threads;
+      for(int i = 0; i < recovery_group_ids.size(); i++){
+        threads.push_back(std::thread([&t_stripe, &chosen_proxies, &recovery_group_ids, i, failed_block_id, client_ip, client_port, this](){
+          grpc::ClientContext degraded_read_context;
+          proxy_proto::DegradedReadRequest degraded_read_request;
+          proxy_proto::GetReply degraded_read_reply;
+          degraded_read_request.set_clientip(client_ip);
+          degraded_read_request.set_clientport(client_port);
+          degraded_read_request.set_failed_block_id(failed_block_id);
+          degraded_read_request.set_failed_block_key(t_stripe.blocks[failed_block_id]->block_key);
+          std::vector<int> blockids = t_stripe.group_to_blocks[recovery_group_ids[i]];
+          for (int j = 0; j < int(blockids.size()); j++)
+          {
+            if (blockids[j] == failed_block_id)
+              continue;
 
+            Block *t_block = t_stripe.blocks[blockids[j]];
+            degraded_read_request.add_datanodeip(this->m_node_table[t_block->map2node].node_ip);
+            degraded_read_request.add_datanodeport(this->m_node_table[t_block->map2node].node_port);
+            degraded_read_request.add_blockkeys(t_block->block_key);
+            degraded_read_request.add_blockids(t_block->block_id);
+          }
+          grpc::Status status = this->m_proxy_ptrs[chosen_proxies[i]]->degradedRead(&degraded_read_context, degraded_read_request, &degraded_read_reply);
+          if (status.ok() && IF_DEBUG)
+          {
+            std::cout << "[Coordinator] degraded read of " << failed_block_id << " success!" << std::endl;
+          }
+          else if (IF_DEBUG)
+          {
+            std::cout << "[Coordinator] degraded read of " << failed_block_id << " failed!" << std::endl;
+          }
+        }));
+      }
+      for(int i = 0; i < threads.size(); i++){
+        threads[i].join();
+      }
+
+
+      /*std::cout << "[Coordinator] degraded read across multiple groups has not been implemented!" << std::endl;
+      return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "Degraded read across multiple groups has not been implemented!");*/
+    }
+    getReplyClient->set_valuesizebytes(recovery_group_ids.size() * m_sys_config->BlockSize);
     return grpc::Status::OK;
   }
 

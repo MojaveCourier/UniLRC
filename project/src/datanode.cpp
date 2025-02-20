@@ -3,7 +3,6 @@
 #include <fstream>
 #include <unistd.h>
 #include <sys/stat.h>
-#include "unilrc_encoder.h"
 namespace ECProject
 {
     grpc::Status DatanodeImpl::checkalive(

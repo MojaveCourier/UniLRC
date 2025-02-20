@@ -767,9 +767,9 @@ namespace ECProject
   }
   */
 
-  bool Client::degraded_read(int stripe_id, int failed_block_id)
+  bool Client::degraded_read(int stripe_id, int failed_block_id, std::string &value)
   {
-    assert(failed_block_id >= 0 && failed_block_id < m_sys_config->k);
+    //assert(failed_block_id >= 0 && failed_block_id < m_sys_config->k);
 
     grpc::ClientContext context;
     coordinator_proto::KeyAndClientIP request;
@@ -789,8 +789,36 @@ namespace ECProject
     {
       std::cout << "[Client] degraded read success!" << std::endl;
     }
-
-    asio::ip::tcp::socket socket_data(io_context);
+    int block_num = reply.valuesizebytes() / m_sys_config->BlockSize;
+    char ** block_ptrs = new char *[block_num + 1];
+    for(int i = 0; i < block_num + 1; i++){
+      block_ptrs[i] = static_cast<char *>(std::aligned_alloc(32, m_sys_config->BlockSize));
+    }
+    std::cout << "block_num to get: " << block_num << std::endl;
+    std::vector<std::thread> threads;
+    for(int i = 0; i < block_num; i++){
+      threads.push_back(std::thread([&block_ptrs, i, this]() mutable{
+      asio::ip::tcp::socket socket_data(io_context);
+      this->acceptor.accept(socket_data);
+      std::cout << "[Client] accept from proxy done!" << std::endl;
+      asio::error_code error;
+      //std::vector<char> buf(m_sys_config->BlockSize);
+      asio::read(socket_data, asio::buffer(block_ptrs[i], m_sys_config->BlockSize), error);
+      std::cout << "[Client] read from proxy done!" << std::endl;
+      asio::error_code ignore_ec;
+      socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
+      socket_data.close(ignore_ec);
+      }));
+    }
+    for(auto &thread : threads){
+      thread.join();
+    }
+    xor_avx(block_num + 1, m_sys_config->BlockSize, (void **)block_ptrs);
+    value = std::string(block_ptrs[block_num], m_sys_config->BlockSize);
+    for(int i = 0; i < block_num + 1; i++){
+      free(block_ptrs[i]);
+    }
+    /*asio::ip::tcp::socket socket_data(io_context);
     acceptor.accept(socket_data);
     std::cout << "[Client] accept from proxy done!" << std::endl;
     asio::error_code error;
@@ -799,7 +827,7 @@ namespace ECProject
     std::cout << "[Client] read from proxy done!" << std::endl;
     asio::error_code ignore_ec;
     socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
-    socket_data.close(ignore_ec);
+    socket_data.close(ignore_ec);*/
 
     return true;
   }
@@ -835,13 +863,13 @@ namespace ECProject
     coordinator_proto::ReplyProxyIPsPorts reply;
     std::cout << "getting stripe" << std::endl;
     grpc::Status status = m_coordinator_ptr->getStripe(&context, request, &reply);
-
-    /*if(!status.ok())
+    
+    if(!status.ok())
     {
       std::cout << "[Client] get stripe failed!" << std::endl;
       return false;
     }
-    std::cout << "getting stripe done" << std::endl;*/
+    std::cout << "getting stripe succeeded" << std::endl;
 
 
     int group_num = reply.proxyips_size();
@@ -872,7 +900,7 @@ namespace ECProject
       thread.join();
     }
     value = std::string(data_ptr_array, data_block_num * block_size);
-
+    delete[] data_ptr_array;
     return true;
   }
   

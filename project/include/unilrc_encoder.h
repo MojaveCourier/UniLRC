@@ -104,6 +104,8 @@ namespace ECProject
 
     void
     gf_mul_vect_matrix(unsigned char* vect, unsigned char* matrix, unsigned char *dest, int k);
+
+    int xor_avx(int vects, int len, void **array);
 }
 
 #endif
