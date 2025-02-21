@@ -1379,6 +1379,9 @@ namespace ECProject
         std::vector<int> blockids = t_stripe.group_to_blocks[dest_group_id];
         for (int i = 0; i < int(blockids.size()); i++)
         {
+          if(m_sys_config->CodeType == "AzureLRC" && recovery_request.blockids_size() == (m_sys_config->k / m_sys_config->z))
+            break;
+
           if (blockids[i] == failed_block_id)
             continue;
 
@@ -1388,12 +1391,13 @@ namespace ECProject
           recovery_request.add_blockkeys(t_block->block_key);
           recovery_request.add_blockids(t_block->block_id);
         }
+        std::cout << "[Coordinator] start recovery of " << stripe_id << "_" << failed_block_id << std::endl;
         grpc::Status status = this->m_proxy_ptrs[dest_proxy_ip + ":" + std::to_string(dest_proxy_port)]->recovery(&recovery_context, recovery_request, &recovery_reply);
-        if (status.ok() && IF_DEBUG)
+        if (status.ok())
         {
           std::cout << "[Coordinator] recovery of " << stripe_id << "_" << failed_block_id << " success!" << std::endl;
         }
-        else if (IF_DEBUG)
+        else
         {
           std::cout << "[Coordinator] recovery of " << stripe_id << "_" << failed_block_id << " failed!" << std::endl;
         }

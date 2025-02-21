@@ -1093,6 +1093,7 @@ namespace ECProject
         {
           delete get_bufs[i];
         }
+        //std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] send to the client done" << std::endl;
       }
     };
 
@@ -1198,6 +1199,7 @@ namespace ECProject
         }
         int cross_rack_num = recovery_request->cross_rack_num();
         if(cross_rack_num){
+          std::cout << "start to recover cross rack" << std::endl;
           char **cross_rack_bufs = new char*[cross_rack_num];
           for(int i = 0; i < cross_rack_num; i++)
           {
@@ -1206,23 +1208,28 @@ namespace ECProject
           std::vector<std::thread> get_from_proxies_threads;
           for(int i = 0; i < cross_rack_num; i++)
           {
-            get_from_proxies_threads.push_back(std::thread([i, this, cross_rack_bufs, recovery_request](){
+            get_from_proxies_threads.push_back(std::thread([i, this, &cross_rack_bufs]()mutable{
               asio::io_context io_context;
               asio::ip::tcp::socket socket(io_context);
               asio::ip::tcp::resolver resolver(io_context);
               this->acceptor.accept(socket);
               asio::error_code error;
               asio::read(socket, asio::buffer(cross_rack_bufs[i], this->m_sys_config->BlockSize), error);
+              std::cout << "read from proxy"  << std::endl;
               if(error)
               {
                 std::cout << "error in read" << std::endl;
               }
+              asio::error_code ignore_ec;
+              socket.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
+              socket.close(ignore_ec);
             }));
           }
           for(int i = 0; i < cross_rack_num; i++)
           {
             get_from_proxies_threads[i].join();
           }
+          std::cout << "start to xor" << std::endl;
           char **buf_ptrs = new char*[cross_rack_num + 1];
           for(int i = 0; i < cross_rack_num; i++)
           {
@@ -1237,7 +1244,7 @@ namespace ECProject
           delete cross_rack_bufs;
           delete buf_ptrs;
         }
-
+        std::cout << "[Proxy" << m_self_cluster_id << "][Recovery] send to the replaced node" << std::endl;
         // send to the replaced node
         RecoveryToDatanode(failed_block_key.c_str(), failed_block_id, res_buf, replaced_node_ip.c_str(), replaced_node_port);
       }
