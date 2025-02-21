@@ -1228,6 +1228,9 @@ namespace ECProject
           std::vector<int> blockids = t_stripe.group_to_blocks[recovery_group_ids[i]];
           for (int j = 0; j < int(blockids.size()); j++)
           {
+            if(m_sys_config->CodeType == "AzureLRC" && degraded_read_request.blockids_size() == (m_sys_config->k / m_sys_config->z + 1))
+              break;
+
             if (blockids[j] == failed_block_id)
               continue;
 

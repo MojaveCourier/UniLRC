@@ -310,9 +310,9 @@ void ECProject::decode_azure_lrc(const int k, const int r, const int z, const in
         memset(decode_matrix, 0, k * k);
         unsigned char *temp_matrix = new unsigned char[k * k];
         memset(temp_matrix, 0, k * k);
-        int used_row[r];
+        int used_row[k];
         std::unordered_map<int, int> idx_to_row;
-        for(int i = k / z, j = 0; j < r && i < k + r; i++){
+        for(int i = k / z, j = 0; j < k && i < k + r; i++){
             if(i != failed_block_id){
                 used_row[j] = i;
                 idx_to_row[i] = j;
@@ -330,7 +330,7 @@ void ECProject::decode_azure_lrc(const int k, const int r, const int z, const in
         gf_mul_vect_matrix(encode_matrix + failed_block_id * k, invert_matrix, vect_all, k);
         unsigned char *decode_vector = new unsigned char[block_num];
         for(int i = 0; i < block_num; i++){
-            decode_vector[i] = vect_all[block_indexes->at(i)];
+            decode_vector[i] = vect_all[idx_to_row[block_indexes->at(i)]];
         }
         unsigned char *g_tbls = new unsigned char[k * (r + z) * 32];
         ec_init_tables(block_num, 1, decode_vector, g_tbls);
