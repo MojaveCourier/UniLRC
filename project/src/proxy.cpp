@@ -102,10 +102,10 @@ namespace ECProject
       {
         grpc::Status stat = m_datanode_ptrs[node_ip_port]->handleMergeParity(&context, merge_parity_info, &result);
       }
-      else if (append_mode == "REP_MODE")
+      /*else if (append_mode == "REP_MODE")
       {
         grpc::Status stat = m_datanode_ptrs[node_ip_port]->handleMergeParityWithRep(&context, merge_parity_info, &result);
-      }
+      }*/
       else
       {
         throw std::runtime_error("Invalid append mode: " + append_mode);
@@ -959,13 +959,13 @@ namespace ECProject
     return grpc::Status::OK;
   }
 
-  std::vector<unsigned char *> ProxyImpl::convertToUnsignedCharArray(std::vector<std::vector<char>> &input)
+  std::vector<unsigned char *> ProxyImpl::convertToUnsignedCharArray(std::vector<char*> &input)
   {
     std::vector<unsigned char *> output;
 
     for (auto &row : input)
     {
-      output.push_back(reinterpret_cast<unsigned char *>(row.data()));
+      output.push_back(reinterpret_cast<unsigned char *>(row));
     }
 
     return output;
@@ -996,12 +996,19 @@ namespace ECProject
       std::unique_ptr<bool[]> status(new bool[request_copy->datanodeip_size()]);
       std::fill_n(status.get(), request_copy->datanodeip_size(), false);
 
-      std::vector<std::vector<char>> get_bufs(request_copy->datanodeip_size(), std::vector<char>(m_sys_config->BlockSize, 0));
-      std::vector<char> res_buf(m_sys_config->BlockSize, 0);
+      //std::vector<std::vector<char>> get_bufs(request_copy->datanodeip_size(), std::vector<char>(m_sys_config->BlockSize, 0));
+      std::vector<char*> get_bufs(request_copy->datanodeip_size());
+      for(int i = 0; i < request_copy->datanodeip_size(); i++)
+      {
+        get_bufs[i] = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
+      }
+
+      //std::vector<char> res_buf(m_sys_config->BlockSize, 0);
+      char *res_buf = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
       std::vector<std::thread> get_threads;
       for (int i = 0; i < request_copy->datanodeip_size(); i++)
       {
-        get_threads.push_back(std::thread(&ProxyImpl::get_from_node, this, request_copy->blockkeys(i), get_bufs[i].data(), m_sys_config->BlockSize, request_copy->datanodeip(i).c_str(), request_copy->datanodeport(i), status.get(), i));
+        get_threads.push_back(std::thread(&ProxyImpl::get_from_node, this, request_copy->blockkeys(i), get_bufs[i], m_sys_config->BlockSize, request_copy->datanodeip(i).c_str(), request_copy->datanodeport(i), status.get(), i));
       }
       for (int i = 0; i < request_copy->datanodeip_size(); i++)
       {
@@ -1030,11 +1037,11 @@ namespace ECProject
         if (code_type == "UniLRC")
         {
           std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] decode_unilrc" << std::endl;
-          decode_unilrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, request_copy->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf.data()), m_sys_config->BlockSize);
+          decode_unilrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, request_copy->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf), m_sys_config->BlockSize);
         }
         else if (code_type == "AzureLRC")
         {
-          decode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, request_copy->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf.data()), m_sys_config->BlockSize, request_copy->failed_block_id());
+          decode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, request_copy->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf), m_sys_config->BlockSize, request_copy->failed_block_id());
         }
         else
         {
@@ -1059,7 +1066,7 @@ namespace ECProject
           std::cout << "error in connect" << std::endl;
         }
 
-        asio::write(sock_data, asio::buffer(res_buf.data(), m_sys_config->BlockSize), error);
+        asio::write(sock_data, asio::buffer(res_buf, m_sys_config->BlockSize), error);
         if (error)
         {
           std::cout << "error in write" << std::endl;
@@ -1067,6 +1074,11 @@ namespace ECProject
         asio::error_code ignore_ec;
         sock_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);
         sock_data.close(ignore_ec);
+        delete res_buf;
+        for(int i = 0; i < request_copy->datanodeip_size(); i++)
+        {
+          delete get_bufs[i];
+        }
       }
     };
 
@@ -1107,12 +1119,18 @@ namespace ECProject
       std::unique_ptr<bool[]> status(new bool[recovery_request->datanodeip_size()]);
       std::fill_n(status.get(), recovery_request->datanodeip_size(), false);
 
-      std::vector<std::vector<char>> get_bufs(recovery_request->datanodeip_size(), std::vector<char>(m_sys_config->BlockSize, 0));
-      std::vector<char> res_buf(m_sys_config->BlockSize, 0);
+      //std::vector<std::vector<char>> get_bufs(recovery_request->datanodeip_size(), std::vector<char>(m_sys_config->BlockSize, 0));
+      std::vector<char*> get_bufs(recovery_request->datanodeip_size());
+      for(int i = 0; i < recovery_request->datanodeip_size(); i++)
+      {
+        get_bufs[i] = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
+      }
+      //std::vector<char> res_buf(m_sys_config->BlockSize, 0);
+      char *res_buf = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
       std::vector<std::thread> get_threads;
       for (int i = 0; i < recovery_request->datanodeip_size(); i++)
       {
-        get_threads.push_back(std::thread(&ProxyImpl::get_from_node, this, recovery_request->blockkeys(i), get_bufs[i].data(), m_sys_config->BlockSize, recovery_request->datanodeip(i).c_str(), recovery_request->datanodeport(i), status.get(), i));
+        get_threads.push_back(std::thread(&ProxyImpl::get_from_node, this, recovery_request->blockkeys(i), get_bufs[i], m_sys_config->BlockSize, recovery_request->datanodeip(i).c_str(), recovery_request->datanodeport(i), status.get(), i));
       }
       for (int i = 0; i < recovery_request->datanodeip_size(); i++)
       {
@@ -1145,11 +1163,11 @@ namespace ECProject
 
         if (code_type == "UniLRC")
         {
-          decode_unilrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, recovery_request->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf.data()), m_sys_config->BlockSize);
+          decode_unilrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, recovery_request->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf), m_sys_config->BlockSize);
         }
         else if (code_type == "AzureLRC")
         {
-          decode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, recovery_request->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf.data()), m_sys_config->BlockSize, failed_block_id);
+          decode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, recovery_request->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf), m_sys_config->BlockSize, failed_block_id);
         }
         else
         {
@@ -1157,7 +1175,12 @@ namespace ECProject
           exit(1);
         }
         // send to the replaced node
-        RecoveryToDatanode(failed_block_key.c_str(), failed_block_id, res_buf.data(), replaced_node_ip.c_str(), replaced_node_port);
+        RecoveryToDatanode(failed_block_key.c_str(), failed_block_id, res_buf, replaced_node_ip.c_str(), replaced_node_port);
+      }
+      delete res_buf;
+      for(int i = 0; i < recovery_request->datanodeip_size(); i++)
+      {
+        delete get_bufs[i];
       }
     }
     catch (const std::exception &e)
@@ -1165,7 +1188,6 @@ namespace ECProject
       std::cout << "exception" << std::endl;
       std::cerr << e.what() << '\n';
     }
-
     return grpc::Status::OK;
   }
 
@@ -1248,6 +1270,11 @@ namespace ECProject
     std::cout << "getting blocks" << "[" << request->block_ids(0) << "]" << "to" << "[" << request->block_ids(request->block_ids_size() - 1) << "]" << std::endl;
     int BlockSize = m_sys_config->BlockSize;
     char *blocks = new char[BlockSize * request->block_ids_size()];
+    uint32_t total_size = BlockSize * request->block_ids_size();
+    std::cout << "total size to send is " << total_size << std::endl;
+    uint32_t group_id = request->group_id();
+    std::cout << "group id is " << group_id << std::endl;
+
 
     std::vector<std::thread> get_threads;
     for(int i = 0; i < request->block_ids_size(); i++)
@@ -1262,39 +1289,40 @@ namespace ECProject
             static_cast<size_t>(m_sys_config->BlockSize), 
             request->datanodeips(i).c_str(), 
             static_cast<int>(request->datanodeports(i))
-        );
+        );    
+        asio::error_code error;
+        asio::io_context io_context;
+        asio::ip::tcp::socket socket_data(io_context);
+        asio::ip::tcp::resolver resolver(io_context);
+        asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(request->clientip(), std::to_string(request->clientport()));;
+        //asio::connect(sock_data, endpoints);
+        socket_data.connect(*endpoints, error);
+        if (error)
+        {
+          std::cout << "error in connect" << std::endl;
+        }
+        std::cout << "connected to client" << std::endl;
+        u_int32_t block_id = request->block_ids(i);
+        //asio::write(socket_data, asio::buffer(&block_id, sizeof(u_int32_t)));
+        socket_data.send(asio::buffer(&block_id, sizeof(u_int32_t)));
+        //asio::write_some(socket_data, asio::buffer(blocks + i * BlockSize, BlockSize));
+        socket_data.send(asio::buffer(blocks + i * BlockSize, BlockSize));
     }));
     }
     for(int i = 0; i < request->block_ids_size(); i++)
     {
-      get_threads[i].join();
+      get_threads[i].detach();
     }
   
-    uint32_t total_size = BlockSize * request->block_ids_size();
-    std::cout << "total size to send is " << total_size << std::endl;
-    uint32_t group_id = request->group_id();
-    std::cout << "group id is " << group_id << std::endl;
 
-    asio::error_code error;
-    asio::ip::tcp::socket socket_data(io_context);
-    asio::ip::tcp::resolver resolver(io_context);
-    asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(request->clientip(), std::to_string(request->clientport()));;
-    //asio::connect(sock_data, endpoints);
-    socket_data.connect(*endpoints, error);
-    if (error)
-    {
-      std::cout << "error in connect" << std::endl;
-    }
-    std::cout << "connected to client" << std::endl;
 
     /*asio::ip::tcp::socket socket_data(io_context);
     acceptor.accept(socket_data);*/
 
 
-    asio::write(socket_data, asio::buffer(&group_id, sizeof(uint32_t)), error);
-    asio::write(socket_data, asio::buffer(&total_size, sizeof(uint32_t)), error);
+
     //asio::write(socket_data, asio::buffer(blocks, total_size), error);
-    std::vector<std::thread> threads;
+    /*std::vector<std::thread> threads;
     for (int i = 0; i < request->block_ids_size(); i++)
     {
       threads.push_back(std::thread([&socket_data, &blocks, i, BlockSize, &error]() {
@@ -1305,18 +1333,7 @@ namespace ECProject
     {
       threads[i].join();
     }
-
-    if (error)
-    {
-      std::cout << "[Proxy" << m_self_cluster_id << "][GET]"
-                << "error in writing to client" << std::endl;
-    }
-    else
-    {
-      std::cout << "[Proxy" << m_self_cluster_id << "][GET]"
-                << "sending to the client done" << std::endl;
-    }
-    asio::error_code ignore_ec;
+    asio::error_code ignore_ec;*/
     //sock_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);  
 
     return grpc::Status();

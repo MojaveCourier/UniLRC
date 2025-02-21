@@ -236,6 +236,7 @@ namespace ECProject
     }
   }
 
+  /*
   bool Client::append(int append_size)
   {
     int tmp_append_size = append_size;
@@ -266,8 +267,9 @@ namespace ECProject
 
     return true;
   }
-
-  bool Client::sub_append_in_rep_mode(int append_size)
+  */
+ 
+  /*bool Client::sub_append_in_rep_mode(int append_size)
   {
     grpc::ClientContext get_proxy_ip_port;
     coordinator_proto::RequestProxyIPPort request;
@@ -316,7 +318,7 @@ namespace ECProject
     }
 
     return true;
-  }
+  }*/
 
   void Client::async_append_to_proxies(char *cluster_slice_data, std::string append_key, int cluster_slice_size, std::string proxy_ip, int proxy_port, int index, bool *if_commit_arr)
   {
@@ -621,21 +623,28 @@ namespace ECProject
 
       std::vector<char *> data_ptr_array, global_parity_ptr_array, local_parity_ptr_array;
       split_for_set_data_and_parity(&reply, cluster_slice_data, data_block_num_per_group, global_parity_block_num_per_group, local_parity_block_num_per_group, data_ptr_array, global_parity_ptr_array, local_parity_ptr_array);
+      std::vector<char *> parity_ptr_array;
+      parity_ptr_array.insert(parity_ptr_array.end(), global_parity_ptr_array.begin(), global_parity_ptr_array.end());
+      parity_ptr_array.insert(parity_ptr_array.end(), local_parity_ptr_array.begin(), local_parity_ptr_array.end());
       if (m_sys_config->CodeType == "UniLRC")
       {
-        ECProject::encode_unilrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
+        //ECProject::encode_unilrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
+        ECProject::encode_unilrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(parity_ptr_array.data()), m_sys_config->BlockSize);
       }
       else if (m_sys_config->CodeType == "OptimalLRC")
       {
-        ECProject::encode_optimal_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
+        //ECProject::encode_optimal_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
+        ECProject::encode_optimal_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(parity_ptr_array.data()), m_sys_config->BlockSize);
       }
       else if (m_sys_config->CodeType == "UniformLRC")
       {
-        ECProject::encode_uniform_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
+        //ECProject::encode_uniform_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
+        ECProject::encode_uniform_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(parity_ptr_array.data()), m_sys_config->BlockSize);
       }
       else if (m_sys_config->CodeType == "AzureLRC")
       {
-        ECProject::encode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
+        //ECProject::encode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
+        ECProject::encode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(parity_ptr_array.data()), m_sys_config->BlockSize);
       }
 
       for (int i = 0; i < reply.append_keys_size(); i++)
@@ -667,59 +676,14 @@ namespace ECProject
     return false;
   }
 
-  /*bool Client::read()
-  {
-      // 1. 获取数据块的存储位置
-      grpc::ClientContext context;
-      coordinator_proto::RequestRead request;
-      coordinator_proto::ReplyProxyIPsPorts reply;
-
-      request.set_key(m_clientID); // 设置要读取的键
-      grpc::Status status = m_coordinator_ptr->getProxyIPPortForRead(&context, request, &reply);
-
-      if (!status.ok())
-      {
-          std::cout << "[READ402] Failed to get proxy IP and port for read!" << std::endl;
-          return false;
-      }
-
-      // 2. 从代理服务器读取数据块
-      std::vector<char*> data_blocks; // 用于存储读取的数据块
-      for (int i = 0; i < reply.append_keys_size(); i++)
-      {
-          grpc::ClientContext read_context;
-          proxy_proto::RequestReadBlock read_request;
-          proxy_proto::ReplyReadBlock read_reply;
-
-          read_request.set_key(reply.append_keys(i)); // 设置要读取的数据块键
-          read_request.set_proxyip(reply.proxyips(i)); // 设置代理服务器IP
-          read_request.set_proxyport(reply.proxyports(i)); // 设置代理服务器端口
-
-          grpc::Status read_status = m_proxy_ptr->readDataBlock(&read_context, read_request, &read_reply);
-
-          if (!read_status.ok())
-          {
-              std::cout << "[READ410] Failed to read data block from proxy!" << std::endl;
-              return false;
-          }
-
-          // 将读取的数据块存储到 data_blocks 中
-          data_blocks.push_back(read_reply.data());
-      }
-
-      // 3. 处理读取的数据
-      std::cout << "[READ437] Data read successfully!" << std::endl;
-      // 可以将 data_blocks 中的数据返回给调用者，或者进行进一步处理
-      return true;
-  }*/
-
-
   /*
     Function: append within a block stripe
     1. send the append request including the information of the value to the coordinator
     2. get the address of proxy
     3. send the value to the proxy by socket
   */
+
+  /*
   bool
   Client::sub_append(int append_size)
   {
@@ -801,10 +765,11 @@ namespace ECProject
 
     return false;
   }
+  */
 
-  bool Client::degraded_read(int stripe_id, int failed_block_id)
+  bool Client::degraded_read(int stripe_id, int failed_block_id, std::string &value)
   {
-    assert(failed_block_id >= 0 && failed_block_id < m_sys_config->k);
+    //assert(failed_block_id >= 0 && failed_block_id < m_sys_config->k);
 
     grpc::ClientContext context;
     coordinator_proto::KeyAndClientIP request;
@@ -824,8 +789,41 @@ namespace ECProject
     {
       std::cout << "[Client] degraded read success!" << std::endl;
     }
-
-    asio::ip::tcp::socket socket_data(io_context);
+    int block_num = reply.valuesizebytes() / m_sys_config->BlockSize;
+    char ** block_ptrs = new char *[block_num + 1];
+    for(int i = 0; i < block_num + 1; i++){
+      block_ptrs[i] = static_cast<char *>(std::aligned_alloc(32, m_sys_config->BlockSize));
+    }
+    std::cout << "block_num to get: " << block_num << std::endl;
+    std::vector<std::thread> threads;
+    for(int i = 0; i < block_num; i++){
+      threads.push_back(std::thread([&block_ptrs, i, this]() mutable{
+      asio::ip::tcp::socket socket_data(io_context);
+      this->acceptor.accept(socket_data);
+      std::cout << "[Client] accept from proxy done!" << std::endl;
+      asio::error_code error;
+      //std::vector<char> buf(m_sys_config->BlockSize);
+      asio::read(socket_data, asio::buffer(block_ptrs[i], m_sys_config->BlockSize), error);
+      std::cout << "[Client] read from proxy done!" << std::endl;
+      asio::error_code ignore_ec;
+      socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
+      socket_data.close(ignore_ec);
+      }));
+    }
+    for(auto &thread : threads){
+      thread.join();
+    }
+    if(block_num > 1){
+      xor_avx(block_num + 1, m_sys_config->BlockSize, (void **)block_ptrs);
+      value = std::string(block_ptrs[block_num], m_sys_config->BlockSize);      
+    }
+    else{
+      value = std::string(block_ptrs[0], m_sys_config->BlockSize);
+    }
+    for(int i = 0; i < block_num + 1; i++){
+      free(block_ptrs[i]);
+    }
+    /*asio::ip::tcp::socket socket_data(io_context);
     acceptor.accept(socket_data);
     std::cout << "[Client] accept from proxy done!" << std::endl;
     asio::error_code error;
@@ -834,7 +832,7 @@ namespace ECProject
     std::cout << "[Client] read from proxy done!" << std::endl;
     asio::error_code ignore_ec;
     socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
-    socket_data.close(ignore_ec);
+    socket_data.close(ignore_ec);*/
 
     return true;
   }
@@ -870,64 +868,44 @@ namespace ECProject
     coordinator_proto::ReplyProxyIPsPorts reply;
     std::cout << "getting stripe" << std::endl;
     grpc::Status status = m_coordinator_ptr->getStripe(&context, request, &reply);
-
+    
     if(!status.ok())
     {
       std::cout << "[Client] get stripe failed!" << std::endl;
       return false;
     }
-    std::cout << "getting stripe done" << std::endl;
+    std::cout << "getting stripe succeeded" << std::endl;
 
 
     int group_num = reply.proxyips_size();
-    std::unordered_map<std::string, int> proxy_ip_to_group_id;
-    for (int i = 0; i < reply.proxyips_size(); i++)
+    int data_block_num = m_sys_config->k;
+    int block_size = m_sys_config->BlockSize;
+    char * data_ptr_array = new char[data_block_num * block_size];
+    std::vector<std::thread> threads;
+    for(int i = 0; i < data_block_num; i++)
     {
-      proxy_ip_to_group_id[reply.proxyips(i)] = i;
-    }
-    std::vector<std::string> data_bufs(group_num);
-
-    //int BlockSize = m_sys_config->BlockSize;
-    auto get_from_proxy = [this, &data_bufs]()mutable {
-        std::cout << "connecting to proxy" << std::endl;
+      threads.push_back(std::thread(([this, &reply, i, data_ptr_array, block_size]()mutable {
         asio::io_context io_context;
         asio::ip::tcp::socket socket_data(io_context);
         this->acceptor.accept(socket_data);
-        std::cout << "connected to proxy" << std::endl;
-        //asio::ip::tcp::endpoint remote_ep = socket_data.remote_endpoint();
-        //std::cout << "reading stripe from proxy" << remote_ep.address().to_string() << std::endl;
-        /*std::string proxy_ip(16, 0);
-        asio::read(socket_data, asio::buffer(proxy_ip, 16));*/
-        uint32_t group_id;
-        asio::read(socket_data, asio::buffer(&group_id, sizeof(uint32_t)));
-        uint32_t data_size;
-        asio::read(socket_data, asio::buffer(&data_size, sizeof(uint32_t)));
-        std::cout << "reading stripe from proxy" << "data_size: " << data_size << std::endl;
+        uint32_t block_id;
+        //asio::read(socket_data, asio::buffer(&block_id, sizeof(uint32_t)));
+        socket_data.receive(asio::buffer(&block_id, sizeof(uint32_t)));
+        std::cout << "reading stripe from proxy" << ", block_id: " << block_id << std::endl;
         asio::error_code error;
-        std::vector<char> buf(data_size);
-        size_t len = asio::read(socket_data, asio::buffer(buf), error);
-        std::cout << "reading stripe from proxy done. " << "len: " << len << std::endl;
-        std::string ip = socket_data.remote_endpoint().address().to_string();
-        data_bufs[group_id] = std::string(buf.data(), len);
+        //size_t len = asio::read(socket_data, asio::buffer(data_ptr_array + block_id * block_size, block_size), error);
+        socket_data.receive(asio::buffer(data_ptr_array + block_id * block_size, block_size));
         asio::error_code ignore_ec;
         socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
-        std::cout << "reading stripe from proxy" << ip << "done" << std::endl;  
-    };
-    std::vector<std::thread> threads;
-    for (int i = 0; i < group_num; i++)
-    {
-      threads.push_back(std::thread(get_from_proxy));
+        socket_data.close(ignore_ec);
+      })));
     }
-    std::cout << "reading stripe" << std::endl;
-    for (auto &thread : threads)
+    for(auto &thread : threads)
     {
       thread.join();
     }
-    for(auto &data_buf : data_bufs)
-    {
-      value += data_buf;
-    }
-
+    value = std::string(data_ptr_array, data_block_num * block_size);
+    delete[] data_ptr_array;
     return true;
   }
   

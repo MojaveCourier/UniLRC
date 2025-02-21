@@ -3,7 +3,6 @@
 #include <fstream>
 #include <unistd.h>
 #include <sys/stat.h>
-#include "unilrc_encoder.h"
 namespace ECProject
 {
     grpc::Status DatanodeImpl::checkalive(
@@ -390,7 +389,7 @@ namespace ECProject
         return grpc::Status::OK;
     }
 
-    grpc::Status DatanodeImpl::handleMergeParityWithRep(
+    /*grpc::Status DatanodeImpl::handleMergeParityWithRep(
         grpc::ServerContext *context,
         const datanode_proto::MergeParityInfo *merge_parity_info,
         datanode_proto::RequestResult *response)
@@ -441,7 +440,7 @@ namespace ECProject
         }
 
         return grpc::Status::OK;
-    }
+    }*/
 
     grpc::Status DatanodeImpl::handleSet(
         grpc::ServerContext *context,
