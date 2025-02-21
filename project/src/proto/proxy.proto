@@ -164,10 +164,11 @@ message RecoveryRequest{
   int32 replaced_node_port = 2;
   int32 failed_block_id = 3;
   string failed_block_key = 4;
-  repeated string datanodeip = 5;
-  repeated int32 datanodeport = 6;
-  repeated string blockkeys = 7;
-  repeated int32 blockids = 8;
+  int32 cross_rack_num = 5;
+  repeated string datanodeip = 6;
+  repeated int32 datanodeport = 7;
+  repeated string blockkeys = 8;
+  repeated int32 blockids = 9;
 }
 
 // append

@@ -1082,7 +1082,9 @@ int main(int argc, char **argv)
         //sleep(5);
         std::string key = "0";
         std::string value;            // 用于存储检索到的数据
-        bool get_success = client.degraded_read(0, 2, value);
+        int block_id = 0;
+        std::cin >> block_id;
+        bool get_success = client.recovery(0, block_id);
         std::cout << "value size " << value.size() << std::endl;
 
         if (get_success) {

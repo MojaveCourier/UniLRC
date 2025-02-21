@@ -1053,8 +1053,9 @@ namespace ECProject
         }
         else if (code_type == "UniformLRC")
         {
-          std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] decode_cauchy" << std::endl;
-          decode_cauchy(m_sys_config->k, m_sys_config->r, request_copy->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf), m_sys_config->BlockSize);
+          std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] decode_uniform_lrc" << std::endl;
+          decode_uniform_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, request_copy->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf), m_sys_config->BlockSize, request_copy->failed_block_id());
+          std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] decode_uniform_lrc success!" << std::endl;
         }
         else
         {
@@ -1182,11 +1183,61 @@ namespace ECProject
         {
           decode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, recovery_request->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf), m_sys_config->BlockSize, failed_block_id);
         }
+        else if (code_type == "OptimalLRC")
+        {
+          decode_optimal_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, recovery_request->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf), m_sys_config->BlockSize, failed_block_id);
+        }
+        else if (code_type == "UniformLRC")
+        {
+          decode_uniform_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, recovery_request->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf), m_sys_config->BlockSize, failed_block_id);
+        }
         else
         {
           std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] code type error!" << std::endl;
           exit(1);
         }
+        int cross_rack_num = recovery_request->cross_rack_num();
+        if(cross_rack_num){
+          char **cross_rack_bufs = new char*[cross_rack_num];
+          for(int i = 0; i < cross_rack_num; i++)
+          {
+            cross_rack_bufs[i] = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
+          }
+          std::vector<std::thread> get_from_proxies_threads;
+          for(int i = 0; i < cross_rack_num; i++)
+          {
+            get_from_proxies_threads.push_back(std::thread([i, this, cross_rack_bufs, recovery_request](){
+              asio::io_context io_context;
+              asio::ip::tcp::socket socket(io_context);
+              asio::ip::tcp::resolver resolver(io_context);
+              this->acceptor.accept(socket);
+              asio::error_code error;
+              asio::read(socket, asio::buffer(cross_rack_bufs[i], this->m_sys_config->BlockSize), error);
+              if(error)
+              {
+                std::cout << "error in read" << std::endl;
+              }
+            }));
+          }
+          for(int i = 0; i < cross_rack_num; i++)
+          {
+            get_from_proxies_threads[i].join();
+          }
+          char **buf_ptrs = new char*[cross_rack_num + 1];
+          for(int i = 0; i < cross_rack_num; i++)
+          {
+            buf_ptrs[i] = cross_rack_bufs[i];
+          }
+          buf_ptrs[cross_rack_num] = res_buf;
+          xor_avx(cross_rack_num + 1, m_sys_config->BlockSize, (void**)buf_ptrs);
+          for(int i = 0; i < cross_rack_num; i++)
+          {
+            delete cross_rack_bufs[i];
+          }
+          delete cross_rack_bufs;
+          delete buf_ptrs;
+        }
+
         // send to the replaced node
         RecoveryToDatanode(failed_block_key.c_str(), failed_block_id, res_buf, replaced_node_ip.c_str(), replaced_node_port);
       }

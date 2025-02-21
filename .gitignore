@@ -9,5 +9,3 @@ third_party/jerasure
 storage/*
 !storage/.gitkeep
 data/*
-config/*
-small_tools/*

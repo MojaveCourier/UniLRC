@@ -1272,7 +1272,7 @@ namespace ECProject
 
     if (recovery_group_ids.size() == 1)
     {
-      assert((code_type == "UniLRC") || (code_type == "AzureLRC" && failed_block_id >= m_sys_config->k && failed_block_id < m_sys_config->k + m_sys_config->r));
+      assert((code_type == "UniLRC") || (code_type == "AzureLRC" && (failed_block_id < m_sys_config->k || failed_block_id >= m_sys_config->k + m_sys_config->r)));
 
       grpc::ClientContext recovery_context;
       proxy_proto::RecoveryRequest recovery_request;
@@ -1285,6 +1285,7 @@ namespace ECProject
       int t_node_id = randomly_select_a_node(chosen_cluster_id, stripe_id);
       recovery_request.set_replaced_node_ip(m_node_table[t_node_id].node_ip);
       recovery_request.set_replaced_node_port(m_node_table[t_node_id].node_port);
+      recovery_request.set_cross_rack_num(0);
       std::vector<int> blockids = t_stripe.group_to_blocks[recovery_group_ids[0]];
       for (int i = 0; i < int(blockids.size()); i++)
       {
@@ -1312,9 +1313,97 @@ namespace ECProject
     }
     else
     {
-      std::cout << "[Coordinator] recovery across multiple groups has not been implemented!" << std::endl;
-      return false;
+      int dest_group_id = t_stripe.blocks[failed_block_id]->map2group;
+      int dest_cluster_id = get_cluster_id_by_group_id(t_stripe, dest_group_id);
+      std::string dest_proxy_ip = m_cluster_table[dest_cluster_id].proxy_ip;
+      int dest_proxy_port = m_cluster_table[dest_cluster_id].proxy_port;
+      std::vector<int> chosen_cluster_ids;
+      for(int i = 0; i < recovery_group_ids.size(); i++){
+        chosen_cluster_ids.push_back(get_cluster_id_by_group_id(t_stripe, recovery_group_ids[i]));
+      }
+      std::vector<std::string> chosen_proxies;
+      for(int i = 0; i < chosen_cluster_ids.size(); i++){
+        chosen_proxies.push_back(m_cluster_table[chosen_cluster_ids[i]].proxy_ip + ":" + std::to_string(m_cluster_table[chosen_cluster_ids[i]].proxy_port));
+      }
+      std::vector<std::thread> threads;
+      for(int i = 0; i < recovery_group_ids.size(); i++){
+        if(recovery_group_ids[i] == dest_group_id){
+          continue;
+        }
+        threads.push_back(std::thread([&t_stripe, &chosen_proxies, &recovery_group_ids, i, failed_block_id, dest_proxy_ip, dest_proxy_port, this](){
+          grpc::ClientContext degraded_read_context;
+          proxy_proto::DegradedReadRequest degraded_read_request;
+          proxy_proto::GetReply degraded_read_reply;
+          degraded_read_request.set_clientip(dest_proxy_ip);
+          degraded_read_request.set_clientport(dest_proxy_port);
+          degraded_read_request.set_failed_block_id(failed_block_id);
+          degraded_read_request.set_failed_block_key(t_stripe.blocks[failed_block_id]->block_key);
+          std::vector<int> blockids = t_stripe.group_to_blocks[recovery_group_ids[i]];
+          for (int j = 0; j < int(blockids.size()); j++)
+          {
+            if(m_sys_config->CodeType == "AzureLRC" && degraded_read_request.blockids_size() == (m_sys_config->k / m_sys_config->z))
+              break;
+
+            if (blockids[j] == failed_block_id)
+              continue;
+
+            Block *t_block = t_stripe.blocks[blockids[j]];
+            degraded_read_request.add_datanodeip(this->m_node_table[t_block->map2node].node_ip);
+            degraded_read_request.add_datanodeport(this->m_node_table[t_block->map2node].node_port);
+            degraded_read_request.add_blockkeys(t_block->block_key);
+            degraded_read_request.add_blockids(t_block->block_id);
+          }
+          grpc::Status status = this->m_proxy_ptrs[chosen_proxies[i]]->degradedRead(&degraded_read_context, degraded_read_request, &degraded_read_reply);
+          if (status.ok())
+          {
+            std::cout << "[Coordinator] partial degraded read of " << failed_block_id << " success!" << std::endl;
+          }
+          else
+          {
+            std::cout << "[Coordinator] partial degraded read of " << failed_block_id << " failed!" << std::endl;
+          }
+        }));
+
+      }
+      int cross_rack_num = recovery_group_ids.size() - 1;
+      threads.push_back(std::thread([this, &t_stripe, cross_rack_num, dest_group_id, dest_cluster_id, dest_proxy_ip, dest_proxy_port, stripe_id, failed_block_id](){
+        grpc::ClientContext recovery_context;
+        proxy_proto::RecoveryRequest recovery_request;
+        proxy_proto::GetReply recovery_reply;
+        recovery_request.set_failed_block_id(failed_block_id);
+        recovery_request.set_failed_block_key(t_stripe.blocks[failed_block_id]->block_key);
+        int t_node_id = randomly_select_a_node(dest_cluster_id, stripe_id);
+        recovery_request.set_replaced_node_ip(m_node_table[t_node_id].node_ip);
+        recovery_request.set_replaced_node_port(m_node_table[t_node_id].node_port);
+        recovery_request.set_cross_rack_num(cross_rack_num);
+        std::vector<int> blockids = t_stripe.group_to_blocks[dest_group_id];
+        for (int i = 0; i < int(blockids.size()); i++)
+        {
+          if (blockids[i] == failed_block_id)
+            continue;
+
+          Block *t_block = t_stripe.blocks[blockids[i]];
+          recovery_request.add_datanodeip(this->m_node_table[t_block->map2node].node_ip);
+          recovery_request.add_datanodeport(this->m_node_table[t_block->map2node].node_port);
+          recovery_request.add_blockkeys(t_block->block_key);
+          recovery_request.add_blockids(t_block->block_id);
+        }
+        grpc::Status status = this->m_proxy_ptrs[dest_proxy_ip + ":" + std::to_string(dest_proxy_port)]->recovery(&recovery_context, recovery_request, &recovery_reply);
+        if (status.ok() && IF_DEBUG)
+        {
+          std::cout << "[Coordinator] recovery of " << stripe_id << "_" << failed_block_id << " success!" << std::endl;
+        }
+        else if (IF_DEBUG)
+        {
+          std::cout << "[Coordinator] recovery of " << stripe_id << "_" << failed_block_id << " failed!" << std::endl;
+        }
+      }
+      ));
+      for(int i = 0; i < threads.size(); i++){
+        threads[i].join();
+      }
     }
+    return true;
   }
 
   grpc::Status CoordinatorImpl::getRecovery(

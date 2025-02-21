@@ -4,13 +4,17 @@ import netifaces
 
 current_path = os.getcwd()
 parent_path = os.path.dirname(current_path)
-cluster_number = 4
-datanode_number_per_cluster = 4
+cluster_number = 8
+datanode_number_per_cluster = 12
 datanode_port_start = 17600
 cluster_id_start = 0
 iftest = False
 
 proxy_ip_list = [
+    ["0.0.0.0",50405], # for test
+    ["0.0.0.0",50405], # for test
+    ["0.0.0.0",50405], # for test
+    ["0.0.0.0",50405], # for test
     ["0.0.0.0",50405], # for test
     ["0.0.0.0",50405], # for test
     ["0.0.0.0",50405], # for test
