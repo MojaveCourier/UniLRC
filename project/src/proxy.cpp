@@ -1079,11 +1079,17 @@ namespace ECProject
         {
           std::cout << "error in connect" << std::endl;
         }
+        else{
+          std::cout << "connect to" << client_ip << ":" << client_port << " success!" << std::endl;
+        }
 
         asio::write(sock_data, asio::buffer(res_buf, m_sys_config->BlockSize), error);
         if (error)
         {
           std::cout << "error in write" << std::endl;
+        }
+        else{
+          std::cout << "write success!" << std::endl;
         }
         asio::error_code ignore_ec;
         sock_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);
@@ -1209,10 +1215,12 @@ namespace ECProject
           for(int i = 0; i < cross_rack_num; i++)
           {
             get_from_proxies_threads.push_back(std::thread([i, this, &cross_rack_bufs]()mutable{
-              asio::io_context io_context;
-              asio::ip::tcp::socket socket(io_context);
-              asio::ip::tcp::resolver resolver(io_context);
+              //asio::io_context io_context;
+              asio::ip::tcp::socket socket(this->io_context);
+              //asio::ip::tcp::resolver resolver(io_context);
+              std::cout << "connecting to proxy" << std::endl;
               this->acceptor.accept(socket);
+              std::cout << "connected to porxy" << std::endl;
               asio::error_code error;
               asio::read(socket, asio::buffer(cross_rack_bufs[i], this->m_sys_config->BlockSize), error);
               std::cout << "read from proxy"  << std::endl;

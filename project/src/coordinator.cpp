@@ -1335,7 +1335,7 @@ namespace ECProject
           proxy_proto::DegradedReadRequest degraded_read_request;
           proxy_proto::GetReply degraded_read_reply;
           degraded_read_request.set_clientip(dest_proxy_ip);
-          degraded_read_request.set_clientport(dest_proxy_port);
+          degraded_read_request.set_clientport(dest_proxy_port + ECProject::PROXY_PORT_SHIFT);
           degraded_read_request.set_failed_block_id(failed_block_id);
           degraded_read_request.set_failed_block_key(t_stripe.blocks[failed_block_id]->block_key);
           std::vector<int> blockids = t_stripe.group_to_blocks[recovery_group_ids[i]];
@@ -1373,8 +1373,8 @@ namespace ECProject
         recovery_request.set_failed_block_id(failed_block_id);
         recovery_request.set_failed_block_key(t_stripe.blocks[failed_block_id]->block_key);
         int t_node_id = randomly_select_a_node(dest_cluster_id, stripe_id);
-        recovery_request.set_replaced_node_ip(m_node_table[t_node_id].node_ip);
-        recovery_request.set_replaced_node_port(m_node_table[t_node_id].node_port);
+        recovery_request.set_replaced_node_ip(this->m_node_table[t_node_id].node_ip);
+        recovery_request.set_replaced_node_port(this->m_node_table[t_node_id].node_port);
         recovery_request.set_cross_rack_num(cross_rack_num);
         std::vector<int> blockids = t_stripe.group_to_blocks[dest_group_id];
         for (int i = 0; i < int(blockids.size()); i++)
@@ -1391,7 +1391,7 @@ namespace ECProject
           recovery_request.add_blockkeys(t_block->block_key);
           recovery_request.add_blockids(t_block->block_id);
         }
-        std::cout << "[Coordinator] start recovery of " << stripe_id << "_" << failed_block_id << std::endl;
+        //std::cout << "[Coordinator] start recovery of " << stripe_id << "_" << failed_block_id << std::endl;
         grpc::Status status = this->m_proxy_ptrs[dest_proxy_ip + ":" + std::to_string(dest_proxy_port)]->recovery(&recovery_context, recovery_request, &recovery_reply);
         if (status.ok())
         {
