@@ -2,7 +2,7 @@
 <Configuration>
     <AlignedSize>4096</AlignedSize>
     <UnitSize>8192</UnitSize>
-    <BlockSize>1048576</BlockSize>
+    <BlockSize>8192</BlockSize>
     <DatanodeNumPerCluster>12</DatanodeNumPerCluster>
     <ClusterNum>8</ClusterNum>
     <CoordinatorIP>0.0.0.0</CoordinatorIP>
@@ -11,7 +11,7 @@
     <AppendMode>UNILRC_MODE</AppendMode>
     <alpha>1</alpha>
     <!-- LRC: UniLRC; AzureLRC; OptimalLRC; UniformLRC -->
-    <CodeType>AzureLRC</CodeType>
+    <CodeType>UniLRC</CodeType>
     <k>30</k>
     <r>6</r>
     <z>6</z>

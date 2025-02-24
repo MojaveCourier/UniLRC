@@ -1429,6 +1429,39 @@ namespace ECProject
     }
   }
 
+  grpc::Status CoordinatorImpl::fullNodeRecovery(
+    grpc::ServerContext *context,
+    const coordinator_proto::NodeIdFromClient *request,
+    coordinator_proto::RepIfGetSuccess* response)
+  {
+    int node_id = request->node_id();
+    std::string node_ip = m_node_table[node_id].node_ip;
+    int node_port = m_node_table[node_id].node_port;
+    std::vector<int> stripe_ids;
+    std::vector<int> block_ids;
+    for (auto it = m_stripe_table.begin(); it != m_stripe_table.end(); it++)
+    {
+      for (int i = 0; i < int(it->second.blocks.size()); i++)
+      {
+        if (it->second.blocks[i]->map2node == node_id)
+        {
+          stripe_ids.push_back(it->first);
+          block_ids.push_back(it->second.blocks[i]->block_id);
+        }
+      }
+    }
+    std::vector<std::thread> threads;
+    for (int i = 0; i < stripe_ids.size(); i++)
+    {
+      threads.push_back(std::thread(&CoordinatorImpl::recovery_one_stripe, this, stripe_ids[i], block_ids[i]));
+    }
+    for (auto &thread : threads)
+    {
+      thread.join();
+    }
+    return grpc::Status::OK;
+  } 
+
   grpc::Status CoordinatorImpl::delByKey(
       grpc::ServerContext *context,
       const coordinator_proto::KeyFromClient *del_key,

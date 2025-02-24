@@ -34,6 +34,7 @@ static const char* coordinatorService_method_names[] = {
   "/coordinator_proto.coordinatorService/getStripe",
   "/coordinator_proto.coordinatorService/getDegradedReadValue",
   "/coordinator_proto.coordinatorService/getRecovery",
+  "/coordinator_proto.coordinatorService/fullNodeRecovery",
   "/coordinator_proto.coordinatorService/delByKey",
   "/coordinator_proto.coordinatorService/delByStripe",
   "/coordinator_proto.coordinatorService/listStripes",
@@ -58,9 +59,10 @@ coordinatorService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>&
   , rpcmethod_getStripe_(coordinatorService_method_names[9], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_getDegradedReadValue_(coordinatorService_method_names[10], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_getRecovery_(coordinatorService_method_names[11], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_delByKey_(coordinatorService_method_names[12], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_delByStripe_(coordinatorService_method_names[13], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_listStripes_(coordinatorService_method_names[14], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_fullNodeRecovery_(coordinatorService_method_names[12], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_delByKey_(coordinatorService_method_names[13], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_delByStripe_(coordinatorService_method_names[14], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_listStripes_(coordinatorService_method_names[15], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
 ::grpc::Status coordinatorService::Stub::sayHelloToCoordinator(::grpc::ClientContext* context, const ::coordinator_proto::RequestToCoordinator& request, ::coordinator_proto::ReplyFromCoordinator* response) {
@@ -339,6 +341,29 @@ void coordinatorService::Stub::async::getRecovery(::grpc::ClientContext* context
   return result;
 }
 
+::grpc::Status coordinatorService::Stub::fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::coordinator_proto::RepIfGetSuccess* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepIfGetSuccess, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_fullNodeRecovery_, context, request, response);
+}
+
+void coordinatorService::Stub::async::fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepIfGetSuccess* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepIfGetSuccess, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_fullNodeRecovery_, context, request, response, std::move(f));
+}
+
+void coordinatorService::Stub::async::fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepIfGetSuccess* response, ::grpc::ClientUnaryReactor* reactor) {
+  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_fullNodeRecovery_, context, request, response, reactor);
+}
+
+::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>* coordinatorService::Stub::PrepareAsyncfullNodeRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::coordinator_proto::RepIfGetSuccess, ::coordinator_proto::NodeIdFromClient, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_fullNodeRecovery_, context, request);
+}
+
+::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>* coordinatorService::Stub::AsyncfullNodeRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) {
+  auto* result =
+    this->PrepareAsyncfullNodeRecoveryRaw(context, request, cq);
+  result->StartCall();
+  return result;
+}
+
 ::grpc::Status coordinatorService::Stub::delByKey(::grpc::ClientContext* context, const ::coordinator_proto::KeyFromClient& request, ::coordinator_proto::RepIfDeling* response) {
   return ::grpc::internal::BlockingUnaryCall< ::coordinator_proto::KeyFromClient, ::coordinator_proto::RepIfDeling, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_delByKey_, context, request, response);
 }
@@ -532,6 +557,16 @@ coordinatorService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       coordinatorService_method_names[12],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
+      new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepIfGetSuccess, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+          [](coordinatorService::Service* service,
+             ::grpc::ServerContext* ctx,
+             const ::coordinator_proto::NodeIdFromClient* req,
+             ::coordinator_proto::RepIfGetSuccess* resp) {
+               return service->fullNodeRecovery(ctx, req, resp);
+             }, this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      coordinatorService_method_names[13],
+      ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::KeyFromClient, ::coordinator_proto::RepIfDeling, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](coordinatorService::Service* service,
              ::grpc::ServerContext* ctx,
@@ -540,7 +575,7 @@ coordinatorService::Service::Service() {
                return service->delByKey(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      coordinatorService_method_names[13],
+      coordinatorService_method_names[14],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::StripeIdFromClient, ::coordinator_proto::RepIfDeling, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](coordinatorService::Service* service,
@@ -550,7 +585,7 @@ coordinatorService::Service::Service() {
                return service->delByStripe(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      coordinatorService_method_names[14],
+      coordinatorService_method_names[15],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::RequestToCoordinator, ::coordinator_proto::RepStripeIds, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](coordinatorService::Service* service,
@@ -642,6 +677,13 @@ coordinatorService::Service::~Service() {
 }
 
 ::grpc::Status coordinatorService::Service::getRecovery(::grpc::ServerContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RepIfGetSuccess* response) {
+  (void) context;
+  (void) request;
+  (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status coordinatorService::Service::fullNodeRecovery(::grpc::ServerContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepIfGetSuccess* response) {
   (void) context;
   (void) request;
   (void) response;

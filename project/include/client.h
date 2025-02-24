@@ -39,6 +39,7 @@ namespace ECProject
       m_sys_config = ECProject::Config::getInstance(config_path);
       m_toolbox = ECProject::ToolBox::getInstance();
       m_pre_allocated_buffer = new char[m_sys_config->BlockSize * m_sys_config->n];
+      memset(m_pre_allocated_buffer, 0xaa, m_sys_config->BlockSize * m_sys_config->n);
       if (m_sys_config->AppendMode == "CACHED_MODE")
       {
         m_cached_buffer = new char *[m_sys_config->r + m_sys_config->z];
