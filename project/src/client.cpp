@@ -857,6 +857,10 @@ namespace ECProject
     return true;
   }
 
+  bool Client::recovery_full_node(int node_id){
+    
+  }
+
   bool Client::get(std::string key, std::string &value)
   {
     grpc::ClientContext context;
