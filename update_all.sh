@@ -26,7 +26,7 @@ while read -r ip; do
     echo "Copying to host: $ip..."
 
     # 使用 rsync 复制文件夹，排除 third_party 子文件夹
-    rsync -avz --exclude='third_party' --exclude='project/cmake/build/CMakeFiles' --exclude='project/cmake/build/run_client' --exclude='project/cmake/build/main_test' --exclude='project/cmake/build/main_client'  -e ssh "$SOURCE_DIR/" "$ip:$REMOTE_DIR/"
+    rsync -avz --exclude='third_party' --exclude='project/cmake/build/CMakeFiles' --exclude='project/cmake/build/run_client' --exclude='project/cmake/build/main_test' --exclude='project/cmake/build/main_client' --exclude='storage/*' -e ssh "$SOURCE_DIR/" "$ip:$REMOTE_DIR/"
     #rsync -avz -e ssh "$SOURCE_DIR/" "$ip:$REMOTE_DIR/"
 
     # 检查 rsync 是否成功

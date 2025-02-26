@@ -1082,7 +1082,7 @@ namespace ECProject
         else{
           std::cout << "connect to" << client_ip << ":" << client_port << " success!" << std::endl;
         }
-
+        std::cout << "res_buf size: " << m_sys_config->BlockSize << std::endl;
         asio::write(sock_data, asio::buffer(res_buf, m_sys_config->BlockSize), error);
         if (error)
         {
@@ -1145,9 +1145,11 @@ namespace ECProject
       for(int i = 0; i < recovery_request->datanodeip_size(); i++)
       {
         get_bufs[i] = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
+        memset(get_bufs[i], 0, m_sys_config->BlockSize);
       }
       //std::vector<char> res_buf(m_sys_config->BlockSize, 0);
       char *res_buf = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
+      memset(res_buf, 0, m_sys_config->BlockSize);
       std::vector<std::thread> get_threads;
       for (int i = 0; i < recovery_request->datanodeip_size(); i++)
       {

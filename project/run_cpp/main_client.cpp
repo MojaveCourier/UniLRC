@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include "config.h"
+#include <iomanip>
+#include <iostream>
 
 int main(int argc, char **argv)
 {
@@ -15,7 +17,7 @@ int main(int argc, char **argv)
     //std::string sys_config_path = "/home/GuanTian/lql/UniEC/project/config/parameterConfiguration.xml";
     std::cout << "Current working directory: " << sys_config_path << std::endl;
 
-    ECProject::Config *config = ECProject::Config::getInstance(sys_config_path);
+    const ECProject::Config *config = ECProject::Config::getInstance(sys_config_path);
     std::string client_ip = "10.10.1.1";
     int client_port = 44444;
     ECProject::Client client(client_ip, client_port, config->CoordinatorIP + ":" + std::to_string(config->CoordinatorPort), sys_config_path);
@@ -1081,17 +1083,24 @@ int main(int argc, char **argv)
         std::cout << "Data set successfully! Proceeding to get..." << std::endl;
         //sleep(5);
         std::string key = "0";
-        std::string value;            // 用于存储检索到的数据
+                   // 用于存储检索到的数据
         int block_id = 0;
-        std::cin >> block_id;
-        bool success = client.degraded_read(0, block_id, value);
-        //bool success = client.degraded_read(0, 0);
-        std::cout << "value size " << value.size() << std::endl;
+        for(int i = 0; i < 42; i++){
+            //std::cout << "Please input the block id you want to get: ";
+            //std::cin >> block_id;
+            std::string value; 
+            bool success = client.degraded_read(0, i, value);
+            //bool success = client.degraded_read(0, 0);
+            std::cout << "value size " << value.size() << std::endl;
+            for(int i = 0; i < 10; i++){
+                std::cout << std::hex << std::setw(2) << std::setfill('0') << (int)(unsigned char)value[i] << " " << std::dec;
+            }
 
-        if (success) {
-            std::cout << "Data retrieved successfully!" << std::endl;
-        } else {
-            std::cerr << "Failed to retrieve data." << std::endl;
+            if (success) {
+                //std::cout << "Data retrieved successfully!" << std::endl;
+            } else {
+                std::cerr << "Failed to retrieve data." << std::endl;
+            }
         }
     } else {
         std::cerr << "Failed to set data. Cannot proceed to get." << std::endl;

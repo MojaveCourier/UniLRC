@@ -265,6 +265,7 @@ void ECProject::encode_uniform_lrc(int k, int r, int z, unsigned char **data_ptr
 void ECProject::decode_unilrc(const int k, const int r, const int z, const int block_num,
                               const std::vector<int> *block_indexes, unsigned char **block_ptrs, unsigned char *res_ptr, int block_size)
 {
+    memset(res_ptr, 0, block_size);
     unsigned char *vect_ptrs[block_num + 1];
     for(int i = 0; i < block_num; i++){
         vect_ptrs[i] = block_ptrs[i];
@@ -277,31 +278,9 @@ void ECProject::decode_azure_lrc(const int k, const int r, const int z, const in
                                  const std::vector<int> *block_indexes, unsigned char **block_ptrs, unsigned char *res_ptr, int block_size,
                                  int failed_block_id)
 {
+    memset(res_ptr, 0, block_size);
     if (failed_block_id >= k && failed_block_id < k + r)
     {
-        /*unsigned char **rs_matrix;
-        rs_matrix = new unsigned char *[r];
-        for (int i = 0; i < r; i++)
-        {
-            rs_matrix[i] = new unsigned char[k];
-        }
-        gf_gen_rs_matrix(rs_matrix, k + r, k);
-        for (int i = 0; i < block_num; i++)
-        {
-            int block_index = block_indexes->at(i);
-            const unsigned char *mul_table = gf_mul_table_base[rs_matrix[failed_block_id - k][block_index]];
-            for(int j = 0; j < block_size / 64; j+=64){
-                gf_xor_mul_64(res_ptr + j, block_ptrs[block_index] + j, mul_table);
-            }
-            for(int j = block_size / 64 * 64; j < block_size; j++){
-                res_ptr[j] ^= mul_table[block_ptrs[block_index][j]];
-            }
-        }
-        for (int i = 0; i < r; i++)
-        {
-            delete[] rs_matrix[i];
-        }
-        delete[] rs_matrix;*/
         int m = k + r;
         unsigned char *encode_matrix = new unsigned char[m * k];
         memset(encode_matrix, 0,  m * k);
@@ -332,7 +311,7 @@ void ECProject::decode_azure_lrc(const int k, const int r, const int z, const in
         for(int i = 0; i < block_num; i++){
             decode_vector[i] = vect_all[idx_to_row[block_indexes->at(i)]];
         }
-        unsigned char *g_tbls = new unsigned char[k * (r + z) * 32];
+        unsigned char *g_tbls = new unsigned char[block_num * 32];
         ec_init_tables(block_num, 1, decode_vector, g_tbls);
         unsigned char **res_ptr_ptr = new unsigned char *[1];
         res_ptr_ptr[0] = res_ptr;
@@ -360,6 +339,7 @@ void ECProject::decode_azure_lrc(const int k, const int r, const int z, const in
 void ECProject::decode_optimal_lrc(const int k, const int r, const int z, const int block_num,
                                    const std::vector<int> *block_indexes, unsigned char **block_ptrs, unsigned char *res_ptr, int block_size, int failed_block_id)
 {
+    memset(res_ptr, 0, block_size);
     unsigned char *local_vector;
     local_vector = new unsigned char[k];
     gf_gen_local_vector(local_vector, k, r);
@@ -381,29 +361,11 @@ void ECProject::decode_optimal_lrc(const int k, const int r, const int z, const 
         }
     }
 
-    unsigned char *g_tbls = new unsigned char[k * (r + z) * 32];
+    unsigned char *g_tbls = new unsigned char[block_num * 32];
     unsigned char **res_ptr_ptr = new unsigned char *[1];
     res_ptr_ptr[0] = res_ptr;
     ec_init_tables(block_num, 1, decode_vector, g_tbls);
     ec_encode_data_avx2(block_size, block_num, 1, g_tbls, block_ptrs, res_ptr_ptr);
-    /*for (int i = 0; i < block_num; i++)
-    {
-        int block_index = block_indexes->at(i);
-        if (block_index < k)
-        {
-            const unsigned char *mul_table = gf_mul_table_base[local_vector[block_index]];
-            for(int j = 0; j < block_size; j++){
-                res_ptr[j] ^= mul_table[block_ptrs[i][j]];
-            }
-        }
-
-        else
-        {
-            for(int j = 0; j < block_size; j++){
-                res_ptr[j] ^= block_ptrs[i][j];
-            }
-        }
-    }*/
     
     delete[] local_vector;
     delete[] decode_vector;
@@ -413,28 +375,7 @@ void ECProject::decode_optimal_lrc(const int k, const int r, const int z, const 
 void ECProject::decode_uniform_lrc(const int k, const int r, const int z, const int block_num,
                                    const std::vector<int> *block_indexes, unsigned char **block_ptrs, unsigned char *res_ptr, int block_size, int failed_block_id)
 {
-    /*unsigned char *local_vector;
-    local_vector = new unsigned char[k];
-    gf_gen_local_vector(local_vector, k, r);
-    for (int i = 0; i < block_num; i++)
-    {
-        int block_index = block_indexes->at(i);
-        if (block_index < k)
-        {
-            const unsigned char *mul_table = gf_mul_table_base[local_vector[block_index]];
-            for(int j = 0; j < block_size; j++){
-                res_ptr[j] ^= mul_table[block_ptrs[i][j]];
-            }
-        }
-
-        else
-        {
-            for(int j = 0; j < block_size; j++){
-                res_ptr[j] ^= block_ptrs[i][j];
-            }
-        }
-    }
-    delete[] local_vector;*/
+    memset(res_ptr, 0, block_size);
     unsigned char *local_vector;
     local_vector = new unsigned char[k];
     gf_gen_local_vector(local_vector, k, r);
@@ -455,7 +396,7 @@ void ECProject::decode_uniform_lrc(const int k, const int r, const int z, const 
         }
     }
 
-    unsigned char *g_tbls = new unsigned char[k * (r + z) * 32];
+    unsigned char *g_tbls = new unsigned char[block_num * 32];
     unsigned char **res_ptr_ptr = new unsigned char *[1];
     res_ptr_ptr[0] = res_ptr;
     ec_init_tables(block_num, 1, decode_vector, g_tbls);

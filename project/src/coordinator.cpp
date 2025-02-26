@@ -1168,7 +1168,7 @@ namespace ECProject
 
     if (recovery_group_ids.size() == 1)
     {
-      assert((code_type == "UniLRC") || (code_type == "AzureLRC" && (failed_block_id < m_sys_config->k || failed_block_id >= m_sys_config->k + m_sys_config->r)));
+      //assert((code_type == "UniLRC") || (code_type == "AzureLRC" && (failed_block_id < m_sys_config->k || failed_block_id >= m_sys_config->k + m_sys_config->r)));
 
       grpc::ClientContext degraded_read_context;
       proxy_proto::DegradedReadRequest degraded_read_request;
@@ -1228,10 +1228,10 @@ namespace ECProject
           std::vector<int> blockids = t_stripe.group_to_blocks[recovery_group_ids[i]];
           for (int j = 0; j < int(blockids.size()); j++)
           {
-            if(m_sys_config->CodeType == "AzureLRC" && degraded_read_request.blockids_size() == (m_sys_config->k / m_sys_config->z + 1))
+            if(m_sys_config->CodeType == "AzureLRC" && degraded_read_request.blockids_size() == (m_sys_config->k / m_sys_config->z))
               break;
 
-            if (blockids[j] == failed_block_id)
+            if (blockids[j] >= m_sys_config->k + m_sys_config->r || blockids[j] == failed_block_id)
               continue;
 
             Block *t_block = t_stripe.blocks[blockids[j]];
@@ -1344,7 +1344,7 @@ namespace ECProject
             if(m_sys_config->CodeType == "AzureLRC" && degraded_read_request.blockids_size() == (m_sys_config->k / m_sys_config->z))
               break;
 
-            if (blockids[j] == failed_block_id)
+            if (blockids[j] >= m_sys_config->k + m_sys_config->r || blockids[j] == failed_block_id)
               continue;
 
             Block *t_block = t_stripe.blocks[blockids[j]];
@@ -1382,7 +1382,7 @@ namespace ECProject
           if(m_sys_config->CodeType == "AzureLRC" && recovery_request.blockids_size() == (m_sys_config->k / m_sys_config->z))
             break;
 
-          if (blockids[i] == failed_block_id)
+          if (blockids[i] >= m_sys_config->k + m_sys_config->r || blockids[i] == failed_block_id)
             continue;
 
           Block *t_block = t_stripe.blocks[blockids[i]];

@@ -769,8 +769,9 @@ namespace ECProject
 
   bool Client::degraded_read(int stripe_id, int failed_block_id, std::string &value)
   {
+    int block_size = m_sys_config->BlockSize;
     //assert(failed_block_id >= 0 && failed_block_id < m_sys_config->k);
-
+    std::cout <<"block_size: " << block_size << std::endl;
     grpc::ClientContext context;
     coordinator_proto::KeyAndClientIP request;
     request.set_key(std::to_string(stripe_id) + "_" + std::to_string(failed_block_id));
@@ -789,22 +790,21 @@ namespace ECProject
     {
       std::cout << "[Client] degraded read success!" << std::endl;
     }
-    int block_num = reply.valuesizebytes() / m_sys_config->BlockSize;
+    int block_num = reply.valuesizebytes() / block_size;
     char ** block_ptrs = new char *[block_num + 1];
     for(int i = 0; i < block_num + 1; i++){
-      block_ptrs[i] = static_cast<char *>(std::aligned_alloc(32, m_sys_config->BlockSize));
+      block_ptrs[i] = static_cast<char *>(std::aligned_alloc(32, block_size));
+      memset(block_ptrs[i], 0, block_size);
     }
     std::cout << "block_num to get: " << block_num << std::endl;
     std::vector<std::thread> threads;
     for(int i = 0; i < block_num; i++){
-      threads.push_back(std::thread([&block_ptrs, i, this]() mutable{
+      threads.push_back(std::thread([&block_ptrs, i, this, block_size]() mutable{
       asio::ip::tcp::socket socket_data(io_context);
       this->acceptor.accept(socket_data);
-      std::cout << "[Client] accept from proxy done!" << std::endl;
       asio::error_code error;
       //std::vector<char> buf(m_sys_config->BlockSize);
-      asio::read(socket_data, asio::buffer(block_ptrs[i], m_sys_config->BlockSize), error);
-      std::cout << "[Client] read from proxy done!" << std::endl;
+      size_t len = asio::read(socket_data, asio::buffer(block_ptrs[i], block_size), error);
       asio::error_code ignore_ec;
       socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
       socket_data.close(ignore_ec);
@@ -814,15 +814,16 @@ namespace ECProject
       thread.join();
     }
     if(block_num > 1){
-      xor_avx(block_num + 1, m_sys_config->BlockSize, (void **)block_ptrs);
-      value = std::string(block_ptrs[block_num], m_sys_config->BlockSize);      
+      xor_avx(block_num + 1, block_size, (void **)block_ptrs);
+      value = std::string(block_ptrs[block_num], block_size);      
     }
     else{
-      value = std::string(block_ptrs[0], m_sys_config->BlockSize);
+      value = std::string(block_ptrs[0], block_size);
     }
     for(int i = 0; i < block_num + 1; i++){
       free(block_ptrs[i]);
     }
+    delete[] block_ptrs;
     /*asio::ip::tcp::socket socket_data(io_context);
     acceptor.accept(socket_data);
     std::cout << "[Client] accept from proxy done!" << std::endl;
@@ -858,7 +859,18 @@ namespace ECProject
   }
 
   bool Client::recovery_full_node(int node_id){
-    
+    grpc::ClientContext context;
+    coordinator_proto::NodeIdFromClient request;
+    request.set_nodeid(node_id);
+
+    coordinator_proto::RepIfGetSuccess reply;
+    grpc::Status status = m_coordinator_ptr->getRecoveryFullNode(&context, request, &reply);
+    if (!status.ok())
+    {
+      std::cout << "[Client] recovery full node failed!" << std::endl;
+      return false;
+    }
+    return true;
   }
 
   bool Client::get(std::string key, std::string &value)
