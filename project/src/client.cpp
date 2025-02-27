@@ -861,10 +861,10 @@ namespace ECProject
   bool Client::recovery_full_node(int node_id){
     grpc::ClientContext context;
     coordinator_proto::NodeIdFromClient request;
-    request.set_nodeid(node_id);
+    request.set_node_id(node_id);
 
     coordinator_proto::RepIfGetSuccess reply;
-    grpc::Status status = m_coordinator_ptr->getRecoveryFullNode(&context, request, &reply);
+    grpc::Status status = m_coordinator_ptr->fullNodeRecovery(&context, request, &reply);
     if (!status.ok())
     {
       std::cout << "[Client] recovery full node failed!" << std::endl;

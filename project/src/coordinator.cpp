@@ -1300,12 +1300,12 @@ namespace ECProject
       }
 
       status = m_proxy_ptrs[chosen_proxy]->recovery(&recovery_context, recovery_request, &recovery_reply);
-      if (status.ok() && IF_DEBUG)
+      if (status.ok())
       {
         std::cout << "[Coordinator] recovery of " << stripe_id << "_" << failed_block_id << " success!" << std::endl;
         return true;
       }
-      else if (IF_DEBUG)
+      else
       {
         std::cout << "[Coordinator] recovery of " << stripe_id << "_" << failed_block_id << " failed!" << std::endl;
         return false;
@@ -1450,6 +1450,7 @@ namespace ECProject
         }
       }
     }
+    std::cout << "[Coordinator] start full node recovery of " << node_id << " containing " << block_ids.size() << " blocks" << std::endl;
     std::vector<std::thread> threads;
     for (int i = 0; i < stripe_ids.size(); i++)
     {

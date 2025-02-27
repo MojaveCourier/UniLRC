@@ -1078,8 +1078,8 @@ int main(int argc, char **argv)
             break;
         }
     }*/
-    bool set_success = client.set();
-    if (set_success) {
+    //bool set_success = client.set();
+    /*if (set_success) {
         std::cout << "Data set successfully! Proceeding to get..." << std::endl;
         //sleep(5);
         std::string key = "0";
@@ -1104,6 +1104,15 @@ int main(int argc, char **argv)
         }
     } else {
         std::cerr << "Failed to set data. Cannot proceed to get." << std::endl;
+    }*/
+    for(int i = 0; i < 500; i++){
+        client.set();
+    }
+    bool recovery_success = client.recovery_full_node(0);
+    if (recovery_success) {
+        std::cout << "Node recovery successful!" << std::endl;
+    } else {
+        std::cerr << "Node recovery failed." << std::endl;
     }
 
 
