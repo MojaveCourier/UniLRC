@@ -1392,7 +1392,7 @@ namespace ECProject
     }
     for(int i = 0; i < request->block_ids_size(); i++)
     {
-      get_threads[i].detach();
+      get_threads[i].join();
     }
   
 

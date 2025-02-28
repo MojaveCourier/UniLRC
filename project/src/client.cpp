@@ -890,7 +890,7 @@ namespace ECProject
       std::cout << "[Client] get stripe failed!" << std::endl;
       return false;
     }
-    std::cout << "getting stripe succeeded" << std::endl;
+    //std::cout << "getting stripe succeeded" << std::endl;
 
 
     int group_num = reply.proxyips_size();
@@ -907,7 +907,7 @@ namespace ECProject
         uint32_t block_id;
         //asio::read(socket_data, asio::buffer(&block_id, sizeof(uint32_t)));
         socket_data.receive(asio::buffer(&block_id, sizeof(uint32_t)));
-        std::cout << "reading stripe from proxy" << ", block_id: " << block_id << std::endl;
+        //std::cout << "reading stripe from proxy" << ", block_id: " << block_id << std::endl;
         asio::error_code error;
         //size_t len = asio::read(socket_data, asio::buffer(data_ptr_array + block_id * block_size, block_size), error);
         socket_data.receive(asio::buffer(data_ptr_array + block_id * block_size, block_size));
@@ -921,6 +921,11 @@ namespace ECProject
       thread.join();
     }
     value = std::string(data_ptr_array, data_block_num * block_size);
+    if(value.size() != data_block_num * block_size)
+    {
+      std::cout << "[Client] get stripe failed!" << std::endl;
+      return false;
+    }
     delete[] data_ptr_array;
     return true;
   }
