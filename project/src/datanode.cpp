@@ -295,6 +295,10 @@ namespace ECProject
 
                 std::string targetdir = "./storage/" + std::to_string(m_port) + "/";
                 std::string writepath = targetdir + block_key;
+                if(access(targetdir.c_str(), 0) == -1)
+                {
+                    mkdir(targetdir.c_str(), S_IRWXU);
+                }
 
                 std::ofstream ofs(writepath, std::ios::binary | std::ios::out | std::ios::trunc);
                 if (!ofs.is_open())

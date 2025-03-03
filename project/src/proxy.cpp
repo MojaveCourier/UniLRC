@@ -1053,7 +1053,7 @@ namespace ECProject
         }
         else if (code_type == "UniformLRC")
         {
-          std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] decode_uniform_lrc" << std::endl;
+          std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] decode_uniform_lrc" << " failed block id: " << request_copy->failed_block_id() << std::endl;
           decode_uniform_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, request_copy->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf), m_sys_config->BlockSize, request_copy->failed_block_id());
           std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] decode_uniform_lrc success!" << std::endl;
         }
@@ -1063,7 +1063,7 @@ namespace ECProject
           exit(1);
         }
 
-        std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] send to the client" << std::endl;
+        //std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] send to the client" << std::endl;
 
         std::string client_ip = request_copy->clientip();
         int client_port = request_copy->clientport();
@@ -1079,17 +1079,10 @@ namespace ECProject
         {
           std::cout << "error in connect" << std::endl;
         }
-        else{
-          std::cout << "connect to" << client_ip << ":" << client_port << " success!" << std::endl;
-        }
-        std::cout << "res_buf size: " << m_sys_config->BlockSize << std::endl;
         asio::write(sock_data, asio::buffer(res_buf, m_sys_config->BlockSize), error);
         if (error)
         {
           std::cout << "error in write" << std::endl;
-        }
-        else{
-          std::cout << "write success!" << std::endl;
         }
         asio::error_code ignore_ec;
         sock_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);
@@ -1394,29 +1387,7 @@ namespace ECProject
     {
       get_threads[i].join();
     }
-  
-
-
-    /*asio::ip::tcp::socket socket_data(io_context);
-    acceptor.accept(socket_data);*/
-
-
-
-    //asio::write(socket_data, asio::buffer(blocks, total_size), error);
-    /*std::vector<std::thread> threads;
-    for (int i = 0; i < request->block_ids_size(); i++)
-    {
-      threads.push_back(std::thread([&socket_data, &blocks, i, BlockSize, &error]() {
-        asio::write(socket_data, asio::buffer(blocks + i * BlockSize, BlockSize), error);
-      }));
-    }
-    for (int i = 0; i < request->block_ids_size(); i++)
-    {
-      threads[i].join();
-    }
-    asio::error_code ignore_ec;*/
-    //sock_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);  
-
+    delete blocks;
     return grpc::Status();
   }
 } // namespace ECProject

@@ -279,7 +279,15 @@ void ECProject::decode_azure_lrc(const int k, const int r, const int z, const in
                                  int failed_block_id)
 {
     memset(res_ptr, 0, block_size);
-    if (failed_block_id >= k && failed_block_id < k + r)
+    if (failed_block_id < k || failed_block_id >= k + r){
+        unsigned char *vect_ptrs[block_num + 1];
+        for(int i = 0; i < block_num; i++){
+            vect_ptrs[i] = block_ptrs[i];
+        }
+        vect_ptrs[block_num] = res_ptr;
+        xor_gen_avx(block_num + 1, block_size, (void **)vect_ptrs);
+    }
+    else
     {
         int m = k + r;
         unsigned char *encode_matrix = new unsigned char[m * k];
@@ -324,15 +332,6 @@ void ECProject::decode_azure_lrc(const int k, const int r, const int z, const in
         delete[] decode_vector;
         delete[] g_tbls;
         delete[] res_ptr_ptr;
-    }
-    else
-    {   
-        unsigned char *vect_ptrs[block_num + 1];
-        for(int i = 0; i < block_num; i++){
-            vect_ptrs[i] = block_ptrs[i];
-        }
-        vect_ptrs[block_num] = res_ptr;
-        xor_gen_avx(block_num + 1, block_size, (void **)vect_ptrs);
     }
 }
 
