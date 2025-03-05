@@ -1345,9 +1345,7 @@ namespace ECProject
     int BlockSize = m_sys_config->BlockSize;
     char *blocks = new char[BlockSize * request->block_ids_size()];
     uint32_t total_size = BlockSize * request->block_ids_size();
-    std::cout << "total size to send is " << total_size << std::endl;
     uint32_t group_id = request->group_id();
-    std::cout << "group id is " << group_id << std::endl;
 
 
     std::vector<std::thread> get_threads;
@@ -1377,16 +1375,39 @@ namespace ECProject
         }
         std::cout << "connected to client" << std::endl;
         u_int32_t block_id = request->block_ids(i);
-        //asio::write(socket_data, asio::buffer(&block_id, sizeof(u_int32_t)));
-        socket_data.send(asio::buffer(&block_id, sizeof(u_int32_t)));
-        //asio::write_some(socket_data, asio::buffer(blocks + i * BlockSize, BlockSize));
-        socket_data.send(asio::buffer(blocks + i * BlockSize, BlockSize));
+        asio::write(socket_data, asio::buffer(&block_id, sizeof(u_int32_t)));
+        asio::write(socket_data, asio::buffer(blocks + i * BlockSize, BlockSize));
+        asio::error_code ignore_ec;
+        socket_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);
+        socket_data.close(ignore_ec);
     }));
     }
     for(int i = 0; i < request->block_ids_size(); i++)
     {
       get_threads[i].join();
     }
+    /*asio::error_code error;
+    asio::io_context io_context;
+    asio::ip::tcp::socket socket_data(io_context);
+    asio::ip::tcp::resolver resolver(io_context);
+    asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(request->clientip(), std::to_string(request->clientport()));;
+    socket_data.connect(*endpoints, error);
+    if (error)
+    {
+      std::cout << "error in connect" << std::endl;
+    }
+    std::cout << "connected to client" << std::endl;
+    int start_block_id = request->block_ids(0);
+    asio::write(socket_data, asio::buffer(&start_block_id, sizeof(int)));
+    asio::write(socket_data, asio::buffer(&total_size, sizeof(uint32_t)));
+    asio::write(socket_data, asio::buffer(blocks, total_size));
+    asio::error_code ignore_ec;
+    socket_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);
+    socket_data.close(ignore_ec);*/
+
+
+
+
     delete blocks;
     return grpc::Status();
   }

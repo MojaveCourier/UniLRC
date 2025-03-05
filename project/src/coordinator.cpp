@@ -1042,7 +1042,7 @@ namespace ECProject
       for (int i = 0; i < num_data_groups; i++)
       {
         get_cluster_ids.push_back(t_stripe.blocks[t_stripe.group_to_blocks[i][0]]->map2cluster);
-        std::cout << "group " << i << " is mapped to cluster " << get_cluster_ids[i] << std::endl;
+        //std::cout << "group " << i << " is mapped to cluster " << get_cluster_ids[i] << std::endl;
       }
       for (int i = 0; i < num_data_groups; i++)
       {

@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <iostream>
 #include <chrono>
+#include <algorithm>
 
 int main(int argc, char **argv)
 {
@@ -24,14 +25,20 @@ int main(int argc, char **argv)
     ECProject::Client client(client_ip, client_port, config->CoordinatorIP + ":" + std::to_string(config->CoordinatorPort), sys_config_path);
     std::cout << client.sayHelloToCoordinatorByGrpc("Client ID: " + client_ip + ":" + std::to_string(client_port)) << std::endl;
 
+    std::vector<int> parameters = client.get_parameters();
+    int k = parameters[0];
+    int r = parameters[1];
+    int z = parameters[2];
+    int block_size = parameters[3] / 1024 / 1024; //MB
+    int n = k + r + z;
     //for read test
-    /*for(int i = 0; i < 100; i++){
+    for(int i = 0; i < 5; i++){
         client.set();
     }
 
     std::vector<std::chrono::duration<double>> time_spans;
     std::cout << "Set operation succeeded" << std::endl;
-    for(int i = 0; i < 100; i++){
+    for(int i = 0; i < 5; i++){
         std::string value;
         int id = i;
         std::string key = std::to_string(id);
@@ -47,13 +54,20 @@ int main(int argc, char **argv)
     std::cout << "Get operation succeeded" << std::endl;
     std::chrono::duration<double> total_time_span = std::accumulate(time_spans.begin(), time_spans.end(), std::chrono::duration<double>(0));
     std::cout << "Total time: " << total_time_span.count() << std::endl;
-    std::cout << "Average time: " << total_time_span.count() / time_spans.size() << std::endl;*/
+    std::cout << "Average time: " << total_time_span.count() / time_spans.size() << std::endl;
+    std::cout << "Throughput: " << time_spans.size() / total_time_span.count() << std::endl;
+    std::cout << "Speed" << block_size * k / (total_time_span.count() / time_spans.size()) << "MB/s" << std::endl;
+    std::chrono::duration<double> max_time_span = *std::max_element(time_spans.begin(), time_spans.end());
+    std::chrono::duration<double> min_time_span = *std::min_element(time_spans.begin(), time_spans.end());
+    std::cout << "Max speed: " << block_size * k / min_time_span.count() << "MB/s" << std::endl;
+    std::cout << "Min speed: " << block_size * k / max_time_span.count() << "MB/s" << std::endl;
+    
+    
 
 
     //for degraded read test
+
     /*client.set();
-    int k;
-    std::cin >> k;
     std::vector<std::chrono::duration<double>> time_spans;
     for(int i = 0; i < k; i++){
         std::string value;
@@ -66,12 +80,17 @@ int main(int argc, char **argv)
     }
     std::chrono::duration<double> total_time_span = std::accumulate(time_spans.begin(), time_spans.end(), std::chrono::duration<double>(0));
     std::cout << "Total time: " << total_time_span.count() << std::endl;
-    std::cout << "Average time: " << total_time_span.count() / time_spans.size() << std::endl;*/
+    std::cout << "Average time: " << total_time_span.count() / time_spans.size() << std::endl;
+    std::cout << "Throughput: " << time_spans.size() / total_time_span.count() << std::endl;
+    std::cout << "Speed" << block_size / (total_time_span.count() / time_spans.size()) << "MB/s" << std::endl;
+    std::chrono::duration<double> max_time_span = *std::max_element(time_spans.begin(), time_spans.end());
+    std::chrono::duration<double> min_time_span = *std::min_element(time_spans.begin(), time_spans.end());
+    std::cout << "Max speed: " << block_size / min_time_span.count() << "MB/s" << std::endl;
+    std::cout << "Min speed: " << block_size / max_time_span.count() << "MB/s" << std::endl;*/
 
     //for single block repair
-    client.set();
-    int n;
-    std::cin >> n;
+    /*client.set();
+
     std::vector<std::chrono::duration<double>> time_spans;
     for(int i = 0; i < n; i++){
         std::string value;
@@ -84,7 +103,7 @@ int main(int argc, char **argv)
     }
     std::chrono::duration<double> total_time_span = std::accumulate(time_spans.begin(), time_spans.end(), std::chrono::duration<double>(0));
     std::cout << "Total time: " << total_time_span.count() << std::endl;
-    std::cout << "Average time: " << total_time_span.count() / time_spans.size() << std::endl;
+    std::cout << "Average time: " << total_time_span.count() / time_spans.size() << std::endl;*/
 
 
 

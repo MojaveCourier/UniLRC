@@ -1,12 +1,12 @@
 #!/bin/bash
 
-HOSTS_FILE="proxy_hosts"
+HOSTS_FILE="hosts"
 
 USER="root"
 
-REMOTE_COMMAND="cd /users/qiliang/UniEC && sh run_proxy_datanode.sh"
+REMOTE_COMMAND="cd /users/qiliang/UniEC && sh unlimit.sh"
 
-PARALLEL=50
+PARALLEL=5
 
 echo "Running command on all nodes..."
 sudo pdsh -R ssh -w ^$HOSTS_FILE -l $USER -f $PARALLEL "$REMOTE_COMMAND"

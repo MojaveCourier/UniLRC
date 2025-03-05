@@ -4,7 +4,7 @@ HOSTS_FILE="proxy_hosts"
 
 USER="root"
 
-REMOTE_COMMAND="cd /users/qiliang/UniEC && sh run_proxy_datanode.sh"
+REMOTE_COMMAND="sudo apt update"
 
 PARALLEL=50
 

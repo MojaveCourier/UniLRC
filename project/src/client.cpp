@@ -905,27 +905,48 @@ namespace ECProject
         asio::ip::tcp::socket socket_data(io_context);
         this->acceptor.accept(socket_data);
         uint32_t block_id;
-        //asio::read(socket_data, asio::buffer(&block_id, sizeof(uint32_t)));
-        socket_data.receive(asio::buffer(&block_id, sizeof(uint32_t)));
-        //std::cout << "reading stripe from proxy" << ", block_id: " << block_id << std::endl;
+        asio::read(socket_data, asio::buffer(&block_id, sizeof(uint32_t)));
         asio::error_code error;
-        //size_t len = asio::read(socket_data, asio::buffer(data_ptr_array + block_id * block_size, block_size), error);
-        socket_data.receive(asio::buffer(data_ptr_array + block_id * block_size, block_size));
+        size_t len = asio::read(socket_data, asio::buffer(data_ptr_array + block_id * block_size, block_size), error);
+        if(len != block_size)
+        {
+          std::cout << "[Client] get stripe failed!" << std::endl;
+        }
         asio::error_code ignore_ec;
         socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
         socket_data.close(ignore_ec);
       })));
     }
+
+    /*for(int i = 0; i < reply.proxyips_size(); i++)
+    {
+      threads.push_back(std::thread(([this, &reply, i, data_ptr_array, block_size]()mutable {
+        asio::io_context io_context;
+        asio::ip::tcp::socket socket_data(io_context);
+        this->acceptor.accept(socket_data);
+        int start_block_id;
+        uint32_t total_size;
+        asio::read(socket_data, asio::buffer(&start_block_id, sizeof(int)));
+        asio::read(socket_data, asio::buffer(&total_size, sizeof(uint32_t)));
+        asio::error_code error;
+        size_t len = asio::read(socket_data, asio::buffer(data_ptr_array + start_block_id * block_size, total_size), error);
+        if(len != total_size)
+        {
+          std::cout << "[Client] get stripe failed!" << std::endl;
+        }
+        asio::error_code ignore_ec;
+        socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
+        socket_data.close(ignore_ec);
+      })));
+    }*/
+
+
+    
     for(auto &thread : threads)
     {
       thread.join();
     }
     value = std::string(data_ptr_array, data_block_num * block_size);
-    if(value.size() != data_block_num * block_size)
-    {
-      std::cout << "[Client] get stripe failed!" << std::endl;
-      return false;
-    }
     delete[] data_ptr_array;
     return true;
   }
@@ -1094,5 +1115,15 @@ namespace ECProject
       return true;
     }
     return false;
+  }
+
+  std::vector<int> Client::get_parameters()
+  {
+    std::vector<int> parameters;
+    parameters.push_back(m_sys_config->k);
+    parameters.push_back(m_sys_config->r);
+    parameters.push_back(m_sys_config->z);
+    parameters.push_back(m_sys_config->BlockSize);
+    return parameters;
   }
 } // namespace ECProject
