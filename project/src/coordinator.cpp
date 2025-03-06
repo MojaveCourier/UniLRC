@@ -655,7 +655,7 @@ namespace ECProject
     {
       proxy_proto::AppendStripeDataPlacement plan;
       int mapped_cluster_id = stripe->blocks[stripe->group_to_blocks[i][0]]->map2cluster;
-      int append_size = stripe->group_to_blocks[i].size() * m_sys_config->BlockSize;
+      size_t append_size = stripe->group_to_blocks[i].size() * m_sys_config->BlockSize;
 
       plan.set_key(m_toolbox->gen_append_key(stripe->stripe_id, i));
       plan.set_stripe_id(stripe->stripe_id);
@@ -697,9 +697,9 @@ namespace ECProject
       coordinator_proto::ReplyProxyIPsPorts *proxyIPPort)
   {
     std::string clientID = keyValueSize->key();
-    int setSizeBytes = keyValueSize->valuesizebytes();
+    size_t setSizeBytes = keyValueSize->valuesizebytes();
     std::string code_type = m_sys_config->CodeType;
-    assert(setSizeBytes == m_sys_config->BlockSize * m_sys_config->k && "set size is not equal to the block stripe size!");
+    assert(setSizeBytes == static_cast<size_t>(m_sys_config->BlockSize) * static_cast<size_t>(m_sys_config->k) && "set size is not equal to the block stripe size!");
     assert((code_type == "UniLRC" || code_type == "AzureLRC" || code_type == "OptimalLRC" || code_type == "UniformLRC") && "Error: code type must be UniLRC, AzureLRC, OptimalLRC, or UniformLRC!");
 
     Stripe t_stripe;
@@ -734,7 +734,7 @@ namespace ECProject
     }
 
     std::vector<std::thread> threads;
-    int sum_append_size = 0;
+    size_t sum_append_size = 0;
     for (const auto &plan : add_plans)
     {
       threads.push_back(std::thread(&CoordinatorImpl::notify_proxies_ready, this, plan));
@@ -1036,7 +1036,7 @@ namespace ECProject
       if(code_type != "UniLRC"){
         num_data_groups--;
       }
-      std::cout << "[GET] getting stripe " << stripe_id << " with " << num_data_groups << " data groups" << std::endl;
+      //std::cout << "[GET] getting stripe " << stripe_id << " with " << num_data_groups << " data groups" << std::endl;
       std::vector<int> block_num_per_group = get_data_block_num_per_group(k, m_sys_config->r, m_sys_config->z, code_type);
       std::vector<int> get_cluster_ids;
       for (int i = 0; i < num_data_groups; i++)
@@ -1053,7 +1053,7 @@ namespace ECProject
       /*for(int i = 0; i < t_stripe.num_groups; i++){
         m_proxy_ptrs[proxyIPPort->proxyips(i) + ":" + std::to_string(proxyIPPort->proxyports(i))]->getStripe(stripe_id, t_stripe.group_to_blocks[i]);
       }*/
-     std::vector<std::thread> threads;
+      std::vector<std::thread> threads;
       for (int i = 0; i < num_data_groups; i++)
       {
         std::vector<int> block_ids;
@@ -1432,7 +1432,7 @@ namespace ECProject
   grpc::Status CoordinatorImpl::fullNodeRecovery(
     grpc::ServerContext *context,
     const coordinator_proto::NodeIdFromClient *request,
-    coordinator_proto::RepIfGetSuccess* response)
+    coordinator_proto::RepBlockNum* response)
   {
     int node_id = request->node_id();
     std::string node_ip = m_node_table[node_id].node_ip;
@@ -1451,6 +1451,7 @@ namespace ECProject
       }
     }
     std::cout << "[Coordinator] start full node recovery of " << node_id << " containing " << block_ids.size() << " blocks" << std::endl;
+    response->set_block_num(block_ids.size());
     std::vector<std::thread> threads;
     for (int i = 0; i < stripe_ids.size(); i++)
     {

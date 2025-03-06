@@ -2,19 +2,19 @@
 <Configuration>
     <AlignedSize>4096</AlignedSize>
     <UnitSize>8192</UnitSize>
-    <BlockSize>1048576</BlockSize>
+    <BlockSize>67108864</BlockSize>
     <DatanodeNumPerCluster>30</DatanodeNumPerCluster>
     <ClusterNum>19</ClusterNum>
     <CoordinatorIP>10.10.1.2</CoordinatorIP>
     <CoordinatorPort>55555</CoordinatorPort>
     <!-- AppendMode: REP_MODE; UNILRC_MODE; CACHED_MODE -->
     <AppendMode>UNILRC_MODE</AppendMode>
-    <alpha>1</alpha>
+    <alpha>2</alpha>
     <!-- LRC: UniLRC; AzureLRC; OptimalLRC; UniformLRC -->
-    <CodeType>UniLRC</CodeType>
-    <k>30</k>
-    <r>6</r>
-    <z>6</z>
+    <CodeType>UniformLRC</CodeType>
+    <k>112</k>
+    <r>17</r>
+    <z>7</z>
     <!-- <CodeType>UniformLRC</CodeType>
     <k>30</k>
     <r>7</r>

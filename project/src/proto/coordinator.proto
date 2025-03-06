@@ -41,7 +41,7 @@ service coordinatorService {
   rpc getDegradedReadValue(KeyAndClientIP) returns (RepIfGetSuccess) {};
   // recovery
   rpc getRecovery(KeyAndClientIP) returns (RepIfGetSuccess) {};
-  rpc fullNodeRecovery(NodeIdFromClient) returns (RepIfGetSuccess) {};
+  rpc fullNodeRecovery(NodeIdFromClient) returns (RepBlockNum) {};
   // delete
   rpc delByKey(KeyFromClient) returns (RepIfDeling) {};
   rpc delByStripe(StripeIdFromClient) returns (RepIfDeling) {};
@@ -79,7 +79,7 @@ message ReplyFromCoordinator {
 // set
 message RequestProxyIPPort {
   string key = 1;
-  int32 valuesizebytes = 2;
+  uint64 valuesizebytes = 2;
   string append_mode = 3;
 }
 
@@ -97,11 +97,11 @@ message CommitAbortKey {
 
 // append
 message ReplyProxyIPsPorts {
-  int32 sum_append_size = 1;
+  uint64 sum_append_size = 1;
   repeated string append_keys = 2;
   repeated string proxyips = 3;
   repeated int32 proxyports = 4;
-  repeated int32 cluster_slice_sizes = 5;
+  repeated uint64 cluster_slice_sizes = 5;
 }
 
 // set, del, merge
@@ -145,4 +145,8 @@ message RepIfDeling {
 
 message RepStripeIds {
   repeated int32 stripe_ids = 1;
+}
+
+message RepBlockNum {
+  int32 block_num = 1;
 }

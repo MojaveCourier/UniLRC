@@ -341,23 +341,23 @@ void coordinatorService::Stub::async::getRecovery(::grpc::ClientContext* context
   return result;
 }
 
-::grpc::Status coordinatorService::Stub::fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::coordinator_proto::RepIfGetSuccess* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepIfGetSuccess, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_fullNodeRecovery_, context, request, response);
+::grpc::Status coordinatorService::Stub::fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::coordinator_proto::RepBlockNum* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepBlockNum, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_fullNodeRecovery_, context, request, response);
 }
 
-void coordinatorService::Stub::async::fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepIfGetSuccess* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepIfGetSuccess, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_fullNodeRecovery_, context, request, response, std::move(f));
+void coordinatorService::Stub::async::fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepBlockNum* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepBlockNum, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_fullNodeRecovery_, context, request, response, std::move(f));
 }
 
-void coordinatorService::Stub::async::fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepIfGetSuccess* response, ::grpc::ClientUnaryReactor* reactor) {
+void coordinatorService::Stub::async::fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepBlockNum* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_fullNodeRecovery_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>* coordinatorService::Stub::PrepareAsyncfullNodeRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::coordinator_proto::RepIfGetSuccess, ::coordinator_proto::NodeIdFromClient, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_fullNodeRecovery_, context, request);
+::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepBlockNum>* coordinatorService::Stub::PrepareAsyncfullNodeRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::coordinator_proto::RepBlockNum, ::coordinator_proto::NodeIdFromClient, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_fullNodeRecovery_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>* coordinatorService::Stub::AsyncfullNodeRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepBlockNum>* coordinatorService::Stub::AsyncfullNodeRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncfullNodeRecoveryRaw(context, request, cq);
   result->StartCall();
@@ -557,11 +557,11 @@ coordinatorService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       coordinatorService_method_names[12],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepIfGetSuccess, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepBlockNum, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](coordinatorService::Service* service,
              ::grpc::ServerContext* ctx,
              const ::coordinator_proto::NodeIdFromClient* req,
-             ::coordinator_proto::RepIfGetSuccess* resp) {
+             ::coordinator_proto::RepBlockNum* resp) {
                return service->fullNodeRecovery(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
@@ -683,7 +683,7 @@ coordinatorService::Service::~Service() {
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status coordinatorService::Service::fullNodeRecovery(::grpc::ServerContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepIfGetSuccess* response) {
+::grpc::Status coordinatorService::Service::fullNodeRecovery(::grpc::ServerContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepBlockNum* response) {
   (void) context;
   (void) request;
   (void) response;

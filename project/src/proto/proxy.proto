@@ -177,14 +177,14 @@ message AppendStripeDataPlacement{
   int32 cluster_id = 2;
   int32 stripe_id = 3;
   // sum of all append slices within the cluster
-  int32 append_size = 4;
+  uint64 append_size = 4;
   repeated string datanodeip = 5;
   repeated int32 datanodeport = 6;
   repeated string blockkeys = 7;
   repeated int32 blockids = 8;
   // physical offset of each append slice within each block
-  repeated int32 offsets = 9;
-  repeated int32 sizes = 10;
+  repeated uint64 offsets = 9;
+  repeated uint64 sizes = 10;
   bool is_merge_parity = 11;
   string append_mode = 12;
   bool is_serialized = 13;

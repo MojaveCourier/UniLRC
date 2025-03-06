@@ -84,7 +84,7 @@ namespace ECProject
     grpc::Status fullNodeRecovery(
       grpc::ServerContext *context,
       const coordinator_proto::NodeIdFromClient *request,
-      coordinator_proto::RepIfGetSuccess* response) override;
+      coordinator_proto::RepBlockNum* response) override;
     // delete
     grpc::Status delByKey(
         grpc::ServerContext *context,

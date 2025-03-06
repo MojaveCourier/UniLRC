@@ -312,7 +312,7 @@ PROTOBUF_CONSTEXPR AppendStripeDataPlacement::AppendStripeDataPlacement(
   , /*decltype(_impl_.append_mode_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.cluster_id_)*/0
   , /*decltype(_impl_.stripe_id_)*/0
-  , /*decltype(_impl_.append_size_)*/0
+  , /*decltype(_impl_.append_size_)*/uint64_t{0u}
   , /*decltype(_impl_.is_merge_parity_)*/false
   , /*decltype(_impl_.is_serialized_)*/false
   , /*decltype(_impl_._cached_size_)*/{}} {}
@@ -693,9 +693,9 @@ const char descriptor_table_protodef_proxy_2eproto[] PROTOBUF_SECTION_VARIABLE(p
   "\003(\t\022\020\n\010blockids\030\t \003(\005\"\230\002\n\031AppendStripeDa"
   "taPlacement\022\013\n\003key\030\001 \001(\t\022\022\n\ncluster_id\030\002"
   " \001(\005\022\021\n\tstripe_id\030\003 \001(\005\022\023\n\013append_size\030\004"
-  " \001(\005\022\022\n\ndatanodeip\030\005 \003(\t\022\024\n\014datanodeport"
+  " \001(\004\022\022\n\ndatanodeip\030\005 \003(\t\022\024\n\014datanodeport"
   "\030\006 \003(\005\022\021\n\tblockkeys\030\007 \003(\t\022\020\n\010blockids\030\010 "
-  "\003(\005\022\017\n\007offsets\030\t \003(\005\022\r\n\005sizes\030\n \003(\005\022\027\n\017i"
+  "\003(\005\022\017\n\007offsets\030\t \003(\004\022\r\n\005sizes\030\n \003(\004\022\027\n\017i"
   "s_merge_parity\030\013 \001(\010\022\023\n\013append_mode\030\014 \001("
   "\t\022\025\n\ris_serialized\030\r \001(\010\"\034\n\010SetReply\022\020\n\010"
   "ifcommit\030\001 \001(\010\"\036\n\010GetReply\022\022\n\ngetsuccess"
@@ -5960,7 +5960,7 @@ inline void AppendStripeDataPlacement::SharedCtor(
     , decltype(_impl_.append_mode_){}
     , decltype(_impl_.cluster_id_){0}
     , decltype(_impl_.stripe_id_){0}
-    , decltype(_impl_.append_size_){0}
+    , decltype(_impl_.append_size_){uint64_t{0u}}
     , decltype(_impl_.is_merge_parity_){false}
     , decltype(_impl_.is_serialized_){false}
     , /*decltype(_impl_._cached_size_)*/{}
@@ -6052,10 +6052,10 @@ const char* AppendStripeDataPlacement::_InternalParse(const char* ptr, ::_pbi::P
         } else
           goto handle_unusual;
         continue;
-      // int32 append_size = 4;
+      // uint64 append_size = 4;
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
-          _impl_.append_size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          _impl_.append_size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -6112,24 +6112,24 @@ const char* AppendStripeDataPlacement::_InternalParse(const char* ptr, ::_pbi::P
         } else
           goto handle_unusual;
         continue;
-      // repeated int32 offsets = 9;
+      // repeated uint64 offsets = 9;
       case 9:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_offsets(), ptr, ctx);
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt64Parser(_internal_mutable_offsets(), ptr, ctx);
           CHK_(ptr);
         } else if (static_cast<uint8_t>(tag) == 72) {
-          _internal_add_offsets(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
+          _internal_add_offsets(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // repeated int32 sizes = 10;
+      // repeated uint64 sizes = 10;
       case 10:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_sizes(), ptr, ctx);
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt64Parser(_internal_mutable_sizes(), ptr, ctx);
           CHK_(ptr);
         } else if (static_cast<uint8_t>(tag) == 80) {
-          _internal_add_sizes(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
+          _internal_add_sizes(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -6211,10 +6211,10 @@ uint8_t* AppendStripeDataPlacement::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteInt32ToArray(3, this->_internal_stripe_id(), target);
   }
 
-  // int32 append_size = 4;
+  // uint64 append_size = 4;
   if (this->_internal_append_size() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteInt32ToArray(4, this->_internal_append_size(), target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(4, this->_internal_append_size(), target);
   }
 
   // repeated string datanodeip = 5;
@@ -6255,20 +6255,20 @@ uint8_t* AppendStripeDataPlacement::_InternalSerialize(
     }
   }
 
-  // repeated int32 offsets = 9;
+  // repeated uint64 offsets = 9;
   {
     int byte_size = _impl_._offsets_cached_byte_size_.load(std::memory_order_relaxed);
     if (byte_size > 0) {
-      target = stream->WriteInt32Packed(
+      target = stream->WriteUInt64Packed(
           9, _internal_offsets(), byte_size, target);
     }
   }
 
-  // repeated int32 sizes = 10;
+  // repeated uint64 sizes = 10;
   {
     int byte_size = _impl_._sizes_cached_byte_size_.load(std::memory_order_relaxed);
     if (byte_size > 0) {
-      target = stream->WriteInt32Packed(
+      target = stream->WriteUInt64Packed(
           10, _internal_sizes(), byte_size, target);
     }
   }
@@ -6355,10 +6355,10 @@ size_t AppendStripeDataPlacement::ByteSizeLong() const {
     total_size += data_size;
   }
 
-  // repeated int32 offsets = 9;
+  // repeated uint64 offsets = 9;
   {
     size_t data_size = ::_pbi::WireFormatLite::
-      Int32Size(this->_impl_.offsets_);
+      UInt64Size(this->_impl_.offsets_);
     if (data_size > 0) {
       total_size += 1 +
         ::_pbi::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
@@ -6369,10 +6369,10 @@ size_t AppendStripeDataPlacement::ByteSizeLong() const {
     total_size += data_size;
   }
 
-  // repeated int32 sizes = 10;
+  // repeated uint64 sizes = 10;
   {
     size_t data_size = ::_pbi::WireFormatLite::
-      Int32Size(this->_impl_.sizes_);
+      UInt64Size(this->_impl_.sizes_);
     if (data_size > 0) {
       total_size += 1 +
         ::_pbi::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
@@ -6407,9 +6407,9 @@ size_t AppendStripeDataPlacement::ByteSizeLong() const {
     total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_stripe_id());
   }
 
-  // int32 append_size = 4;
+  // uint64 append_size = 4;
   if (this->_internal_append_size() != 0) {
-    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_append_size());
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_append_size());
   }
 
   // bool is_merge_parity = 11;

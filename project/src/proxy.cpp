@@ -425,7 +425,7 @@ namespace ECProject
 
     int stripe_id = append_stripe_data_placement->stripe_id();
     // sum of all append slices allocated to this proxy
-    int cluster_append_size = append_stripe_data_placement->append_size();
+    size_t cluster_append_size = append_stripe_data_placement->append_size();
     // number of slices allocated to this proxy
     int slice_num = append_stripe_data_placement->blockkeys_size();
     bool is_serialized = append_stripe_data_placement->is_serialized();
@@ -1338,22 +1338,19 @@ namespace ECProject
 
     return grpc::Status::OK;
   }
+
   grpc::Status ProxyImpl::getBlocks(grpc::ServerContext *context,
     const proxy_proto::StripeAndBlockIDs *request, proxy_proto::GetReply *response)
   {
     std::cout << "getting blocks" << "[" << request->block_ids(0) << "]" << "to" << "[" << request->block_ids(request->block_ids_size() - 1) << "]" << std::endl;
     int BlockSize = m_sys_config->BlockSize;
-    char *blocks = new char[BlockSize * request->block_ids_size()];
-    uint32_t total_size = BlockSize * request->block_ids_size();
+    size_t total_size = static_cast<size_t> (BlockSize) * request->block_ids_size();
+    char *blocks = new char[total_size];
     uint32_t group_id = request->group_id();
-
 
     std::vector<std::thread> get_threads;
     for(int i = 0; i < request->block_ids_size(); i++)
     {
-      /*get_threads.push_back(std::thread(&ProxyImpl::GetFromDatanode, this, static_cast<const std::string>(request.block_keys(i)), 
-        blocks[i], static_cast<const size_t>(m_sys_config->BlockSize), static_cast<const char*>(request.datanodeips(i).c_str()), 
-        static_cast<const int>(request.datanodeports(i))));*/
       get_threads.push_back(std::thread([this, i, &blocks, &request, BlockSize]() {
         this->GetFromDatanode(
             request->block_keys(i), 
@@ -1362,30 +1359,31 @@ namespace ECProject
             request->datanodeips(i).c_str(), 
             static_cast<int>(request->datanodeports(i))
         );    
-        asio::error_code error;
-        asio::io_context io_context;
-        asio::ip::tcp::socket socket_data(io_context);
-        asio::ip::tcp::resolver resolver(io_context);
-        asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(request->clientip(), std::to_string(request->clientport()));;
-        //asio::connect(sock_data, endpoints);
-        socket_data.connect(*endpoints, error);
-        if (error)
-        {
-          std::cout << "error in connect" << std::endl;
-        }
-        std::cout << "connected to client" << std::endl;
-        u_int32_t block_id = request->block_ids(i);
-        asio::write(socket_data, asio::buffer(&block_id, sizeof(u_int32_t)));
-        asio::write(socket_data, asio::buffer(blocks + i * BlockSize, BlockSize));
-        asio::error_code ignore_ec;
-        socket_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);
-        socket_data.close(ignore_ec);
-    }));
+      }));
+      asio::error_code error;
+      asio::io_context io_context;
+      asio::ip::tcp::socket socket_data(io_context);
+      asio::ip::tcp::resolver resolver(io_context);
+      asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(request->clientip(), std::to_string(request->clientport()));;
+      socket_data.connect(*endpoints, error);
+      if (error)
+      {
+        std::cout << "error in connect" << std::endl;
+      }
+      std::cout << "connected to client" << std::endl;
+      u_int32_t block_id = request->block_ids(i);
+      asio::write(socket_data, asio::buffer(&block_id, sizeof(u_int32_t)));
+      asio::write(socket_data, asio::buffer(blocks + i * static_cast<size_t>(BlockSize), BlockSize));
+      asio::error_code ignore_ec;
+      socket_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);
+      socket_data.close(ignore_ec);
     }
+
     for(int i = 0; i < request->block_ids_size(); i++)
     {
       get_threads[i].join();
     }
+    
     /*asio::error_code error;
     asio::io_context io_context;
     asio::ip::tcp::socket socket_data(io_context);
@@ -1399,16 +1397,14 @@ namespace ECProject
     std::cout << "connected to client" << std::endl;
     int start_block_id = request->block_ids(0);
     asio::write(socket_data, asio::buffer(&start_block_id, sizeof(int)));
-    asio::write(socket_data, asio::buffer(&total_size, sizeof(uint32_t)));
+    asio::write(socket_data, asio::buffer(&total_size, sizeof(size_t)));
     asio::write(socket_data, asio::buffer(blocks, total_size));
     asio::error_code ignore_ec;
     socket_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);
     socket_data.close(ignore_ec);*/
 
-
-
-
     delete blocks;
     return grpc::Status();
   }
+
 } // namespace ECProject

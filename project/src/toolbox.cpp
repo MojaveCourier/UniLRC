@@ -23,7 +23,6 @@ namespace ECProject
       result.push_back(const_cast<char *>(str + currentOffset));
       currentOffset += sizes[i];
     }
-
     assert(currentOffset == str_size && "The buf is not fully devided!");
 
     return result;

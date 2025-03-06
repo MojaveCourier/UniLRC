@@ -63,6 +63,9 @@ extern NodeIdFromClientDefaultTypeInternal _NodeIdFromClient_default_instance_;
 class Parameter;
 struct ParameterDefaultTypeInternal;
 extern ParameterDefaultTypeInternal _Parameter_default_instance_;
+class RepBlockNum;
+struct RepBlockNumDefaultTypeInternal;
+extern RepBlockNumDefaultTypeInternal _RepBlockNum_default_instance_;
 class RepIfDeling;
 struct RepIfDelingDefaultTypeInternal;
 extern RepIfDelingDefaultTypeInternal _RepIfDeling_default_instance_;
@@ -104,6 +107,7 @@ template<> ::coordinator_proto::KeyAndClientIP* Arena::CreateMaybeMessage<::coor
 template<> ::coordinator_proto::KeyFromClient* Arena::CreateMaybeMessage<::coordinator_proto::KeyFromClient>(Arena*);
 template<> ::coordinator_proto::NodeIdFromClient* Arena::CreateMaybeMessage<::coordinator_proto::NodeIdFromClient>(Arena*);
 template<> ::coordinator_proto::Parameter* Arena::CreateMaybeMessage<::coordinator_proto::Parameter>(Arena*);
+template<> ::coordinator_proto::RepBlockNum* Arena::CreateMaybeMessage<::coordinator_proto::RepBlockNum>(Arena*);
 template<> ::coordinator_proto::RepIfDeling* Arena::CreateMaybeMessage<::coordinator_proto::RepIfDeling>(Arena*);
 template<> ::coordinator_proto::RepIfGetSuccess* Arena::CreateMaybeMessage<::coordinator_proto::RepIfGetSuccess>(Arena*);
 template<> ::coordinator_proto::RepIfSetParaSuccess* Arena::CreateMaybeMessage<::coordinator_proto::RepIfSetParaSuccess>(Arena*);
@@ -963,13 +967,13 @@ class RequestProxyIPPort final :
   std::string* _internal_mutable_append_mode();
   public:
 
-  // int32 valuesizebytes = 2;
+  // uint64 valuesizebytes = 2;
   void clear_valuesizebytes();
-  int32_t valuesizebytes() const;
-  void set_valuesizebytes(int32_t value);
+  uint64_t valuesizebytes() const;
+  void set_valuesizebytes(uint64_t value);
   private:
-  int32_t _internal_valuesizebytes() const;
-  void _internal_set_valuesizebytes(int32_t value);
+  uint64_t _internal_valuesizebytes() const;
+  void _internal_set_valuesizebytes(uint64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:coordinator_proto.RequestProxyIPPort)
@@ -982,7 +986,7 @@ class RequestProxyIPPort final :
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr key_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr append_mode_;
-    int32_t valuesizebytes_;
+    uint64_t valuesizebytes_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -1537,35 +1541,35 @@ class ReplyProxyIPsPorts final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
       mutable_proxyports();
 
-  // repeated int32 cluster_slice_sizes = 5;
+  // repeated uint64 cluster_slice_sizes = 5;
   int cluster_slice_sizes_size() const;
   private:
   int _internal_cluster_slice_sizes_size() const;
   public:
   void clear_cluster_slice_sizes();
   private:
-  int32_t _internal_cluster_slice_sizes(int index) const;
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+  uint64_t _internal_cluster_slice_sizes(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
       _internal_cluster_slice_sizes() const;
-  void _internal_add_cluster_slice_sizes(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+  void _internal_add_cluster_slice_sizes(uint64_t value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
       _internal_mutable_cluster_slice_sizes();
   public:
-  int32_t cluster_slice_sizes(int index) const;
-  void set_cluster_slice_sizes(int index, int32_t value);
-  void add_cluster_slice_sizes(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+  uint64_t cluster_slice_sizes(int index) const;
+  void set_cluster_slice_sizes(int index, uint64_t value);
+  void add_cluster_slice_sizes(uint64_t value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
       cluster_slice_sizes() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
       mutable_cluster_slice_sizes();
 
-  // int32 sum_append_size = 1;
+  // uint64 sum_append_size = 1;
   void clear_sum_append_size();
-  int32_t sum_append_size() const;
-  void set_sum_append_size(int32_t value);
+  uint64_t sum_append_size() const;
+  void set_sum_append_size(uint64_t value);
   private:
-  int32_t _internal_sum_append_size() const;
-  void _internal_set_sum_append_size(int32_t value);
+  uint64_t _internal_sum_append_size() const;
+  void _internal_set_sum_append_size(uint64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:coordinator_proto.ReplyProxyIPsPorts)
@@ -1580,9 +1584,9 @@ class ReplyProxyIPsPorts final :
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> proxyips_;
     ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > proxyports_;
     mutable std::atomic<int> _proxyports_cached_byte_size_;
-    ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > cluster_slice_sizes_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > cluster_slice_sizes_;
     mutable std::atomic<int> _cluster_slice_sizes_cached_byte_size_;
-    int32_t sum_append_size_;
+    uint64_t sum_append_size_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -3009,6 +3013,154 @@ class RepStripeIds final :
   union { Impl_ _impl_; };
   friend struct ::TableStruct_coordinator_2eproto;
 };
+// -------------------------------------------------------------------
+
+class RepBlockNum final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:coordinator_proto.RepBlockNum) */ {
+ public:
+  inline RepBlockNum() : RepBlockNum(nullptr) {}
+  ~RepBlockNum() override;
+  explicit PROTOBUF_CONSTEXPR RepBlockNum(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  RepBlockNum(const RepBlockNum& from);
+  RepBlockNum(RepBlockNum&& from) noexcept
+    : RepBlockNum() {
+    *this = ::std::move(from);
+  }
+
+  inline RepBlockNum& operator=(const RepBlockNum& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline RepBlockNum& operator=(RepBlockNum&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const RepBlockNum& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const RepBlockNum* internal_default_instance() {
+    return reinterpret_cast<const RepBlockNum*>(
+               &_RepBlockNum_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    17;
+
+  friend void swap(RepBlockNum& a, RepBlockNum& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(RepBlockNum* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(RepBlockNum* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  RepBlockNum* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<RepBlockNum>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const RepBlockNum& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const RepBlockNum& from) {
+    RepBlockNum::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(RepBlockNum* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "coordinator_proto.RepBlockNum";
+  }
+  protected:
+  explicit RepBlockNum(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kBlockNumFieldNumber = 1,
+  };
+  // int32 block_num = 1;
+  void clear_block_num();
+  int32_t block_num() const;
+  void set_block_num(int32_t value);
+  private:
+  int32_t _internal_block_num() const;
+  void _internal_set_block_num(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:coordinator_proto.RepBlockNum)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    int32_t block_num_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_coordinator_2eproto;
+};
 // ===================================================================
 
 
@@ -3386,22 +3538,22 @@ inline void RequestProxyIPPort::set_allocated_key(std::string* key) {
   // @@protoc_insertion_point(field_set_allocated:coordinator_proto.RequestProxyIPPort.key)
 }
 
-// int32 valuesizebytes = 2;
+// uint64 valuesizebytes = 2;
 inline void RequestProxyIPPort::clear_valuesizebytes() {
-  _impl_.valuesizebytes_ = 0;
+  _impl_.valuesizebytes_ = uint64_t{0u};
 }
-inline int32_t RequestProxyIPPort::_internal_valuesizebytes() const {
+inline uint64_t RequestProxyIPPort::_internal_valuesizebytes() const {
   return _impl_.valuesizebytes_;
 }
-inline int32_t RequestProxyIPPort::valuesizebytes() const {
+inline uint64_t RequestProxyIPPort::valuesizebytes() const {
   // @@protoc_insertion_point(field_get:coordinator_proto.RequestProxyIPPort.valuesizebytes)
   return _internal_valuesizebytes();
 }
-inline void RequestProxyIPPort::_internal_set_valuesizebytes(int32_t value) {
+inline void RequestProxyIPPort::_internal_set_valuesizebytes(uint64_t value) {
   
   _impl_.valuesizebytes_ = value;
 }
-inline void RequestProxyIPPort::set_valuesizebytes(int32_t value) {
+inline void RequestProxyIPPort::set_valuesizebytes(uint64_t value) {
   _internal_set_valuesizebytes(value);
   // @@protoc_insertion_point(field_set:coordinator_proto.RequestProxyIPPort.valuesizebytes)
 }
@@ -3648,22 +3800,22 @@ inline void CommitAbortKey::set_stripe_id(int32_t value) {
 
 // ReplyProxyIPsPorts
 
-// int32 sum_append_size = 1;
+// uint64 sum_append_size = 1;
 inline void ReplyProxyIPsPorts::clear_sum_append_size() {
-  _impl_.sum_append_size_ = 0;
+  _impl_.sum_append_size_ = uint64_t{0u};
 }
-inline int32_t ReplyProxyIPsPorts::_internal_sum_append_size() const {
+inline uint64_t ReplyProxyIPsPorts::_internal_sum_append_size() const {
   return _impl_.sum_append_size_;
 }
-inline int32_t ReplyProxyIPsPorts::sum_append_size() const {
+inline uint64_t ReplyProxyIPsPorts::sum_append_size() const {
   // @@protoc_insertion_point(field_get:coordinator_proto.ReplyProxyIPsPorts.sum_append_size)
   return _internal_sum_append_size();
 }
-inline void ReplyProxyIPsPorts::_internal_set_sum_append_size(int32_t value) {
+inline void ReplyProxyIPsPorts::_internal_set_sum_append_size(uint64_t value) {
   
   _impl_.sum_append_size_ = value;
 }
-inline void ReplyProxyIPsPorts::set_sum_append_size(int32_t value) {
+inline void ReplyProxyIPsPorts::set_sum_append_size(uint64_t value) {
   _internal_set_sum_append_size(value);
   // @@protoc_insertion_point(field_set:coordinator_proto.ReplyProxyIPsPorts.sum_append_size)
 }
@@ -3865,7 +4017,7 @@ ReplyProxyIPsPorts::mutable_proxyports() {
   return _internal_mutable_proxyports();
 }
 
-// repeated int32 cluster_slice_sizes = 5;
+// repeated uint64 cluster_slice_sizes = 5;
 inline int ReplyProxyIPsPorts::_internal_cluster_slice_sizes_size() const {
   return _impl_.cluster_slice_sizes_.size();
 }
@@ -3875,38 +4027,38 @@ inline int ReplyProxyIPsPorts::cluster_slice_sizes_size() const {
 inline void ReplyProxyIPsPorts::clear_cluster_slice_sizes() {
   _impl_.cluster_slice_sizes_.Clear();
 }
-inline int32_t ReplyProxyIPsPorts::_internal_cluster_slice_sizes(int index) const {
+inline uint64_t ReplyProxyIPsPorts::_internal_cluster_slice_sizes(int index) const {
   return _impl_.cluster_slice_sizes_.Get(index);
 }
-inline int32_t ReplyProxyIPsPorts::cluster_slice_sizes(int index) const {
+inline uint64_t ReplyProxyIPsPorts::cluster_slice_sizes(int index) const {
   // @@protoc_insertion_point(field_get:coordinator_proto.ReplyProxyIPsPorts.cluster_slice_sizes)
   return _internal_cluster_slice_sizes(index);
 }
-inline void ReplyProxyIPsPorts::set_cluster_slice_sizes(int index, int32_t value) {
+inline void ReplyProxyIPsPorts::set_cluster_slice_sizes(int index, uint64_t value) {
   _impl_.cluster_slice_sizes_.Set(index, value);
   // @@protoc_insertion_point(field_set:coordinator_proto.ReplyProxyIPsPorts.cluster_slice_sizes)
 }
-inline void ReplyProxyIPsPorts::_internal_add_cluster_slice_sizes(int32_t value) {
+inline void ReplyProxyIPsPorts::_internal_add_cluster_slice_sizes(uint64_t value) {
   _impl_.cluster_slice_sizes_.Add(value);
 }
-inline void ReplyProxyIPsPorts::add_cluster_slice_sizes(int32_t value) {
+inline void ReplyProxyIPsPorts::add_cluster_slice_sizes(uint64_t value) {
   _internal_add_cluster_slice_sizes(value);
   // @@protoc_insertion_point(field_add:coordinator_proto.ReplyProxyIPsPorts.cluster_slice_sizes)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
 ReplyProxyIPsPorts::_internal_cluster_slice_sizes() const {
   return _impl_.cluster_slice_sizes_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
 ReplyProxyIPsPorts::cluster_slice_sizes() const {
   // @@protoc_insertion_point(field_list:coordinator_proto.ReplyProxyIPsPorts.cluster_slice_sizes)
   return _internal_cluster_slice_sizes();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
 ReplyProxyIPsPorts::_internal_mutable_cluster_slice_sizes() {
   return &_impl_.cluster_slice_sizes_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
 ReplyProxyIPsPorts::mutable_cluster_slice_sizes() {
   // @@protoc_insertion_point(field_mutable_list:coordinator_proto.ReplyProxyIPsPorts.cluster_slice_sizes)
   return _internal_mutable_cluster_slice_sizes();
@@ -4375,9 +4527,35 @@ RepStripeIds::mutable_stripe_ids() {
   return _internal_mutable_stripe_ids();
 }
 
+// -------------------------------------------------------------------
+
+// RepBlockNum
+
+// int32 block_num = 1;
+inline void RepBlockNum::clear_block_num() {
+  _impl_.block_num_ = 0;
+}
+inline int32_t RepBlockNum::_internal_block_num() const {
+  return _impl_.block_num_;
+}
+inline int32_t RepBlockNum::block_num() const {
+  // @@protoc_insertion_point(field_get:coordinator_proto.RepBlockNum.block_num)
+  return _internal_block_num();
+}
+inline void RepBlockNum::_internal_set_block_num(int32_t value) {
+  
+  _impl_.block_num_ = value;
+}
+inline void RepBlockNum::set_block_num(int32_t value) {
+  _internal_set_block_num(value);
+  // @@protoc_insertion_point(field_set:coordinator_proto.RepBlockNum.block_num)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

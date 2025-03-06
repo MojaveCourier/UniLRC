@@ -586,7 +586,7 @@ namespace ECProject
     for (int i = 0; i < cluster_slice_data.size(); i++)
     {
       std::vector<size_t> node_slice_sizes(data_block_num_per_group[i] + global_parity_block_num_per_group[i] + local_parity_block_num_per_group[i], m_sys_config->BlockSize);
-      std::vector<char *> node_slices = m_toolbox->splitCharPointer(cluster_slice_data[i], static_cast<size_t>(reply_proxy_ips_ports->cluster_slice_sizes(i)), node_slice_sizes);
+      std::vector<char *> node_slices = m_toolbox->splitCharPointer(cluster_slice_data[i], reply_proxy_ips_ports->cluster_slice_sizes(i), node_slice_sizes);
       data_ptr_array.insert(data_ptr_array.end(), node_slices.begin(), node_slices.begin() + data_block_num_per_group[i]);
       global_parity_ptr_array.insert(global_parity_ptr_array.end(), node_slices.begin() + data_block_num_per_group[i], node_slices.begin() + data_block_num_per_group[i] + global_parity_block_num_per_group[i]);
       local_parity_ptr_array.insert(local_parity_ptr_array.end(), node_slices.begin() + data_block_num_per_group[i] + global_parity_block_num_per_group[i], node_slices.begin() + data_block_num_per_group[i] + global_parity_block_num_per_group[i] + local_parity_block_num_per_group[i]);
@@ -600,7 +600,7 @@ namespace ECProject
     coordinator_proto::RequestProxyIPPort request;
     coordinator_proto::ReplyProxyIPsPorts reply;
     request.set_key(m_clientID);
-    request.set_valuesizebytes(m_sys_config->BlockSize * m_sys_config->k);
+    request.set_valuesizebytes(static_cast<size_t>(m_sys_config->BlockSize) *static_cast<size_t>(m_sys_config->k));
     request.set_append_mode("UNILRC_MODE");
     grpc::Status status = m_coordinator_ptr->uploadSetValue(&get_proxy_ip_port, request, &reply);
 
@@ -646,7 +646,6 @@ namespace ECProject
         //ECProject::encode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
         ECProject::encode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(parity_ptr_array.data()), m_sys_config->BlockSize);
       }
-
       for (int i = 0; i < reply.append_keys_size(); i++)
       {
         threads.push_back(std::thread(&Client::async_append_to_proxies,
@@ -838,7 +837,7 @@ namespace ECProject
     return true;
   }
 
-  bool Client::recovery(int stripe_id, int failed_block_id)
+  int Client::recovery(int stripe_id, int failed_block_id)
   {
     grpc::ClientContext context;
     coordinator_proto::KeyAndClientIP request;
@@ -863,14 +862,14 @@ namespace ECProject
     coordinator_proto::NodeIdFromClient request;
     request.set_node_id(node_id);
 
-    coordinator_proto::RepIfGetSuccess reply;
+    coordinator_proto::RepBlockNum reply;
     grpc::Status status = m_coordinator_ptr->fullNodeRecovery(&context, request, &reply);
     if (!status.ok())
     {
       std::cout << "[Client] recovery full node failed!" << std::endl;
       return false;
     }
-    return true;
+    return reply.block_num();
   }
 
   bool Client::get(std::string key, std::string &value)
@@ -896,8 +895,9 @@ namespace ECProject
     int group_num = reply.proxyips_size();
     int data_block_num = m_sys_config->k;
     int block_size = m_sys_config->BlockSize;
-    char * data_ptr_array = new char[data_block_num * block_size];
+    char * data_ptr_array = new char[static_cast<size_t>(data_block_num) * static_cast<size_t>(block_size)];
     std::vector<std::thread> threads;
+
     for(int i = 0; i < data_block_num; i++)
     {
       threads.push_back(std::thread(([this, &reply, i, data_ptr_array, block_size]()mutable {
@@ -907,7 +907,7 @@ namespace ECProject
         uint32_t block_id;
         asio::read(socket_data, asio::buffer(&block_id, sizeof(uint32_t)));
         asio::error_code error;
-        size_t len = asio::read(socket_data, asio::buffer(data_ptr_array + block_id * block_size, block_size), error);
+        size_t len = asio::read(socket_data, asio::buffer(data_ptr_array + block_id * static_cast<size_t>(block_size), block_size), error);
         if(len != block_size)
         {
           std::cout << "[Client] get stripe failed!" << std::endl;
@@ -917,19 +917,19 @@ namespace ECProject
         socket_data.close(ignore_ec);
       })));
     }
-
-    /*for(int i = 0; i < reply.proxyips_size(); i++)
+    
+    /*or(int i = 0; i < reply.proxyips_size(); i++)
     {
       threads.push_back(std::thread(([this, &reply, i, data_ptr_array, block_size]()mutable {
         asio::io_context io_context;
         asio::ip::tcp::socket socket_data(io_context);
         this->acceptor.accept(socket_data);
         int start_block_id;
-        uint32_t total_size;
+        size_t total_size;
         asio::read(socket_data, asio::buffer(&start_block_id, sizeof(int)));
-        asio::read(socket_data, asio::buffer(&total_size, sizeof(uint32_t)));
+        asio::read(socket_data, asio::buffer(&total_size, sizeof(size_t)));
         asio::error_code error;
-        size_t len = asio::read(socket_data, asio::buffer(data_ptr_array + start_block_id * block_size, total_size), error);
+        size_t len = asio::read(socket_data, asio::buffer(data_ptr_array + static_cast<size_t>(start_block_id) * static_cast<size_t>(block_size), total_size), error);
         if(len != total_size)
         {
           std::cout << "[Client] get stripe failed!" << std::endl;
@@ -939,14 +939,12 @@ namespace ECProject
         socket_data.close(ignore_ec);
       })));
     }*/
-
-
     
     for(auto &thread : threads)
     {
       thread.join();
     }
-    value = std::string(data_ptr_array, data_block_num * block_size);
+    value.assign(data_ptr_array, data_block_num * block_size);
     delete[] data_ptr_array;
     return true;
   }
@@ -957,51 +955,6 @@ namespace ECProject
     1. send the get request including the information of key and clientipport to the coordinator
     2. accept the value transferred from the proxy
   */
-
-  /*bool Client::get(std::string key, std::string &value)
-  {
-    grpc::ClientContext context;
-    coordinator_proto::KeyAndClientIP request;
-    request.set_key(key);
-    request.set_clientip(m_clientIPForGet);
-    request.set_clientport(m_clientPortForGet);
-    // request
-    coordinator_proto::RepIfGetSuccess reply;
-    grpc::Status status = m_coordinator_ptr->getValue(&context, request, &reply);
-    asio::ip::tcp::socket socket_data(io_context);
-    int value_size = reply.valuesizebytes();
-    acceptor.accept(socket_data);
-    asio::error_code error;
-    std::vector<char> buf_key(key.size());
-    std::vector<char> buf(value_size);
-    // read from socket
-    size_t len = asio::read(socket_data, asio::buffer(buf_key, key.size()), error);
-    int flag = 1;
-    for (int i = 0; i < int(key.size()); i++)
-    {
-      if (key[i] != buf_key[i])
-      {
-        flag = 0;
-      }
-    }
-    if (flag)
-    {
-      len = asio::read(socket_data, asio::buffer(buf, value_size), error);
-    }
-    else
-    {
-      std::cout << "[GET] key not matches!" << std::endl;
-    }
-    asio::error_code ignore_ec;
-    socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
-    socket_data.close(ignore_ec);
-    if (flag)
-    {
-      std::cout << "[GET] get key: " << buf_key.data() << " ,valuesize: " << len << std::endl;
-    }
-    value = std::string(buf.data(), buf.size());
-    return true;
-  }*/
 
   /*
     Function: delete

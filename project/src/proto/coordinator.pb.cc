@@ -85,7 +85,7 @@ PROTOBUF_CONSTEXPR RequestProxyIPPort::RequestProxyIPPort(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.key_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.append_mode_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.valuesizebytes_)*/0
+  , /*decltype(_impl_.valuesizebytes_)*/uint64_t{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct RequestProxyIPPortDefaultTypeInternal {
   PROTOBUF_CONSTEXPR RequestProxyIPPortDefaultTypeInternal()
@@ -134,7 +134,7 @@ PROTOBUF_CONSTEXPR ReplyProxyIPsPorts::ReplyProxyIPsPorts(
   , /*decltype(_impl_._proxyports_cached_byte_size_)*/{0}
   , /*decltype(_impl_.cluster_slice_sizes_)*/{}
   , /*decltype(_impl_._cluster_slice_sizes_cached_byte_size_)*/{0}
-  , /*decltype(_impl_.sum_append_size_)*/0
+  , /*decltype(_impl_.sum_append_size_)*/uint64_t{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct ReplyProxyIPsPortsDefaultTypeInternal {
   PROTOBUF_CONSTEXPR ReplyProxyIPsPortsDefaultTypeInternal()
@@ -268,8 +268,21 @@ struct RepStripeIdsDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 RepStripeIdsDefaultTypeInternal _RepStripeIds_default_instance_;
+PROTOBUF_CONSTEXPR RepBlockNum::RepBlockNum(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.block_num_)*/0
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct RepBlockNumDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR RepBlockNumDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~RepBlockNumDefaultTypeInternal() {}
+  union {
+    RepBlockNum _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 RepBlockNumDefaultTypeInternal _RepBlockNum_default_instance_;
 }  // namespace coordinator_proto
-static ::_pb::Metadata file_level_metadata_coordinator_2eproto[17];
+static ::_pb::Metadata file_level_metadata_coordinator_2eproto[18];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_coordinator_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_coordinator_2eproto = nullptr;
 
@@ -416,6 +429,13 @@ const uint32_t TableStruct_coordinator_2eproto::offsets[] PROTOBUF_SECTION_VARIA
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::coordinator_proto::RepStripeIds, _impl_.stripe_ids_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::coordinator_proto::RepBlockNum, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::coordinator_proto::RepBlockNum, _impl_.block_num_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::coordinator_proto::Parameter)},
@@ -435,6 +455,7 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 121, -1, -1, sizeof(::coordinator_proto::NodeIdFromClient)},
   { 128, -1, -1, sizeof(::coordinator_proto::RepIfDeling)},
   { 135, -1, -1, sizeof(::coordinator_proto::RepStripeIds)},
+  { 142, -1, -1, sizeof(::coordinator_proto::RepBlockNum)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -455,6 +476,7 @@ static const ::_pb::Message* const file_default_instances[] = {
   &::coordinator_proto::_NodeIdFromClient_default_instance_._instance,
   &::coordinator_proto::_RepIfDeling_default_instance_._instance,
   &::coordinator_proto::_RepStripeIds_default_instance_._instance,
+  &::coordinator_proto::_RepBlockNum_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_coordinator_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -470,14 +492,14 @@ const char descriptor_table_protodef_coordinator_2eproto[] PROTOBUF_SECTION_VARI
   "rdinator\022\014\n\004name\030\001 \001(\t\"\'\n\024ReplyFromCoord"
   "inator\022\017\n\007message\030\001 \001(\t\"N\n\022RequestProxyI"
   "PPort\022\013\n\003key\030\001 \001(\t\022\026\n\016valuesizebytes\030\002 \001"
-  "(\005\022\023\n\013append_mode\030\003 \001(\t\"6\n\020ReplyProxyIPP"
+  "(\004\022\023\n\013append_mode\030\003 \001(\t\"6\n\020ReplyProxyIPP"
   "ort\022\017\n\007proxyip\030\001 \001(\t\022\021\n\tproxyport\030\002 \001(\005\""
   "W\n\016CommitAbortKey\022\013\n\003key\030\001 \001(\t\022\030\n\020ifcomm"
   "itmetadata\030\002 \001(\010\022\013\n\003opp\030\003 \001(\005\022\021\n\tstripe_"
   "id\030\004 \001(\005\"\205\001\n\022ReplyProxyIPsPorts\022\027\n\017sum_a"
-  "ppend_size\030\001 \001(\005\022\023\n\013append_keys\030\002 \003(\t\022\020\n"
+  "ppend_size\030\001 \001(\004\022\023\n\013append_keys\030\002 \003(\t\022\020\n"
   "\010proxyips\030\003 \003(\t\022\022\n\nproxyports\030\004 \003(\005\022\033\n\023c"
-  "luster_slice_sizes\030\005 \003(\005\";\n\014AskIfSuccess"
+  "luster_slice_sizes\030\005 \003(\004\";\n\014AskIfSuccess"
   "\022\013\n\003key\030\001 \001(\t\022\013\n\003opp\030\002 \001(\005\022\021\n\tstripe_id\030"
   "\003 \001(\005\" \n\014RepIfSuccess\022\020\n\010ifcommit\030\001 \001(\010\""
   "C\n\016KeyAndClientIP\022\013\n\003key\030\001 \001(\t\022\020\n\010client"
@@ -487,51 +509,52 @@ const char descriptor_table_protodef_coordinator_2eproto[] PROTOBUF_SECTION_VARI
   "\001(\t\"\'\n\022StripeIdFromClient\022\021\n\tstripe_id\030\001"
   " \001(\005\"#\n\020NodeIdFromClient\022\017\n\007node_id\030\001 \001("
   "\005\"\037\n\013RepIfDeling\022\020\n\010ifdeling\030\001 \001(\010\"\"\n\014Re"
-  "pStripeIds\022\022\n\nstripe_ids\030\001 \003(\0052\354\013\n\022coord"
-  "inatorService\022k\n\025sayHelloToCoordinator\022\'"
-  ".coordinator_proto.RequestToCoordinator\032"
-  "\'.coordinator_proto.ReplyFromCoordinator"
-  "\"\000\022`\n\ncheckalive\022\'.coordinator_proto.Req"
-  "uestToCoordinator\032\'.coordinator_proto.Re"
-  "plyFromCoordinator\"\000\022V\n\014setParameter\022\034.c"
-  "oordinator_proto.Parameter\032&.coordinator"
-  "_proto.RepIfSetParaSuccess\"\000\022d\n\024uploadOr"
-  "iginKeyValue\022%.coordinator_proto.Request"
-  "ProxyIPPort\032#.coordinator_proto.ReplyPro"
-  "xyIPPort\"\000\022a\n\021reportCommitAbort\022!.coordi"
-  "nator_proto.CommitAbortKey\032\'.coordinator"
-  "_proto.ReplyFromCoordinator\"\000\022V\n\020checkCo"
-  "mmitAbort\022\037.coordinator_proto.AskIfSucce"
-  "ss\032\037.coordinator_proto.RepIfSuccess\"\000\022`\n"
-  "\016uploadSetValue\022%.coordinator_proto.Requ"
-  "estProxyIPPort\032%.coordinator_proto.Reply"
-  "ProxyIPsPorts\"\000\022c\n\021uploadAppendValue\022%.c"
-  "oordinator_proto.RequestProxyIPPort\032%.co"
-  "ordinator_proto.ReplyProxyIPsPorts\"\000\022S\n\010"
-  "getValue\022!.coordinator_proto.KeyAndClien"
-  "tIP\032\".coordinator_proto.RepIfGetSuccess\""
-  "\000\022W\n\tgetStripe\022!.coordinator_proto.KeyAn"
-  "dClientIP\032%.coordinator_proto.ReplyProxy"
-  "IPsPorts\"\000\022_\n\024getDegradedReadValue\022!.coo"
-  "rdinator_proto.KeyAndClientIP\032\".coordina"
-  "tor_proto.RepIfGetSuccess\"\000\022V\n\013getRecove"
-  "ry\022!.coordinator_proto.KeyAndClientIP\032\"."
-  "coordinator_proto.RepIfGetSuccess\"\000\022]\n\020f"
-  "ullNodeRecovery\022#.coordinator_proto.Node"
-  "IdFromClient\032\".coordinator_proto.RepIfGe"
-  "tSuccess\"\000\022N\n\010delByKey\022 .coordinator_pro"
-  "to.KeyFromClient\032\036.coordinator_proto.Rep"
-  "IfDeling\"\000\022V\n\013delByStripe\022%.coordinator_"
-  "proto.StripeIdFromClient\032\036.coordinator_p"
-  "roto.RepIfDeling\"\000\022Y\n\013listStripes\022\'.coor"
-  "dinator_proto.RequestToCoordinator\032\037.coo"
-  "rdinator_proto.RepStripeIds\"\000b\006proto3"
+  "pStripeIds\022\022\n\nstripe_ids\030\001 \003(\005\" \n\013RepBlo"
+  "ckNum\022\021\n\tblock_num\030\001 \001(\0052\350\013\n\022coordinator"
+  "Service\022k\n\025sayHelloToCoordinator\022\'.coord"
+  "inator_proto.RequestToCoordinator\032\'.coor"
+  "dinator_proto.ReplyFromCoordinator\"\000\022`\n\n"
+  "checkalive\022\'.coordinator_proto.RequestTo"
+  "Coordinator\032\'.coordinator_proto.ReplyFro"
+  "mCoordinator\"\000\022V\n\014setParameter\022\034.coordin"
+  "ator_proto.Parameter\032&.coordinator_proto"
+  ".RepIfSetParaSuccess\"\000\022d\n\024uploadOriginKe"
+  "yValue\022%.coordinator_proto.RequestProxyI"
+  "PPort\032#.coordinator_proto.ReplyProxyIPPo"
+  "rt\"\000\022a\n\021reportCommitAbort\022!.coordinator_"
+  "proto.CommitAbortKey\032\'.coordinator_proto"
+  ".ReplyFromCoordinator\"\000\022V\n\020checkCommitAb"
+  "ort\022\037.coordinator_proto.AskIfSuccess\032\037.c"
+  "oordinator_proto.RepIfSuccess\"\000\022`\n\016uploa"
+  "dSetValue\022%.coordinator_proto.RequestPro"
+  "xyIPPort\032%.coordinator_proto.ReplyProxyI"
+  "PsPorts\"\000\022c\n\021uploadAppendValue\022%.coordin"
+  "ator_proto.RequestProxyIPPort\032%.coordina"
+  "tor_proto.ReplyProxyIPsPorts\"\000\022S\n\010getVal"
+  "ue\022!.coordinator_proto.KeyAndClientIP\032\"."
+  "coordinator_proto.RepIfGetSuccess\"\000\022W\n\tg"
+  "etStripe\022!.coordinator_proto.KeyAndClien"
+  "tIP\032%.coordinator_proto.ReplyProxyIPsPor"
+  "ts\"\000\022_\n\024getDegradedReadValue\022!.coordinat"
+  "or_proto.KeyAndClientIP\032\".coordinator_pr"
+  "oto.RepIfGetSuccess\"\000\022V\n\013getRecovery\022!.c"
+  "oordinator_proto.KeyAndClientIP\032\".coordi"
+  "nator_proto.RepIfGetSuccess\"\000\022Y\n\020fullNod"
+  "eRecovery\022#.coordinator_proto.NodeIdFrom"
+  "Client\032\036.coordinator_proto.RepBlockNum\"\000"
+  "\022N\n\010delByKey\022 .coordinator_proto.KeyFrom"
+  "Client\032\036.coordinator_proto.RepIfDeling\"\000"
+  "\022V\n\013delByStripe\022%.coordinator_proto.Stri"
+  "peIdFromClient\032\036.coordinator_proto.RepIf"
+  "Deling\"\000\022Y\n\013listStripes\022\'.coordinator_pr"
+  "oto.RequestToCoordinator\032\037.coordinator_p"
+  "roto.RepStripeIds\"\000b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_coordinator_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_coordinator_2eproto = {
-    false, false, 2717, descriptor_table_protodef_coordinator_2eproto,
+    false, false, 2747, descriptor_table_protodef_coordinator_2eproto,
     "coordinator.proto",
-    &descriptor_table_coordinator_2eproto_once, nullptr, 0, 17,
+    &descriptor_table_coordinator_2eproto_once, nullptr, 0, 18,
     schemas, file_default_instances, TableStruct_coordinator_2eproto::offsets,
     file_level_metadata_coordinator_2eproto, file_level_enum_descriptors_coordinator_2eproto,
     file_level_service_descriptors_coordinator_2eproto,
@@ -1556,7 +1579,7 @@ inline void RequestProxyIPPort::SharedCtor(
   new (&_impl_) Impl_{
       decltype(_impl_.key_){}
     , decltype(_impl_.append_mode_){}
-    , decltype(_impl_.valuesizebytes_){0}
+    , decltype(_impl_.valuesizebytes_){uint64_t{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.key_.InitDefault();
@@ -1596,7 +1619,7 @@ void RequestProxyIPPort::Clear() {
 
   _impl_.key_.ClearToEmpty();
   _impl_.append_mode_.ClearToEmpty();
-  _impl_.valuesizebytes_ = 0;
+  _impl_.valuesizebytes_ = uint64_t{0u};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -1616,10 +1639,10 @@ const char* RequestProxyIPPort::_InternalParse(const char* ptr, ::_pbi::ParseCon
         } else
           goto handle_unusual;
         continue;
-      // int32 valuesizebytes = 2;
+      // uint64 valuesizebytes = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
-          _impl_.valuesizebytes_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          _impl_.valuesizebytes_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -1673,10 +1696,10 @@ uint8_t* RequestProxyIPPort::_InternalSerialize(
         1, this->_internal_key(), target);
   }
 
-  // int32 valuesizebytes = 2;
+  // uint64 valuesizebytes = 2;
   if (this->_internal_valuesizebytes() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteInt32ToArray(2, this->_internal_valuesizebytes(), target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(2, this->_internal_valuesizebytes(), target);
   }
 
   // string append_mode = 3;
@@ -1719,9 +1742,9 @@ size_t RequestProxyIPPort::ByteSizeLong() const {
         this->_internal_append_mode());
   }
 
-  // int32 valuesizebytes = 2;
+  // uint64 valuesizebytes = 2;
   if (this->_internal_valuesizebytes() != 0) {
-    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_valuesizebytes());
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_valuesizebytes());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
@@ -2345,7 +2368,7 @@ inline void ReplyProxyIPsPorts::SharedCtor(
     , /*decltype(_impl_._proxyports_cached_byte_size_)*/{0}
     , decltype(_impl_.cluster_slice_sizes_){arena}
     , /*decltype(_impl_._cluster_slice_sizes_cached_byte_size_)*/{0}
-    , decltype(_impl_.sum_append_size_){0}
+    , decltype(_impl_.sum_append_size_){uint64_t{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -2381,7 +2404,7 @@ void ReplyProxyIPsPorts::Clear() {
   _impl_.proxyips_.Clear();
   _impl_.proxyports_.Clear();
   _impl_.cluster_slice_sizes_.Clear();
-  _impl_.sum_append_size_ = 0;
+  _impl_.sum_append_size_ = uint64_t{0u};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -2391,10 +2414,10 @@ const char* ReplyProxyIPsPorts::_InternalParse(const char* ptr, ::_pbi::ParseCon
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // int32 sum_append_size = 1;
+      // uint64 sum_append_size = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
-          _impl_.sum_append_size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          _impl_.sum_append_size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -2440,13 +2463,13 @@ const char* ReplyProxyIPsPorts::_InternalParse(const char* ptr, ::_pbi::ParseCon
         } else
           goto handle_unusual;
         continue;
-      // repeated int32 cluster_slice_sizes = 5;
+      // repeated uint64 cluster_slice_sizes = 5;
       case 5:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_cluster_slice_sizes(), ptr, ctx);
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt64Parser(_internal_mutable_cluster_slice_sizes(), ptr, ctx);
           CHK_(ptr);
         } else if (static_cast<uint8_t>(tag) == 40) {
-          _internal_add_cluster_slice_sizes(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
+          _internal_add_cluster_slice_sizes(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -2480,10 +2503,10 @@ uint8_t* ReplyProxyIPsPorts::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // int32 sum_append_size = 1;
+  // uint64 sum_append_size = 1;
   if (this->_internal_sum_append_size() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_sum_append_size(), target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_sum_append_size(), target);
   }
 
   // repeated string append_keys = 2;
@@ -2515,11 +2538,11 @@ uint8_t* ReplyProxyIPsPorts::_InternalSerialize(
     }
   }
 
-  // repeated int32 cluster_slice_sizes = 5;
+  // repeated uint64 cluster_slice_sizes = 5;
   {
     int byte_size = _impl_._cluster_slice_sizes_cached_byte_size_.load(std::memory_order_relaxed);
     if (byte_size > 0) {
-      target = stream->WriteInt32Packed(
+      target = stream->WriteUInt64Packed(
           5, _internal_cluster_slice_sizes(), byte_size, target);
     }
   }
@@ -2570,10 +2593,10 @@ size_t ReplyProxyIPsPorts::ByteSizeLong() const {
     total_size += data_size;
   }
 
-  // repeated int32 cluster_slice_sizes = 5;
+  // repeated uint64 cluster_slice_sizes = 5;
   {
     size_t data_size = ::_pbi::WireFormatLite::
-      Int32Size(this->_impl_.cluster_slice_sizes_);
+      UInt64Size(this->_impl_.cluster_slice_sizes_);
     if (data_size > 0) {
       total_size += 1 +
         ::_pbi::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
@@ -2584,9 +2607,9 @@ size_t ReplyProxyIPsPorts::ByteSizeLong() const {
     total_size += data_size;
   }
 
-  // int32 sum_append_size = 1;
+  // uint64 sum_append_size = 1;
   if (this->_internal_sum_append_size() != 0) {
-    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_sum_append_size());
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_sum_append_size());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
@@ -4506,6 +4529,184 @@ void RepStripeIds::InternalSwap(RepStripeIds* other) {
       file_level_metadata_coordinator_2eproto[16]);
 }
 
+// ===================================================================
+
+class RepBlockNum::_Internal {
+ public:
+};
+
+RepBlockNum::RepBlockNum(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:coordinator_proto.RepBlockNum)
+}
+RepBlockNum::RepBlockNum(const RepBlockNum& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  RepBlockNum* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.block_num_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _this->_impl_.block_num_ = from._impl_.block_num_;
+  // @@protoc_insertion_point(copy_constructor:coordinator_proto.RepBlockNum)
+}
+
+inline void RepBlockNum::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.block_num_){0}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+}
+
+RepBlockNum::~RepBlockNum() {
+  // @@protoc_insertion_point(destructor:coordinator_proto.RepBlockNum)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void RepBlockNum::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void RepBlockNum::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void RepBlockNum::Clear() {
+// @@protoc_insertion_point(message_clear_start:coordinator_proto.RepBlockNum)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.block_num_ = 0;
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* RepBlockNum::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // int32 block_num = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.block_num_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* RepBlockNum::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:coordinator_proto.RepBlockNum)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // int32 block_num = 1;
+  if (this->_internal_block_num() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_block_num(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:coordinator_proto.RepBlockNum)
+  return target;
+}
+
+size_t RepBlockNum::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:coordinator_proto.RepBlockNum)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // int32 block_num = 1;
+  if (this->_internal_block_num() != 0) {
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_block_num());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData RepBlockNum::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    RepBlockNum::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*RepBlockNum::GetClassData() const { return &_class_data_; }
+
+
+void RepBlockNum::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<RepBlockNum*>(&to_msg);
+  auto& from = static_cast<const RepBlockNum&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:coordinator_proto.RepBlockNum)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_block_num() != 0) {
+    _this->_internal_set_block_num(from._internal_block_num());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void RepBlockNum::CopyFrom(const RepBlockNum& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:coordinator_proto.RepBlockNum)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool RepBlockNum::IsInitialized() const {
+  return true;
+}
+
+void RepBlockNum::InternalSwap(RepBlockNum* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_.block_num_, other->_impl_.block_num_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata RepBlockNum::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_coordinator_2eproto_getter, &descriptor_table_coordinator_2eproto_once,
+      file_level_metadata_coordinator_2eproto[17]);
+}
+
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace coordinator_proto
 PROTOBUF_NAMESPACE_OPEN
@@ -4576,6 +4777,10 @@ Arena::CreateMaybeMessage< ::coordinator_proto::RepIfDeling >(Arena* arena) {
 template<> PROTOBUF_NOINLINE ::coordinator_proto::RepStripeIds*
 Arena::CreateMaybeMessage< ::coordinator_proto::RepStripeIds >(Arena* arena) {
   return Arena::CreateMessageInternal< ::coordinator_proto::RepStripeIds >(arena);
+}
+template<> PROTOBUF_NOINLINE ::coordinator_proto::RepBlockNum*
+Arena::CreateMaybeMessage< ::coordinator_proto::RepBlockNum >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::coordinator_proto::RepBlockNum >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

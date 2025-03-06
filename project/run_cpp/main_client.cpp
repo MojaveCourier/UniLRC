@@ -56,11 +56,11 @@ int main(int argc, char **argv)
     std::cout << "Total time: " << total_time_span.count() << std::endl;
     std::cout << "Average time: " << total_time_span.count() / time_spans.size() << std::endl;
     std::cout << "Throughput: " << time_spans.size() / total_time_span.count() << std::endl;
-    std::cout << "Speed" << block_size * k / (total_time_span.count() / time_spans.size()) << "MB/s" << std::endl;
+    std::cout << "Speed" << static_cast<size_t>(block_size) * k / (total_time_span.count() / time_spans.size()) << "MB/s" << std::endl;
     std::chrono::duration<double> max_time_span = *std::max_element(time_spans.begin(), time_spans.end());
     std::chrono::duration<double> min_time_span = *std::min_element(time_spans.begin(), time_spans.end());
-    std::cout << "Max speed: " << block_size * k / min_time_span.count() << "MB/s" << std::endl;
-    std::cout << "Min speed: " << block_size * k / max_time_span.count() << "MB/s" << std::endl;
+    std::cout << "Max speed: " << static_cast<size_t>(block_size) * k / min_time_span.count() << "MB/s" << std::endl;
+    std::cout << "Min speed: " << static_cast<size_t>(block_size) * k / max_time_span.count() << "MB/s" << std::endl;
     
     
 

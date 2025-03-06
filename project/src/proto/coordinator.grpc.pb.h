@@ -142,12 +142,12 @@ class coordinatorService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfGetSuccess>> PrepareAsyncgetRecovery(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfGetSuccess>>(PrepareAsyncgetRecoveryRaw(context, request, cq));
     }
-    virtual ::grpc::Status fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::coordinator_proto::RepIfGetSuccess* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfGetSuccess>> AsyncfullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfGetSuccess>>(AsyncfullNodeRecoveryRaw(context, request, cq));
+    virtual ::grpc::Status fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::coordinator_proto::RepBlockNum* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepBlockNum>> AsyncfullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepBlockNum>>(AsyncfullNodeRecoveryRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfGetSuccess>> PrepareAsyncfullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfGetSuccess>>(PrepareAsyncfullNodeRecoveryRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepBlockNum>> PrepareAsyncfullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepBlockNum>>(PrepareAsyncfullNodeRecoveryRaw(context, request, cq));
     }
     // delete
     virtual ::grpc::Status delByKey(::grpc::ClientContext* context, const ::coordinator_proto::KeyFromClient& request, ::coordinator_proto::RepIfDeling* response) = 0;
@@ -206,8 +206,8 @@ class coordinatorService final {
       // recovery
       virtual void getRecovery(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RepIfGetSuccess* response, std::function<void(::grpc::Status)>) = 0;
       virtual void getRecovery(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RepIfGetSuccess* response, ::grpc::ClientUnaryReactor* reactor) = 0;
-      virtual void fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepIfGetSuccess* response, std::function<void(::grpc::Status)>) = 0;
-      virtual void fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepIfGetSuccess* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      virtual void fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepBlockNum* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepBlockNum* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       // delete
       virtual void delByKey(::grpc::ClientContext* context, const ::coordinator_proto::KeyFromClient* request, ::coordinator_proto::RepIfDeling* response, std::function<void(::grpc::Status)>) = 0;
       virtual void delByKey(::grpc::ClientContext* context, const ::coordinator_proto::KeyFromClient* request, ::coordinator_proto::RepIfDeling* response, ::grpc::ClientUnaryReactor* reactor) = 0;
@@ -245,8 +245,8 @@ class coordinatorService final {
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfGetSuccess>* PrepareAsyncgetDegradedReadValueRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfGetSuccess>* AsyncgetRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfGetSuccess>* PrepareAsyncgetRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfGetSuccess>* AsyncfullNodeRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfGetSuccess>* PrepareAsyncfullNodeRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepBlockNum>* AsyncfullNodeRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepBlockNum>* PrepareAsyncfullNodeRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfDeling>* AsyncdelByKeyRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyFromClient& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfDeling>* PrepareAsyncdelByKeyRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyFromClient& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::coordinator_proto::RepIfDeling>* AsyncdelByStripeRaw(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdFromClient& request, ::grpc::CompletionQueue* cq) = 0;
@@ -341,12 +341,12 @@ class coordinatorService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>> PrepareAsyncgetRecovery(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>>(PrepareAsyncgetRecoveryRaw(context, request, cq));
     }
-    ::grpc::Status fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::coordinator_proto::RepIfGetSuccess* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>> AsyncfullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>>(AsyncfullNodeRecoveryRaw(context, request, cq));
+    ::grpc::Status fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::coordinator_proto::RepBlockNum* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepBlockNum>> AsyncfullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepBlockNum>>(AsyncfullNodeRecoveryRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>> PrepareAsyncfullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>>(PrepareAsyncfullNodeRecoveryRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepBlockNum>> PrepareAsyncfullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepBlockNum>>(PrepareAsyncfullNodeRecoveryRaw(context, request, cq));
     }
     ::grpc::Status delByKey(::grpc::ClientContext* context, const ::coordinator_proto::KeyFromClient& request, ::coordinator_proto::RepIfDeling* response) override;
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfDeling>> AsyncdelByKey(::grpc::ClientContext* context, const ::coordinator_proto::KeyFromClient& request, ::grpc::CompletionQueue* cq) {
@@ -396,8 +396,8 @@ class coordinatorService final {
       void getDegradedReadValue(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RepIfGetSuccess* response, ::grpc::ClientUnaryReactor* reactor) override;
       void getRecovery(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RepIfGetSuccess* response, std::function<void(::grpc::Status)>) override;
       void getRecovery(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RepIfGetSuccess* response, ::grpc::ClientUnaryReactor* reactor) override;
-      void fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepIfGetSuccess* response, std::function<void(::grpc::Status)>) override;
-      void fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepIfGetSuccess* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepBlockNum* response, std::function<void(::grpc::Status)>) override;
+      void fullNodeRecovery(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepBlockNum* response, ::grpc::ClientUnaryReactor* reactor) override;
       void delByKey(::grpc::ClientContext* context, const ::coordinator_proto::KeyFromClient* request, ::coordinator_proto::RepIfDeling* response, std::function<void(::grpc::Status)>) override;
       void delByKey(::grpc::ClientContext* context, const ::coordinator_proto::KeyFromClient* request, ::coordinator_proto::RepIfDeling* response, ::grpc::ClientUnaryReactor* reactor) override;
       void delByStripe(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdFromClient* request, ::coordinator_proto::RepIfDeling* response, std::function<void(::grpc::Status)>) override;
@@ -439,8 +439,8 @@ class coordinatorService final {
     ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>* PrepareAsyncgetDegradedReadValueRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>* AsyncgetRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>* PrepareAsyncgetRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>* AsyncfullNodeRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>* PrepareAsyncfullNodeRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepBlockNum>* AsyncfullNodeRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepBlockNum>* PrepareAsyncfullNodeRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::NodeIdFromClient& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfDeling>* AsyncdelByKeyRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyFromClient& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfDeling>* PrepareAsyncdelByKeyRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyFromClient& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfDeling>* AsyncdelByStripeRaw(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdFromClient& request, ::grpc::CompletionQueue* cq) override;
@@ -489,7 +489,7 @@ class coordinatorService final {
     virtual ::grpc::Status getDegradedReadValue(::grpc::ServerContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RepIfGetSuccess* response);
     // recovery
     virtual ::grpc::Status getRecovery(::grpc::ServerContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RepIfGetSuccess* response);
-    virtual ::grpc::Status fullNodeRecovery(::grpc::ServerContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepIfGetSuccess* response);
+    virtual ::grpc::Status fullNodeRecovery(::grpc::ServerContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepBlockNum* response);
     // delete
     virtual ::grpc::Status delByKey(::grpc::ServerContext* context, const ::coordinator_proto::KeyFromClient* request, ::coordinator_proto::RepIfDeling* response);
     virtual ::grpc::Status delByStripe(::grpc::ServerContext* context, const ::coordinator_proto::StripeIdFromClient* request, ::coordinator_proto::RepIfDeling* response);
@@ -748,11 +748,11 @@ class coordinatorService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status fullNodeRecovery(::grpc::ServerContext* /*context*/, const ::coordinator_proto::NodeIdFromClient* /*request*/, ::coordinator_proto::RepIfGetSuccess* /*response*/) override {
+    ::grpc::Status fullNodeRecovery(::grpc::ServerContext* /*context*/, const ::coordinator_proto::NodeIdFromClient* /*request*/, ::coordinator_proto::RepBlockNum* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestfullNodeRecovery(::grpc::ServerContext* context, ::coordinator_proto::NodeIdFromClient* request, ::grpc::ServerAsyncResponseWriter< ::coordinator_proto::RepIfGetSuccess>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+    void RequestfullNodeRecovery(::grpc::ServerContext* context, ::coordinator_proto::NodeIdFromClient* request, ::grpc::ServerAsyncResponseWriter< ::coordinator_proto::RepBlockNum>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(12, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
@@ -1148,25 +1148,25 @@ class coordinatorService final {
    public:
     WithCallbackMethod_fullNodeRecovery() {
       ::grpc::Service::MarkMethodCallback(12,
-          new ::grpc::internal::CallbackUnaryHandler< ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepIfGetSuccess>(
+          new ::grpc::internal::CallbackUnaryHandler< ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepBlockNum>(
             [this](
-                   ::grpc::CallbackServerContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepIfGetSuccess* response) { return this->fullNodeRecovery(context, request, response); }));}
+                   ::grpc::CallbackServerContext* context, const ::coordinator_proto::NodeIdFromClient* request, ::coordinator_proto::RepBlockNum* response) { return this->fullNodeRecovery(context, request, response); }));}
     void SetMessageAllocatorFor_fullNodeRecovery(
-        ::grpc::MessageAllocator< ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepIfGetSuccess>* allocator) {
+        ::grpc::MessageAllocator< ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepBlockNum>* allocator) {
       ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(12);
-      static_cast<::grpc::internal::CallbackUnaryHandler< ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepIfGetSuccess>*>(handler)
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepBlockNum>*>(handler)
               ->SetMessageAllocator(allocator);
     }
     ~WithCallbackMethod_fullNodeRecovery() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status fullNodeRecovery(::grpc::ServerContext* /*context*/, const ::coordinator_proto::NodeIdFromClient* /*request*/, ::coordinator_proto::RepIfGetSuccess* /*response*/) override {
+    ::grpc::Status fullNodeRecovery(::grpc::ServerContext* /*context*/, const ::coordinator_proto::NodeIdFromClient* /*request*/, ::coordinator_proto::RepBlockNum* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     virtual ::grpc::ServerUnaryReactor* fullNodeRecovery(
-      ::grpc::CallbackServerContext* /*context*/, const ::coordinator_proto::NodeIdFromClient* /*request*/, ::coordinator_proto::RepIfGetSuccess* /*response*/)  { return nullptr; }
+      ::grpc::CallbackServerContext* /*context*/, const ::coordinator_proto::NodeIdFromClient* /*request*/, ::coordinator_proto::RepBlockNum* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
   class WithCallbackMethod_delByKey : public BaseClass {
@@ -1467,7 +1467,7 @@ class coordinatorService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status fullNodeRecovery(::grpc::ServerContext* /*context*/, const ::coordinator_proto::NodeIdFromClient* /*request*/, ::coordinator_proto::RepIfGetSuccess* /*response*/) override {
+    ::grpc::Status fullNodeRecovery(::grpc::ServerContext* /*context*/, const ::coordinator_proto::NodeIdFromClient* /*request*/, ::coordinator_proto::RepBlockNum* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -1775,7 +1775,7 @@ class coordinatorService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status fullNodeRecovery(::grpc::ServerContext* /*context*/, const ::coordinator_proto::NodeIdFromClient* /*request*/, ::coordinator_proto::RepIfGetSuccess* /*response*/) override {
+    ::grpc::Status fullNodeRecovery(::grpc::ServerContext* /*context*/, const ::coordinator_proto::NodeIdFromClient* /*request*/, ::coordinator_proto::RepBlockNum* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -2122,7 +2122,7 @@ class coordinatorService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status fullNodeRecovery(::grpc::ServerContext* /*context*/, const ::coordinator_proto::NodeIdFromClient* /*request*/, ::coordinator_proto::RepIfGetSuccess* /*response*/) override {
+    ::grpc::Status fullNodeRecovery(::grpc::ServerContext* /*context*/, const ::coordinator_proto::NodeIdFromClient* /*request*/, ::coordinator_proto::RepBlockNum* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -2527,10 +2527,10 @@ class coordinatorService final {
     WithStreamedUnaryMethod_fullNodeRecovery() {
       ::grpc::Service::MarkMethodStreamed(12,
         new ::grpc::internal::StreamedUnaryHandler<
-          ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepIfGetSuccess>(
+          ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepBlockNum>(
             [this](::grpc::ServerContext* context,
                    ::grpc::ServerUnaryStreamer<
-                     ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepIfGetSuccess>* streamer) {
+                     ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepBlockNum>* streamer) {
                        return this->StreamedfullNodeRecovery(context,
                          streamer);
                   }));
@@ -2539,12 +2539,12 @@ class coordinatorService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable regular version of this method
-    ::grpc::Status fullNodeRecovery(::grpc::ServerContext* /*context*/, const ::coordinator_proto::NodeIdFromClient* /*request*/, ::coordinator_proto::RepIfGetSuccess* /*response*/) override {
+    ::grpc::Status fullNodeRecovery(::grpc::ServerContext* /*context*/, const ::coordinator_proto::NodeIdFromClient* /*request*/, ::coordinator_proto::RepBlockNum* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     // replace default version of method with streamed unary
-    virtual ::grpc::Status StreamedfullNodeRecovery(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::coordinator_proto::NodeIdFromClient,::coordinator_proto::RepIfGetSuccess>* server_unary_streamer) = 0;
+    virtual ::grpc::Status StreamedfullNodeRecovery(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::coordinator_proto::NodeIdFromClient,::coordinator_proto::RepBlockNum>* server_unary_streamer) = 0;
   };
   template <class BaseClass>
   class WithStreamedUnaryMethod_delByKey : public BaseClass {

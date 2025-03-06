@@ -38,8 +38,8 @@ namespace ECProject
       m_clientID = ClientIP + ":" + std::to_string(ClientPort);
       m_sys_config = ECProject::Config::getInstance(config_path);
       m_toolbox = ECProject::ToolBox::getInstance();
-      m_pre_allocated_buffer = new char[m_sys_config->BlockSize * m_sys_config->n];
-      memset(m_pre_allocated_buffer, 0xaa, m_sys_config->BlockSize * m_sys_config->n);
+      m_pre_allocated_buffer = new char[static_cast<size_t> (m_sys_config->BlockSize) * static_cast<size_t> (m_sys_config->n)];
+      memset(m_pre_allocated_buffer, 0xaa, (m_sys_config->BlockSize) * static_cast<size_t> (m_sys_config->n));
       if (m_sys_config->AppendMode == "CACHED_MODE")
       {
         m_cached_buffer = new char *[m_sys_config->r + m_sys_config->z];
@@ -70,7 +70,7 @@ namespace ECProject
     bool sub_append_in_rep_mode(int append_size);
     bool set();
     bool degraded_read(int stripe_id, int failed_block_id, std::string &value);
-    bool recovery(int stripe_id, int failed_block_id);
+    int recovery(int stripe_id, int failed_block_id);
     bool recovery_full_node(int node_id);
     std::vector<int> get_data_block_num_per_group(int k, int r, int z, std::string code_type);
     std::vector<int> get_global_parity_block_num_per_group(int k, int r, int z, std::string code_type);
