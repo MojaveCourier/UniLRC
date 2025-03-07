@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     int block_size = parameters[3] / 1024 / 1024; //MB
     int n = k + r + z;
     //for read test
-    for(int i = 0; i < 5; i++){
+    /*for(int i = 0; i < 5; i++){
         client.set();
     }
 
@@ -60,33 +60,31 @@ int main(int argc, char **argv)
     std::chrono::duration<double> max_time_span = *std::max_element(time_spans.begin(), time_spans.end());
     std::chrono::duration<double> min_time_span = *std::min_element(time_spans.begin(), time_spans.end());
     std::cout << "Max speed: " << static_cast<size_t>(block_size) * k / min_time_span.count() << "MB/s" << std::endl;
-    std::cout << "Min speed: " << static_cast<size_t>(block_size) * k / max_time_span.count() << "MB/s" << std::endl;
+    std::cout << "Min speed: " << static_cast<size_t>(block_size) * k / max_time_span.count() << "MB/s" << std::endl;*/
     
-    
-
-
     //for degraded read test
 
-    /*client.set();
+    client.set();
     std::vector<std::chrono::duration<double>> time_spans;
     for(int i = 0; i < k; i++){
         std::string value;
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-        client.degraded_read(0, i, value);
+        client.get_degraded_read_block(0, i, value);
         std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
         time_spans.push_back(time_span);
-        std::cout << "degraded read time: " << time_span.count() << std::endl;
     }
     std::chrono::duration<double> total_time_span = std::accumulate(time_spans.begin(), time_spans.end(), std::chrono::duration<double>(0));
     std::cout << "Total time: " << total_time_span.count() << std::endl;
     std::cout << "Average time: " << total_time_span.count() / time_spans.size() << std::endl;
-    std::cout << "Throughput: " << time_spans.size() / total_time_span.count() << std::endl;
-    std::cout << "Speed" << block_size / (total_time_span.count() / time_spans.size()) << "MB/s" << std::endl;
+    //std::cout << "Throughput: " << time_spans.size() / total_time_span.count() << std::endl;
+    //std::cout << "Speed" << block_size / (total_time_span.count() / time_spans.size()) << "MB/s" << std::endl;
     std::chrono::duration<double> max_time_span = *std::max_element(time_spans.begin(), time_spans.end());
     std::chrono::duration<double> min_time_span = *std::min_element(time_spans.begin(), time_spans.end());
-    std::cout << "Max speed: " << block_size / min_time_span.count() << "MB/s" << std::endl;
-    std::cout << "Min speed: " << block_size / max_time_span.count() << "MB/s" << std::endl;*/
+    std::cout << "Max time: "<< max_time_span.count() << std::endl;
+    std::cout << "Min time: "<< min_time_span.count() << std::endl;
+    //std::cout << "Max speed: " << block_size / min_time_span.count() << "MB/s" << std::endl;
+    //std::cout << "Min speed: " << block_size / max_time_span.count() << "MB/s" << std::endl;
 
     //for single block repair
     /*client.set();

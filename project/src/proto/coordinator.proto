@@ -39,6 +39,7 @@ service coordinatorService {
 
   // degraded read
   rpc getDegradedReadValue(KeyAndClientIP) returns (RepIfGetSuccess) {};
+  rpc getDegradedReadBlock(KeyAndClientIP) returns (RepIfGetSuccess) {};
   // recovery
   rpc getRecovery(KeyAndClientIP) returns (RepIfGetSuccess) {};
   rpc fullNodeRecovery(NodeIdFromClient) returns (RepBlockNum) {};

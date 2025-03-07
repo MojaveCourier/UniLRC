@@ -510,7 +510,7 @@ const char descriptor_table_protodef_coordinator_2eproto[] PROTOBUF_SECTION_VARI
   " \001(\005\"#\n\020NodeIdFromClient\022\017\n\007node_id\030\001 \001("
   "\005\"\037\n\013RepIfDeling\022\020\n\010ifdeling\030\001 \001(\010\"\"\n\014Re"
   "pStripeIds\022\022\n\nstripe_ids\030\001 \003(\005\" \n\013RepBlo"
-  "ckNum\022\021\n\tblock_num\030\001 \001(\0052\350\013\n\022coordinator"
+  "ckNum\022\021\n\tblock_num\030\001 \001(\0052\311\014\n\022coordinator"
   "Service\022k\n\025sayHelloToCoordinator\022\'.coord"
   "inator_proto.RequestToCoordinator\032\'.coor"
   "dinator_proto.ReplyFromCoordinator\"\000\022`\n\n"
@@ -537,22 +537,25 @@ const char descriptor_table_protodef_coordinator_2eproto[] PROTOBUF_SECTION_VARI
   "tIP\032%.coordinator_proto.ReplyProxyIPsPor"
   "ts\"\000\022_\n\024getDegradedReadValue\022!.coordinat"
   "or_proto.KeyAndClientIP\032\".coordinator_pr"
-  "oto.RepIfGetSuccess\"\000\022V\n\013getRecovery\022!.c"
-  "oordinator_proto.KeyAndClientIP\032\".coordi"
-  "nator_proto.RepIfGetSuccess\"\000\022Y\n\020fullNod"
-  "eRecovery\022#.coordinator_proto.NodeIdFrom"
-  "Client\032\036.coordinator_proto.RepBlockNum\"\000"
-  "\022N\n\010delByKey\022 .coordinator_proto.KeyFrom"
-  "Client\032\036.coordinator_proto.RepIfDeling\"\000"
-  "\022V\n\013delByStripe\022%.coordinator_proto.Stri"
-  "peIdFromClient\032\036.coordinator_proto.RepIf"
-  "Deling\"\000\022Y\n\013listStripes\022\'.coordinator_pr"
-  "oto.RequestToCoordinator\032\037.coordinator_p"
-  "roto.RepStripeIds\"\000b\006proto3"
+  "oto.RepIfGetSuccess\"\000\022_\n\024getDegradedRead"
+  "Block\022!.coordinator_proto.KeyAndClientIP"
+  "\032\".coordinator_proto.RepIfGetSuccess\"\000\022V"
+  "\n\013getRecovery\022!.coordinator_proto.KeyAnd"
+  "ClientIP\032\".coordinator_proto.RepIfGetSuc"
+  "cess\"\000\022Y\n\020fullNodeRecovery\022#.coordinator"
+  "_proto.NodeIdFromClient\032\036.coordinator_pr"
+  "oto.RepBlockNum\"\000\022N\n\010delByKey\022 .coordina"
+  "tor_proto.KeyFromClient\032\036.coordinator_pr"
+  "oto.RepIfDeling\"\000\022V\n\013delByStripe\022%.coord"
+  "inator_proto.StripeIdFromClient\032\036.coordi"
+  "nator_proto.RepIfDeling\"\000\022Y\n\013listStripes"
+  "\022\'.coordinator_proto.RequestToCoordinato"
+  "r\032\037.coordinator_proto.RepStripeIds\"\000b\006pr"
+  "oto3"
   ;
 static ::_pbi::once_flag descriptor_table_coordinator_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_coordinator_2eproto = {
-    false, false, 2747, descriptor_table_protodef_coordinator_2eproto,
+    false, false, 2844, descriptor_table_protodef_coordinator_2eproto,
     "coordinator.proto",
     &descriptor_table_coordinator_2eproto_once, nullptr, 0, 18,
     schemas, file_default_instances, TableStruct_coordinator_2eproto::offsets,

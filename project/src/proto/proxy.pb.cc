@@ -703,7 +703,7 @@ const char descriptor_table_protodef_proxy_2eproto[] PROTOBUF_SECTION_VARIABLE(p
   "d\030\001 \001(\005\022\020\n\010group_id\030\002 \001(\005\022\020\n\010clientip\030\003 "
   "\001(\t\022\022\n\nclientport\030\004 \001(\005\022\021\n\tblock_ids\030\005 \003"
   "(\005\022\022\n\nblock_keys\030\006 \003(\t\022\023\n\013datanodeips\030\007 "
-  "\003(\t\022\025\n\rdatanodeports\030\010 \003(\0052\331\004\n\014proxyServ"
+  "\003(\t\022\025\n\rdatanodeports\030\010 \003(\0052\245\005\n\014proxyServ"
   "ice\022D\n\ncheckalive\022\032.proxy_proto.Checkali"
   "veCMD\032\032.proxy_proto.RequestResult\022L\n\022enc"
   "odeAndSetObject\022\037.proxy_proto.ObjectAndP"
@@ -711,18 +711,20 @@ const char descriptor_table_protodef_proxy_2eproto[] PROTOBUF_SECTION_VARIABLE(p
   "eAndGetObject\022\037.proxy_proto.ObjectAndPla"
   "cement\032\025.proxy_proto.GetReply\022G\n\014degrade"
   "dRead\022 .proxy_proto.DegradedReadRequest\032"
-  "\025.proxy_proto.GetReply\022\?\n\010recovery\022\034.pro"
-  "xy_proto.RecoveryRequest\032\025.proxy_proto.G"
-  "etReply\022\?\n\013deleteBlock\022\031.proxy_proto.Nod"
-  "eAndBlock\032\025.proxy_proto.DelReply\022X\n\027sche"
-  "duleAppend2Datanode\022&.proxy_proto.Append"
-  "StripeDataPlacement\032\025.proxy_proto.SetRep"
-  "ly\022B\n\tgetBlocks\022\036.proxy_proto.StripeAndB"
-  "lockIDs\032\025.proxy_proto.GetReplyb\006proto3"
+  "\025.proxy_proto.GetReply\022J\n\023degradedRead2C"
+  "lient\022\034.proxy_proto.RecoveryRequest\032\025.pr"
+  "oxy_proto.GetReply\022\?\n\010recovery\022\034.proxy_p"
+  "roto.RecoveryRequest\032\025.proxy_proto.GetRe"
+  "ply\022\?\n\013deleteBlock\022\031.proxy_proto.NodeAnd"
+  "Block\032\025.proxy_proto.DelReply\022X\n\027schedule"
+  "Append2Datanode\022&.proxy_proto.AppendStri"
+  "peDataPlacement\032\025.proxy_proto.SetReply\022B"
+  "\n\tgetBlocks\022\036.proxy_proto.StripeAndBlock"
+  "IDs\032\025.proxy_proto.GetReplyb\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_proxy_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_proxy_2eproto = {
-    false, false, 3038, descriptor_table_protodef_proxy_2eproto,
+    false, false, 3114, descriptor_table_protodef_proxy_2eproto,
     "proxy.proto",
     &descriptor_table_proxy_2eproto_once, nullptr, 0, 19,
     schemas, file_default_instances, TableStruct_proxy_2eproto::offsets,

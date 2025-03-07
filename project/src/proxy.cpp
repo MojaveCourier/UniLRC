@@ -10,6 +10,7 @@
 #include <fstream>
 #include <sys/mman.h>
 #include "unilrc_encoder.h"
+#include <chrono>
 template <typename T>
 inline T ceil(T const &A, T const &B)
 {
@@ -1034,6 +1035,7 @@ namespace ECProject
         }
         std::vector<unsigned char *> block_ptrs = convertToUnsignedCharArray(get_bufs);
 
+        std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
         if (code_type == "UniLRC")
         {
           std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] decode_unilrc" << std::endl;
@@ -1062,6 +1064,10 @@ namespace ECProject
           std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] code type error!" << std::endl;
           exit(1);
         }
+        //std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+        //auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+        //std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] decode time: " << duration << " us" << std::endl;
+
 
         //std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] send to the client" << std::endl;
 
@@ -1114,6 +1120,165 @@ namespace ECProject
 
     return grpc::Status::OK;
   }
+
+  grpc::Status ProxyImpl::degradedRead2Client(
+    grpc::ServerContext *context,
+    const proxy_proto::RecoveryRequest *recovery_request,
+    proxy_proto::GetReply *response)
+{
+  try
+  {
+    if (IF_DEBUG)
+    {
+      std::cout << "[Proxy" << m_self_cluster_id << "][Recovery] Handle recovery" << std::endl;
+    }
+
+    std::string code_type = m_sys_config->CodeType;
+    // auto status = std::make_shared<std::vector<bool>>(recovery_request->datanodeip_size(), false);
+    std::unique_ptr<bool[]> status(new bool[recovery_request->datanodeip_size()]);
+    std::fill_n(status.get(), recovery_request->datanodeip_size(), false);
+
+    //std::vector<std::vector<char>> get_bufs(recovery_request->datanodeip_size(), std::vector<char>(m_sys_config->BlockSize, 0));
+    std::vector<char*> get_bufs(recovery_request->datanodeip_size());
+    for(int i = 0; i < recovery_request->datanodeip_size(); i++)
+    {
+      get_bufs[i] = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
+      memset(get_bufs[i], 0, m_sys_config->BlockSize);
+    }
+    //std::vector<char> res_buf(m_sys_config->BlockSize, 0);
+    char *res_buf = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
+    memset(res_buf, 0, m_sys_config->BlockSize);
+    std::vector<std::thread> get_threads;
+    for (int i = 0; i < recovery_request->datanodeip_size(); i++)
+    {
+      get_threads.push_back(std::thread(&ProxyImpl::get_from_node, this, recovery_request->blockkeys(i), get_bufs[i], m_sys_config->BlockSize, recovery_request->datanodeip(i).c_str(), recovery_request->datanodeport(i), status.get(), i));
+    }
+    for (int i = 0; i < recovery_request->datanodeip_size(); i++)
+    {
+      get_threads[i].join();
+    }
+
+    bool all_true = std::all_of(status.get(), status.get() + recovery_request->datanodeip_size(), [](bool val)
+                                { return val == true; });
+    if (!all_true)
+    {
+      std::cout << "[Proxy" << m_self_cluster_id << "][GET]"
+                << "read from datanodes failed!" << std::endl;
+    }
+    else
+    {
+      std::cout << "[Proxy" << m_self_cluster_id << "][GET]"
+                << "read from datanodes success!" << std::endl;
+
+      std::vector<int> block_idxs;
+      for (int i = 0; i < recovery_request->datanodeip_size(); i++)
+      {
+        block_idxs.push_back(recovery_request->blockids(i));
+      }
+      std::vector<unsigned char *> block_ptrs = convertToUnsignedCharArray(get_bufs);
+
+      std::string failed_block_key = recovery_request->failed_block_key();
+      int failed_block_id = recovery_request->failed_block_id();
+      std::string replaced_node_ip = recovery_request->replaced_node_ip();
+      int replaced_node_port = recovery_request->replaced_node_port();
+
+      if (code_type == "UniLRC")
+      {
+        decode_unilrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, recovery_request->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf), m_sys_config->BlockSize);
+      }
+      else if (code_type == "AzureLRC")
+      {
+        decode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, recovery_request->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf), m_sys_config->BlockSize, failed_block_id);
+      }
+      else if (code_type == "OptimalLRC")
+      {
+        decode_optimal_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, recovery_request->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf), m_sys_config->BlockSize, failed_block_id);
+      }
+      else if (code_type == "UniformLRC")
+      {
+        decode_uniform_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, recovery_request->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf), m_sys_config->BlockSize, failed_block_id);
+      }
+      else
+      {
+        std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] code type error!" << std::endl;
+        exit(1);
+      }
+      int cross_rack_num = recovery_request->cross_rack_num();
+      if(cross_rack_num){
+        std::cout << "start to recover cross rack" << std::endl;
+        char **cross_rack_bufs = new char*[cross_rack_num];
+        for(int i = 0; i < cross_rack_num; i++)
+        {
+          cross_rack_bufs[i] = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
+        }
+        std::vector<std::thread> get_from_proxies_threads;
+        for(int i = 0; i < cross_rack_num; i++)
+        {
+          get_from_proxies_threads.push_back(std::thread([i, this, &cross_rack_bufs]()mutable{
+            //asio::io_context io_context;
+            asio::ip::tcp::socket socket(this->io_context);
+            //asio::ip::tcp::resolver resolver(io_context);
+            this->acceptor.accept(socket);
+            std::cout << "connected to porxy" << std::endl;
+            asio::error_code error;
+            size_t len = asio::read(socket, asio::buffer(cross_rack_bufs[i], this->m_sys_config->BlockSize), error);
+            if(len != this->m_sys_config->BlockSize)
+            {
+              std::cout << "error in read" << std::endl;
+            }
+            asio::error_code ignore_ec;
+            socket.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
+            socket.close(ignore_ec);
+          }));
+        }
+        for(int i = 0; i < cross_rack_num; i++)
+        {
+          get_from_proxies_threads[i].join();
+        }
+        std::cout << "start to xor" << std::endl;
+        char **buf_ptrs = new char*[cross_rack_num + 1];
+        for(int i = 0; i < cross_rack_num; i++)
+        {
+          buf_ptrs[i] = cross_rack_bufs[i];
+        }
+        buf_ptrs[cross_rack_num] = res_buf;
+        xor_avx(cross_rack_num + 1, m_sys_config->BlockSize, (void**)buf_ptrs);
+        for(int i = 0; i < cross_rack_num; i++)
+        {
+          delete cross_rack_bufs[i];
+        }
+        delete cross_rack_bufs;
+        delete buf_ptrs;
+      }
+    }
+  
+    std::string replaced_node_ip = recovery_request->replaced_node_ip();
+    int replaced_node_port = recovery_request->replaced_node_port();
+    std::cout << "[Proxy" << m_self_cluster_id << "][Degraded] send to the client" << replaced_node_ip << ":" << replaced_node_port << std::endl;
+    asio::io_context io_context;
+    asio::ip::tcp::socket socket(io_context);
+    asio::ip::tcp::resolver resolver(io_context);
+    asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(replaced_node_ip, std::to_string(replaced_node_port));
+    asio::connect(socket, endpoints);
+    asio::write(socket, asio::buffer(res_buf, m_sys_config->BlockSize));
+    asio::error_code ignore_ec;
+    socket.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);
+    socket.close(ignore_ec);
+    std::cout << "[Proxy" << m_self_cluster_id << "][Degraded Read] send to the client done" << std::endl;
+    delete res_buf;
+    for(int i = 0; i < recovery_request->datanodeip_size(); i++)
+    {
+      delete get_bufs[i];
+    }
+  }
+  catch (const std::exception &e)
+  {
+    std::cout << "exception" << std::endl;
+    std::cerr << e.what() << '\n';
+  }
+  return grpc::Status::OK;
+}
+
 
   // recovery
   grpc::Status ProxyImpl::recovery(

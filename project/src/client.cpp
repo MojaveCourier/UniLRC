@@ -766,6 +766,46 @@ namespace ECProject
   }
   */
 
+  bool Client::get_degraded_read_block(int stripe_id, int failed_block_id, std::string &value)
+  {
+    int block_size = m_sys_config->BlockSize;
+    std::cout <<"block_size: " << block_size << std::endl;
+
+    //std::thread thread([&]{
+      grpc::ClientContext context;
+      coordinator_proto::KeyAndClientIP request;
+      request.set_key(std::to_string(stripe_id) + "_" + std::to_string(failed_block_id));
+      request.set_clientip(m_clientIPForGet);
+      request.set_clientport(m_clientPortForGet);
+      coordinator_proto::RepIfGetSuccess reply;
+      grpc::Status status = m_coordinator_ptr->getDegradedReadBlock(&context, request, &reply);
+      if (!status.ok())
+      {
+        std::cout << "[Client] degraded read failed!" << std::endl;
+        return false;
+      }
+      else
+      {
+        std::cout << "[Client] degraded read success!" << std::endl;
+      } 
+    //});
+
+    asio::ip::tcp::socket socket(io_context);
+    acceptor.accept(socket);
+    asio::error_code error;
+    char* buf = new char[block_size];
+    size_t len = asio::read(socket, asio::buffer(buf, block_size), error);
+    if(len != block_size){
+      std::cout << "[Error] len != block_size: " << len << std::endl;
+    }
+    asio::error_code ignore_ec;
+    socket.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
+    socket.close(ignore_ec); 
+    value.assign(buf, block_size);
+    delete[] buf;
+    return true;
+  }
+
   bool Client::degraded_read(int stripe_id, int failed_block_id, std::string &value)
   {
     int block_size = m_sys_config->BlockSize;
@@ -814,26 +854,15 @@ namespace ECProject
     }
     if(block_num > 1){
       xor_avx(block_num + 1, block_size, (void **)block_ptrs);
-      value = std::string(block_ptrs[block_num], block_size);      
+      value.assign(block_ptrs[block_num], block_size);
     }
     else{
-      value = std::string(block_ptrs[0], block_size);
+      value.assign(block_ptrs[0], block_size);
     }
     for(int i = 0; i < block_num + 1; i++){
       free(block_ptrs[i]);
     }
     delete[] block_ptrs;
-    /*asio::ip::tcp::socket socket_data(io_context);
-    acceptor.accept(socket_data);
-    std::cout << "[Client] accept from proxy done!" << std::endl;
-    asio::error_code error;
-    std::vector<char> buf(m_sys_config->BlockSize);
-    asio::read(socket_data, asio::buffer(buf, m_sys_config->BlockSize), error);
-    std::cout << "[Client] read from proxy done!" << std::endl;
-    asio::error_code ignore_ec;
-    socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
-    socket_data.close(ignore_ec);*/
-
     return true;
   }
 

@@ -12,9 +12,9 @@
     <alpha>2</alpha>
     <!-- LRC: UniLRC; AzureLRC; OptimalLRC; UniformLRC -->
     <CodeType>UniformLRC</CodeType>
-    <k>112</k>
-    <r>17</r>
-    <z>7</z>
+    <k>180</k>
+    <r>21</r>
+    <z>9</z>
     <!-- <CodeType>UniformLRC</CodeType>
     <k>30</k>
     <r>7</r>

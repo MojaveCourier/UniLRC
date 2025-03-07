@@ -27,6 +27,7 @@ service proxyService {
   rpc decodeAndGetObject(ObjectAndPlacement) returns (GetReply);
   // degraded read
   rpc degradedRead(DegradedReadRequest) returns (GetReply);
+  rpc degradedRead2Client(RecoveryRequest) returns (GetReply);
   // recovery
   rpc recovery(RecoveryRequest) returns (GetReply);
   // delete
