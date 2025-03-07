@@ -3,6 +3,8 @@
     <AlignedSize>4096</AlignedSize>
     <UnitSize>8192</UnitSize>
     <BlockSize>67108864</BlockSize>
+    <!--1048576-->
+    <!--67108864-->
     <DatanodeNumPerCluster>30</DatanodeNumPerCluster>
     <ClusterNum>19</ClusterNum>
     <CoordinatorIP>10.10.1.2</CoordinatorIP>
