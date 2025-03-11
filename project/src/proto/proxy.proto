@@ -28,8 +28,10 @@ service proxyService {
   // degraded read
   rpc degradedRead(DegradedReadRequest) returns (GetReply);
   rpc degradedRead2Client(RecoveryRequest) returns (GetReply);
+  rpc degradedReadWithBlockStripeID(DegradedReadRequest) returns (GetReply);
   // recovery
   rpc recovery(RecoveryRequest) returns (GetReply);
+  rpc multipleRecovery(MultipleRecoveryRequest) returns (GetReply);
   // delete
   rpc deleteBlock(NodeAndBlock) returns (DelReply);
   // append
@@ -152,11 +154,12 @@ message DegradedReadRequest{
   string clientip = 1;
   int32 clientport = 2;
   int32 failed_block_id = 3;
-  string failed_block_key = 4;
-  repeated string datanodeip = 5;
-  repeated int32 datanodeport = 6;
-  repeated string blockkeys = 7;
-  repeated int32 blockids = 8;
+  int32 failed_block_stripe_id = 4;
+  string failed_block_key = 5;
+  repeated string datanodeip = 6;
+  repeated int32 datanodeport = 7;
+  repeated string blockkeys = 8;
+  repeated int32 blockids = 9;
 }
 
 // recovery
@@ -170,6 +173,21 @@ message RecoveryRequest{
   repeated int32 datanodeport = 7;
   repeated string blockkeys = 8;
   repeated int32 blockids = 9;
+}
+
+message MultipleRecoveryRequest{
+  repeated string replaced_node_ip = 1;
+  repeated int32 replaced_node_port = 2;
+  repeated int32 failed_block_id = 3;
+  repeated string failed_block_key = 4;
+  repeated int32 failed_block_stripe_id = 5;
+  repeated int32 cross_rack_num = 6;
+  repeated string datanodeip = 7;
+  repeated int32 datanodeport = 8;
+  repeated string blockkeys = 9;
+  repeated int32 blockids = 10;
+  repeated int32 datanode_num = 11;
+  int32 failed_block_num = 12;
 }
 
 // append

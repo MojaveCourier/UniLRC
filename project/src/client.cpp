@@ -769,26 +769,23 @@ namespace ECProject
   bool Client::get_degraded_read_block(int stripe_id, int failed_block_id, std::string &value)
   {
     int block_size = m_sys_config->BlockSize;
-    std::cout <<"block_size: " << block_size << std::endl;
+    grpc::ClientContext context;
+    coordinator_proto::KeyAndClientIP request;
+    request.set_key(std::to_string(stripe_id) + "_" + std::to_string(failed_block_id));
+    request.set_clientip(m_clientIPForGet);
+    request.set_clientport(m_clientPortForGet);
+    coordinator_proto::RepIfGetSuccess reply;
+    grpc::Status status = m_coordinator_ptr->getDegradedReadBlock(&context, request, &reply);
+    if (!status.ok())
+    {
+      std::cout << "[Client] degraded read failed!" << std::endl;
+      return false;
+    }
+    else
+    {
+      std::cout << "[Client] degraded read success!" << std::endl;
+    } 
 
-    //std::thread thread([&]{
-      grpc::ClientContext context;
-      coordinator_proto::KeyAndClientIP request;
-      request.set_key(std::to_string(stripe_id) + "_" + std::to_string(failed_block_id));
-      request.set_clientip(m_clientIPForGet);
-      request.set_clientport(m_clientPortForGet);
-      coordinator_proto::RepIfGetSuccess reply;
-      grpc::Status status = m_coordinator_ptr->getDegradedReadBlock(&context, request, &reply);
-      if (!status.ok())
-      {
-        std::cout << "[Client] degraded read failed!" << std::endl;
-        return false;
-      }
-      else
-      {
-        std::cout << "[Client] degraded read success!" << std::endl;
-      } 
-    //});
 
     asio::ip::tcp::socket socket(io_context);
     acceptor.accept(socket);
@@ -886,7 +883,7 @@ namespace ECProject
     return true;
   }
 
-  bool Client::recovery_full_node(int node_id){
+  int Client::recovery_full_node(int node_id){
     grpc::ClientContext context;
     coordinator_proto::NodeIdFromClient request;
     request.set_node_id(node_id);

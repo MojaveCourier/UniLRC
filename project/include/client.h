@@ -72,7 +72,7 @@ namespace ECProject
     bool degraded_read(int stripe_id, int failed_block_id, std::string &value);
     bool get_degraded_read_block(int stripe_id, int failed_block_id, std::string &value);
     int recovery(int stripe_id, int failed_block_id);
-    bool recovery_full_node(int node_id);
+    int recovery_full_node(int node_id);
     std::vector<int> get_data_block_num_per_group(int k, int r, int z, std::string code_type);
     std::vector<int> get_global_parity_block_num_per_group(int k, int r, int z, std::string code_type);
     std::vector<int> get_local_parity_block_num_per_group(int k, int r, int z, std::string code_type);
