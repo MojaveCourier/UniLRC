@@ -54,6 +54,9 @@ extern AskIfSuccessDefaultTypeInternal _AskIfSuccess_default_instance_;
 class CheckaliveCMD;
 struct CheckaliveCMDDefaultTypeInternal;
 extern CheckaliveCMDDefaultTypeInternal _CheckaliveCMD_default_instance_;
+class DegradedReadReply;
+struct DegradedReadReplyDefaultTypeInternal;
+extern DegradedReadReplyDefaultTypeInternal _DegradedReadReply_default_instance_;
 class DegradedReadRequest;
 struct DegradedReadRequestDefaultTypeInternal;
 extern DegradedReadRequestDefaultTypeInternal _DegradedReadRequest_default_instance_;
@@ -75,6 +78,9 @@ extern ObjectAndPlacementDefaultTypeInternal _ObjectAndPlacement_default_instanc
 class RecalReply;
 struct RecalReplyDefaultTypeInternal;
 extern RecalReplyDefaultTypeInternal _RecalReply_default_instance_;
+class RecoveryReply;
+struct RecoveryReplyDefaultTypeInternal;
+extern RecoveryReplyDefaultTypeInternal _RecoveryReply_default_instance_;
 class RecoveryRequest;
 struct RecoveryRequestDefaultTypeInternal;
 extern RecoveryRequestDefaultTypeInternal _RecoveryRequest_default_instance_;
@@ -110,6 +116,7 @@ PROTOBUF_NAMESPACE_OPEN
 template<> ::proxy_proto::AppendStripeDataPlacement* Arena::CreateMaybeMessage<::proxy_proto::AppendStripeDataPlacement>(Arena*);
 template<> ::proxy_proto::AskIfSuccess* Arena::CreateMaybeMessage<::proxy_proto::AskIfSuccess>(Arena*);
 template<> ::proxy_proto::CheckaliveCMD* Arena::CreateMaybeMessage<::proxy_proto::CheckaliveCMD>(Arena*);
+template<> ::proxy_proto::DegradedReadReply* Arena::CreateMaybeMessage<::proxy_proto::DegradedReadReply>(Arena*);
 template<> ::proxy_proto::DegradedReadRequest* Arena::CreateMaybeMessage<::proxy_proto::DegradedReadRequest>(Arena*);
 template<> ::proxy_proto::DelReply* Arena::CreateMaybeMessage<::proxy_proto::DelReply>(Arena*);
 template<> ::proxy_proto::GetReply* Arena::CreateMaybeMessage<::proxy_proto::GetReply>(Arena*);
@@ -117,6 +124,7 @@ template<> ::proxy_proto::MultipleRecoveryRequest* Arena::CreateMaybeMessage<::p
 template<> ::proxy_proto::NodeAndBlock* Arena::CreateMaybeMessage<::proxy_proto::NodeAndBlock>(Arena*);
 template<> ::proxy_proto::ObjectAndPlacement* Arena::CreateMaybeMessage<::proxy_proto::ObjectAndPlacement>(Arena*);
 template<> ::proxy_proto::RecalReply* Arena::CreateMaybeMessage<::proxy_proto::RecalReply>(Arena*);
+template<> ::proxy_proto::RecoveryReply* Arena::CreateMaybeMessage<::proxy_proto::RecoveryReply>(Arena*);
 template<> ::proxy_proto::RecoveryRequest* Arena::CreateMaybeMessage<::proxy_proto::RecoveryRequest>(Arena*);
 template<> ::proxy_proto::RepIfSuccess* Arena::CreateMaybeMessage<::proxy_proto::RepIfSuccess>(Arena*);
 template<> ::proxy_proto::RequestResult* Arena::CreateMaybeMessage<::proxy_proto::RequestResult>(Arena*);
@@ -3305,6 +3313,176 @@ class DegradedReadRequest final :
 };
 // -------------------------------------------------------------------
 
+class DegradedReadReply final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:proxy_proto.DegradedReadReply) */ {
+ public:
+  inline DegradedReadReply() : DegradedReadReply(nullptr) {}
+  ~DegradedReadReply() override;
+  explicit PROTOBUF_CONSTEXPR DegradedReadReply(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  DegradedReadReply(const DegradedReadReply& from);
+  DegradedReadReply(DegradedReadReply&& from) noexcept
+    : DegradedReadReply() {
+    *this = ::std::move(from);
+  }
+
+  inline DegradedReadReply& operator=(const DegradedReadReply& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline DegradedReadReply& operator=(DegradedReadReply&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const DegradedReadReply& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const DegradedReadReply* internal_default_instance() {
+    return reinterpret_cast<const DegradedReadReply*>(
+               &_DegradedReadReply_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    14;
+
+  friend void swap(DegradedReadReply& a, DegradedReadReply& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(DegradedReadReply* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(DegradedReadReply* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  DegradedReadReply* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<DegradedReadReply>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const DegradedReadReply& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const DegradedReadReply& from) {
+    DegradedReadReply::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(DegradedReadReply* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "proxy_proto.DegradedReadReply";
+  }
+  protected:
+  explicit DegradedReadReply(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kDiskIoTimeFieldNumber = 1,
+    kNetworkTimeFieldNumber = 2,
+    kDecodeTimeFieldNumber = 3,
+  };
+  // double disk_io_time = 1;
+  void clear_disk_io_time();
+  double disk_io_time() const;
+  void set_disk_io_time(double value);
+  private:
+  double _internal_disk_io_time() const;
+  void _internal_set_disk_io_time(double value);
+  public:
+
+  // double network_time = 2;
+  void clear_network_time();
+  double network_time() const;
+  void set_network_time(double value);
+  private:
+  double _internal_network_time() const;
+  void _internal_set_network_time(double value);
+  public:
+
+  // double decode_time = 3;
+  void clear_decode_time();
+  double decode_time() const;
+  void set_decode_time(double value);
+  private:
+  double _internal_decode_time() const;
+  void _internal_set_decode_time(double value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:proxy_proto.DegradedReadReply)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    double disk_io_time_;
+    double network_time_;
+    double decode_time_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_proxy_2eproto;
+};
+// -------------------------------------------------------------------
+
 class RecoveryRequest final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:proxy_proto.RecoveryRequest) */ {
  public:
@@ -3353,7 +3531,7 @@ class RecoveryRequest final :
                &_RecoveryRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    14;
+    15;
 
   friend void swap(RecoveryRequest& a, RecoveryRequest& b) {
     a.Swap(&b);
@@ -3657,7 +3835,7 @@ class MultipleRecoveryRequest final :
                &_MultipleRecoveryRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    15;
+    16;
 
   friend void swap(MultipleRecoveryRequest& a, MultipleRecoveryRequest& b) {
     a.Swap(&b);
@@ -4036,6 +4214,176 @@ class MultipleRecoveryRequest final :
 };
 // -------------------------------------------------------------------
 
+class RecoveryReply final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:proxy_proto.RecoveryReply) */ {
+ public:
+  inline RecoveryReply() : RecoveryReply(nullptr) {}
+  ~RecoveryReply() override;
+  explicit PROTOBUF_CONSTEXPR RecoveryReply(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  RecoveryReply(const RecoveryReply& from);
+  RecoveryReply(RecoveryReply&& from) noexcept
+    : RecoveryReply() {
+    *this = ::std::move(from);
+  }
+
+  inline RecoveryReply& operator=(const RecoveryReply& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline RecoveryReply& operator=(RecoveryReply&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const RecoveryReply& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const RecoveryReply* internal_default_instance() {
+    return reinterpret_cast<const RecoveryReply*>(
+               &_RecoveryReply_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    17;
+
+  friend void swap(RecoveryReply& a, RecoveryReply& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(RecoveryReply* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(RecoveryReply* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  RecoveryReply* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<RecoveryReply>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const RecoveryReply& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const RecoveryReply& from) {
+    RecoveryReply::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(RecoveryReply* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "proxy_proto.RecoveryReply";
+  }
+  protected:
+  explicit RecoveryReply(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kDiskIoTimeFieldNumber = 1,
+    kNetworkTimeFieldNumber = 2,
+    kDecodeTimeFieldNumber = 3,
+  };
+  // double disk_io_time = 1;
+  void clear_disk_io_time();
+  double disk_io_time() const;
+  void set_disk_io_time(double value);
+  private:
+  double _internal_disk_io_time() const;
+  void _internal_set_disk_io_time(double value);
+  public:
+
+  // double network_time = 2;
+  void clear_network_time();
+  double network_time() const;
+  void set_network_time(double value);
+  private:
+  double _internal_network_time() const;
+  void _internal_set_network_time(double value);
+  public:
+
+  // double decode_time = 3;
+  void clear_decode_time();
+  double decode_time() const;
+  void set_decode_time(double value);
+  private:
+  double _internal_decode_time() const;
+  void _internal_set_decode_time(double value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:proxy_proto.RecoveryReply)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    double disk_io_time_;
+    double network_time_;
+    double decode_time_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_proxy_2eproto;
+};
+// -------------------------------------------------------------------
+
 class AppendStripeDataPlacement final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:proxy_proto.AppendStripeDataPlacement) */ {
  public:
@@ -4084,7 +4432,7 @@ class AppendStripeDataPlacement final :
                &_AppendStripeDataPlacement_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    16;
+    18;
 
   friend void swap(AppendStripeDataPlacement& a, AppendStripeDataPlacement& b) {
     a.Swap(&b);
@@ -4460,7 +4808,7 @@ class SetReply final :
                &_SetReply_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    17;
+    19;
 
   friend void swap(SetReply& a, SetReply& b) {
     a.Swap(&b);
@@ -4608,7 +4956,7 @@ class GetReply final :
                &_GetReply_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    18;
+    20;
 
   friend void swap(GetReply& a, GetReply& b) {
     a.Swap(&b);
@@ -4756,7 +5104,7 @@ class StripeAndBlockIDs final :
                &_StripeAndBlockIDs_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    19;
+    21;
 
   friend void swap(StripeAndBlockIDs& a, StripeAndBlockIDs& b) {
     a.Swap(&b);
@@ -7988,6 +8336,70 @@ DegradedReadRequest::mutable_blockids() {
 
 // -------------------------------------------------------------------
 
+// DegradedReadReply
+
+// double disk_io_time = 1;
+inline void DegradedReadReply::clear_disk_io_time() {
+  _impl_.disk_io_time_ = 0;
+}
+inline double DegradedReadReply::_internal_disk_io_time() const {
+  return _impl_.disk_io_time_;
+}
+inline double DegradedReadReply::disk_io_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadReply.disk_io_time)
+  return _internal_disk_io_time();
+}
+inline void DegradedReadReply::_internal_set_disk_io_time(double value) {
+  
+  _impl_.disk_io_time_ = value;
+}
+inline void DegradedReadReply::set_disk_io_time(double value) {
+  _internal_set_disk_io_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadReply.disk_io_time)
+}
+
+// double network_time = 2;
+inline void DegradedReadReply::clear_network_time() {
+  _impl_.network_time_ = 0;
+}
+inline double DegradedReadReply::_internal_network_time() const {
+  return _impl_.network_time_;
+}
+inline double DegradedReadReply::network_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadReply.network_time)
+  return _internal_network_time();
+}
+inline void DegradedReadReply::_internal_set_network_time(double value) {
+  
+  _impl_.network_time_ = value;
+}
+inline void DegradedReadReply::set_network_time(double value) {
+  _internal_set_network_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadReply.network_time)
+}
+
+// double decode_time = 3;
+inline void DegradedReadReply::clear_decode_time() {
+  _impl_.decode_time_ = 0;
+}
+inline double DegradedReadReply::_internal_decode_time() const {
+  return _impl_.decode_time_;
+}
+inline double DegradedReadReply::decode_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadReply.decode_time)
+  return _internal_decode_time();
+}
+inline void DegradedReadReply::_internal_set_decode_time(double value) {
+  
+  _impl_.decode_time_ = value;
+}
+inline void DegradedReadReply::set_decode_time(double value) {
+  _internal_set_decode_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadReply.decode_time)
+}
+
+// -------------------------------------------------------------------
+
 // RecoveryRequest
 
 // string replaced_node_ip = 1;
@@ -9049,6 +9461,70 @@ inline void MultipleRecoveryRequest::set_failed_block_num(int32_t value) {
 
 // -------------------------------------------------------------------
 
+// RecoveryReply
+
+// double disk_io_time = 1;
+inline void RecoveryReply::clear_disk_io_time() {
+  _impl_.disk_io_time_ = 0;
+}
+inline double RecoveryReply::_internal_disk_io_time() const {
+  return _impl_.disk_io_time_;
+}
+inline double RecoveryReply::disk_io_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryReply.disk_io_time)
+  return _internal_disk_io_time();
+}
+inline void RecoveryReply::_internal_set_disk_io_time(double value) {
+  
+  _impl_.disk_io_time_ = value;
+}
+inline void RecoveryReply::set_disk_io_time(double value) {
+  _internal_set_disk_io_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.disk_io_time)
+}
+
+// double network_time = 2;
+inline void RecoveryReply::clear_network_time() {
+  _impl_.network_time_ = 0;
+}
+inline double RecoveryReply::_internal_network_time() const {
+  return _impl_.network_time_;
+}
+inline double RecoveryReply::network_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryReply.network_time)
+  return _internal_network_time();
+}
+inline void RecoveryReply::_internal_set_network_time(double value) {
+  
+  _impl_.network_time_ = value;
+}
+inline void RecoveryReply::set_network_time(double value) {
+  _internal_set_network_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.network_time)
+}
+
+// double decode_time = 3;
+inline void RecoveryReply::clear_decode_time() {
+  _impl_.decode_time_ = 0;
+}
+inline double RecoveryReply::_internal_decode_time() const {
+  return _impl_.decode_time_;
+}
+inline double RecoveryReply::decode_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryReply.decode_time)
+  return _internal_decode_time();
+}
+inline void RecoveryReply::_internal_set_decode_time(double value) {
+  
+  _impl_.decode_time_ = value;
+}
+inline void RecoveryReply::set_decode_time(double value) {
+  _internal_set_decode_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.decode_time)
+}
+
+// -------------------------------------------------------------------
+
 // AppendStripeDataPlacement
 
 // string key = 1;
@@ -9998,6 +10474,10 @@ StripeAndBlockIDs::mutable_datanodeports() {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

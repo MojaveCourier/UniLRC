@@ -4,6 +4,7 @@
 #include <asio.hpp>
 #include <thread>
 #include <assert.h>
+#include <chrono>
 #include "unilrc_encoder.h"
 namespace ECProject
 {
@@ -766,7 +767,7 @@ namespace ECProject
   }
   */
 
-  bool Client::get_degraded_read_block(int stripe_id, int failed_block_id, std::string &value)
+  bool Client::get_degraded_read_block(int stripe_id, int failed_block_id, std::string &value, double &disk_io_time, double &network_time, double &decode_time)
   {
     int block_size = m_sys_config->BlockSize;
     grpc::ClientContext context;
@@ -774,7 +775,7 @@ namespace ECProject
     request.set_key(std::to_string(stripe_id) + "_" + std::to_string(failed_block_id));
     request.set_clientip(m_clientIPForGet);
     request.set_clientport(m_clientPortForGet);
-    coordinator_proto::RepIfGetSuccess reply;
+    coordinator_proto::DegradedReadReply reply;
     grpc::Status status = m_coordinator_ptr->getDegradedReadBlock(&context, request, &reply);
     if (!status.ok())
     {
@@ -785,10 +786,13 @@ namespace ECProject
     {
       std::cout << "[Client] degraded read success!" << std::endl;
     } 
-
+    disk_io_time = reply.disk_io_time();
+    network_time = reply.network_time();
+    decode_time = reply.decode_time();
 
     asio::ip::tcp::socket socket(io_context);
     acceptor.accept(socket);
+    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
     asio::error_code error;
     char* buf = new char[block_size];
     size_t len = asio::read(socket, asio::buffer(buf, block_size), error);
@@ -798,7 +802,10 @@ namespace ECProject
     asio::error_code ignore_ec;
     socket.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
     socket.close(ignore_ec); 
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    network_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     value.assign(buf, block_size);
+
     delete[] buf;
     return true;
   }
@@ -863,7 +870,7 @@ namespace ECProject
     return true;
   }
 
-  int Client::recovery(int stripe_id, int failed_block_id)
+  int Client::recovery(int stripe_id, int failed_block_id, double &disk_io_time, double &network_time, double &decode_time)
   {
     grpc::ClientContext context;
     coordinator_proto::KeyAndClientIP request;
@@ -871,7 +878,7 @@ namespace ECProject
     request.set_clientip(m_clientIPForGet);
     request.set_clientport(m_clientPortForGet);
 
-    coordinator_proto::RepIfGetSuccess reply;
+    coordinator_proto::RecoveryReply reply;
     grpc::Status status = m_coordinator_ptr->getRecovery(&context, request, &reply);
 
     if (!status.ok())
@@ -879,6 +886,9 @@ namespace ECProject
       std::cout << "[Client] recovery failed!" << std::endl;
       return false;
     }
+    disk_io_time = reply.disk_io_time();
+    network_time = reply.network_time();
+    decode_time = reply.decode_time();
 
     return true;
   }

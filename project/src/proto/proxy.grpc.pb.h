@@ -76,19 +76,19 @@ class proxyService final {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>>(PrepareAsyncdecodeAndGetObjectRaw(context, request, cq));
     }
     // degraded read
-    virtual ::grpc::Status degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::proxy_proto::GetReply* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>> AsyncdegradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>>(AsyncdegradedReadRaw(context, request, cq));
+    virtual ::grpc::Status degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::proxy_proto::DegradedReadReply* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>> AsyncdegradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>>(AsyncdegradedReadRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>> PrepareAsyncdegradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>>(PrepareAsyncdegradedReadRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>> PrepareAsyncdegradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>>(PrepareAsyncdegradedReadRaw(context, request, cq));
     }
-    virtual ::grpc::Status degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::proxy_proto::GetReply* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>> AsyncdegradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>>(AsyncdegradedRead2ClientRaw(context, request, cq));
+    virtual ::grpc::Status degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::proxy_proto::DegradedReadReply* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>> AsyncdegradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>>(AsyncdegradedRead2ClientRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>> PrepareAsyncdegradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>>(PrepareAsyncdegradedRead2ClientRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>> PrepareAsyncdegradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>>(PrepareAsyncdegradedRead2ClientRaw(context, request, cq));
     }
     virtual ::grpc::Status degradedReadWithBlockStripeID(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::proxy_proto::GetReply* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>> AsyncdegradedReadWithBlockStripeID(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
@@ -98,12 +98,12 @@ class proxyService final {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>>(PrepareAsyncdegradedReadWithBlockStripeIDRaw(context, request, cq));
     }
     // recovery
-    virtual ::grpc::Status recovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::proxy_proto::GetReply* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>> Asyncrecovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>>(AsyncrecoveryRaw(context, request, cq));
+    virtual ::grpc::Status recovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::proxy_proto::RecoveryReply* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RecoveryReply>> Asyncrecovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RecoveryReply>>(AsyncrecoveryRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>> PrepareAsyncrecovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>>(PrepareAsyncrecoveryRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RecoveryReply>> PrepareAsyncrecovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RecoveryReply>>(PrepareAsyncrecoveryRaw(context, request, cq));
     }
     virtual ::grpc::Status multipleRecovery(::grpc::ClientContext* context, const ::proxy_proto::MultipleRecoveryRequest& request, ::proxy_proto::GetReply* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>> AsyncmultipleRecovery(::grpc::ClientContext* context, const ::proxy_proto::MultipleRecoveryRequest& request, ::grpc::CompletionQueue* cq) {
@@ -149,15 +149,15 @@ class proxyService final {
       virtual void decodeAndGetObject(::grpc::ClientContext* context, const ::proxy_proto::ObjectAndPlacement* request, ::proxy_proto::GetReply* response, std::function<void(::grpc::Status)>) = 0;
       virtual void decodeAndGetObject(::grpc::ClientContext* context, const ::proxy_proto::ObjectAndPlacement* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       // degraded read
-      virtual void degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response, std::function<void(::grpc::Status)>) = 0;
-      virtual void degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
-      virtual void degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::GetReply* response, std::function<void(::grpc::Status)>) = 0;
-      virtual void degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      virtual void degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      virtual void degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       virtual void degradedReadWithBlockStripeID(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response, std::function<void(::grpc::Status)>) = 0;
       virtual void degradedReadWithBlockStripeID(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       // recovery
-      virtual void recovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::GetReply* response, std::function<void(::grpc::Status)>) = 0;
-      virtual void recovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      virtual void recovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::RecoveryReply* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void recovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::RecoveryReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       virtual void multipleRecovery(::grpc::ClientContext* context, const ::proxy_proto::MultipleRecoveryRequest* request, ::proxy_proto::GetReply* response, std::function<void(::grpc::Status)>) = 0;
       virtual void multipleRecovery(::grpc::ClientContext* context, const ::proxy_proto::MultipleRecoveryRequest* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       // delete
@@ -180,14 +180,14 @@ class proxyService final {
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::SetReply>* PrepareAsyncencodeAndSetObjectRaw(::grpc::ClientContext* context, const ::proxy_proto::ObjectAndPlacement& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>* AsyncdecodeAndGetObjectRaw(::grpc::ClientContext* context, const ::proxy_proto::ObjectAndPlacement& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>* PrepareAsyncdecodeAndGetObjectRaw(::grpc::ClientContext* context, const ::proxy_proto::ObjectAndPlacement& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>* AsyncdegradedReadRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>* PrepareAsyncdegradedReadRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>* AsyncdegradedRead2ClientRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>* PrepareAsyncdegradedRead2ClientRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>* AsyncdegradedReadRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>* PrepareAsyncdegradedReadRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>* AsyncdegradedRead2ClientRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>* PrepareAsyncdegradedRead2ClientRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>* AsyncdegradedReadWithBlockStripeIDRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>* PrepareAsyncdegradedReadWithBlockStripeIDRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>* AsyncrecoveryRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>* PrepareAsyncrecoveryRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RecoveryReply>* AsyncrecoveryRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RecoveryReply>* PrepareAsyncrecoveryRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>* AsyncmultipleRecoveryRaw(::grpc::ClientContext* context, const ::proxy_proto::MultipleRecoveryRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>* PrepareAsyncmultipleRecoveryRaw(::grpc::ClientContext* context, const ::proxy_proto::MultipleRecoveryRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DelReply>* AsyncdeleteBlockRaw(::grpc::ClientContext* context, const ::proxy_proto::NodeAndBlock& request, ::grpc::CompletionQueue* cq) = 0;
@@ -221,19 +221,19 @@ class proxyService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>> PrepareAsyncdecodeAndGetObject(::grpc::ClientContext* context, const ::proxy_proto::ObjectAndPlacement& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>>(PrepareAsyncdecodeAndGetObjectRaw(context, request, cq));
     }
-    ::grpc::Status degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::proxy_proto::GetReply* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>> AsyncdegradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>>(AsyncdegradedReadRaw(context, request, cq));
+    ::grpc::Status degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::proxy_proto::DegradedReadReply* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>> AsyncdegradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>>(AsyncdegradedReadRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>> PrepareAsyncdegradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>>(PrepareAsyncdegradedReadRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>> PrepareAsyncdegradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>>(PrepareAsyncdegradedReadRaw(context, request, cq));
     }
-    ::grpc::Status degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::proxy_proto::GetReply* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>> AsyncdegradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>>(AsyncdegradedRead2ClientRaw(context, request, cq));
+    ::grpc::Status degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::proxy_proto::DegradedReadReply* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>> AsyncdegradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>>(AsyncdegradedRead2ClientRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>> PrepareAsyncdegradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>>(PrepareAsyncdegradedRead2ClientRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>> PrepareAsyncdegradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>>(PrepareAsyncdegradedRead2ClientRaw(context, request, cq));
     }
     ::grpc::Status degradedReadWithBlockStripeID(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::proxy_proto::GetReply* response) override;
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>> AsyncdegradedReadWithBlockStripeID(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
@@ -242,12 +242,12 @@ class proxyService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>> PrepareAsyncdegradedReadWithBlockStripeID(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>>(PrepareAsyncdegradedReadWithBlockStripeIDRaw(context, request, cq));
     }
-    ::grpc::Status recovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::proxy_proto::GetReply* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>> Asyncrecovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>>(AsyncrecoveryRaw(context, request, cq));
+    ::grpc::Status recovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::proxy_proto::RecoveryReply* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::RecoveryReply>> Asyncrecovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::RecoveryReply>>(AsyncrecoveryRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>> PrepareAsyncrecovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>>(PrepareAsyncrecoveryRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::RecoveryReply>> PrepareAsyncrecovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::RecoveryReply>>(PrepareAsyncrecoveryRaw(context, request, cq));
     }
     ::grpc::Status multipleRecovery(::grpc::ClientContext* context, const ::proxy_proto::MultipleRecoveryRequest& request, ::proxy_proto::GetReply* response) override;
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>> AsyncmultipleRecovery(::grpc::ClientContext* context, const ::proxy_proto::MultipleRecoveryRequest& request, ::grpc::CompletionQueue* cq) {
@@ -286,14 +286,14 @@ class proxyService final {
       void encodeAndSetObject(::grpc::ClientContext* context, const ::proxy_proto::ObjectAndPlacement* request, ::proxy_proto::SetReply* response, ::grpc::ClientUnaryReactor* reactor) override;
       void decodeAndGetObject(::grpc::ClientContext* context, const ::proxy_proto::ObjectAndPlacement* request, ::proxy_proto::GetReply* response, std::function<void(::grpc::Status)>) override;
       void decodeAndGetObject(::grpc::ClientContext* context, const ::proxy_proto::ObjectAndPlacement* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) override;
-      void degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response, std::function<void(::grpc::Status)>) override;
-      void degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) override;
-      void degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::GetReply* response, std::function<void(::grpc::Status)>) override;
-      void degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response, std::function<void(::grpc::Status)>) override;
+      void degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response, std::function<void(::grpc::Status)>) override;
+      void degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response, ::grpc::ClientUnaryReactor* reactor) override;
       void degradedReadWithBlockStripeID(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response, std::function<void(::grpc::Status)>) override;
       void degradedReadWithBlockStripeID(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) override;
-      void recovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::GetReply* response, std::function<void(::grpc::Status)>) override;
-      void recovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void recovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::RecoveryReply* response, std::function<void(::grpc::Status)>) override;
+      void recovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::RecoveryReply* response, ::grpc::ClientUnaryReactor* reactor) override;
       void multipleRecovery(::grpc::ClientContext* context, const ::proxy_proto::MultipleRecoveryRequest* request, ::proxy_proto::GetReply* response, std::function<void(::grpc::Status)>) override;
       void multipleRecovery(::grpc::ClientContext* context, const ::proxy_proto::MultipleRecoveryRequest* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) override;
       void deleteBlock(::grpc::ClientContext* context, const ::proxy_proto::NodeAndBlock* request, ::proxy_proto::DelReply* response, std::function<void(::grpc::Status)>) override;
@@ -319,14 +319,14 @@ class proxyService final {
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::SetReply>* PrepareAsyncencodeAndSetObjectRaw(::grpc::ClientContext* context, const ::proxy_proto::ObjectAndPlacement& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* AsyncdecodeAndGetObjectRaw(::grpc::ClientContext* context, const ::proxy_proto::ObjectAndPlacement& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* PrepareAsyncdecodeAndGetObjectRaw(::grpc::ClientContext* context, const ::proxy_proto::ObjectAndPlacement& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* AsyncdegradedReadRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* PrepareAsyncdegradedReadRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* AsyncdegradedRead2ClientRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* PrepareAsyncdegradedRead2ClientRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* AsyncdegradedReadRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* PrepareAsyncdegradedReadRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* AsyncdegradedRead2ClientRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* PrepareAsyncdegradedRead2ClientRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* AsyncdegradedReadWithBlockStripeIDRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* PrepareAsyncdegradedReadWithBlockStripeIDRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* AsyncrecoveryRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* PrepareAsyncrecoveryRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::proxy_proto::RecoveryReply>* AsyncrecoveryRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::proxy_proto::RecoveryReply>* PrepareAsyncrecoveryRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* AsyncmultipleRecoveryRaw(::grpc::ClientContext* context, const ::proxy_proto::MultipleRecoveryRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* PrepareAsyncmultipleRecoveryRaw(::grpc::ClientContext* context, const ::proxy_proto::MultipleRecoveryRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::DelReply>* AsyncdeleteBlockRaw(::grpc::ClientContext* context, const ::proxy_proto::NodeAndBlock& request, ::grpc::CompletionQueue* cq) override;
@@ -360,11 +360,11 @@ class proxyService final {
     // get and decode
     virtual ::grpc::Status decodeAndGetObject(::grpc::ServerContext* context, const ::proxy_proto::ObjectAndPlacement* request, ::proxy_proto::GetReply* response);
     // degraded read
-    virtual ::grpc::Status degradedRead(::grpc::ServerContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response);
-    virtual ::grpc::Status degradedRead2Client(::grpc::ServerContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::GetReply* response);
+    virtual ::grpc::Status degradedRead(::grpc::ServerContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response);
+    virtual ::grpc::Status degradedRead2Client(::grpc::ServerContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response);
     virtual ::grpc::Status degradedReadWithBlockStripeID(::grpc::ServerContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response);
     // recovery
-    virtual ::grpc::Status recovery(::grpc::ServerContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::GetReply* response);
+    virtual ::grpc::Status recovery(::grpc::ServerContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::RecoveryReply* response);
     virtual ::grpc::Status multipleRecovery(::grpc::ServerContext* context, const ::proxy_proto::MultipleRecoveryRequest* request, ::proxy_proto::GetReply* response);
     // delete
     virtual ::grpc::Status deleteBlock(::grpc::ServerContext* context, const ::proxy_proto::NodeAndBlock* request, ::proxy_proto::DelReply* response);
@@ -445,11 +445,11 @@ class proxyService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status degradedRead(::grpc::ServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+    ::grpc::Status degradedRead(::grpc::ServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestdegradedRead(::grpc::ServerContext* context, ::proxy_proto::DegradedReadRequest* request, ::grpc::ServerAsyncResponseWriter< ::proxy_proto::GetReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+    void RequestdegradedRead(::grpc::ServerContext* context, ::proxy_proto::DegradedReadRequest* request, ::grpc::ServerAsyncResponseWriter< ::proxy_proto::DegradedReadReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
@@ -465,11 +465,11 @@ class proxyService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status degradedRead2Client(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+    ::grpc::Status degradedRead2Client(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestdegradedRead2Client(::grpc::ServerContext* context, ::proxy_proto::RecoveryRequest* request, ::grpc::ServerAsyncResponseWriter< ::proxy_proto::GetReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+    void RequestdegradedRead2Client(::grpc::ServerContext* context, ::proxy_proto::RecoveryRequest* request, ::grpc::ServerAsyncResponseWriter< ::proxy_proto::DegradedReadReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(4, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
@@ -505,11 +505,11 @@ class proxyService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status recovery(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+    ::grpc::Status recovery(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::RecoveryReply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void Requestrecovery(::grpc::ServerContext* context, ::proxy_proto::RecoveryRequest* request, ::grpc::ServerAsyncResponseWriter< ::proxy_proto::GetReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+    void Requestrecovery(::grpc::ServerContext* context, ::proxy_proto::RecoveryRequest* request, ::grpc::ServerAsyncResponseWriter< ::proxy_proto::RecoveryReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(6, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
@@ -682,25 +682,25 @@ class proxyService final {
    public:
     WithCallbackMethod_degradedRead() {
       ::grpc::Service::MarkMethodCallback(3,
-          new ::grpc::internal::CallbackUnaryHandler< ::proxy_proto::DegradedReadRequest, ::proxy_proto::GetReply>(
+          new ::grpc::internal::CallbackUnaryHandler< ::proxy_proto::DegradedReadRequest, ::proxy_proto::DegradedReadReply>(
             [this](
-                   ::grpc::CallbackServerContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response) { return this->degradedRead(context, request, response); }));}
+                   ::grpc::CallbackServerContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response) { return this->degradedRead(context, request, response); }));}
     void SetMessageAllocatorFor_degradedRead(
-        ::grpc::MessageAllocator< ::proxy_proto::DegradedReadRequest, ::proxy_proto::GetReply>* allocator) {
+        ::grpc::MessageAllocator< ::proxy_proto::DegradedReadRequest, ::proxy_proto::DegradedReadReply>* allocator) {
       ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(3);
-      static_cast<::grpc::internal::CallbackUnaryHandler< ::proxy_proto::DegradedReadRequest, ::proxy_proto::GetReply>*>(handler)
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::proxy_proto::DegradedReadRequest, ::proxy_proto::DegradedReadReply>*>(handler)
               ->SetMessageAllocator(allocator);
     }
     ~WithCallbackMethod_degradedRead() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status degradedRead(::grpc::ServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+    ::grpc::Status degradedRead(::grpc::ServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     virtual ::grpc::ServerUnaryReactor* degradedRead(
-      ::grpc::CallbackServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::GetReply* /*response*/)  { return nullptr; }
+      ::grpc::CallbackServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
   class WithCallbackMethod_degradedRead2Client : public BaseClass {
@@ -709,25 +709,25 @@ class proxyService final {
    public:
     WithCallbackMethod_degradedRead2Client() {
       ::grpc::Service::MarkMethodCallback(4,
-          new ::grpc::internal::CallbackUnaryHandler< ::proxy_proto::RecoveryRequest, ::proxy_proto::GetReply>(
+          new ::grpc::internal::CallbackUnaryHandler< ::proxy_proto::RecoveryRequest, ::proxy_proto::DegradedReadReply>(
             [this](
-                   ::grpc::CallbackServerContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::GetReply* response) { return this->degradedRead2Client(context, request, response); }));}
+                   ::grpc::CallbackServerContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response) { return this->degradedRead2Client(context, request, response); }));}
     void SetMessageAllocatorFor_degradedRead2Client(
-        ::grpc::MessageAllocator< ::proxy_proto::RecoveryRequest, ::proxy_proto::GetReply>* allocator) {
+        ::grpc::MessageAllocator< ::proxy_proto::RecoveryRequest, ::proxy_proto::DegradedReadReply>* allocator) {
       ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(4);
-      static_cast<::grpc::internal::CallbackUnaryHandler< ::proxy_proto::RecoveryRequest, ::proxy_proto::GetReply>*>(handler)
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::proxy_proto::RecoveryRequest, ::proxy_proto::DegradedReadReply>*>(handler)
               ->SetMessageAllocator(allocator);
     }
     ~WithCallbackMethod_degradedRead2Client() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status degradedRead2Client(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+    ::grpc::Status degradedRead2Client(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     virtual ::grpc::ServerUnaryReactor* degradedRead2Client(
-      ::grpc::CallbackServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::GetReply* /*response*/)  { return nullptr; }
+      ::grpc::CallbackServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
   class WithCallbackMethod_degradedReadWithBlockStripeID : public BaseClass {
@@ -763,25 +763,25 @@ class proxyService final {
    public:
     WithCallbackMethod_recovery() {
       ::grpc::Service::MarkMethodCallback(6,
-          new ::grpc::internal::CallbackUnaryHandler< ::proxy_proto::RecoveryRequest, ::proxy_proto::GetReply>(
+          new ::grpc::internal::CallbackUnaryHandler< ::proxy_proto::RecoveryRequest, ::proxy_proto::RecoveryReply>(
             [this](
-                   ::grpc::CallbackServerContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::GetReply* response) { return this->recovery(context, request, response); }));}
+                   ::grpc::CallbackServerContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::RecoveryReply* response) { return this->recovery(context, request, response); }));}
     void SetMessageAllocatorFor_recovery(
-        ::grpc::MessageAllocator< ::proxy_proto::RecoveryRequest, ::proxy_proto::GetReply>* allocator) {
+        ::grpc::MessageAllocator< ::proxy_proto::RecoveryRequest, ::proxy_proto::RecoveryReply>* allocator) {
       ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(6);
-      static_cast<::grpc::internal::CallbackUnaryHandler< ::proxy_proto::RecoveryRequest, ::proxy_proto::GetReply>*>(handler)
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::proxy_proto::RecoveryRequest, ::proxy_proto::RecoveryReply>*>(handler)
               ->SetMessageAllocator(allocator);
     }
     ~WithCallbackMethod_recovery() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status recovery(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+    ::grpc::Status recovery(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::RecoveryReply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     virtual ::grpc::ServerUnaryReactor* recovery(
-      ::grpc::CallbackServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::GetReply* /*response*/)  { return nullptr; }
+      ::grpc::CallbackServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::RecoveryReply* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
   class WithCallbackMethod_multipleRecovery : public BaseClass {
@@ -956,7 +956,7 @@ class proxyService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status degradedRead(::grpc::ServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+    ::grpc::Status degradedRead(::grpc::ServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -973,7 +973,7 @@ class proxyService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status degradedRead2Client(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+    ::grpc::Status degradedRead2Client(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -1007,7 +1007,7 @@ class proxyService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status recovery(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+    ::grpc::Status recovery(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::RecoveryReply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -1152,7 +1152,7 @@ class proxyService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status degradedRead(::grpc::ServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+    ::grpc::Status degradedRead(::grpc::ServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -1172,7 +1172,7 @@ class proxyService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status degradedRead2Client(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+    ::grpc::Status degradedRead2Client(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -1212,7 +1212,7 @@ class proxyService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status recovery(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+    ::grpc::Status recovery(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::RecoveryReply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -1381,7 +1381,7 @@ class proxyService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status degradedRead(::grpc::ServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+    ::grpc::Status degradedRead(::grpc::ServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -1403,7 +1403,7 @@ class proxyService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status degradedRead2Client(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+    ::grpc::Status degradedRead2Client(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -1447,7 +1447,7 @@ class proxyService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status recovery(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+    ::grpc::Status recovery(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::RecoveryReply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -1631,10 +1631,10 @@ class proxyService final {
     WithStreamedUnaryMethod_degradedRead() {
       ::grpc::Service::MarkMethodStreamed(3,
         new ::grpc::internal::StreamedUnaryHandler<
-          ::proxy_proto::DegradedReadRequest, ::proxy_proto::GetReply>(
+          ::proxy_proto::DegradedReadRequest, ::proxy_proto::DegradedReadReply>(
             [this](::grpc::ServerContext* context,
                    ::grpc::ServerUnaryStreamer<
-                     ::proxy_proto::DegradedReadRequest, ::proxy_proto::GetReply>* streamer) {
+                     ::proxy_proto::DegradedReadRequest, ::proxy_proto::DegradedReadReply>* streamer) {
                        return this->StreameddegradedRead(context,
                          streamer);
                   }));
@@ -1643,12 +1643,12 @@ class proxyService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable regular version of this method
-    ::grpc::Status degradedRead(::grpc::ServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+    ::grpc::Status degradedRead(::grpc::ServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     // replace default version of method with streamed unary
-    virtual ::grpc::Status StreameddegradedRead(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proxy_proto::DegradedReadRequest,::proxy_proto::GetReply>* server_unary_streamer) = 0;
+    virtual ::grpc::Status StreameddegradedRead(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proxy_proto::DegradedReadRequest,::proxy_proto::DegradedReadReply>* server_unary_streamer) = 0;
   };
   template <class BaseClass>
   class WithStreamedUnaryMethod_degradedRead2Client : public BaseClass {
@@ -1658,10 +1658,10 @@ class proxyService final {
     WithStreamedUnaryMethod_degradedRead2Client() {
       ::grpc::Service::MarkMethodStreamed(4,
         new ::grpc::internal::StreamedUnaryHandler<
-          ::proxy_proto::RecoveryRequest, ::proxy_proto::GetReply>(
+          ::proxy_proto::RecoveryRequest, ::proxy_proto::DegradedReadReply>(
             [this](::grpc::ServerContext* context,
                    ::grpc::ServerUnaryStreamer<
-                     ::proxy_proto::RecoveryRequest, ::proxy_proto::GetReply>* streamer) {
+                     ::proxy_proto::RecoveryRequest, ::proxy_proto::DegradedReadReply>* streamer) {
                        return this->StreameddegradedRead2Client(context,
                          streamer);
                   }));
@@ -1670,12 +1670,12 @@ class proxyService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable regular version of this method
-    ::grpc::Status degradedRead2Client(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+    ::grpc::Status degradedRead2Client(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     // replace default version of method with streamed unary
-    virtual ::grpc::Status StreameddegradedRead2Client(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proxy_proto::RecoveryRequest,::proxy_proto::GetReply>* server_unary_streamer) = 0;
+    virtual ::grpc::Status StreameddegradedRead2Client(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proxy_proto::RecoveryRequest,::proxy_proto::DegradedReadReply>* server_unary_streamer) = 0;
   };
   template <class BaseClass>
   class WithStreamedUnaryMethod_degradedReadWithBlockStripeID : public BaseClass {
@@ -1712,10 +1712,10 @@ class proxyService final {
     WithStreamedUnaryMethod_recovery() {
       ::grpc::Service::MarkMethodStreamed(6,
         new ::grpc::internal::StreamedUnaryHandler<
-          ::proxy_proto::RecoveryRequest, ::proxy_proto::GetReply>(
+          ::proxy_proto::RecoveryRequest, ::proxy_proto::RecoveryReply>(
             [this](::grpc::ServerContext* context,
                    ::grpc::ServerUnaryStreamer<
-                     ::proxy_proto::RecoveryRequest, ::proxy_proto::GetReply>* streamer) {
+                     ::proxy_proto::RecoveryRequest, ::proxy_proto::RecoveryReply>* streamer) {
                        return this->Streamedrecovery(context,
                          streamer);
                   }));
@@ -1724,12 +1724,12 @@ class proxyService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable regular version of this method
-    ::grpc::Status recovery(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::GetReply* /*response*/) override {
+    ::grpc::Status recovery(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::RecoveryReply* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     // replace default version of method with streamed unary
-    virtual ::grpc::Status Streamedrecovery(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proxy_proto::RecoveryRequest,::proxy_proto::GetReply>* server_unary_streamer) = 0;
+    virtual ::grpc::Status Streamedrecovery(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proxy_proto::RecoveryRequest,::proxy_proto::RecoveryReply>* server_unary_streamer) = 0;
   };
   template <class BaseClass>
   class WithStreamedUnaryMethod_multipleRecovery : public BaseClass {

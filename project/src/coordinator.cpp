@@ -1172,7 +1172,7 @@ namespace ECProject
 
       grpc::ClientContext degraded_read_context;
       proxy_proto::DegradedReadRequest degraded_read_request;
-      proxy_proto::GetReply degraded_read_reply;
+      proxy_proto::DegradedReadReply degraded_read_reply;
 
       int chosen_cluster_id = get_cluster_id_by_group_id(t_stripe, recovery_group_ids[0]);
       std::string chosen_proxy = m_cluster_table[chosen_cluster_id].proxy_ip + ":" + std::to_string(m_cluster_table[chosen_cluster_id].proxy_port);
@@ -1220,7 +1220,7 @@ namespace ECProject
         threads.push_back(std::thread([&t_stripe, &chosen_proxies, &recovery_group_ids, i, failed_block_id, client_ip, client_port, this](){
           grpc::ClientContext degraded_read_context;
           proxy_proto::DegradedReadRequest degraded_read_request;
-          proxy_proto::GetReply degraded_read_reply;
+          proxy_proto::DegradedReadReply degraded_read_reply;
           degraded_read_request.set_clientip(client_ip);
           degraded_read_request.set_clientport(client_port);
           degraded_read_request.set_failed_block_id(failed_block_id);
@@ -1263,7 +1263,7 @@ namespace ECProject
     return grpc::Status::OK;
   }
 
-  bool CoordinatorImpl::recovery_one_stripe(int stripe_id, int failed_block_id)
+  bool CoordinatorImpl::recovery_one_stripe(int stripe_id, int failed_block_id, std::vector<double> &disk_io_time, std::vector<double> &decode_time, double &dest_proxy_network_time)
   {
     std::string code_type = m_sys_config->CodeType;
     Stripe &t_stripe = m_stripe_table[stripe_id];
@@ -1276,7 +1276,7 @@ namespace ECProject
 
       grpc::ClientContext recovery_context;
       proxy_proto::RecoveryRequest recovery_request;
-      proxy_proto::GetReply recovery_reply;
+      proxy_proto::RecoveryReply recovery_reply;
 
       int chosen_cluster_id = get_cluster_id_by_group_id(t_stripe, recovery_group_ids[0]);
       std::string chosen_proxy = m_cluster_table[chosen_cluster_id].proxy_ip + ":" + std::to_string(m_cluster_table[chosen_cluster_id].proxy_port);
@@ -1300,6 +1300,9 @@ namespace ECProject
       }
 
       status = m_proxy_ptrs[chosen_proxy]->recovery(&recovery_context, recovery_request, &recovery_reply);
+      disk_io_time.push_back(recovery_reply.disk_io_time());
+      decode_time.push_back(recovery_reply.decode_time());
+      dest_proxy_network_time = recovery_reply.network_time();
       if (status.ok())
       {
         std::cout << "[Coordinator] recovery of " << stripe_id << "_" << failed_block_id << " success!" << std::endl;
@@ -1330,10 +1333,10 @@ namespace ECProject
         if(recovery_group_ids[i] == dest_group_id){
           continue;
         }
-        threads.push_back(std::thread([&t_stripe, &chosen_proxies, &recovery_group_ids, i, failed_block_id, dest_proxy_ip, dest_proxy_port, this](){
+        threads.push_back(std::thread([&t_stripe, &chosen_proxies, &recovery_group_ids, i, failed_block_id, dest_proxy_ip, dest_proxy_port, this, &decode_time, &disk_io_time](){
           grpc::ClientContext degraded_read_context;
           proxy_proto::DegradedReadRequest degraded_read_request;
-          proxy_proto::GetReply degraded_read_reply;
+          proxy_proto::DegradedReadReply degraded_read_reply;
           degraded_read_request.set_clientip(dest_proxy_ip);
           degraded_read_request.set_clientport(dest_proxy_port + ECProject::PROXY_PORT_SHIFT);
           degraded_read_request.set_failed_block_id(failed_block_id);
@@ -1348,14 +1351,16 @@ namespace ECProject
               continue;
 
             Block *t_block = t_stripe.blocks[blockids[j]];
-            degraded_read_request.add_datanodeip(this->m_node_table[t_block->map2node].node_ip);
-            degraded_read_request.add_datanodeport(this->m_node_table[t_block->map2node].node_port);
+            degraded_read_request.add_datanodeip(m_node_table[t_block->map2node].node_ip);
+            degraded_read_request.add_datanodeport(m_node_table[t_block->map2node].node_port);
             degraded_read_request.add_blockkeys(t_block->block_key);
             degraded_read_request.add_blockids(t_block->block_id);
           }
-          grpc::Status status = this->m_proxy_ptrs[chosen_proxies[i]]->degradedRead(&degraded_read_context, degraded_read_request, &degraded_read_reply);
+          grpc::Status status = m_proxy_ptrs[chosen_proxies[i]]->degradedRead(&degraded_read_context, degraded_read_request, &degraded_read_reply);
           if (status.ok())
           {
+            disk_io_time.push_back(degraded_read_reply.disk_io_time());
+            decode_time.push_back(degraded_read_reply.decode_time());
             std::cout << "[Coordinator] partial degraded read of " << failed_block_id << " success!" << std::endl;
           }
           else
@@ -1366,15 +1371,15 @@ namespace ECProject
 
       }
       int cross_rack_num = recovery_group_ids.size() - 1;
-      threads.push_back(std::thread([this, &t_stripe, cross_rack_num, dest_group_id, dest_cluster_id, dest_proxy_ip, dest_proxy_port, stripe_id, failed_block_id](){
+      threads.push_back(std::thread([this, &t_stripe, cross_rack_num, dest_group_id, dest_cluster_id, dest_proxy_ip, dest_proxy_port, stripe_id, failed_block_id, &disk_io_time, &decode_time, &dest_proxy_network_time](){
         grpc::ClientContext recovery_context;
         proxy_proto::RecoveryRequest recovery_request;
-        proxy_proto::GetReply recovery_reply;
+        proxy_proto::RecoveryReply recovery_reply;
         recovery_request.set_failed_block_id(failed_block_id);
         recovery_request.set_failed_block_key(t_stripe.blocks[failed_block_id]->block_key);
         int t_node_id = randomly_select_a_node(dest_cluster_id, stripe_id);
-        recovery_request.set_replaced_node_ip(this->m_node_table[t_node_id].node_ip);
-        recovery_request.set_replaced_node_port(this->m_node_table[t_node_id].node_port);
+        recovery_request.set_replaced_node_ip(m_node_table[t_node_id].node_ip);
+        recovery_request.set_replaced_node_port(m_node_table[t_node_id].node_port);
         recovery_request.set_cross_rack_num(cross_rack_num);
         std::vector<int> blockids = t_stripe.group_to_blocks[dest_group_id];
         for (int i = 0; i < int(blockids.size()); i++)
@@ -1386,15 +1391,18 @@ namespace ECProject
             continue;
 
           Block *t_block = t_stripe.blocks[blockids[i]];
-          recovery_request.add_datanodeip(this->m_node_table[t_block->map2node].node_ip);
-          recovery_request.add_datanodeport(this->m_node_table[t_block->map2node].node_port);
+          recovery_request.add_datanodeip(m_node_table[t_block->map2node].node_ip);
+          recovery_request.add_datanodeport(m_node_table[t_block->map2node].node_port);
           recovery_request.add_blockkeys(t_block->block_key);
           recovery_request.add_blockids(t_block->block_id);
         }
         //std::cout << "[Coordinator] start recovery of " << stripe_id << "_" << failed_block_id << std::endl;
-        grpc::Status status = this->m_proxy_ptrs[dest_proxy_ip + ":" + std::to_string(dest_proxy_port)]->recovery(&recovery_context, recovery_request, &recovery_reply);
+        grpc::Status status = m_proxy_ptrs[dest_proxy_ip + ":" + std::to_string(dest_proxy_port)]->recovery(&recovery_context, recovery_request, &recovery_reply);
         if (status.ok())
         {
+          disk_io_time.push_back(recovery_reply.disk_io_time());
+          decode_time.push_back(recovery_reply.decode_time());
+          dest_proxy_network_time = recovery_reply.network_time();
           std::cout << "[Coordinator] recovery of " << stripe_id << "_" << failed_block_id << " success!" << std::endl;
         }
         else
@@ -1413,14 +1421,22 @@ namespace ECProject
   grpc::Status CoordinatorImpl::getRecovery(
       grpc::ServerContext *context,
       const coordinator_proto::KeyAndClientIP *keyClient,
-      coordinator_proto::RepIfGetSuccess *getReplyClient)
+      coordinator_proto::RecoveryReply *recoveryReply)
   {
     int stripe_id = std::stoi(keyClient->key().substr(0, keyClient->key().find('_')));
     int failed_block_id = std::stoi(keyClient->key().substr(keyClient->key().find('_') + 1));
-    bool if_success = recovery_one_stripe(stripe_id, failed_block_id);
+    std::vector<double> disk_io_time;
+    std::vector<double> decode_time;
+    double dest_proxy_network_time;
+    bool if_success = recovery_one_stripe(stripe_id, failed_block_id, disk_io_time, decode_time, dest_proxy_network_time);
 
     if (if_success)
     {
+      double max_disk_io_time = *std::max_element(disk_io_time.begin(), disk_io_time.end());
+      double max_decode_time = *std::max_element(decode_time.begin(), decode_time.end());
+      recoveryReply->set_disk_io_time(max_disk_io_time);
+      recoveryReply->set_decode_time(max_decode_time);
+      recoveryReply->set_network_time(dest_proxy_network_time); 
       return grpc::Status::OK;
     }
     else
@@ -1429,7 +1445,7 @@ namespace ECProject
     }
   }
 
-  bool CoordinatorImpl::degraded_read_one_block(int stripe_id, int failed_block_id, std::string client_ip, int client_port)
+  bool CoordinatorImpl::degraded_read_one_block(int stripe_id, int failed_block_id, std::string client_ip, int client_port, std::vector<double> &read_disk_time, std::vector<double> &decode_time, double &dest_proxy_network_time)
   {
     std::string code_type = m_sys_config->CodeType;
     Stripe &t_stripe = m_stripe_table[stripe_id];
@@ -1442,7 +1458,7 @@ namespace ECProject
 
       grpc::ClientContext recovery_context;
       proxy_proto::RecoveryRequest recovery_request;
-      proxy_proto::GetReply recovery_reply;
+      proxy_proto::DegradedReadReply degraded_read_reply;
 
       int chosen_cluster_id = get_cluster_id_by_group_id(t_stripe, recovery_group_ids[0]);
       std::string chosen_proxy = m_cluster_table[chosen_cluster_id].proxy_ip + ":" + std::to_string(m_cluster_table[chosen_cluster_id].proxy_port);
@@ -1464,9 +1480,12 @@ namespace ECProject
         recovery_request.add_blockids(t_block->block_id);
       }
 
-      status = m_proxy_ptrs[chosen_proxy]->degradedRead2Client(&recovery_context, recovery_request, &recovery_reply);
+      status = m_proxy_ptrs[chosen_proxy]->degradedRead2Client(&recovery_context, recovery_request, &degraded_read_reply);
       if (status.ok())
       {
+        read_disk_time.push_back(degraded_read_reply.disk_io_time());
+        decode_time.push_back(degraded_read_reply.decode_time());
+        dest_proxy_network_time = degraded_read_reply.network_time();
         std::cout << "[Coordinator] degraded read of " << stripe_id << "_" << failed_block_id << " success!" << std::endl;
         return true;
       }
@@ -1495,10 +1514,10 @@ namespace ECProject
         if(recovery_group_ids[i] == dest_group_id){
           continue;
         }
-        threads.push_back(std::thread([&t_stripe, &chosen_proxies, &recovery_group_ids, i, failed_block_id, dest_proxy_ip, dest_proxy_port, this](){
+        threads.push_back(std::thread([&t_stripe, &chosen_proxies, &recovery_group_ids, i, failed_block_id, dest_proxy_ip, dest_proxy_port, this, &read_disk_time, &decode_time](){
           grpc::ClientContext degraded_read_context;
           proxy_proto::DegradedReadRequest degraded_read_request;
-          proxy_proto::GetReply degraded_read_reply;
+          proxy_proto::DegradedReadReply degraded_read_reply;
           degraded_read_request.set_clientip(dest_proxy_ip);
           degraded_read_request.set_clientport(dest_proxy_port + ECProject::PROXY_PORT_SHIFT);
           degraded_read_request.set_failed_block_id(failed_block_id);
@@ -1522,6 +1541,8 @@ namespace ECProject
           grpc::Status status = this->m_proxy_ptrs[chosen_proxies[i]]->degradedRead(&degraded_read_context, degraded_read_request, &degraded_read_reply);
           if (status.ok())
           {
+            read_disk_time.push_back(degraded_read_reply.disk_io_time());
+            decode_time.push_back(degraded_read_reply.decode_time());
             std::cout << "[Coordinator] partial degraded read of " << failed_block_id << " success!" << std::endl;
           }
           else
@@ -1532,10 +1553,10 @@ namespace ECProject
 
       }
       int cross_rack_num = recovery_group_ids.size() - 1;
-      threads.push_back(std::thread([this, &t_stripe, cross_rack_num, dest_group_id, dest_cluster_id, dest_proxy_ip, dest_proxy_port, stripe_id, failed_block_id, client_ip, client_port](){
+      threads.push_back(std::thread([this, &t_stripe, cross_rack_num, dest_group_id, dest_cluster_id, dest_proxy_ip, dest_proxy_port, stripe_id, failed_block_id, client_ip, client_port, &read_disk_time, &decode_time, &dest_proxy_network_time](){
         grpc::ClientContext recovery_context;
         proxy_proto::RecoveryRequest recovery_request;
-        proxy_proto::GetReply recovery_reply;
+        proxy_proto::DegradedReadReply recovery_reply;
         recovery_request.set_failed_block_id(failed_block_id);
         recovery_request.set_failed_block_key(t_stripe.blocks[failed_block_id]->block_key);
         recovery_request.set_replaced_node_ip(client_ip);
@@ -1560,6 +1581,9 @@ namespace ECProject
         grpc::Status status = this->m_proxy_ptrs[dest_proxy_ip + ":" + std::to_string(dest_proxy_port)]->degradedRead2Client(&recovery_context, recovery_request, &recovery_reply);
         if (status.ok())
         {
+          read_disk_time.push_back(recovery_reply.disk_io_time());
+          decode_time.push_back(recovery_reply.decode_time());
+          dest_proxy_network_time = recovery_reply.network_time();
           std::cout << "[Coordinator] degraded read of " << stripe_id << "_" << failed_block_id << " success!" << std::endl;
         }
         else
@@ -1578,15 +1602,32 @@ namespace ECProject
   grpc::Status CoordinatorImpl::getDegradedReadBlock(
     grpc::ServerContext *context,
     const coordinator_proto::KeyAndClientIP *keyClient,
-    coordinator_proto::RepIfGetSuccess *getReplyClient)
+    coordinator_proto::DegradedReadReply *degradedReadReply)
   {
     int stripe_id = std::stoi(keyClient->key().substr(0, keyClient->key().find('_')));
     int failed_block_id = std::stoi(keyClient->key().substr(keyClient->key().find('_') + 1));
     std::string client_ip = keyClient->clientip();
     int client_port = keyClient->clientport();
-    std::thread t(&CoordinatorImpl::degraded_read_one_block, this, stripe_id, failed_block_id, client_ip, client_port);
-    t.detach();
-    return grpc::Status::OK;
+    std::vector<double> read_disk_time;
+    std::vector<double> encode_time;
+    double dest_proxy_network_time;
+
+    /*std::thread t(&CoordinatorImpl::degraded_read_one_block, this, stripe_id, failed_block_id, client_ip, client_port);
+    t.join();*/
+    bool if_success = degraded_read_one_block(stripe_id, failed_block_id, client_ip, client_port, read_disk_time, encode_time, dest_proxy_network_time);
+    if (if_success)
+    {
+      double max_read_disk_time = *std::max_element(read_disk_time.begin(), read_disk_time.end());
+      double max_encode_time = *std::max_element(encode_time.begin(), encode_time.end());
+      degradedReadReply->set_disk_io_time(max_read_disk_time);
+      degradedReadReply->set_decode_time(max_encode_time);
+      degradedReadReply->set_network_time(dest_proxy_network_time);
+      return grpc::Status::OK;
+    }
+    else
+    {
+      return grpc::Status(grpc::StatusCode::INTERNAL, "Degraded read failed!");
+    }
   }
 
   bool CoordinatorImpl::recovery_full_node(std::vector<int> stripe_ids, std::vector<int> block_ids)

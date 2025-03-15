@@ -39,9 +39,9 @@ service coordinatorService {
 
   // degraded read
   rpc getDegradedReadValue(KeyAndClientIP) returns (RepIfGetSuccess) {};
-  rpc getDegradedReadBlock(KeyAndClientIP) returns (RepIfGetSuccess) {};
+  rpc getDegradedReadBlock(KeyAndClientIP) returns (DegradedReadReply) {};
   // recovery
-  rpc getRecovery(KeyAndClientIP) returns (RepIfGetSuccess) {};
+  rpc getRecovery(KeyAndClientIP) returns (RecoveryReply) {};
   rpc fullNodeRecovery(NodeIdFromClient) returns (RepBlockNum) {};
   // delete
   rpc delByKey(KeyFromClient) returns (RepIfDeling) {};
@@ -150,4 +150,16 @@ message RepStripeIds {
 
 message RepBlockNum {
   int32 block_num = 1;
+}
+
+message DegradedReadReply {
+  double disk_io_time = 1;
+  double network_time = 2;
+  double decode_time = 3;
+}
+
+message RecoveryReply {
+  double disk_io_time = 1;
+  double network_time = 2;
+  double decode_time = 3;
 }

@@ -320,46 +320,46 @@ void coordinatorService::Stub::async::getDegradedReadValue(::grpc::ClientContext
   return result;
 }
 
-::grpc::Status coordinatorService::Stub::getDegradedReadBlock(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::coordinator_proto::RepIfGetSuccess* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::RepIfGetSuccess, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_getDegradedReadBlock_, context, request, response);
+::grpc::Status coordinatorService::Stub::getDegradedReadBlock(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::coordinator_proto::DegradedReadReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_getDegradedReadBlock_, context, request, response);
 }
 
-void coordinatorService::Stub::async::getDegradedReadBlock(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RepIfGetSuccess* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::RepIfGetSuccess, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_getDegradedReadBlock_, context, request, response, std::move(f));
+void coordinatorService::Stub::async::getDegradedReadBlock(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::DegradedReadReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_getDegradedReadBlock_, context, request, response, std::move(f));
 }
 
-void coordinatorService::Stub::async::getDegradedReadBlock(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RepIfGetSuccess* response, ::grpc::ClientUnaryReactor* reactor) {
+void coordinatorService::Stub::async::getDegradedReadBlock(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::DegradedReadReply* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_getDegradedReadBlock_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>* coordinatorService::Stub::PrepareAsyncgetDegradedReadBlockRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::coordinator_proto::RepIfGetSuccess, ::coordinator_proto::KeyAndClientIP, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_getDegradedReadBlock_, context, request);
+::grpc::ClientAsyncResponseReader< ::coordinator_proto::DegradedReadReply>* coordinatorService::Stub::PrepareAsyncgetDegradedReadBlockRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::coordinator_proto::DegradedReadReply, ::coordinator_proto::KeyAndClientIP, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_getDegradedReadBlock_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>* coordinatorService::Stub::AsyncgetDegradedReadBlockRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::coordinator_proto::DegradedReadReply>* coordinatorService::Stub::AsyncgetDegradedReadBlockRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncgetDegradedReadBlockRaw(context, request, cq);
   result->StartCall();
   return result;
 }
 
-::grpc::Status coordinatorService::Stub::getRecovery(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::coordinator_proto::RepIfGetSuccess* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::RepIfGetSuccess, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_getRecovery_, context, request, response);
+::grpc::Status coordinatorService::Stub::getRecovery(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::coordinator_proto::RecoveryReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::RecoveryReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_getRecovery_, context, request, response);
 }
 
-void coordinatorService::Stub::async::getRecovery(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RepIfGetSuccess* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::RepIfGetSuccess, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_getRecovery_, context, request, response, std::move(f));
+void coordinatorService::Stub::async::getRecovery(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RecoveryReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::RecoveryReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_getRecovery_, context, request, response, std::move(f));
 }
 
-void coordinatorService::Stub::async::getRecovery(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RepIfGetSuccess* response, ::grpc::ClientUnaryReactor* reactor) {
+void coordinatorService::Stub::async::getRecovery(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RecoveryReply* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_getRecovery_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>* coordinatorService::Stub::PrepareAsyncgetRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::coordinator_proto::RepIfGetSuccess, ::coordinator_proto::KeyAndClientIP, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_getRecovery_, context, request);
+::grpc::ClientAsyncResponseReader< ::coordinator_proto::RecoveryReply>* coordinatorService::Stub::PrepareAsyncgetRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::coordinator_proto::RecoveryReply, ::coordinator_proto::KeyAndClientIP, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_getRecovery_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>* coordinatorService::Stub::AsyncgetRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::coordinator_proto::RecoveryReply>* coordinatorService::Stub::AsyncgetRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncgetRecoveryRaw(context, request, cq);
   result->StartCall();
@@ -572,21 +572,21 @@ coordinatorService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       coordinatorService_method_names[11],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::RepIfGetSuccess, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](coordinatorService::Service* service,
              ::grpc::ServerContext* ctx,
              const ::coordinator_proto::KeyAndClientIP* req,
-             ::coordinator_proto::RepIfGetSuccess* resp) {
+             ::coordinator_proto::DegradedReadReply* resp) {
                return service->getDegradedReadBlock(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       coordinatorService_method_names[12],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::RepIfGetSuccess, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::RecoveryReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](coordinatorService::Service* service,
              ::grpc::ServerContext* ctx,
              const ::coordinator_proto::KeyAndClientIP* req,
-             ::coordinator_proto::RepIfGetSuccess* resp) {
+             ::coordinator_proto::RecoveryReply* resp) {
                return service->getRecovery(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
@@ -711,14 +711,14 @@ coordinatorService::Service::~Service() {
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status coordinatorService::Service::getDegradedReadBlock(::grpc::ServerContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RepIfGetSuccess* response) {
+::grpc::Status coordinatorService::Service::getDegradedReadBlock(::grpc::ServerContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::DegradedReadReply* response) {
   (void) context;
   (void) request;
   (void) response;
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status coordinatorService::Service::getRecovery(::grpc::ServerContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RepIfGetSuccess* response) {
+::grpc::Status coordinatorService::Service::getRecovery(::grpc::ServerContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RecoveryReply* response) {
   (void) context;
   (void) request;
   (void) response;

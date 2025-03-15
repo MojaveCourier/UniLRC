@@ -57,7 +57,7 @@ namespace ECProject
     grpc::Status degradedRead(
         grpc::ServerContext *context,
         const proxy_proto::DegradedReadRequest *degraded_read_request,
-        proxy_proto::GetReply *response) override;
+        proxy_proto::DegradedReadReply *response) override;
     grpc::Status degradedReadWithBlockStripeID(
         grpc::ServerContext *context,
         const proxy_proto::DegradedReadRequest *degraded_read_request,
@@ -65,12 +65,12 @@ namespace ECProject
     grpc::Status degradedRead2Client(
       grpc::ServerContext *context,
       const proxy_proto::RecoveryRequest *recovery_request,
-      proxy_proto::GetReply *response) override;
+      proxy_proto::DegradedReadReply *response) override;
     // recovery
     grpc::Status recovery(
         grpc::ServerContext *context,
         const proxy_proto::RecoveryRequest *recovery_request,
-        proxy_proto::GetReply *response) override;
+        proxy_proto::RecoveryReply *response) override;
 
     grpc::Status multipleRecovery(
         grpc::ServerContext *context,

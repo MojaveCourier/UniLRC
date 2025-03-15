@@ -26,11 +26,11 @@ service proxyService {
   // get and decode
   rpc decodeAndGetObject(ObjectAndPlacement) returns (GetReply);
   // degraded read
-  rpc degradedRead(DegradedReadRequest) returns (GetReply);
-  rpc degradedRead2Client(RecoveryRequest) returns (GetReply);
+  rpc degradedRead(DegradedReadRequest) returns (DegradedReadReply);
+  rpc degradedRead2Client(RecoveryRequest) returns (DegradedReadReply);
   rpc degradedReadWithBlockStripeID(DegradedReadRequest) returns (GetReply);
   // recovery
-  rpc recovery(RecoveryRequest) returns (GetReply);
+  rpc recovery(RecoveryRequest) returns (RecoveryReply);
   rpc multipleRecovery(MultipleRecoveryRequest) returns (GetReply);
   // delete
   rpc deleteBlock(NodeAndBlock) returns (DelReply);
@@ -162,6 +162,12 @@ message DegradedReadRequest{
   repeated int32 blockids = 9;
 }
 
+message DegradedReadReply {
+  double disk_io_time = 1;
+  double network_time = 2;
+  double decode_time = 3;
+}
+
 // recovery
 message RecoveryRequest{
   string replaced_node_ip = 1;
@@ -188,6 +194,12 @@ message MultipleRecoveryRequest{
   repeated int32 blockids = 10;
   repeated int32 datanode_num = 11;
   int32 failed_block_num = 12;
+}
+
+message RecoveryReply {
+  double disk_io_time = 1;
+  double network_time = 2;
+  double decode_time = 3;
 }
 
 // append

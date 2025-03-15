@@ -986,11 +986,11 @@ namespace ECProject
   grpc::Status ProxyImpl::degradedRead(
       grpc::ServerContext *context,
       const proxy_proto::DegradedReadRequest *degraded_read_request,
-      proxy_proto::GetReply *response)
+      proxy_proto::DegradedReadReply *response)
   {
     auto request_copy = std::make_shared<proxy_proto::DegradedReadRequest>(*degraded_read_request);
 
-    auto degraded_read = [this, request_copy]() mutable
+    auto degraded_read = [this, request_copy, &response]() mutable
     {
       std::string code_type = m_sys_config->CodeType;
       // auto status = std::make_shared<std::vector<bool>>(request_copy->datanodeip_size(), false);
@@ -1007,6 +1007,7 @@ namespace ECProject
       //std::vector<char> res_buf(m_sys_config->BlockSize, 0);
       char *res_buf = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
       std::vector<std::thread> get_threads;
+      std::chrono::high_resolution_clock::time_point t0 = std::chrono::high_resolution_clock::now();
       for (int i = 0; i < request_copy->datanodeip_size(); i++)
       {
         get_threads.push_back(std::thread(&ProxyImpl::get_from_node, this, request_copy->blockkeys(i), get_bufs[i], m_sys_config->BlockSize, request_copy->datanodeip(i).c_str(), request_copy->datanodeport(i), status.get(), i));
@@ -1015,7 +1016,8 @@ namespace ECProject
       {
         get_threads[i].join();
       }
-
+      std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+      std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
       bool all_true = std::all_of(status.get(), status.get() + request_copy->datanodeip_size(), [](bool val)
                                   { return val == true; });
       if (!all_true)
@@ -1025,6 +1027,7 @@ namespace ECProject
       }
       else
       {
+        response->set_disk_io_time(time_span.count());
         std::cout << "[Proxy" << m_self_cluster_id << "][GET]"
                   << "read from datanodes success!" << std::endl;
 
@@ -1035,7 +1038,7 @@ namespace ECProject
         }
         std::vector<unsigned char *> block_ptrs = convertToUnsignedCharArray(get_bufs);
 
-        std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+        std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
         if (code_type == "UniLRC")
         {
           std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] decode_unilrc" << std::endl;
@@ -1064,6 +1067,9 @@ namespace ECProject
           std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] code type error!" << std::endl;
           exit(1);
         }
+        std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> time_span_decode = std::chrono::duration_cast<std::chrono::duration<double>>(t3 - t2);
+        response->set_decode_time(time_span_decode.count());
 
         std::string client_ip = request_copy->clientip();
         int client_port = request_copy->clientport();
@@ -1104,7 +1110,7 @@ namespace ECProject
       }
 
       std::thread my_thread(degraded_read);
-      my_thread.detach();
+      my_thread.join();
     }
     catch (const std::exception &e)
     {
@@ -1253,7 +1259,7 @@ namespace ECProject
   grpc::Status ProxyImpl::degradedRead2Client(
     grpc::ServerContext *context,
     const proxy_proto::RecoveryRequest *recovery_request,
-    proxy_proto::GetReply *response)
+    proxy_proto::DegradedReadReply *response)
 {
   try
   {
@@ -1281,6 +1287,7 @@ namespace ECProject
     char *real_res_buf = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
     memset(real_res_buf, 0, m_sys_config->BlockSize);
     std::vector<std::thread> get_threads;
+    std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < recovery_request->datanodeip_size(); i++)
     {
       get_threads.push_back(std::thread(&ProxyImpl::get_from_node, this, recovery_request->blockkeys(i), get_bufs[i], m_sys_config->BlockSize, recovery_request->datanodeip(i).c_str(), recovery_request->datanodeport(i), status.get(), i));
@@ -1289,6 +1296,9 @@ namespace ECProject
     {
       get_threads[i].join();
     }
+    std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+    response->set_disk_io_time(time_span.count());
 
     bool all_true = std::all_of(status.get(), status.get() + recovery_request->datanodeip_size(), [](bool val)
                                 { return val == true; });
@@ -1313,7 +1323,7 @@ namespace ECProject
       int failed_block_id = recovery_request->failed_block_id();
       std::string replaced_node_ip = recovery_request->replaced_node_ip();
       int replaced_node_port = recovery_request->replaced_node_port();
-
+      std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
       if (code_type == "UniLRC")
       {
         decode_unilrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, recovery_request->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf), m_sys_config->BlockSize);
@@ -1335,6 +1345,9 @@ namespace ECProject
         std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] code type error!" << std::endl;
         exit(1);
       }
+      std::chrono::high_resolution_clock::time_point t4 = std::chrono::high_resolution_clock::now();
+      std::chrono::duration<double> time_span2 = std::chrono::duration_cast<std::chrono::duration<double>>(t4 - t3);
+      response->set_decode_time(time_span2.count());
 
       if(cross_rack_num){
         std::cout << "start to recover cross rack" << std::endl;
@@ -1344,6 +1357,7 @@ namespace ECProject
           cross_rack_bufs[i] = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
         }
         std::vector<std::thread> get_from_proxies_threads;
+        std::chrono::high_resolution_clock::time_point t5 = std::chrono::high_resolution_clock::now();
         for(int i = 0; i < cross_rack_num; i++)
         {
           get_from_proxies_threads.push_back(std::thread([i, this, &cross_rack_bufs]()mutable{
@@ -1367,6 +1381,9 @@ namespace ECProject
         {
           get_from_proxies_threads[i].join();
         }
+        std::chrono::high_resolution_clock::time_point t6 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> time_span3 = std::chrono::duration_cast<std::chrono::duration<double>>(t6 - t5);
+        response->set_network_time(time_span3.count());
         std::cout << "start to xor" << std::endl;
         char **buf_ptrs = new char*[cross_rack_num + 2];
         for(int i = 0; i < cross_rack_num; i++)
@@ -1375,13 +1392,20 @@ namespace ECProject
         }
         buf_ptrs[cross_rack_num] = res_buf;
         buf_ptrs[cross_rack_num + 1] = real_res_buf;
+        std::chrono::high_resolution_clock::time_point t7 = std::chrono::high_resolution_clock::now();
         xor_avx(cross_rack_num + 2, m_sys_config->BlockSize, (void**)buf_ptrs);
+        std::chrono::high_resolution_clock::time_point t8 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> time_span4 = std::chrono::duration_cast<std::chrono::duration<double>>(t8 - t7);
+        response->set_decode_time(response->decode_time() + time_span4.count());
         for(int i = 0; i < cross_rack_num; i++)
         {
           delete cross_rack_bufs[i];
         }
         delete cross_rack_bufs;
         delete buf_ptrs;
+      }
+      else{
+        response->set_network_time(0);
       }
     }
   
@@ -1448,7 +1472,7 @@ namespace ECProject
   grpc::Status ProxyImpl::recovery(
       grpc::ServerContext *context,
       const proxy_proto::RecoveryRequest *recovery_request,
-      proxy_proto::GetReply *response)
+      proxy_proto::RecoveryReply *response)
   {
     try
     {
@@ -1476,6 +1500,7 @@ namespace ECProject
       char *real_res_buf = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
       memset(real_res_buf, 0, m_sys_config->BlockSize);
       std::vector<std::thread> get_threads;
+      std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
       for (int i = 0; i < recovery_request->datanodeip_size(); i++)
       {
         get_threads.push_back(std::thread(&ProxyImpl::get_from_node, this, recovery_request->blockkeys(i), get_bufs[i], m_sys_config->BlockSize, recovery_request->datanodeip(i).c_str(), recovery_request->datanodeport(i), status.get(), i));
@@ -1484,6 +1509,9 @@ namespace ECProject
       {
         get_threads[i].join();
       }
+      std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+      std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+      response->set_disk_io_time(time_span.count());
 
       bool all_true = std::all_of(status.get(), status.get() + recovery_request->datanodeip_size(), [](bool val)
                                   { return val == true; });
@@ -1509,6 +1537,7 @@ namespace ECProject
         std::string replaced_node_ip = recovery_request->replaced_node_ip();
         int replaced_node_port = recovery_request->replaced_node_port();
 
+        std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
         if (code_type == "UniLRC")
         {
           decode_unilrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, recovery_request->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf), m_sys_config->BlockSize);
@@ -1530,7 +1559,10 @@ namespace ECProject
           std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] code type error!" << std::endl;
           exit(1);
         }
-
+        std::chrono::high_resolution_clock::time_point t4 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> time_span2 = std::chrono::duration_cast<std::chrono::duration<double>>(t4 - t3);
+        response->set_decode_time(time_span2.count());
+        response->set_network_time(0);
         if(cross_rack_num){
           std::cout << "start to recover cross rack" << std::endl;
           char **cross_rack_bufs = new char*[cross_rack_num];
@@ -1539,6 +1571,7 @@ namespace ECProject
             cross_rack_bufs[i] = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
           }
           std::vector<std::thread> get_from_proxies_threads;
+          std::chrono::high_resolution_clock::time_point t5 = std::chrono::high_resolution_clock::now();
           for(int i = 0; i < cross_rack_num; i++)
           {
             get_from_proxies_threads.push_back(std::thread([i, this, &cross_rack_bufs]()mutable{
@@ -1564,6 +1597,9 @@ namespace ECProject
           {
             get_from_proxies_threads[i].join();
           }
+          std::chrono::high_resolution_clock::time_point t6 = std::chrono::high_resolution_clock::now();
+          std::chrono::duration<double> time_span3 = std::chrono::duration_cast<std::chrono::duration<double>>(t6 - t5);
+          response->set_network_time(time_span3.count());
           std::cout << "start to xor" << std::endl;
           char **buf_ptrs = new char*[cross_rack_num + 2];
           for(int i = 0; i < cross_rack_num; i++)
@@ -1572,7 +1608,11 @@ namespace ECProject
           }
           buf_ptrs[cross_rack_num] = res_buf;
           buf_ptrs[cross_rack_num + 1] = real_res_buf;
+          std::chrono::high_resolution_clock::time_point t7 = std::chrono::high_resolution_clock::now();
           xor_avx(cross_rack_num + 2, m_sys_config->BlockSize, (void**)buf_ptrs);
+          std::chrono::high_resolution_clock::time_point t8 = std::chrono::high_resolution_clock::now();
+          std::chrono::duration<double> time_span4 = std::chrono::duration_cast<std::chrono::duration<double>>(t8 - t7);
+          response->set_decode_time(response->decode_time() + time_span4.count());
           for(int i = 0; i < cross_rack_num; i++)
           {
             delete cross_rack_bufs[i];
@@ -1582,12 +1622,16 @@ namespace ECProject
         }
         std::cout << "[Proxy" << m_self_cluster_id << "][Recovery] send to the replaced node" << std::endl;
         // send to the replaced node
+        std::chrono::high_resolution_clock::time_point t9 = std::chrono::high_resolution_clock::now();
         if(cross_rack_num){
           RecoveryToDatanode(failed_block_key.c_str(), failed_block_id, real_res_buf, replaced_node_ip.c_str(), replaced_node_port);
         }
         else{
           RecoveryToDatanode(failed_block_key.c_str(), failed_block_id, res_buf, replaced_node_ip.c_str(), replaced_node_port);
         }
+        std::chrono::high_resolution_clock::time_point t10 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> time_span5 = std::chrono::duration_cast<std::chrono::duration<double>>(t10 - t9);
+        response->set_disk_io_time(response->disk_io_time() + time_span5.count());
       }
       delete res_buf;
       delete real_res_buf;

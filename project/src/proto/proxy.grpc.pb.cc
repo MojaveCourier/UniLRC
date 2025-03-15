@@ -124,46 +124,46 @@ void proxyService::Stub::async::decodeAndGetObject(::grpc::ClientContext* contex
   return result;
 }
 
-::grpc::Status proxyService::Stub::degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::proxy_proto::GetReply* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::proxy_proto::DegradedReadRequest, ::proxy_proto::GetReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_degradedRead_, context, request, response);
+::grpc::Status proxyService::Stub::degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::proxy_proto::DegradedReadReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::proxy_proto::DegradedReadRequest, ::proxy_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_degradedRead_, context, request, response);
 }
 
-void proxyService::Stub::async::degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::proxy_proto::DegradedReadRequest, ::proxy_proto::GetReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_degradedRead_, context, request, response, std::move(f));
+void proxyService::Stub::async::degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::proxy_proto::DegradedReadRequest, ::proxy_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_degradedRead_, context, request, response, std::move(f));
 }
 
-void proxyService::Stub::async::degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) {
+void proxyService::Stub::async::degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_degradedRead_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* proxyService::Stub::PrepareAsyncdegradedReadRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::proxy_proto::GetReply, ::proxy_proto::DegradedReadRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_degradedRead_, context, request);
+::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* proxyService::Stub::PrepareAsyncdegradedReadRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::proxy_proto::DegradedReadReply, ::proxy_proto::DegradedReadRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_degradedRead_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* proxyService::Stub::AsyncdegradedReadRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* proxyService::Stub::AsyncdegradedReadRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncdegradedReadRaw(context, request, cq);
   result->StartCall();
   return result;
 }
 
-::grpc::Status proxyService::Stub::degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::proxy_proto::GetReply* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::proxy_proto::RecoveryRequest, ::proxy_proto::GetReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_degradedRead2Client_, context, request, response);
+::grpc::Status proxyService::Stub::degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::proxy_proto::DegradedReadReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::proxy_proto::RecoveryRequest, ::proxy_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_degradedRead2Client_, context, request, response);
 }
 
-void proxyService::Stub::async::degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::GetReply* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::proxy_proto::RecoveryRequest, ::proxy_proto::GetReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_degradedRead2Client_, context, request, response, std::move(f));
+void proxyService::Stub::async::degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::proxy_proto::RecoveryRequest, ::proxy_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_degradedRead2Client_, context, request, response, std::move(f));
 }
 
-void proxyService::Stub::async::degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) {
+void proxyService::Stub::async::degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_degradedRead2Client_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* proxyService::Stub::PrepareAsyncdegradedRead2ClientRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::proxy_proto::GetReply, ::proxy_proto::RecoveryRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_degradedRead2Client_, context, request);
+::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* proxyService::Stub::PrepareAsyncdegradedRead2ClientRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::proxy_proto::DegradedReadReply, ::proxy_proto::RecoveryRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_degradedRead2Client_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* proxyService::Stub::AsyncdegradedRead2ClientRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* proxyService::Stub::AsyncdegradedRead2ClientRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncdegradedRead2ClientRaw(context, request, cq);
   result->StartCall();
@@ -193,23 +193,23 @@ void proxyService::Stub::async::degradedReadWithBlockStripeID(::grpc::ClientCont
   return result;
 }
 
-::grpc::Status proxyService::Stub::recovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::proxy_proto::GetReply* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::proxy_proto::RecoveryRequest, ::proxy_proto::GetReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_recovery_, context, request, response);
+::grpc::Status proxyService::Stub::recovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::proxy_proto::RecoveryReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::proxy_proto::RecoveryRequest, ::proxy_proto::RecoveryReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_recovery_, context, request, response);
 }
 
-void proxyService::Stub::async::recovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::GetReply* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::proxy_proto::RecoveryRequest, ::proxy_proto::GetReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_recovery_, context, request, response, std::move(f));
+void proxyService::Stub::async::recovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::RecoveryReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::proxy_proto::RecoveryRequest, ::proxy_proto::RecoveryReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_recovery_, context, request, response, std::move(f));
 }
 
-void proxyService::Stub::async::recovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) {
+void proxyService::Stub::async::recovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::RecoveryReply* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_recovery_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* proxyService::Stub::PrepareAsyncrecoveryRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::proxy_proto::GetReply, ::proxy_proto::RecoveryRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_recovery_, context, request);
+::grpc::ClientAsyncResponseReader< ::proxy_proto::RecoveryReply>* proxyService::Stub::PrepareAsyncrecoveryRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::proxy_proto::RecoveryReply, ::proxy_proto::RecoveryRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_recovery_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* proxyService::Stub::AsyncrecoveryRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::proxy_proto::RecoveryReply>* proxyService::Stub::AsyncrecoveryRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncrecoveryRaw(context, request, cq);
   result->StartCall();
@@ -342,21 +342,21 @@ proxyService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       proxyService_method_names[3],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< proxyService::Service, ::proxy_proto::DegradedReadRequest, ::proxy_proto::GetReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< proxyService::Service, ::proxy_proto::DegradedReadRequest, ::proxy_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](proxyService::Service* service,
              ::grpc::ServerContext* ctx,
              const ::proxy_proto::DegradedReadRequest* req,
-             ::proxy_proto::GetReply* resp) {
+             ::proxy_proto::DegradedReadReply* resp) {
                return service->degradedRead(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       proxyService_method_names[4],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< proxyService::Service, ::proxy_proto::RecoveryRequest, ::proxy_proto::GetReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< proxyService::Service, ::proxy_proto::RecoveryRequest, ::proxy_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](proxyService::Service* service,
              ::grpc::ServerContext* ctx,
              const ::proxy_proto::RecoveryRequest* req,
-             ::proxy_proto::GetReply* resp) {
+             ::proxy_proto::DegradedReadReply* resp) {
                return service->degradedRead2Client(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
@@ -372,11 +372,11 @@ proxyService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       proxyService_method_names[6],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< proxyService::Service, ::proxy_proto::RecoveryRequest, ::proxy_proto::GetReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< proxyService::Service, ::proxy_proto::RecoveryRequest, ::proxy_proto::RecoveryReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](proxyService::Service* service,
              ::grpc::ServerContext* ctx,
              const ::proxy_proto::RecoveryRequest* req,
-             ::proxy_proto::GetReply* resp) {
+             ::proxy_proto::RecoveryReply* resp) {
                return service->recovery(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
@@ -445,14 +445,14 @@ proxyService::Service::~Service() {
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status proxyService::Service::degradedRead(::grpc::ServerContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response) {
+::grpc::Status proxyService::Service::degradedRead(::grpc::ServerContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response) {
   (void) context;
   (void) request;
   (void) response;
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status proxyService::Service::degradedRead2Client(::grpc::ServerContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::GetReply* response) {
+::grpc::Status proxyService::Service::degradedRead2Client(::grpc::ServerContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response) {
   (void) context;
   (void) request;
   (void) response;
@@ -466,7 +466,7 @@ proxyService::Service::~Service() {
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status proxyService::Service::recovery(::grpc::ServerContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::GetReply* response) {
+::grpc::Status proxyService::Service::recovery(::grpc::ServerContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::RecoveryReply* response) {
   (void) context;
   (void) request;
   (void) response;
