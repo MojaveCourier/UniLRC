@@ -78,7 +78,8 @@ namespace ECProject
     std::vector<int> get_local_parity_block_num_per_group(int k, int r, int z, std::string code_type);
     bool set(std::string key, std::string value);
     bool SetParameterByGrpc(ECSchema input_ecschema);
-    bool get(std::string key, std::string &value);
+    std::shared_ptr<char[]> get(std::string key, size_t &data_size);
+    bool get_blocks(int start_block_id, int end_block_id, std::string &value);
     bool delete_key(std::string key);
     bool delete_stripe(int stripe_id);
     bool delete_all_stripes();

@@ -908,7 +908,7 @@ namespace ECProject
     return reply.block_num();
   }
 
-  bool Client::get(std::string key, std::string &value)
+  std::shared_ptr<char[]> Client::get(std::string key, size_t &data_size)
   {
     grpc::ClientContext context;
     coordinator_proto::KeyAndClientIP request;
@@ -917,24 +917,69 @@ namespace ECProject
     request.set_clientport(m_clientPortForGet);
 
     coordinator_proto::ReplyProxyIPsPorts reply;
-    std::cout << "getting stripe" << std::endl;
+    //std::cout << "getting stripe" << std::endl;
     grpc::Status status = m_coordinator_ptr->getStripe(&context, request, &reply);
     
     if(!status.ok())
     {
       std::cout << "[Client] get stripe failed!" << std::endl;
-      return false;
+      return nullptr;
     }
-    //std::cout << "getting stripe succeeded" << std::endl;
 
-
-    int group_num = reply.proxyips_size();
     int data_block_num = m_sys_config->k;
     int block_size = m_sys_config->BlockSize;
-    char * data_ptr_array = new char[static_cast<size_t>(data_block_num) * static_cast<size_t>(block_size)];
+    data_size = static_cast<size_t>(data_block_num) * static_cast<size_t>(block_size);
+    
+    std::shared_ptr<char[]> data_ptr_array(new char[data_size]);
+    
     std::vector<std::thread> threads;
-
     for(int i = 0; i < data_block_num; i++)
+    {
+      threads.push_back(std::thread([this, i, data_ptr_array, block_size]() mutable {
+        asio::io_context io_context;
+        asio::ip::tcp::socket socket_data(io_context);
+        this->acceptor.accept(socket_data);
+        uint32_t block_id;
+        asio::read(socket_data, asio::buffer(&block_id, sizeof(uint32_t)));
+        asio::error_code error;
+        size_t len = asio::read(socket_data, asio::buffer(data_ptr_array.get() + block_id * static_cast<size_t>(block_size), block_size), error);
+        if(len != block_size)
+        {
+          std::cout << "[Client] get stripe block failed!" << std::endl;
+        }
+        asio::error_code ignore_ec;
+        socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
+        socket_data.close(ignore_ec);
+      }));
+    }
+    
+    for(auto &thread : threads)
+    {
+      thread.join();
+    }
+    
+    return data_ptr_array;
+  }
+  
+  /*bool Client::get_blocks(int start_block_id, int end_block_id, std::string &value)
+  {
+    grpc::ClientContext context;
+    coordinator_proto::BlockIdFromClient request;
+    request.set_start_block_id(start_block_id);
+    request.set_end_block_id(end_block_id);
+
+    coordinator_proto::ReplyProxyIPsPorts reply;
+    grpc::Status status = m_coordinator_ptr->getBlocks(&context, request, &reply);
+    if(!status.ok())
+    {
+      std::cout << "[Client] get blocks failed!" << std::endl;
+      return false;
+    }
+    int block_num = end_block_id - start_block_id + 1;
+    int block_size = m_sys_config->BlockSize;
+    char * data_ptr_array = new char[static_cast<size_t>(block_num) * static_cast<size_t>(block_size)];
+    std::vector<std::thread> threads;
+    for(int i = 0; i < block_num; i++)
     {
       threads.push_back(std::thread(([this, &reply, i, data_ptr_array, block_size]()mutable {
         asio::io_context io_context;
@@ -946,45 +991,21 @@ namespace ECProject
         size_t len = asio::read(socket_data, asio::buffer(data_ptr_array + block_id * static_cast<size_t>(block_size), block_size), error);
         if(len != block_size)
         {
-          std::cout << "[Client] get stripe failed!" << std::endl;
+          std::cout << "[Client] get blocks failed!" << std::endl;
         }
         asio::error_code ignore_ec;
         socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
         socket_data.close(ignore_ec);
       })));
     }
-    
-    /*or(int i = 0; i < reply.proxyips_size(); i++)
-    {
-      threads.push_back(std::thread(([this, &reply, i, data_ptr_array, block_size]()mutable {
-        asio::io_context io_context;
-        asio::ip::tcp::socket socket_data(io_context);
-        this->acceptor.accept(socket_data);
-        int start_block_id;
-        size_t total_size;
-        asio::read(socket_data, asio::buffer(&start_block_id, sizeof(int)));
-        asio::read(socket_data, asio::buffer(&total_size, sizeof(size_t)));
-        asio::error_code error;
-        size_t len = asio::read(socket_data, asio::buffer(data_ptr_array + static_cast<size_t>(start_block_id) * static_cast<size_t>(block_size), total_size), error);
-        if(len != total_size)
-        {
-          std::cout << "[Client] get stripe failed!" << std::endl;
-        }
-        asio::error_code ignore_ec;
-        socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
-        socket_data.close(ignore_ec);
-      })));
-    }*/
-    
     for(auto &thread : threads)
     {
       thread.join();
     }
-    value.assign(data_ptr_array, data_block_num * block_size);
+    value.assign(data_ptr_array, block_num * block_size);
     delete[] data_ptr_array;
     return true;
-  }
-  
+  }*/
 
   /*
     Function: get

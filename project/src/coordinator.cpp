@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include "lrc.h"
 #include <sys/time.h>
+#include <chrono>
 
 template <typename T>
 inline T ceil(T const &A, T const &B)
@@ -1026,59 +1027,111 @@ namespace ECProject
       const coordinator_proto::KeyAndClientIP *keyClient,
       coordinator_proto::ReplyProxyIPsPorts *proxyIPPort)
   {
-    try
+
+    //std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
+    int stripe_id = std::stoi(keyClient->key());
+    Stripe &t_stripe = m_stripe_table[stripe_id];
+    int k = t_stripe.k;
+    int num_data_groups = t_stripe.num_groups;
+    std::string code_type = m_sys_config->CodeType;
+    if(code_type != "UniLRC"){
+      num_data_groups--;
+    }
+    //std::cout << "[GET] getting stripe " << stripe_id << " with " << num_data_groups << " data groups" << std::endl;
+    std::vector<int> block_num_per_group = get_data_block_num_per_group(k, m_sys_config->r, m_sys_config->z, code_type);
+    std::vector<int> get_cluster_ids;
+    for (int i = 0; i < num_data_groups; i++)
     {
-      int stripe_id = std::stoi(keyClient->key());
-      Stripe &t_stripe = m_stripe_table[stripe_id];
-      int k = t_stripe.k;
-      int num_data_groups = t_stripe.num_groups;
-      std::string code_type = m_sys_config->CodeType;
-      if(code_type != "UniLRC"){
-        num_data_groups--;
-      }
-      //std::cout << "[GET] getting stripe " << stripe_id << " with " << num_data_groups << " data groups" << std::endl;
-      std::vector<int> block_num_per_group = get_data_block_num_per_group(k, m_sys_config->r, m_sys_config->z, code_type);
-      std::vector<int> get_cluster_ids;
-      for (int i = 0; i < num_data_groups; i++)
+      get_cluster_ids.push_back(t_stripe.blocks[t_stripe.group_to_blocks[i][0]]->map2cluster);
+      //std::cout << "group " << i << " is mapped to cluster " << get_cluster_ids[i] << std::endl;
+    }
+    for (int i = 0; i < num_data_groups; i++)
+    {
+      proxyIPPort->add_proxyips(m_cluster_table[get_cluster_ids[i]].proxy_ip);
+      proxyIPPort->add_proxyports(m_cluster_table[get_cluster_ids[i]].proxy_port);
+      proxyIPPort->add_cluster_slice_sizes(block_num_per_group[i]);
+    }
+    /*for(int i = 0; i < t_stripe.num_groups; i++){
+      m_proxy_ptrs[proxyIPPort->proxyips(i) + ":" + std::to_string(proxyIPPort->proxyports(i))]->getStripe(stripe_id, t_stripe.group_to_blocks[i]);
+    }*/
+    std::vector<std::thread> threads;
+    for (int i = 0; i < num_data_groups; i++)
+    {
+      std::vector<int> block_ids;
+      for (int j = 0; j < t_stripe.group_to_blocks[i].size(); j++)
       {
-        get_cluster_ids.push_back(t_stripe.blocks[t_stripe.group_to_blocks[i][0]]->map2cluster);
-        //std::cout << "group " << i << " is mapped to cluster " << get_cluster_ids[i] << std::endl;
-      }
-      for (int i = 0; i < num_data_groups; i++)
-      {
-        proxyIPPort->add_proxyips(m_cluster_table[get_cluster_ids[i]].proxy_ip);
-        proxyIPPort->add_proxyports(m_cluster_table[get_cluster_ids[i]].proxy_port);
-        proxyIPPort->add_cluster_slice_sizes(block_num_per_group[i]);
-      }
-      /*for(int i = 0; i < t_stripe.num_groups; i++){
-        m_proxy_ptrs[proxyIPPort->proxyips(i) + ":" + std::to_string(proxyIPPort->proxyports(i))]->getStripe(stripe_id, t_stripe.group_to_blocks[i]);
-      }*/
-      std::vector<std::thread> threads;
-      for (int i = 0; i < num_data_groups; i++)
-      {
-        std::vector<int> block_ids;
-        for (int j = 0; j < t_stripe.group_to_blocks[i].size(); j++)
-        {
-          if(t_stripe.blocks[t_stripe.group_to_blocks[i][j]]->block_id < k){
-            block_ids.push_back(t_stripe.group_to_blocks[i][j]);
-          }
+        if(t_stripe.blocks[t_stripe.group_to_blocks[i][j]]->block_id < k){
+          block_ids.push_back(t_stripe.group_to_blocks[i][j]);
         }
-        threads.push_back(std::thread(&CoordinatorImpl::getStripeFromProxy, this, keyClient->clientip(), keyClient->clientport(), 
-          proxyIPPort->proxyips(i), proxyIPPort->proxyports(i), stripe_id, i, block_ids));
       }
-      for (auto &thread : threads)
-      {
-        thread.detach();
-      }
+      threads.push_back(std::thread(&CoordinatorImpl::getStripeFromProxy, this, keyClient->clientip(), keyClient->clientport(), 
+        proxyIPPort->proxyips(i), proxyIPPort->proxyports(i), stripe_id, i, block_ids));
     }
-    catch (std::exception &e)
+    for (auto &thread : threads)
     {
-      std::cout << "getStripe exception" << std::endl;
-      std::cout << e.what() << std::endl;
+      thread.detach();
     }
+    /*std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+    std::cout << "[GET] getting stripe " << stripe_id << " took " << duration.count() << " seconds" << std::endl;*/
+
     return grpc::Status::OK;
   }
   
+  grpc::Status
+  CoordinatorImpl::getBlocks(
+      grpc::ServerContext *context,
+      const coordinator_proto::BlockIDsAndClientIP *blockIDsClient,
+      coordinator_proto::ReplyProxyIPsPorts *proxyIPPort
+  )
+  {
+    std::string client_ip = blockIDsClient->clientip();
+    int client_port = blockIDsClient->clientport();
+    int start_block_id = blockIDsClient->start_block_id();
+    int end_block_id = blockIDsClient->end_block_id();
+    std::vector<int> stripe_ids;
+    std::vector<int> block_ids;
+    for(int i = start_block_id; i <= end_block_id; i++){
+      int stripe_id = i / m_sys_config->k;
+      stripe_ids.push_back(stripe_id);
+      block_ids.push_back(i % m_sys_config->k);
+    }
+    std::vector<int> get_cluster_ids;
+    std::vector<int> unique_cluster_ids;
+    for (int i = 0; i < stripe_ids.size(); i++)
+    {
+      get_cluster_ids.push_back(m_stripe_table[stripe_ids[i]].blocks[block_ids[i]]->map2cluster);
+      if(std::find(unique_cluster_ids.begin(), unique_cluster_ids.end(), get_cluster_ids[i]) == unique_cluster_ids.end()){
+        unique_cluster_ids.push_back(get_cluster_ids[i]);
+      }
+    }
+    proxy_proto::StripeAndBlockIDs stripe_block_ids[unique_cluster_ids.size()];
+    for(int i = 0; i < stripe_ids.size(); i++){
+      int idx = std::find(unique_cluster_ids.begin(), unique_cluster_ids.end(), get_cluster_ids[i]) - unique_cluster_ids.begin();
+      stripe_block_ids[idx].add_block_ids(block_ids[i]);
+      stripe_block_ids[idx].add_block_keys(m_stripe_table[stripe_ids[i]].blocks[block_ids[i]]->block_key);
+      stripe_block_ids[idx].add_datanodeips(m_node_table[m_stripe_table[stripe_ids[i]].blocks[block_ids[i]]->map2node].node_ip);
+      stripe_block_ids[idx].add_datanodeports(m_node_table[m_stripe_table[stripe_ids[i]].blocks[block_ids[i]]->map2node].node_port);
+    }
+    std::vector<std::thread> get_threads;
+    for(int i = 0; i < unique_cluster_ids.size(); i++){
+      get_threads.push_back(std::thread([this, &stripe_block_ids, &client_ip, &client_port, &proxyIPPort, &unique_cluster_ids, i](){
+        grpc::ClientContext cont;
+        proxy_proto::GetReply stripe_reply;
+        stripe_block_ids[i].set_clientip(client_ip);
+        stripe_block_ids[i].set_clientport(client_port);
+        grpc::Status status = m_proxy_ptrs[m_cluster_table[unique_cluster_ids[i]].proxy_ip + ":" + std::to_string(m_cluster_table[unique_cluster_ids[i]].proxy_port)]->getBlocks(&cont, stripe_block_ids[i], &stripe_reply);
+        if (status.ok())
+        {
+          std::cout << "[GET] getting blocks from proxy " << m_cluster_table[unique_cluster_ids[i]].proxy_ip << ":" << m_cluster_table[unique_cluster_ids[i]].proxy_port << " succeeded!" << std::endl;
+        }
+        else
+        {
+          std::cout << "[GET] getting blocks from proxy " << m_cluster_table[unique_cluster_ids[i]].proxy_ip << ":" << m_cluster_table[unique_cluster_ids[i]].proxy_port << " failed!" << std::endl;
+        }
+      }));
+    }
+  }
 
   grpc::Status
   CoordinatorImpl::getValue(

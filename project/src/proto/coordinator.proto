@@ -37,6 +37,8 @@ service coordinatorService {
 
   rpc getStripe(KeyAndClientIP) returns (ReplyProxyIPsPorts) {};
 
+  rpc getBlocks(BlockIDsAndClientIP) returns (ReplyProxyIPsPorts) {};
+
   // degraded read
   rpc getDegradedReadValue(KeyAndClientIP) returns (RepIfGetSuccess) {};
   rpc getDegradedReadBlock(KeyAndClientIP) returns (DegradedReadReply) {};
@@ -125,6 +127,12 @@ message KeyAndClientIP {
 message RepIfGetSuccess {
   bool ifgetsuccess = 1;
   int32 valuesizebytes = 2;
+}
+message BlockIDsAndClientIP{
+  int32 start_block_id = 1;
+  int32 end_block_id = 2;
+  string clientip = 3;
+  int32 clientport = 4;
 }
 
 // delete

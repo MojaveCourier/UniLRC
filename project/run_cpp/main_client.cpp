@@ -9,6 +9,7 @@
 #include <iostream>
 #include <chrono>
 #include <algorithm>
+#include <random>
 
 int main(int argc, char **argv)
 {
@@ -39,17 +40,20 @@ int main(int argc, char **argv)
     std::vector<std::chrono::duration<double>> time_spans;
     std::cout << "Set operation succeeded" << std::endl;
     for(int i = 0; i < 5; i++){
-        std::string value;
+        size_t data_size;
+
         int id = i;
         std::string key = std::to_string(id);
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-        bool get_result = client.get(key, value);
+        std::shared_ptr<char[]> data = client.get(key, data_size);
+        if(!data){
+            std::cout << "Get operation failed" << std::endl;
+            continue;
+        }
         std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
         time_spans.push_back(time_span);
         std::cout << "get time: " << time_span.count() << std::endl;
-        if(!get_result)
-            std::cout << "Get operation failed" << std::endl;
     }
     std::cout << "Get operation succeeded" << std::endl;
     std::chrono::duration<double> total_time_span = std::accumulate(time_spans.begin(), time_spans.end(), std::chrono::duration<double>(0));
@@ -176,5 +180,39 @@ int main(int argc, char **argv)
     std::cout << "block num: " << block_num << std::endl;
     size_t total_size = static_cast<size_t>(block_size) * block_num;
     std::cout << "Speed: " << total_size / time_span.count() << "MB/s" << std::endl;*/
+    
+    //for workload test
+    /*int stripe_num = 200;
+    int workload = 100;
+
+    // 随机数生成器（Mersenne Twister算法）
+    std::mt19937 rng(std::random_device{}());
+
+    // 均匀分布
+    std::uniform_int_distribution<int> dist_64(0, k*stripe_num - 64);
+    std::uniform_int_distribution<int> dist_32(0, k*stripe_num - 32);
+    std::uniform_int_distribution<int> dist_1(0, k*stripe_num - 1);
+    std::uniform_real_distribution<double> dist_double(0.0, 1.0);
+
+    for(int i = 0; i < stripe_num; i++){
+        client.set();
+    }
+    for(int i = 0; i < workload; i++){
+        double random_double = dist_double(rng);
+        if(random_double < 0.85){
+            int start_block_id = dist_64(rng);
+            int end_block_id = start_block_id + 64 - 1;
+            std::string value;
+            client.get_blocks(start_block_id, end_block_id, value);
+        }
+        else if(random_double < 0.925){
+
+        }
+        else{
+
+        }
+    }*/
+    
+    
     return 0;
 }

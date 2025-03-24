@@ -70,6 +70,11 @@ namespace ECProject
         grpc::ServerContext *context,
         const coordinator_proto::KeyAndClientIP *keyClient,
         coordinator_proto::ReplyProxyIPsPorts *proxyIPPort) override;
+    // get blocks
+    grpc::Status getBlocks(
+        grpc::ServerContext *context,
+        const coordinator_proto::BlockIDsAndClientIP *blockIDsClient,
+        coordinator_proto::ReplyProxyIPsPorts *proxyIPPort) override;
     // degraded read
     grpc::Status getDegradedReadValue(
         grpc::ServerContext *context,
