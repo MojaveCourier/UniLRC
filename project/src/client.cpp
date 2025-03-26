@@ -767,47 +767,45 @@ namespace ECProject
   }
   */
 
-  bool Client::get_degraded_read_block(int stripe_id, int failed_block_id, std::string &value, double &disk_io_time, double &network_time, double &decode_time)
+  std::shared_ptr<char[]> Client::get_degraded_read_block(int stripe_id, int failed_block_id, double &disk_io_time, double &network_time, double &decode_time)
   {
-    int block_size = m_sys_config->BlockSize;
+    unsigned int block_size = m_sys_config->BlockSize;
     grpc::ClientContext context;
     coordinator_proto::KeyAndClientIP request;
     request.set_key(std::to_string(stripe_id) + "_" + std::to_string(failed_block_id));
     request.set_clientip(m_clientIPForGet);
     request.set_clientport(m_clientPortForGet);
     coordinator_proto::DegradedReadReply reply;
-    grpc::Status status = m_coordinator_ptr->getDegradedReadBlock(&context, request, &reply);
-    if (!status.ok())
-    {
-      std::cout << "[Client] degraded read failed!" << std::endl;
-      return false;
-    }
-    else
-    {
-      std::cout << "[Client] degraded read success!" << std::endl;
-    } 
-    disk_io_time = reply.disk_io_time();
-    network_time = reply.network_time();
-    decode_time = reply.decode_time();
 
+    std::thread t([&context, &request, &reply, this]() {
+      grpc::Status status = m_coordinator_ptr->getDegradedReadBlock(&context, request, &reply);
+      if (!status.ok())
+      {
+        std::cout << "[Client] degraded read failed!" << std::endl;
+      }
+    });
     asio::ip::tcp::socket socket(io_context);
     acceptor.accept(socket);
     std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
     asio::error_code error;
-    char* buf = new char[block_size];
-    size_t len = asio::read(socket, asio::buffer(buf, block_size), error);
+    std::shared_ptr<char[]> buf(new char[block_size]);
+    std::cout << "start to read" << std::endl;
+    size_t len = asio::read(socket, asio::buffer(buf.get(), block_size), error);
     if(len != block_size){
       std::cout << "[Error] len != block_size: " << len << std::endl;
+      return nullptr;
     }
     asio::error_code ignore_ec;
     socket.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
     socket.close(ignore_ec); 
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    t.join();
+    disk_io_time = reply.disk_io_time();
+    network_time = reply.network_time();
+    decode_time = reply.decode_time();
     network_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
-    value.assign(buf, block_size);
-
-    delete[] buf;
-    return true;
+    std::cout << "[Client] degraded read success!" << std::endl;
+    return buf;
   }
 
   bool Client::degraded_read(int stripe_id, int failed_block_id, std::string &value)

@@ -74,10 +74,10 @@ int main(int argc, char **argv)
     std::vector<std::chrono::duration<double>> network_time_spans;
     std::vector<std::chrono::duration<double>> decode_time_spans;
     for(int i = 0; i < k; i++){
-        std::string value;
+        
         double disk_io_time, network_time, decode_time;
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-        client.get_degraded_read_block(0, i, value, disk_io_time, network_time, decode_time);
+        std::shared_ptr<char[]> data = client.get_degraded_read_block(0, i, disk_io_time, network_time, decode_time);
         std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
         time_spans.push_back(time_span);
@@ -89,16 +89,13 @@ int main(int argc, char **argv)
     std::chrono::duration<double> total_disk_io_time_span = std::accumulate(disk_io_time_spans.begin(), disk_io_time_spans.end(), std::chrono::duration<double>(0));
     std::chrono::duration<double> total_network_time_span = std::accumulate(network_time_spans.begin(), network_time_spans.end(), std::chrono::duration<double>(0));
     std::chrono::duration<double> total_decode_time_span = std::accumulate(decode_time_spans.begin(), decode_time_spans.end(), std::chrono::duration<double>(0));
-    //std::cout << "Total time: " << total_time_span.count() << std::endl;
     std::cout << "Average time: " << total_time_span.count() / time_spans.size() << std::endl;
     std::chrono::duration<double> max_time_span = *std::max_element(time_spans.begin(), time_spans.end());
     std::chrono::duration<double> min_time_span = *std::min_element(time_spans.begin(), time_spans.end());
     std::cout << "Max time: "<< max_time_span.count() << std::endl;
     std::cout << "Min time: "<< min_time_span.count() << std::endl;
 
-    //std::cout << "Total disk io time: " << total_disk_io_time_span.count() << std::endl;
-    //std::cout << "Total network time: " << total_network_time_span.count() << std::endl;
-    //std::cout << "Total decode time: " << total_decode_time_span.count() << std::endl;
+
     std::cout << "Average disk io time: " << total_disk_io_time_span.count() / disk_io_time_spans.size() << std::endl;
     std::cout << "Average network time: " << total_network_time_span.count() / network_time_spans.size() << std::endl;
     std::cout << "Average decode time: " << total_decode_time_span.count() / decode_time_spans.size() << std::endl;

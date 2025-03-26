@@ -1265,7 +1265,7 @@ namespace ECProject
   {
     if (IF_DEBUG)
     {
-      std::cout << "[Proxy" << m_self_cluster_id << "][Recovery] Handle recovery" << std::endl;
+      std::cout << "[Proxy" << m_self_cluster_id << "][Recovery] Handle Degraded Read" << std::endl;
     }
 
     std::string code_type = m_sys_config->CodeType;
@@ -1279,13 +1279,10 @@ namespace ECProject
     for(int i = 0; i < recovery_request->datanodeip_size(); i++)
     {
       get_bufs[i] = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
-      memset(get_bufs[i], 0, m_sys_config->BlockSize);
     }
     //std::vector<char> res_buf(m_sys_config->BlockSize, 0);
     char *res_buf = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
-    memset(res_buf, 0, m_sys_config->BlockSize);
     char *real_res_buf = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
-    memset(real_res_buf, 0, m_sys_config->BlockSize);
     std::vector<std::thread> get_threads;
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < recovery_request->datanodeip_size(); i++)
@@ -1311,7 +1308,7 @@ namespace ECProject
     {
       std::cout << "[Proxy" << m_self_cluster_id << "][GET]"
                 << "read from datanodes success!" << std::endl;
-
+      std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
       std::vector<int> block_idxs;
       for (int i = 0; i < recovery_request->datanodeip_size(); i++)
       {
@@ -1323,7 +1320,7 @@ namespace ECProject
       int failed_block_id = recovery_request->failed_block_id();
       std::string replaced_node_ip = recovery_request->replaced_node_ip();
       int replaced_node_port = recovery_request->replaced_node_port();
-      std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
+
       if (code_type == "UniLRC")
       {
         decode_unilrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, recovery_request->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf), m_sys_config->BlockSize);
@@ -1409,32 +1406,7 @@ namespace ECProject
       }
     }
   
-    std::thread send_to_client = std::thread([this, recovery_request, res_buf, real_res_buf, cross_rack_num](){
-      std::string replaced_node_ip = recovery_request->replaced_node_ip();
-      int replaced_node_port = recovery_request->replaced_node_port();
-      std::cout << "[Proxy" << m_self_cluster_id << "][Degraded] send to the client" << replaced_node_ip << ":" << replaced_node_port << std::endl;
-      asio::io_context io_context;
-      asio::ip::tcp::socket socket(io_context);
-      asio::ip::tcp::resolver resolver(io_context);
-      asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(replaced_node_ip, std::to_string(replaced_node_port));
-      asio::connect(socket, endpoints);
-      if(cross_rack_num){
-        asio::write(socket, asio::buffer(real_res_buf, m_sys_config->BlockSize));
-      }
-      else{
-        asio::write(socket, asio::buffer(res_buf, m_sys_config->BlockSize));
-      }
-      asio::error_code ignore_ec;
-      socket.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);
-      socket.close(ignore_ec);
-      std::cout << "[Proxy" << m_self_cluster_id << "][Degraded Read] send to the client done" << std::endl;
-      delete res_buf;
-      delete real_res_buf;
-    });
-    send_to_client.detach();
-
-
-    /*std::string replaced_node_ip = recovery_request->replaced_node_ip();
+    std::string replaced_node_ip = recovery_request->replaced_node_ip();
     int replaced_node_port = recovery_request->replaced_node_port();
     std::cout << "[Proxy" << m_self_cluster_id << "][Degraded] send to the client" << replaced_node_ip << ":" << replaced_node_port << std::endl;
     asio::io_context io_context;
@@ -1453,7 +1425,7 @@ namespace ECProject
     socket.close(ignore_ec);
     std::cout << "[Proxy" << m_self_cluster_id << "][Degraded Read] send to the client done" << std::endl;
     delete res_buf;
-    delete real_res_buf;*/
+    delete real_res_buf;
     for(int i = 0; i < recovery_request->datanodeip_size(); i++)
     {
       delete get_bufs[i];
