@@ -14,10 +14,10 @@
     <AppendMode>UNILRC_MODE</AppendMode>
     <alpha>1</alpha>
     <!-- LRC: UniLRC; AzureLRC; OptimalLRC; UniformLRC -->
-    <CodeType>UniLRC</CodeType>
+    <CodeType>OptimalLRC</CodeType>
     <k>30</k>
-    <r>6</r>
-    <z>6</z>
+    <r>10</r>
+    <z>2</z>
     <!-- <CodeType>UniformLRC</CodeType>
     <k>30</k>
     <r>7</r>

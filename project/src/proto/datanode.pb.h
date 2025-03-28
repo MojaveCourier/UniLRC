@@ -356,6 +356,7 @@ class RequestResult final :
   enum : int {
     kMessageFieldNumber = 1,
     kValuesizebytesFieldNumber = 2,
+    kDiskIoTimeFieldNumber = 3,
   };
   // bool message = 1;
   void clear_message();
@@ -375,6 +376,15 @@ class RequestResult final :
   void _internal_set_valuesizebytes(int32_t value);
   public:
 
+  // double disk_io_time = 3;
+  void clear_disk_io_time();
+  double disk_io_time() const;
+  void set_disk_io_time(double value);
+  private:
+  double _internal_disk_io_time() const;
+  void _internal_set_disk_io_time(double value);
+  public:
+
   // @@protoc_insertion_point(class_scope:datanode_proto.RequestResult)
  private:
   class _Internal;
@@ -385,6 +395,7 @@ class RequestResult final :
   struct Impl_ {
     bool message_;
     int32_t valuesizebytes_;
+    double disk_io_time_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -1422,6 +1433,26 @@ inline void RequestResult::_internal_set_valuesizebytes(int32_t value) {
 inline void RequestResult::set_valuesizebytes(int32_t value) {
   _internal_set_valuesizebytes(value);
   // @@protoc_insertion_point(field_set:datanode_proto.RequestResult.valuesizebytes)
+}
+
+// double disk_io_time = 3;
+inline void RequestResult::clear_disk_io_time() {
+  _impl_.disk_io_time_ = 0;
+}
+inline double RequestResult::_internal_disk_io_time() const {
+  return _impl_.disk_io_time_;
+}
+inline double RequestResult::disk_io_time() const {
+  // @@protoc_insertion_point(field_get:datanode_proto.RequestResult.disk_io_time)
+  return _internal_disk_io_time();
+}
+inline void RequestResult::_internal_set_disk_io_time(double value) {
+  
+  _impl_.disk_io_time_ = value;
+}
+inline void RequestResult::set_disk_io_time(double value) {
+  _internal_set_disk_io_time(value);
+  // @@protoc_insertion_point(field_set:datanode_proto.RequestResult.disk_io_time)
 }
 
 // -------------------------------------------------------------------

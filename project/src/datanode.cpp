@@ -3,6 +3,7 @@
 #include <fstream>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <chrono>
 namespace ECProject
 {
     grpc::Status DatanodeImpl::checkalive(
@@ -572,29 +573,29 @@ namespace ECProject
         int block_size = get_info->block_size();
         std::string proxy_ip = get_info->proxy_ip();
         int proxy_port = get_info->proxy_port();
-        auto handler = [this](std::string block_key, int block_size, std::string proxy_ip, int proxy_port) mutable
+        std::string targetdir = "./storage/" + std::to_string(m_port) + "/";
+        std::string readpath = targetdir + block_key;
+        char *buf = new char[block_size];
+        std::chrono::high_resolution_clock::time_point begin = std::chrono::high_resolution_clock::now(); // start time for disk io
+        if (access(readpath.c_str(), 0) == -1)
         {
-            std::string targetdir = "./storage/" + std::to_string(m_port) + "/";
-            std::string readpath = targetdir + block_key;
-            if (access(readpath.c_str(), 0) == -1)
+            std::cout << "[Datanode" << m_port << "][Read] file does not exist!" << readpath << std::endl;
+        }
+        else
+        {
+            if (IF_DEBUG)
             {
-                std::cout << "[Datanode" << m_port << "][Read] file does not exist!" << readpath << std::endl;
+                std::cout << "[Datanode" << m_port << "][GET] read from the disk and write to socket with port " << m_port + ECProject::DATANODE_PORT_SHIFT << std::endl;
             }
-            else
-            {
-                if (IF_DEBUG)
-                {
-                    std::cout << "[Datanode" << m_port << "][GET] read from the disk and write to socket with port " << m_port + ECProject::DATANODE_PORT_SHIFT << std::endl;
-                }
-                char *buf = new char[block_size];
-                std::ifstream ifs(readpath);
-                ifs.read(buf, block_size);
-                ifs.close();
-                if (IF_DEBUG)
-                {
-                    std::cout << "[Datanode" << m_port << "][GET] read " << readpath << " with length of " << strlen(buf) << std::endl;
-                }
-
+            std::ifstream ifs(readpath);
+            ifs.read(buf, block_size);
+            ifs.close();
+        }
+        std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now(); // end time for disk io
+        double elapsed_seconds = std::chrono::duration<double>(end - begin).count();
+        response->set_disk_io_time(elapsed_seconds); // set disk io time
+        auto handler = [this](std::string block_key, int block_size, std::string proxy_ip, int proxy_port, char* buf) mutable
+        {
                 asio::error_code error;
                 asio::ip::tcp::socket socket(io_context);
                 acceptor.accept(socket);
@@ -607,7 +608,6 @@ namespace ECProject
                     std::cout << "[Datanode" << m_port << "][GET] write to socket!" << std::endl;
                 }
                 delete buf;
-            }
         };
         try
         {
@@ -615,7 +615,7 @@ namespace ECProject
             {
                 std::cout << "[Datanode" << m_port << "][GET] ready to handle get!" << std::endl;
             }
-            std::thread my_thread(handler, block_key, block_size, proxy_ip, proxy_port);
+            std::thread my_thread(handler, block_key, block_size, proxy_ip, proxy_port, buf);
             my_thread.detach();
             response->set_message(true);
         }
