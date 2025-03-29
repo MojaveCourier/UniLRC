@@ -45,7 +45,8 @@ message CheckaliveCMD {
 message RequestResult {
     bool message = 1;
     int32 valuesizebytes = 2;
-    double disk_io_time = 3;
+    double disk_io_start_time = 3;
+    double disk_io_end_time = 4;
 }
 
 message SetInfo {

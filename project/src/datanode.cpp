@@ -592,8 +592,10 @@ namespace ECProject
             ifs.close();
         }
         std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now(); // end time for disk io
-        double elapsed_seconds = std::chrono::duration<double>(end - begin).count();
-        response->set_disk_io_time(elapsed_seconds); // set disk io time
+        double disk_io_start_time = std::chrono::duration_cast<std::chrono::duration<double>>(begin.time_since_epoch()).count();
+        double disk_io_end_time = std::chrono::duration_cast<std::chrono::duration<double>>(end.time_since_epoch()).count();
+        response->set_disk_io_start_time(disk_io_start_time);
+        response->set_disk_io_end_time(disk_io_end_time);
         auto handler = [this](std::string block_key, int block_size, std::string proxy_ip, int proxy_port, char* buf) mutable
         {
                 asio::error_code error;
