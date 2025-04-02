@@ -70,7 +70,8 @@ namespace ECProject
     bool sub_append_in_rep_mode(int append_size);
     bool set();
     bool degraded_read(int stripe_id, int failed_block_id, std::string &value);
-    std::shared_ptr<char[]> get_degraded_read_block(int stripe_id, int failed_block_id, double &disk_io_time, double &network_time, double &encode_time);
+    std::shared_ptr<char[]> get_degraded_read_block(int stripe_id, int failed_block_id);
+    std::shared_ptr<char[]> get_degraded_read_block_breakdown(int stripe_id, int failed_block_id, double &total_time, double &disk_io_time, double &network_time, double &encode_time);
     int recovery(int stripe_id, int failed_block_id, double &disk_io_time, double &network_time, double &decode_time);
     int recovery_full_node(int node_id);
     std::vector<int> get_data_block_num_per_group(int k, int r, int z, std::string code_type);

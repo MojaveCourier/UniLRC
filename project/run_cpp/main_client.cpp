@@ -67,20 +67,53 @@ int main(int argc, char **argv)
     std::cout << "Min speed: " << static_cast<size_t>(block_size) * k / max_time_span.count() << "MB/s" << std::endl;*/
     
     //for degraded read test
-
     client.set();
+    std::cout << "Set operation succeeded" << std::endl;
+    std::vector<std::chrono::duration<double>> time_spans;
+    std::cout << "Degraded read test" << std::endl;
+    for(int i = 0; i < k; i++){
+        size_t data_size;
+        int id = i;
+        std::string key = std::to_string(id);
+        std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+        std::shared_ptr<char[]> data = client.get_degraded_read_block(0, i);
+        if(!data){
+            std::cout << "Degraded read operation failed" << std::endl;
+            continue;
+        }
+        std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+        time_spans.push_back(time_span);
+        std::cout << "get time: " << time_span.count() << std::endl;
+    }
+    std::cout << "Degraded read operation succeeded" << std::endl;
+    std::chrono::duration<double> total_time_span = std::accumulate(time_spans.begin(), time_spans.end(), std::chrono::duration<double>(0));
+    std::cout << "Average time: " << total_time_span.count() / time_spans.size() << std::endl;
+    std::chrono::duration<double> max_time_span = *std::max_element(time_spans.begin(), time_spans.end());
+    std::chrono::duration<double> min_time_span = *std::min_element(time_spans.begin(), time_spans.end());
+    std::cout << "Max time: "<< max_time_span.count() << std::endl;
+    std::cout << "Min time: "<< min_time_span.count() << std::endl;
+    std::cout << "Throughput: " << time_spans.size() / total_time_span.count() << std::endl;
+    std::cout << "Speed" << static_cast<size_t>(block_size)  / (total_time_span.count() / time_spans.size()) << "MB/s" << std::endl;
+    std::cout << "Max speed: " << static_cast<size_t>(block_size)  / min_time_span.count() << "MB/s" << std::endl;
+    std::cout << "Min speed: " << static_cast<size_t>(block_size)  / max_time_span.count() << "MB/s" << std::endl;
+
+
+    //for degraded read breakdown test
+
+    /*client.set();
     std::vector<std::chrono::duration<double>> time_spans;
     std::vector<std::chrono::duration<double>> disk_io_time_spans;
     std::vector<std::chrono::duration<double>> network_time_spans;
     std::vector<std::chrono::duration<double>> decode_time_spans;
     for(int i = 0; i < k; i++){
         
-        double disk_io_time, network_time, decode_time;
+        double total_time, disk_io_time, network_time, decode_time;
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-        std::shared_ptr<char[]> data = client.get_degraded_read_block(0, i, disk_io_time, network_time, decode_time);
+        std::shared_ptr<char[]> data = client.get_degraded_read_block_breakdown(0, i, total_time, disk_io_time, network_time, decode_time);
         std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
-        time_spans.push_back(time_span);
+        //std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+        time_spans.push_back(std::chrono::duration<double>(total_time));
         disk_io_time_spans.push_back(std::chrono::duration<double>(disk_io_time));
         network_time_spans.push_back(std::chrono::duration<double>(network_time));
         decode_time_spans.push_back(std::chrono::duration<double>(decode_time));
@@ -110,7 +143,7 @@ int main(int argc, char **argv)
     std::cout << "Max network time: "<< max_network_time_span.count() << std::endl;
     std::cout << "Min network time: "<< min_network_time_span.count() << std::endl;
     std::cout << "Max decode time: "<< max_decode_time_span.count() << std::endl;
-    std::cout << "Min decode time: "<< min_decode_time_span.count() << std::endl;
+    std::cout << "Min decode time: "<< min_decode_time_span.count() << std::endl;*/
 
 
 

@@ -3434,35 +3434,115 @@ class DegradedReadReply final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDiskIoTimeFieldNumber = 1,
-    kNetworkTimeFieldNumber = 2,
-    kDecodeTimeFieldNumber = 3,
+    kDiskIoStartTimeFieldNumber = 1,
+    kDiskIoEndTimeFieldNumber = 2,
+    kNetworkStartTimeFieldNumber = 3,
+    kNetworkEndTimeFieldNumber = 4,
+    kDecodeStartTimeFieldNumber = 5,
+    kDecodeEndTimeFieldNumber = 6,
+    kCrossRackTimeFieldNumber = 7,
+    kCrossRackXorTimeFieldNumber = 8,
+    kGrpcStartTimeFieldNumber = 9,
+    kDataNodeGrpcNotifyTimeFieldNumber = 10,
+    kDataNodeGrpcStartTimeFieldNumber = 11,
   };
-  // double disk_io_time = 1;
-  void clear_disk_io_time();
-  double disk_io_time() const;
-  void set_disk_io_time(double value);
+  // double disk_io_start_time = 1;
+  void clear_disk_io_start_time();
+  double disk_io_start_time() const;
+  void set_disk_io_start_time(double value);
   private:
-  double _internal_disk_io_time() const;
-  void _internal_set_disk_io_time(double value);
+  double _internal_disk_io_start_time() const;
+  void _internal_set_disk_io_start_time(double value);
   public:
 
-  // double network_time = 2;
-  void clear_network_time();
-  double network_time() const;
-  void set_network_time(double value);
+  // double disk_io_end_time = 2;
+  void clear_disk_io_end_time();
+  double disk_io_end_time() const;
+  void set_disk_io_end_time(double value);
   private:
-  double _internal_network_time() const;
-  void _internal_set_network_time(double value);
+  double _internal_disk_io_end_time() const;
+  void _internal_set_disk_io_end_time(double value);
   public:
 
-  // double decode_time = 3;
-  void clear_decode_time();
-  double decode_time() const;
-  void set_decode_time(double value);
+  // double network_start_time = 3;
+  void clear_network_start_time();
+  double network_start_time() const;
+  void set_network_start_time(double value);
   private:
-  double _internal_decode_time() const;
-  void _internal_set_decode_time(double value);
+  double _internal_network_start_time() const;
+  void _internal_set_network_start_time(double value);
+  public:
+
+  // double network_end_time = 4;
+  void clear_network_end_time();
+  double network_end_time() const;
+  void set_network_end_time(double value);
+  private:
+  double _internal_network_end_time() const;
+  void _internal_set_network_end_time(double value);
+  public:
+
+  // double decode_start_time = 5;
+  void clear_decode_start_time();
+  double decode_start_time() const;
+  void set_decode_start_time(double value);
+  private:
+  double _internal_decode_start_time() const;
+  void _internal_set_decode_start_time(double value);
+  public:
+
+  // double decode_end_time = 6;
+  void clear_decode_end_time();
+  double decode_end_time() const;
+  void set_decode_end_time(double value);
+  private:
+  double _internal_decode_end_time() const;
+  void _internal_set_decode_end_time(double value);
+  public:
+
+  // double cross_rack_time = 7;
+  void clear_cross_rack_time();
+  double cross_rack_time() const;
+  void set_cross_rack_time(double value);
+  private:
+  double _internal_cross_rack_time() const;
+  void _internal_set_cross_rack_time(double value);
+  public:
+
+  // double cross_rack_xor_time = 8;
+  void clear_cross_rack_xor_time();
+  double cross_rack_xor_time() const;
+  void set_cross_rack_xor_time(double value);
+  private:
+  double _internal_cross_rack_xor_time() const;
+  void _internal_set_cross_rack_xor_time(double value);
+  public:
+
+  // double grpc_start_time = 9;
+  void clear_grpc_start_time();
+  double grpc_start_time() const;
+  void set_grpc_start_time(double value);
+  private:
+  double _internal_grpc_start_time() const;
+  void _internal_set_grpc_start_time(double value);
+  public:
+
+  // double data_node_grpc_notify_time = 10;
+  void clear_data_node_grpc_notify_time();
+  double data_node_grpc_notify_time() const;
+  void set_data_node_grpc_notify_time(double value);
+  private:
+  double _internal_data_node_grpc_notify_time() const;
+  void _internal_set_data_node_grpc_notify_time(double value);
+  public:
+
+  // double data_node_grpc_start_time = 11;
+  void clear_data_node_grpc_start_time();
+  double data_node_grpc_start_time() const;
+  void set_data_node_grpc_start_time(double value);
+  private:
+  double _internal_data_node_grpc_start_time() const;
+  void _internal_set_data_node_grpc_start_time(double value);
   public:
 
   // @@protoc_insertion_point(class_scope:proxy_proto.DegradedReadReply)
@@ -3473,9 +3553,17 @@ class DegradedReadReply final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    double disk_io_time_;
-    double network_time_;
-    double decode_time_;
+    double disk_io_start_time_;
+    double disk_io_end_time_;
+    double network_start_time_;
+    double network_end_time_;
+    double decode_start_time_;
+    double decode_end_time_;
+    double cross_rack_time_;
+    double cross_rack_xor_time_;
+    double grpc_start_time_;
+    double data_node_grpc_notify_time_;
+    double data_node_grpc_start_time_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -4335,35 +4423,105 @@ class RecoveryReply final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDiskIoTimeFieldNumber = 1,
-    kNetworkTimeFieldNumber = 2,
-    kDecodeTimeFieldNumber = 3,
+    kDiskIoStartTimeFieldNumber = 1,
+    kDiskIoEndTimeFieldNumber = 2,
+    kNetworkStartTimeFieldNumber = 3,
+    kNetworkEndTimeFieldNumber = 4,
+    kDecodeStartTimeFieldNumber = 5,
+    kDecodeEndTimeFieldNumber = 6,
+    kCrossRackTimeFieldNumber = 7,
+    kCrossRackXorTimeFieldNumber = 8,
+    kDestDataNodeNetworkTimeFieldNumber = 9,
+    kDestDataNodeDiskIoTimeFieldNumber = 10,
   };
-  // double disk_io_time = 1;
-  void clear_disk_io_time();
-  double disk_io_time() const;
-  void set_disk_io_time(double value);
+  // double disk_io_start_time = 1;
+  void clear_disk_io_start_time();
+  double disk_io_start_time() const;
+  void set_disk_io_start_time(double value);
   private:
-  double _internal_disk_io_time() const;
-  void _internal_set_disk_io_time(double value);
+  double _internal_disk_io_start_time() const;
+  void _internal_set_disk_io_start_time(double value);
   public:
 
-  // double network_time = 2;
-  void clear_network_time();
-  double network_time() const;
-  void set_network_time(double value);
+  // double disk_io_end_time = 2;
+  void clear_disk_io_end_time();
+  double disk_io_end_time() const;
+  void set_disk_io_end_time(double value);
   private:
-  double _internal_network_time() const;
-  void _internal_set_network_time(double value);
+  double _internal_disk_io_end_time() const;
+  void _internal_set_disk_io_end_time(double value);
   public:
 
-  // double decode_time = 3;
-  void clear_decode_time();
-  double decode_time() const;
-  void set_decode_time(double value);
+  // double network_start_time = 3;
+  void clear_network_start_time();
+  double network_start_time() const;
+  void set_network_start_time(double value);
   private:
-  double _internal_decode_time() const;
-  void _internal_set_decode_time(double value);
+  double _internal_network_start_time() const;
+  void _internal_set_network_start_time(double value);
+  public:
+
+  // double network_end_time = 4;
+  void clear_network_end_time();
+  double network_end_time() const;
+  void set_network_end_time(double value);
+  private:
+  double _internal_network_end_time() const;
+  void _internal_set_network_end_time(double value);
+  public:
+
+  // double decode_start_time = 5;
+  void clear_decode_start_time();
+  double decode_start_time() const;
+  void set_decode_start_time(double value);
+  private:
+  double _internal_decode_start_time() const;
+  void _internal_set_decode_start_time(double value);
+  public:
+
+  // double decode_end_time = 6;
+  void clear_decode_end_time();
+  double decode_end_time() const;
+  void set_decode_end_time(double value);
+  private:
+  double _internal_decode_end_time() const;
+  void _internal_set_decode_end_time(double value);
+  public:
+
+  // double cross_rack_time = 7;
+  void clear_cross_rack_time();
+  double cross_rack_time() const;
+  void set_cross_rack_time(double value);
+  private:
+  double _internal_cross_rack_time() const;
+  void _internal_set_cross_rack_time(double value);
+  public:
+
+  // double cross_rack_xor_time = 8;
+  void clear_cross_rack_xor_time();
+  double cross_rack_xor_time() const;
+  void set_cross_rack_xor_time(double value);
+  private:
+  double _internal_cross_rack_xor_time() const;
+  void _internal_set_cross_rack_xor_time(double value);
+  public:
+
+  // double dest_data_node_network_time = 9;
+  void clear_dest_data_node_network_time();
+  double dest_data_node_network_time() const;
+  void set_dest_data_node_network_time(double value);
+  private:
+  double _internal_dest_data_node_network_time() const;
+  void _internal_set_dest_data_node_network_time(double value);
+  public:
+
+  // double dest_data_node_disk_io_time = 10;
+  void clear_dest_data_node_disk_io_time();
+  double dest_data_node_disk_io_time() const;
+  void set_dest_data_node_disk_io_time(double value);
+  private:
+  double _internal_dest_data_node_disk_io_time() const;
+  void _internal_set_dest_data_node_disk_io_time(double value);
   public:
 
   // @@protoc_insertion_point(class_scope:proxy_proto.RecoveryReply)
@@ -4374,9 +4532,16 @@ class RecoveryReply final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    double disk_io_time_;
-    double network_time_;
-    double decode_time_;
+    double disk_io_start_time_;
+    double disk_io_end_time_;
+    double network_start_time_;
+    double network_end_time_;
+    double decode_start_time_;
+    double decode_end_time_;
+    double cross_rack_time_;
+    double cross_rack_xor_time_;
+    double dest_data_node_network_time_;
+    double dest_data_node_disk_io_time_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -8338,64 +8503,224 @@ DegradedReadRequest::mutable_blockids() {
 
 // DegradedReadReply
 
-// double disk_io_time = 1;
-inline void DegradedReadReply::clear_disk_io_time() {
-  _impl_.disk_io_time_ = 0;
+// double disk_io_start_time = 1;
+inline void DegradedReadReply::clear_disk_io_start_time() {
+  _impl_.disk_io_start_time_ = 0;
 }
-inline double DegradedReadReply::_internal_disk_io_time() const {
-  return _impl_.disk_io_time_;
+inline double DegradedReadReply::_internal_disk_io_start_time() const {
+  return _impl_.disk_io_start_time_;
 }
-inline double DegradedReadReply::disk_io_time() const {
-  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadReply.disk_io_time)
-  return _internal_disk_io_time();
+inline double DegradedReadReply::disk_io_start_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadReply.disk_io_start_time)
+  return _internal_disk_io_start_time();
 }
-inline void DegradedReadReply::_internal_set_disk_io_time(double value) {
+inline void DegradedReadReply::_internal_set_disk_io_start_time(double value) {
   
-  _impl_.disk_io_time_ = value;
+  _impl_.disk_io_start_time_ = value;
 }
-inline void DegradedReadReply::set_disk_io_time(double value) {
-  _internal_set_disk_io_time(value);
-  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadReply.disk_io_time)
+inline void DegradedReadReply::set_disk_io_start_time(double value) {
+  _internal_set_disk_io_start_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadReply.disk_io_start_time)
 }
 
-// double network_time = 2;
-inline void DegradedReadReply::clear_network_time() {
-  _impl_.network_time_ = 0;
+// double disk_io_end_time = 2;
+inline void DegradedReadReply::clear_disk_io_end_time() {
+  _impl_.disk_io_end_time_ = 0;
 }
-inline double DegradedReadReply::_internal_network_time() const {
-  return _impl_.network_time_;
+inline double DegradedReadReply::_internal_disk_io_end_time() const {
+  return _impl_.disk_io_end_time_;
 }
-inline double DegradedReadReply::network_time() const {
-  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadReply.network_time)
-  return _internal_network_time();
+inline double DegradedReadReply::disk_io_end_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadReply.disk_io_end_time)
+  return _internal_disk_io_end_time();
 }
-inline void DegradedReadReply::_internal_set_network_time(double value) {
+inline void DegradedReadReply::_internal_set_disk_io_end_time(double value) {
   
-  _impl_.network_time_ = value;
+  _impl_.disk_io_end_time_ = value;
 }
-inline void DegradedReadReply::set_network_time(double value) {
-  _internal_set_network_time(value);
-  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadReply.network_time)
+inline void DegradedReadReply::set_disk_io_end_time(double value) {
+  _internal_set_disk_io_end_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadReply.disk_io_end_time)
 }
 
-// double decode_time = 3;
-inline void DegradedReadReply::clear_decode_time() {
-  _impl_.decode_time_ = 0;
+// double network_start_time = 3;
+inline void DegradedReadReply::clear_network_start_time() {
+  _impl_.network_start_time_ = 0;
 }
-inline double DegradedReadReply::_internal_decode_time() const {
-  return _impl_.decode_time_;
+inline double DegradedReadReply::_internal_network_start_time() const {
+  return _impl_.network_start_time_;
 }
-inline double DegradedReadReply::decode_time() const {
-  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadReply.decode_time)
-  return _internal_decode_time();
+inline double DegradedReadReply::network_start_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadReply.network_start_time)
+  return _internal_network_start_time();
 }
-inline void DegradedReadReply::_internal_set_decode_time(double value) {
+inline void DegradedReadReply::_internal_set_network_start_time(double value) {
   
-  _impl_.decode_time_ = value;
+  _impl_.network_start_time_ = value;
 }
-inline void DegradedReadReply::set_decode_time(double value) {
-  _internal_set_decode_time(value);
-  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadReply.decode_time)
+inline void DegradedReadReply::set_network_start_time(double value) {
+  _internal_set_network_start_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadReply.network_start_time)
+}
+
+// double network_end_time = 4;
+inline void DegradedReadReply::clear_network_end_time() {
+  _impl_.network_end_time_ = 0;
+}
+inline double DegradedReadReply::_internal_network_end_time() const {
+  return _impl_.network_end_time_;
+}
+inline double DegradedReadReply::network_end_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadReply.network_end_time)
+  return _internal_network_end_time();
+}
+inline void DegradedReadReply::_internal_set_network_end_time(double value) {
+  
+  _impl_.network_end_time_ = value;
+}
+inline void DegradedReadReply::set_network_end_time(double value) {
+  _internal_set_network_end_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadReply.network_end_time)
+}
+
+// double decode_start_time = 5;
+inline void DegradedReadReply::clear_decode_start_time() {
+  _impl_.decode_start_time_ = 0;
+}
+inline double DegradedReadReply::_internal_decode_start_time() const {
+  return _impl_.decode_start_time_;
+}
+inline double DegradedReadReply::decode_start_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadReply.decode_start_time)
+  return _internal_decode_start_time();
+}
+inline void DegradedReadReply::_internal_set_decode_start_time(double value) {
+  
+  _impl_.decode_start_time_ = value;
+}
+inline void DegradedReadReply::set_decode_start_time(double value) {
+  _internal_set_decode_start_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadReply.decode_start_time)
+}
+
+// double decode_end_time = 6;
+inline void DegradedReadReply::clear_decode_end_time() {
+  _impl_.decode_end_time_ = 0;
+}
+inline double DegradedReadReply::_internal_decode_end_time() const {
+  return _impl_.decode_end_time_;
+}
+inline double DegradedReadReply::decode_end_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadReply.decode_end_time)
+  return _internal_decode_end_time();
+}
+inline void DegradedReadReply::_internal_set_decode_end_time(double value) {
+  
+  _impl_.decode_end_time_ = value;
+}
+inline void DegradedReadReply::set_decode_end_time(double value) {
+  _internal_set_decode_end_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadReply.decode_end_time)
+}
+
+// double cross_rack_time = 7;
+inline void DegradedReadReply::clear_cross_rack_time() {
+  _impl_.cross_rack_time_ = 0;
+}
+inline double DegradedReadReply::_internal_cross_rack_time() const {
+  return _impl_.cross_rack_time_;
+}
+inline double DegradedReadReply::cross_rack_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadReply.cross_rack_time)
+  return _internal_cross_rack_time();
+}
+inline void DegradedReadReply::_internal_set_cross_rack_time(double value) {
+  
+  _impl_.cross_rack_time_ = value;
+}
+inline void DegradedReadReply::set_cross_rack_time(double value) {
+  _internal_set_cross_rack_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadReply.cross_rack_time)
+}
+
+// double cross_rack_xor_time = 8;
+inline void DegradedReadReply::clear_cross_rack_xor_time() {
+  _impl_.cross_rack_xor_time_ = 0;
+}
+inline double DegradedReadReply::_internal_cross_rack_xor_time() const {
+  return _impl_.cross_rack_xor_time_;
+}
+inline double DegradedReadReply::cross_rack_xor_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadReply.cross_rack_xor_time)
+  return _internal_cross_rack_xor_time();
+}
+inline void DegradedReadReply::_internal_set_cross_rack_xor_time(double value) {
+  
+  _impl_.cross_rack_xor_time_ = value;
+}
+inline void DegradedReadReply::set_cross_rack_xor_time(double value) {
+  _internal_set_cross_rack_xor_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadReply.cross_rack_xor_time)
+}
+
+// double grpc_start_time = 9;
+inline void DegradedReadReply::clear_grpc_start_time() {
+  _impl_.grpc_start_time_ = 0;
+}
+inline double DegradedReadReply::_internal_grpc_start_time() const {
+  return _impl_.grpc_start_time_;
+}
+inline double DegradedReadReply::grpc_start_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadReply.grpc_start_time)
+  return _internal_grpc_start_time();
+}
+inline void DegradedReadReply::_internal_set_grpc_start_time(double value) {
+  
+  _impl_.grpc_start_time_ = value;
+}
+inline void DegradedReadReply::set_grpc_start_time(double value) {
+  _internal_set_grpc_start_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadReply.grpc_start_time)
+}
+
+// double data_node_grpc_notify_time = 10;
+inline void DegradedReadReply::clear_data_node_grpc_notify_time() {
+  _impl_.data_node_grpc_notify_time_ = 0;
+}
+inline double DegradedReadReply::_internal_data_node_grpc_notify_time() const {
+  return _impl_.data_node_grpc_notify_time_;
+}
+inline double DegradedReadReply::data_node_grpc_notify_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadReply.data_node_grpc_notify_time)
+  return _internal_data_node_grpc_notify_time();
+}
+inline void DegradedReadReply::_internal_set_data_node_grpc_notify_time(double value) {
+  
+  _impl_.data_node_grpc_notify_time_ = value;
+}
+inline void DegradedReadReply::set_data_node_grpc_notify_time(double value) {
+  _internal_set_data_node_grpc_notify_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadReply.data_node_grpc_notify_time)
+}
+
+// double data_node_grpc_start_time = 11;
+inline void DegradedReadReply::clear_data_node_grpc_start_time() {
+  _impl_.data_node_grpc_start_time_ = 0;
+}
+inline double DegradedReadReply::_internal_data_node_grpc_start_time() const {
+  return _impl_.data_node_grpc_start_time_;
+}
+inline double DegradedReadReply::data_node_grpc_start_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadReply.data_node_grpc_start_time)
+  return _internal_data_node_grpc_start_time();
+}
+inline void DegradedReadReply::_internal_set_data_node_grpc_start_time(double value) {
+  
+  _impl_.data_node_grpc_start_time_ = value;
+}
+inline void DegradedReadReply::set_data_node_grpc_start_time(double value) {
+  _internal_set_data_node_grpc_start_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadReply.data_node_grpc_start_time)
 }
 
 // -------------------------------------------------------------------
@@ -9463,64 +9788,204 @@ inline void MultipleRecoveryRequest::set_failed_block_num(int32_t value) {
 
 // RecoveryReply
 
-// double disk_io_time = 1;
-inline void RecoveryReply::clear_disk_io_time() {
-  _impl_.disk_io_time_ = 0;
+// double disk_io_start_time = 1;
+inline void RecoveryReply::clear_disk_io_start_time() {
+  _impl_.disk_io_start_time_ = 0;
 }
-inline double RecoveryReply::_internal_disk_io_time() const {
-  return _impl_.disk_io_time_;
+inline double RecoveryReply::_internal_disk_io_start_time() const {
+  return _impl_.disk_io_start_time_;
 }
-inline double RecoveryReply::disk_io_time() const {
-  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryReply.disk_io_time)
-  return _internal_disk_io_time();
+inline double RecoveryReply::disk_io_start_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryReply.disk_io_start_time)
+  return _internal_disk_io_start_time();
 }
-inline void RecoveryReply::_internal_set_disk_io_time(double value) {
+inline void RecoveryReply::_internal_set_disk_io_start_time(double value) {
   
-  _impl_.disk_io_time_ = value;
+  _impl_.disk_io_start_time_ = value;
 }
-inline void RecoveryReply::set_disk_io_time(double value) {
-  _internal_set_disk_io_time(value);
-  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.disk_io_time)
+inline void RecoveryReply::set_disk_io_start_time(double value) {
+  _internal_set_disk_io_start_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.disk_io_start_time)
 }
 
-// double network_time = 2;
-inline void RecoveryReply::clear_network_time() {
-  _impl_.network_time_ = 0;
+// double disk_io_end_time = 2;
+inline void RecoveryReply::clear_disk_io_end_time() {
+  _impl_.disk_io_end_time_ = 0;
 }
-inline double RecoveryReply::_internal_network_time() const {
-  return _impl_.network_time_;
+inline double RecoveryReply::_internal_disk_io_end_time() const {
+  return _impl_.disk_io_end_time_;
 }
-inline double RecoveryReply::network_time() const {
-  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryReply.network_time)
-  return _internal_network_time();
+inline double RecoveryReply::disk_io_end_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryReply.disk_io_end_time)
+  return _internal_disk_io_end_time();
 }
-inline void RecoveryReply::_internal_set_network_time(double value) {
+inline void RecoveryReply::_internal_set_disk_io_end_time(double value) {
   
-  _impl_.network_time_ = value;
+  _impl_.disk_io_end_time_ = value;
 }
-inline void RecoveryReply::set_network_time(double value) {
-  _internal_set_network_time(value);
-  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.network_time)
+inline void RecoveryReply::set_disk_io_end_time(double value) {
+  _internal_set_disk_io_end_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.disk_io_end_time)
 }
 
-// double decode_time = 3;
-inline void RecoveryReply::clear_decode_time() {
-  _impl_.decode_time_ = 0;
+// double network_start_time = 3;
+inline void RecoveryReply::clear_network_start_time() {
+  _impl_.network_start_time_ = 0;
 }
-inline double RecoveryReply::_internal_decode_time() const {
-  return _impl_.decode_time_;
+inline double RecoveryReply::_internal_network_start_time() const {
+  return _impl_.network_start_time_;
 }
-inline double RecoveryReply::decode_time() const {
-  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryReply.decode_time)
-  return _internal_decode_time();
+inline double RecoveryReply::network_start_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryReply.network_start_time)
+  return _internal_network_start_time();
 }
-inline void RecoveryReply::_internal_set_decode_time(double value) {
+inline void RecoveryReply::_internal_set_network_start_time(double value) {
   
-  _impl_.decode_time_ = value;
+  _impl_.network_start_time_ = value;
 }
-inline void RecoveryReply::set_decode_time(double value) {
-  _internal_set_decode_time(value);
-  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.decode_time)
+inline void RecoveryReply::set_network_start_time(double value) {
+  _internal_set_network_start_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.network_start_time)
+}
+
+// double network_end_time = 4;
+inline void RecoveryReply::clear_network_end_time() {
+  _impl_.network_end_time_ = 0;
+}
+inline double RecoveryReply::_internal_network_end_time() const {
+  return _impl_.network_end_time_;
+}
+inline double RecoveryReply::network_end_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryReply.network_end_time)
+  return _internal_network_end_time();
+}
+inline void RecoveryReply::_internal_set_network_end_time(double value) {
+  
+  _impl_.network_end_time_ = value;
+}
+inline void RecoveryReply::set_network_end_time(double value) {
+  _internal_set_network_end_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.network_end_time)
+}
+
+// double decode_start_time = 5;
+inline void RecoveryReply::clear_decode_start_time() {
+  _impl_.decode_start_time_ = 0;
+}
+inline double RecoveryReply::_internal_decode_start_time() const {
+  return _impl_.decode_start_time_;
+}
+inline double RecoveryReply::decode_start_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryReply.decode_start_time)
+  return _internal_decode_start_time();
+}
+inline void RecoveryReply::_internal_set_decode_start_time(double value) {
+  
+  _impl_.decode_start_time_ = value;
+}
+inline void RecoveryReply::set_decode_start_time(double value) {
+  _internal_set_decode_start_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.decode_start_time)
+}
+
+// double decode_end_time = 6;
+inline void RecoveryReply::clear_decode_end_time() {
+  _impl_.decode_end_time_ = 0;
+}
+inline double RecoveryReply::_internal_decode_end_time() const {
+  return _impl_.decode_end_time_;
+}
+inline double RecoveryReply::decode_end_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryReply.decode_end_time)
+  return _internal_decode_end_time();
+}
+inline void RecoveryReply::_internal_set_decode_end_time(double value) {
+  
+  _impl_.decode_end_time_ = value;
+}
+inline void RecoveryReply::set_decode_end_time(double value) {
+  _internal_set_decode_end_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.decode_end_time)
+}
+
+// double cross_rack_time = 7;
+inline void RecoveryReply::clear_cross_rack_time() {
+  _impl_.cross_rack_time_ = 0;
+}
+inline double RecoveryReply::_internal_cross_rack_time() const {
+  return _impl_.cross_rack_time_;
+}
+inline double RecoveryReply::cross_rack_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryReply.cross_rack_time)
+  return _internal_cross_rack_time();
+}
+inline void RecoveryReply::_internal_set_cross_rack_time(double value) {
+  
+  _impl_.cross_rack_time_ = value;
+}
+inline void RecoveryReply::set_cross_rack_time(double value) {
+  _internal_set_cross_rack_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.cross_rack_time)
+}
+
+// double cross_rack_xor_time = 8;
+inline void RecoveryReply::clear_cross_rack_xor_time() {
+  _impl_.cross_rack_xor_time_ = 0;
+}
+inline double RecoveryReply::_internal_cross_rack_xor_time() const {
+  return _impl_.cross_rack_xor_time_;
+}
+inline double RecoveryReply::cross_rack_xor_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryReply.cross_rack_xor_time)
+  return _internal_cross_rack_xor_time();
+}
+inline void RecoveryReply::_internal_set_cross_rack_xor_time(double value) {
+  
+  _impl_.cross_rack_xor_time_ = value;
+}
+inline void RecoveryReply::set_cross_rack_xor_time(double value) {
+  _internal_set_cross_rack_xor_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.cross_rack_xor_time)
+}
+
+// double dest_data_node_network_time = 9;
+inline void RecoveryReply::clear_dest_data_node_network_time() {
+  _impl_.dest_data_node_network_time_ = 0;
+}
+inline double RecoveryReply::_internal_dest_data_node_network_time() const {
+  return _impl_.dest_data_node_network_time_;
+}
+inline double RecoveryReply::dest_data_node_network_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryReply.dest_data_node_network_time)
+  return _internal_dest_data_node_network_time();
+}
+inline void RecoveryReply::_internal_set_dest_data_node_network_time(double value) {
+  
+  _impl_.dest_data_node_network_time_ = value;
+}
+inline void RecoveryReply::set_dest_data_node_network_time(double value) {
+  _internal_set_dest_data_node_network_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.dest_data_node_network_time)
+}
+
+// double dest_data_node_disk_io_time = 10;
+inline void RecoveryReply::clear_dest_data_node_disk_io_time() {
+  _impl_.dest_data_node_disk_io_time_ = 0;
+}
+inline double RecoveryReply::_internal_dest_data_node_disk_io_time() const {
+  return _impl_.dest_data_node_disk_io_time_;
+}
+inline double RecoveryReply::dest_data_node_disk_io_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryReply.dest_data_node_disk_io_time)
+  return _internal_dest_data_node_disk_io_time();
+}
+inline void RecoveryReply::_internal_set_dest_data_node_disk_io_time(double value) {
+  
+  _impl_.dest_data_node_disk_io_time_ = value;
+}
+inline void RecoveryReply::set_dest_data_node_disk_io_time(double value) {
+  _internal_set_dest_data_node_disk_io_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.dest_data_node_disk_io_time)
 }
 
 // -------------------------------------------------------------------

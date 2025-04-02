@@ -58,14 +58,22 @@ namespace ECProject
         grpc::ServerContext *context,
         const proxy_proto::DegradedReadRequest *degraded_read_request,
         proxy_proto::DegradedReadReply *response) override;
-    grpc::Status degradedReadWithBlockStripeID(
-        grpc::ServerContext *context,
-        const proxy_proto::DegradedReadRequest *degraded_read_request,
-        proxy_proto::GetReply *response) override;
     grpc::Status degradedRead2Client(
       grpc::ServerContext *context,
       const proxy_proto::RecoveryRequest *recovery_request,
       proxy_proto::DegradedReadReply *response) override;
+    grpc::Status degradedReadBreakdown(
+      grpc::ServerContext *context,
+      const proxy_proto::DegradedReadRequest *degraded_read_request,
+      proxy_proto::DegradedReadReply *response) override;
+    grpc::Status degradedRead2ClientBreakdown(
+      grpc::ServerContext *context,
+      const proxy_proto::RecoveryRequest *recovery_request,
+      proxy_proto::DegradedReadReply *response) override;
+    grpc::Status degradedReadWithBlockStripeID(
+        grpc::ServerContext *context,
+        const proxy_proto::DegradedReadRequest *degraded_read_request,
+        proxy_proto::GetReply *response) override;
     // recovery
     grpc::Status recovery(
         grpc::ServerContext *context,
@@ -99,10 +107,12 @@ namespace ECProject
     void printAppendStripeDataPlacement(const proxy_proto::AppendStripeDataPlacement *append_stripe_data_placement);
     std::vector<unsigned char *> convertToUnsignedCharArray(std::vector<char*> &input);
     bool GetFromDatanode(const std::string &key, char *value, const size_t value_length, const char *ip, const int port);
-    bool GetFromDatanode(const std::string &key, char *value, const size_t value_length, const char *ip, const int port, double *disk_io_start_time, double *disk_io_end_time, double *network_start_time, double *network_end_time);
+    bool GetFromDatanode(const std::string &key, char *value, const size_t value_length, const char *ip, const int port, 
+      double *disk_io_start_time, double *disk_io_end_time, double *network_start_time, double *network_end_time, double *grpc_notify_time, double *grpc_start_time);
     bool RecoveryToDatanode(const char *block_key, int block_id, const char *buf, const char *ip, int port);
     void get_from_node(const std::string &block_key, char *block_value, const size_t block_size, const char *datanode_ip, const int datanode_port, bool *status, int index);
-    void get_from_node_with_time(const std::string &block_key, char *block_value, const size_t block_size, const char *datanode_ip, const int datanode_port, bool *status, int index, double *disk_io_start_time, double *disk_io_end_time, double *network_start_time, double *network_end_time);
+    void get_from_node_breakdown(const std::string &block_key, char *block_value, const size_t block_size, const char *datanode_ip, const int datanode_port, bool *status, int index, 
+      double *disk_io_start_time, double *disk_io_end_time, double *network_start_time, double *network_end_time, double *grpc_notify_time, double *grpc_start_time);
 
   private:
     std::mutex m_mutex;

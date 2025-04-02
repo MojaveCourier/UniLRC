@@ -3485,6 +3485,7 @@ class DegradedReadReply final :
     kDiskIoTimeFieldNumber = 1,
     kNetworkTimeFieldNumber = 2,
     kDecodeTimeFieldNumber = 3,
+    kGrpcStartTimeFieldNumber = 4,
   };
   // double disk_io_time = 1;
   void clear_disk_io_time();
@@ -3513,6 +3514,15 @@ class DegradedReadReply final :
   void _internal_set_decode_time(double value);
   public:
 
+  // double grpc_start_time = 4;
+  void clear_grpc_start_time();
+  double grpc_start_time() const;
+  void set_grpc_start_time(double value);
+  private:
+  double _internal_grpc_start_time() const;
+  void _internal_set_grpc_start_time(double value);
+  public:
+
   // @@protoc_insertion_point(class_scope:coordinator_proto.DegradedReadReply)
  private:
   class _Internal;
@@ -3524,6 +3534,7 @@ class DegradedReadReply final :
     double disk_io_time_;
     double network_time_;
     double decode_time_;
+    double grpc_start_time_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -5265,6 +5276,26 @@ inline void DegradedReadReply::_internal_set_decode_time(double value) {
 inline void DegradedReadReply::set_decode_time(double value) {
   _internal_set_decode_time(value);
   // @@protoc_insertion_point(field_set:coordinator_proto.DegradedReadReply.decode_time)
+}
+
+// double grpc_start_time = 4;
+inline void DegradedReadReply::clear_grpc_start_time() {
+  _impl_.grpc_start_time_ = 0;
+}
+inline double DegradedReadReply::_internal_grpc_start_time() const {
+  return _impl_.grpc_start_time_;
+}
+inline double DegradedReadReply::grpc_start_time() const {
+  // @@protoc_insertion_point(field_get:coordinator_proto.DegradedReadReply.grpc_start_time)
+  return _internal_grpc_start_time();
+}
+inline void DegradedReadReply::_internal_set_grpc_start_time(double value) {
+  
+  _impl_.grpc_start_time_ = value;
+}
+inline void DegradedReadReply::set_grpc_start_time(double value) {
+  _internal_set_grpc_start_time(value);
+  // @@protoc_insertion_point(field_set:coordinator_proto.DegradedReadReply.grpc_start_time)
 }
 
 // -------------------------------------------------------------------

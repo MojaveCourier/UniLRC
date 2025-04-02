@@ -27,6 +27,8 @@ static const char* proxyService_method_names[] = {
   "/proxy_proto.proxyService/decodeAndGetObject",
   "/proxy_proto.proxyService/degradedRead",
   "/proxy_proto.proxyService/degradedRead2Client",
+  "/proxy_proto.proxyService/degradedReadBreakdown",
+  "/proxy_proto.proxyService/degradedRead2ClientBreakdown",
   "/proxy_proto.proxyService/degradedReadWithBlockStripeID",
   "/proxy_proto.proxyService/recovery",
   "/proxy_proto.proxyService/multipleRecovery",
@@ -47,12 +49,14 @@ proxyService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& chann
   , rpcmethod_decodeAndGetObject_(proxyService_method_names[2], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_degradedRead_(proxyService_method_names[3], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_degradedRead2Client_(proxyService_method_names[4], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_degradedReadWithBlockStripeID_(proxyService_method_names[5], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_recovery_(proxyService_method_names[6], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_multipleRecovery_(proxyService_method_names[7], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_deleteBlock_(proxyService_method_names[8], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_scheduleAppend2Datanode_(proxyService_method_names[9], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_getBlocks_(proxyService_method_names[10], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_degradedReadBreakdown_(proxyService_method_names[5], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_degradedRead2ClientBreakdown_(proxyService_method_names[6], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_degradedReadWithBlockStripeID_(proxyService_method_names[7], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_recovery_(proxyService_method_names[8], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_multipleRecovery_(proxyService_method_names[9], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_deleteBlock_(proxyService_method_names[10], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_scheduleAppend2Datanode_(proxyService_method_names[11], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_getBlocks_(proxyService_method_names[12], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
 ::grpc::Status proxyService::Stub::checkalive(::grpc::ClientContext* context, const ::proxy_proto::CheckaliveCMD& request, ::proxy_proto::RequestResult* response) {
@@ -166,6 +170,52 @@ void proxyService::Stub::async::degradedRead2Client(::grpc::ClientContext* conte
 ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* proxyService::Stub::AsyncdegradedRead2ClientRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncdegradedRead2ClientRaw(context, request, cq);
+  result->StartCall();
+  return result;
+}
+
+::grpc::Status proxyService::Stub::degradedReadBreakdown(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::proxy_proto::DegradedReadReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::proxy_proto::DegradedReadRequest, ::proxy_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_degradedReadBreakdown_, context, request, response);
+}
+
+void proxyService::Stub::async::degradedReadBreakdown(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::proxy_proto::DegradedReadRequest, ::proxy_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_degradedReadBreakdown_, context, request, response, std::move(f));
+}
+
+void proxyService::Stub::async::degradedReadBreakdown(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response, ::grpc::ClientUnaryReactor* reactor) {
+  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_degradedReadBreakdown_, context, request, response, reactor);
+}
+
+::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* proxyService::Stub::PrepareAsyncdegradedReadBreakdownRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::proxy_proto::DegradedReadReply, ::proxy_proto::DegradedReadRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_degradedReadBreakdown_, context, request);
+}
+
+::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* proxyService::Stub::AsyncdegradedReadBreakdownRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
+  auto* result =
+    this->PrepareAsyncdegradedReadBreakdownRaw(context, request, cq);
+  result->StartCall();
+  return result;
+}
+
+::grpc::Status proxyService::Stub::degradedRead2ClientBreakdown(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::proxy_proto::DegradedReadReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::proxy_proto::RecoveryRequest, ::proxy_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_degradedRead2ClientBreakdown_, context, request, response);
+}
+
+void proxyService::Stub::async::degradedRead2ClientBreakdown(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::proxy_proto::RecoveryRequest, ::proxy_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_degradedRead2ClientBreakdown_, context, request, response, std::move(f));
+}
+
+void proxyService::Stub::async::degradedRead2ClientBreakdown(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response, ::grpc::ClientUnaryReactor* reactor) {
+  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_degradedRead2ClientBreakdown_, context, request, response, reactor);
+}
+
+::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* proxyService::Stub::PrepareAsyncdegradedRead2ClientBreakdownRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::proxy_proto::DegradedReadReply, ::proxy_proto::RecoveryRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_degradedRead2ClientBreakdown_, context, request);
+}
+
+::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* proxyService::Stub::AsyncdegradedRead2ClientBreakdownRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
+  auto* result =
+    this->PrepareAsyncdegradedRead2ClientBreakdownRaw(context, request, cq);
   result->StartCall();
   return result;
 }
@@ -362,6 +412,26 @@ proxyService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       proxyService_method_names[5],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
+      new ::grpc::internal::RpcMethodHandler< proxyService::Service, ::proxy_proto::DegradedReadRequest, ::proxy_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+          [](proxyService::Service* service,
+             ::grpc::ServerContext* ctx,
+             const ::proxy_proto::DegradedReadRequest* req,
+             ::proxy_proto::DegradedReadReply* resp) {
+               return service->degradedReadBreakdown(ctx, req, resp);
+             }, this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      proxyService_method_names[6],
+      ::grpc::internal::RpcMethod::NORMAL_RPC,
+      new ::grpc::internal::RpcMethodHandler< proxyService::Service, ::proxy_proto::RecoveryRequest, ::proxy_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+          [](proxyService::Service* service,
+             ::grpc::ServerContext* ctx,
+             const ::proxy_proto::RecoveryRequest* req,
+             ::proxy_proto::DegradedReadReply* resp) {
+               return service->degradedRead2ClientBreakdown(ctx, req, resp);
+             }, this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      proxyService_method_names[7],
+      ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< proxyService::Service, ::proxy_proto::DegradedReadRequest, ::proxy_proto::GetReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](proxyService::Service* service,
              ::grpc::ServerContext* ctx,
@@ -370,7 +440,7 @@ proxyService::Service::Service() {
                return service->degradedReadWithBlockStripeID(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      proxyService_method_names[6],
+      proxyService_method_names[8],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< proxyService::Service, ::proxy_proto::RecoveryRequest, ::proxy_proto::RecoveryReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](proxyService::Service* service,
@@ -380,7 +450,7 @@ proxyService::Service::Service() {
                return service->recovery(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      proxyService_method_names[7],
+      proxyService_method_names[9],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< proxyService::Service, ::proxy_proto::MultipleRecoveryRequest, ::proxy_proto::GetReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](proxyService::Service* service,
@@ -390,7 +460,7 @@ proxyService::Service::Service() {
                return service->multipleRecovery(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      proxyService_method_names[8],
+      proxyService_method_names[10],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< proxyService::Service, ::proxy_proto::NodeAndBlock, ::proxy_proto::DelReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](proxyService::Service* service,
@@ -400,7 +470,7 @@ proxyService::Service::Service() {
                return service->deleteBlock(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      proxyService_method_names[9],
+      proxyService_method_names[11],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< proxyService::Service, ::proxy_proto::AppendStripeDataPlacement, ::proxy_proto::SetReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](proxyService::Service* service,
@@ -410,7 +480,7 @@ proxyService::Service::Service() {
                return service->scheduleAppend2Datanode(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      proxyService_method_names[10],
+      proxyService_method_names[12],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< proxyService::Service, ::proxy_proto::StripeAndBlockIDs, ::proxy_proto::GetReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](proxyService::Service* service,
@@ -453,6 +523,20 @@ proxyService::Service::~Service() {
 }
 
 ::grpc::Status proxyService::Service::degradedRead2Client(::grpc::ServerContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response) {
+  (void) context;
+  (void) request;
+  (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status proxyService::Service::degradedReadBreakdown(::grpc::ServerContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response) {
+  (void) context;
+  (void) request;
+  (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status proxyService::Service::degradedRead2ClientBreakdown(::grpc::ServerContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response) {
   (void) context;
   (void) request;
   (void) response;

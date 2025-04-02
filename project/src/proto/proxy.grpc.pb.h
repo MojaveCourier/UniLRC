@@ -90,6 +90,20 @@ class proxyService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>> PrepareAsyncdegradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>>(PrepareAsyncdegradedRead2ClientRaw(context, request, cq));
     }
+    virtual ::grpc::Status degradedReadBreakdown(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::proxy_proto::DegradedReadReply* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>> AsyncdegradedReadBreakdown(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>>(AsyncdegradedReadBreakdownRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>> PrepareAsyncdegradedReadBreakdown(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>>(PrepareAsyncdegradedReadBreakdownRaw(context, request, cq));
+    }
+    virtual ::grpc::Status degradedRead2ClientBreakdown(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::proxy_proto::DegradedReadReply* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>> AsyncdegradedRead2ClientBreakdown(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>>(AsyncdegradedRead2ClientBreakdownRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>> PrepareAsyncdegradedRead2ClientBreakdown(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>>(PrepareAsyncdegradedRead2ClientBreakdownRaw(context, request, cq));
+    }
     virtual ::grpc::Status degradedReadWithBlockStripeID(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::proxy_proto::GetReply* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>> AsyncdegradedReadWithBlockStripeID(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>>(AsyncdegradedReadWithBlockStripeIDRaw(context, request, cq));
@@ -153,6 +167,10 @@ class proxyService final {
       virtual void degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       virtual void degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response, std::function<void(::grpc::Status)>) = 0;
       virtual void degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      virtual void degradedReadBreakdown(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void degradedReadBreakdown(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      virtual void degradedRead2ClientBreakdown(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void degradedRead2ClientBreakdown(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       virtual void degradedReadWithBlockStripeID(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response, std::function<void(::grpc::Status)>) = 0;
       virtual void degradedReadWithBlockStripeID(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       // recovery
@@ -184,6 +202,10 @@ class proxyService final {
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>* PrepareAsyncdegradedReadRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>* AsyncdegradedRead2ClientRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>* PrepareAsyncdegradedRead2ClientRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>* AsyncdegradedReadBreakdownRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>* PrepareAsyncdegradedReadBreakdownRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>* AsyncdegradedRead2ClientBreakdownRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::DegradedReadReply>* PrepareAsyncdegradedRead2ClientBreakdownRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>* AsyncdegradedReadWithBlockStripeIDRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::GetReply>* PrepareAsyncdegradedReadWithBlockStripeIDRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::proxy_proto::RecoveryReply>* AsyncrecoveryRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) = 0;
@@ -234,6 +256,20 @@ class proxyService final {
     }
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>> PrepareAsyncdegradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>>(PrepareAsyncdegradedRead2ClientRaw(context, request, cq));
+    }
+    ::grpc::Status degradedReadBreakdown(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::proxy_proto::DegradedReadReply* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>> AsyncdegradedReadBreakdown(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>>(AsyncdegradedReadBreakdownRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>> PrepareAsyncdegradedReadBreakdown(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>>(PrepareAsyncdegradedReadBreakdownRaw(context, request, cq));
+    }
+    ::grpc::Status degradedRead2ClientBreakdown(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::proxy_proto::DegradedReadReply* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>> AsyncdegradedRead2ClientBreakdown(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>>(AsyncdegradedRead2ClientBreakdownRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>> PrepareAsyncdegradedRead2ClientBreakdown(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>>(PrepareAsyncdegradedRead2ClientBreakdownRaw(context, request, cq));
     }
     ::grpc::Status degradedReadWithBlockStripeID(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::proxy_proto::GetReply* response) override;
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>> AsyncdegradedReadWithBlockStripeID(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) {
@@ -290,6 +326,10 @@ class proxyService final {
       void degradedRead(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response, ::grpc::ClientUnaryReactor* reactor) override;
       void degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response, std::function<void(::grpc::Status)>) override;
       void degradedRead2Client(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void degradedReadBreakdown(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response, std::function<void(::grpc::Status)>) override;
+      void degradedReadBreakdown(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void degradedRead2ClientBreakdown(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response, std::function<void(::grpc::Status)>) override;
+      void degradedRead2ClientBreakdown(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response, ::grpc::ClientUnaryReactor* reactor) override;
       void degradedReadWithBlockStripeID(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response, std::function<void(::grpc::Status)>) override;
       void degradedReadWithBlockStripeID(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response, ::grpc::ClientUnaryReactor* reactor) override;
       void recovery(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::RecoveryReply* response, std::function<void(::grpc::Status)>) override;
@@ -323,6 +363,10 @@ class proxyService final {
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* PrepareAsyncdegradedReadRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* AsyncdegradedRead2ClientRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* PrepareAsyncdegradedRead2ClientRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* AsyncdegradedReadBreakdownRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* PrepareAsyncdegradedReadBreakdownRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* AsyncdegradedRead2ClientBreakdownRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::proxy_proto::DegradedReadReply>* PrepareAsyncdegradedRead2ClientBreakdownRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* AsyncdegradedReadWithBlockStripeIDRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::GetReply>* PrepareAsyncdegradedReadWithBlockStripeIDRaw(::grpc::ClientContext* context, const ::proxy_proto::DegradedReadRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::proxy_proto::RecoveryReply>* AsyncrecoveryRaw(::grpc::ClientContext* context, const ::proxy_proto::RecoveryRequest& request, ::grpc::CompletionQueue* cq) override;
@@ -340,6 +384,8 @@ class proxyService final {
     const ::grpc::internal::RpcMethod rpcmethod_decodeAndGetObject_;
     const ::grpc::internal::RpcMethod rpcmethod_degradedRead_;
     const ::grpc::internal::RpcMethod rpcmethod_degradedRead2Client_;
+    const ::grpc::internal::RpcMethod rpcmethod_degradedReadBreakdown_;
+    const ::grpc::internal::RpcMethod rpcmethod_degradedRead2ClientBreakdown_;
     const ::grpc::internal::RpcMethod rpcmethod_degradedReadWithBlockStripeID_;
     const ::grpc::internal::RpcMethod rpcmethod_recovery_;
     const ::grpc::internal::RpcMethod rpcmethod_multipleRecovery_;
@@ -362,6 +408,8 @@ class proxyService final {
     // degraded read
     virtual ::grpc::Status degradedRead(::grpc::ServerContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response);
     virtual ::grpc::Status degradedRead2Client(::grpc::ServerContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response);
+    virtual ::grpc::Status degradedReadBreakdown(::grpc::ServerContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response);
+    virtual ::grpc::Status degradedRead2ClientBreakdown(::grpc::ServerContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response);
     virtual ::grpc::Status degradedReadWithBlockStripeID(::grpc::ServerContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response);
     // recovery
     virtual ::grpc::Status recovery(::grpc::ServerContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::RecoveryReply* response);
@@ -474,12 +522,52 @@ class proxyService final {
     }
   };
   template <class BaseClass>
+  class WithAsyncMethod_degradedReadBreakdown : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithAsyncMethod_degradedReadBreakdown() {
+      ::grpc::Service::MarkMethodAsync(5);
+    }
+    ~WithAsyncMethod_degradedReadBreakdown() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status degradedReadBreakdown(::grpc::ServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestdegradedReadBreakdown(::grpc::ServerContext* context, ::proxy_proto::DegradedReadRequest* request, ::grpc::ServerAsyncResponseWriter< ::proxy_proto::DegradedReadReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(5, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
+  class WithAsyncMethod_degradedRead2ClientBreakdown : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithAsyncMethod_degradedRead2ClientBreakdown() {
+      ::grpc::Service::MarkMethodAsync(6);
+    }
+    ~WithAsyncMethod_degradedRead2ClientBreakdown() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status degradedRead2ClientBreakdown(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestdegradedRead2ClientBreakdown(::grpc::ServerContext* context, ::proxy_proto::RecoveryRequest* request, ::grpc::ServerAsyncResponseWriter< ::proxy_proto::DegradedReadReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(6, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
   class WithAsyncMethod_degradedReadWithBlockStripeID : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_degradedReadWithBlockStripeID() {
-      ::grpc::Service::MarkMethodAsync(5);
+      ::grpc::Service::MarkMethodAsync(7);
     }
     ~WithAsyncMethod_degradedReadWithBlockStripeID() override {
       BaseClassMustBeDerivedFromService(this);
@@ -490,7 +578,7 @@ class proxyService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestdegradedReadWithBlockStripeID(::grpc::ServerContext* context, ::proxy_proto::DegradedReadRequest* request, ::grpc::ServerAsyncResponseWriter< ::proxy_proto::GetReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(5, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(7, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -499,7 +587,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_recovery() {
-      ::grpc::Service::MarkMethodAsync(6);
+      ::grpc::Service::MarkMethodAsync(8);
     }
     ~WithAsyncMethod_recovery() override {
       BaseClassMustBeDerivedFromService(this);
@@ -510,7 +598,7 @@ class proxyService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void Requestrecovery(::grpc::ServerContext* context, ::proxy_proto::RecoveryRequest* request, ::grpc::ServerAsyncResponseWriter< ::proxy_proto::RecoveryReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(6, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(8, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -519,7 +607,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_multipleRecovery() {
-      ::grpc::Service::MarkMethodAsync(7);
+      ::grpc::Service::MarkMethodAsync(9);
     }
     ~WithAsyncMethod_multipleRecovery() override {
       BaseClassMustBeDerivedFromService(this);
@@ -530,7 +618,7 @@ class proxyService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestmultipleRecovery(::grpc::ServerContext* context, ::proxy_proto::MultipleRecoveryRequest* request, ::grpc::ServerAsyncResponseWriter< ::proxy_proto::GetReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(7, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(9, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -539,7 +627,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_deleteBlock() {
-      ::grpc::Service::MarkMethodAsync(8);
+      ::grpc::Service::MarkMethodAsync(10);
     }
     ~WithAsyncMethod_deleteBlock() override {
       BaseClassMustBeDerivedFromService(this);
@@ -550,7 +638,7 @@ class proxyService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestdeleteBlock(::grpc::ServerContext* context, ::proxy_proto::NodeAndBlock* request, ::grpc::ServerAsyncResponseWriter< ::proxy_proto::DelReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(8, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(10, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -559,7 +647,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_scheduleAppend2Datanode() {
-      ::grpc::Service::MarkMethodAsync(9);
+      ::grpc::Service::MarkMethodAsync(11);
     }
     ~WithAsyncMethod_scheduleAppend2Datanode() override {
       BaseClassMustBeDerivedFromService(this);
@@ -570,7 +658,7 @@ class proxyService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestscheduleAppend2Datanode(::grpc::ServerContext* context, ::proxy_proto::AppendStripeDataPlacement* request, ::grpc::ServerAsyncResponseWriter< ::proxy_proto::SetReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(9, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(11, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -579,7 +667,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_getBlocks() {
-      ::grpc::Service::MarkMethodAsync(10);
+      ::grpc::Service::MarkMethodAsync(12);
     }
     ~WithAsyncMethod_getBlocks() override {
       BaseClassMustBeDerivedFromService(this);
@@ -590,10 +678,10 @@ class proxyService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestgetBlocks(::grpc::ServerContext* context, ::proxy_proto::StripeAndBlockIDs* request, ::grpc::ServerAsyncResponseWriter< ::proxy_proto::GetReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(10, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(12, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_checkalive<WithAsyncMethod_encodeAndSetObject<WithAsyncMethod_decodeAndGetObject<WithAsyncMethod_degradedRead<WithAsyncMethod_degradedRead2Client<WithAsyncMethod_degradedReadWithBlockStripeID<WithAsyncMethod_recovery<WithAsyncMethod_multipleRecovery<WithAsyncMethod_deleteBlock<WithAsyncMethod_scheduleAppend2Datanode<WithAsyncMethod_getBlocks<Service > > > > > > > > > > > AsyncService;
+  typedef WithAsyncMethod_checkalive<WithAsyncMethod_encodeAndSetObject<WithAsyncMethod_decodeAndGetObject<WithAsyncMethod_degradedRead<WithAsyncMethod_degradedRead2Client<WithAsyncMethod_degradedReadBreakdown<WithAsyncMethod_degradedRead2ClientBreakdown<WithAsyncMethod_degradedReadWithBlockStripeID<WithAsyncMethod_recovery<WithAsyncMethod_multipleRecovery<WithAsyncMethod_deleteBlock<WithAsyncMethod_scheduleAppend2Datanode<WithAsyncMethod_getBlocks<Service > > > > > > > > > > > > > AsyncService;
   template <class BaseClass>
   class WithCallbackMethod_checkalive : public BaseClass {
    private:
@@ -730,18 +818,72 @@ class proxyService final {
       ::grpc::CallbackServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
+  class WithCallbackMethod_degradedReadBreakdown : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithCallbackMethod_degradedReadBreakdown() {
+      ::grpc::Service::MarkMethodCallback(5,
+          new ::grpc::internal::CallbackUnaryHandler< ::proxy_proto::DegradedReadRequest, ::proxy_proto::DegradedReadReply>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::DegradedReadReply* response) { return this->degradedReadBreakdown(context, request, response); }));}
+    void SetMessageAllocatorFor_degradedReadBreakdown(
+        ::grpc::MessageAllocator< ::proxy_proto::DegradedReadRequest, ::proxy_proto::DegradedReadReply>* allocator) {
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(5);
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::proxy_proto::DegradedReadRequest, ::proxy_proto::DegradedReadReply>*>(handler)
+              ->SetMessageAllocator(allocator);
+    }
+    ~WithCallbackMethod_degradedReadBreakdown() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status degradedReadBreakdown(::grpc::ServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* degradedReadBreakdown(
+      ::grpc::CallbackServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/)  { return nullptr; }
+  };
+  template <class BaseClass>
+  class WithCallbackMethod_degradedRead2ClientBreakdown : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithCallbackMethod_degradedRead2ClientBreakdown() {
+      ::grpc::Service::MarkMethodCallback(6,
+          new ::grpc::internal::CallbackUnaryHandler< ::proxy_proto::RecoveryRequest, ::proxy_proto::DegradedReadReply>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::DegradedReadReply* response) { return this->degradedRead2ClientBreakdown(context, request, response); }));}
+    void SetMessageAllocatorFor_degradedRead2ClientBreakdown(
+        ::grpc::MessageAllocator< ::proxy_proto::RecoveryRequest, ::proxy_proto::DegradedReadReply>* allocator) {
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(6);
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::proxy_proto::RecoveryRequest, ::proxy_proto::DegradedReadReply>*>(handler)
+              ->SetMessageAllocator(allocator);
+    }
+    ~WithCallbackMethod_degradedRead2ClientBreakdown() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status degradedRead2ClientBreakdown(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* degradedRead2ClientBreakdown(
+      ::grpc::CallbackServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/)  { return nullptr; }
+  };
+  template <class BaseClass>
   class WithCallbackMethod_degradedReadWithBlockStripeID : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_degradedReadWithBlockStripeID() {
-      ::grpc::Service::MarkMethodCallback(5,
+      ::grpc::Service::MarkMethodCallback(7,
           new ::grpc::internal::CallbackUnaryHandler< ::proxy_proto::DegradedReadRequest, ::proxy_proto::GetReply>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proxy_proto::DegradedReadRequest* request, ::proxy_proto::GetReply* response) { return this->degradedReadWithBlockStripeID(context, request, response); }));}
     void SetMessageAllocatorFor_degradedReadWithBlockStripeID(
         ::grpc::MessageAllocator< ::proxy_proto::DegradedReadRequest, ::proxy_proto::GetReply>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(5);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(7);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proxy_proto::DegradedReadRequest, ::proxy_proto::GetReply>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -762,13 +904,13 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_recovery() {
-      ::grpc::Service::MarkMethodCallback(6,
+      ::grpc::Service::MarkMethodCallback(8,
           new ::grpc::internal::CallbackUnaryHandler< ::proxy_proto::RecoveryRequest, ::proxy_proto::RecoveryReply>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proxy_proto::RecoveryRequest* request, ::proxy_proto::RecoveryReply* response) { return this->recovery(context, request, response); }));}
     void SetMessageAllocatorFor_recovery(
         ::grpc::MessageAllocator< ::proxy_proto::RecoveryRequest, ::proxy_proto::RecoveryReply>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(6);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(8);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proxy_proto::RecoveryRequest, ::proxy_proto::RecoveryReply>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -789,13 +931,13 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_multipleRecovery() {
-      ::grpc::Service::MarkMethodCallback(7,
+      ::grpc::Service::MarkMethodCallback(9,
           new ::grpc::internal::CallbackUnaryHandler< ::proxy_proto::MultipleRecoveryRequest, ::proxy_proto::GetReply>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proxy_proto::MultipleRecoveryRequest* request, ::proxy_proto::GetReply* response) { return this->multipleRecovery(context, request, response); }));}
     void SetMessageAllocatorFor_multipleRecovery(
         ::grpc::MessageAllocator< ::proxy_proto::MultipleRecoveryRequest, ::proxy_proto::GetReply>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(7);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(9);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proxy_proto::MultipleRecoveryRequest, ::proxy_proto::GetReply>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -816,13 +958,13 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_deleteBlock() {
-      ::grpc::Service::MarkMethodCallback(8,
+      ::grpc::Service::MarkMethodCallback(10,
           new ::grpc::internal::CallbackUnaryHandler< ::proxy_proto::NodeAndBlock, ::proxy_proto::DelReply>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proxy_proto::NodeAndBlock* request, ::proxy_proto::DelReply* response) { return this->deleteBlock(context, request, response); }));}
     void SetMessageAllocatorFor_deleteBlock(
         ::grpc::MessageAllocator< ::proxy_proto::NodeAndBlock, ::proxy_proto::DelReply>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(8);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(10);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proxy_proto::NodeAndBlock, ::proxy_proto::DelReply>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -843,13 +985,13 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_scheduleAppend2Datanode() {
-      ::grpc::Service::MarkMethodCallback(9,
+      ::grpc::Service::MarkMethodCallback(11,
           new ::grpc::internal::CallbackUnaryHandler< ::proxy_proto::AppendStripeDataPlacement, ::proxy_proto::SetReply>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proxy_proto::AppendStripeDataPlacement* request, ::proxy_proto::SetReply* response) { return this->scheduleAppend2Datanode(context, request, response); }));}
     void SetMessageAllocatorFor_scheduleAppend2Datanode(
         ::grpc::MessageAllocator< ::proxy_proto::AppendStripeDataPlacement, ::proxy_proto::SetReply>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(9);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(11);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proxy_proto::AppendStripeDataPlacement, ::proxy_proto::SetReply>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -870,13 +1012,13 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithCallbackMethod_getBlocks() {
-      ::grpc::Service::MarkMethodCallback(10,
+      ::grpc::Service::MarkMethodCallback(12,
           new ::grpc::internal::CallbackUnaryHandler< ::proxy_proto::StripeAndBlockIDs, ::proxy_proto::GetReply>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::proxy_proto::StripeAndBlockIDs* request, ::proxy_proto::GetReply* response) { return this->getBlocks(context, request, response); }));}
     void SetMessageAllocatorFor_getBlocks(
         ::grpc::MessageAllocator< ::proxy_proto::StripeAndBlockIDs, ::proxy_proto::GetReply>* allocator) {
-      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(10);
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(12);
       static_cast<::grpc::internal::CallbackUnaryHandler< ::proxy_proto::StripeAndBlockIDs, ::proxy_proto::GetReply>*>(handler)
               ->SetMessageAllocator(allocator);
     }
@@ -891,7 +1033,7 @@ class proxyService final {
     virtual ::grpc::ServerUnaryReactor* getBlocks(
       ::grpc::CallbackServerContext* /*context*/, const ::proxy_proto::StripeAndBlockIDs* /*request*/, ::proxy_proto::GetReply* /*response*/)  { return nullptr; }
   };
-  typedef WithCallbackMethod_checkalive<WithCallbackMethod_encodeAndSetObject<WithCallbackMethod_decodeAndGetObject<WithCallbackMethod_degradedRead<WithCallbackMethod_degradedRead2Client<WithCallbackMethod_degradedReadWithBlockStripeID<WithCallbackMethod_recovery<WithCallbackMethod_multipleRecovery<WithCallbackMethod_deleteBlock<WithCallbackMethod_scheduleAppend2Datanode<WithCallbackMethod_getBlocks<Service > > > > > > > > > > > CallbackService;
+  typedef WithCallbackMethod_checkalive<WithCallbackMethod_encodeAndSetObject<WithCallbackMethod_decodeAndGetObject<WithCallbackMethod_degradedRead<WithCallbackMethod_degradedRead2Client<WithCallbackMethod_degradedReadBreakdown<WithCallbackMethod_degradedRead2ClientBreakdown<WithCallbackMethod_degradedReadWithBlockStripeID<WithCallbackMethod_recovery<WithCallbackMethod_multipleRecovery<WithCallbackMethod_deleteBlock<WithCallbackMethod_scheduleAppend2Datanode<WithCallbackMethod_getBlocks<Service > > > > > > > > > > > > > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_checkalive : public BaseClass {
@@ -979,12 +1121,46 @@ class proxyService final {
     }
   };
   template <class BaseClass>
+  class WithGenericMethod_degradedReadBreakdown : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithGenericMethod_degradedReadBreakdown() {
+      ::grpc::Service::MarkMethodGeneric(5);
+    }
+    ~WithGenericMethod_degradedReadBreakdown() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status degradedReadBreakdown(::grpc::ServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
+  class WithGenericMethod_degradedRead2ClientBreakdown : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithGenericMethod_degradedRead2ClientBreakdown() {
+      ::grpc::Service::MarkMethodGeneric(6);
+    }
+    ~WithGenericMethod_degradedRead2ClientBreakdown() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status degradedRead2ClientBreakdown(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
   class WithGenericMethod_degradedReadWithBlockStripeID : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_degradedReadWithBlockStripeID() {
-      ::grpc::Service::MarkMethodGeneric(5);
+      ::grpc::Service::MarkMethodGeneric(7);
     }
     ~WithGenericMethod_degradedReadWithBlockStripeID() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1001,7 +1177,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_recovery() {
-      ::grpc::Service::MarkMethodGeneric(6);
+      ::grpc::Service::MarkMethodGeneric(8);
     }
     ~WithGenericMethod_recovery() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1018,7 +1194,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_multipleRecovery() {
-      ::grpc::Service::MarkMethodGeneric(7);
+      ::grpc::Service::MarkMethodGeneric(9);
     }
     ~WithGenericMethod_multipleRecovery() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1035,7 +1211,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_deleteBlock() {
-      ::grpc::Service::MarkMethodGeneric(8);
+      ::grpc::Service::MarkMethodGeneric(10);
     }
     ~WithGenericMethod_deleteBlock() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1052,7 +1228,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_scheduleAppend2Datanode() {
-      ::grpc::Service::MarkMethodGeneric(9);
+      ::grpc::Service::MarkMethodGeneric(11);
     }
     ~WithGenericMethod_scheduleAppend2Datanode() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1069,7 +1245,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_getBlocks() {
-      ::grpc::Service::MarkMethodGeneric(10);
+      ::grpc::Service::MarkMethodGeneric(12);
     }
     ~WithGenericMethod_getBlocks() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1181,12 +1357,52 @@ class proxyService final {
     }
   };
   template <class BaseClass>
+  class WithRawMethod_degradedReadBreakdown : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawMethod_degradedReadBreakdown() {
+      ::grpc::Service::MarkMethodRaw(5);
+    }
+    ~WithRawMethod_degradedReadBreakdown() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status degradedReadBreakdown(::grpc::ServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestdegradedReadBreakdown(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(5, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
+  class WithRawMethod_degradedRead2ClientBreakdown : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawMethod_degradedRead2ClientBreakdown() {
+      ::grpc::Service::MarkMethodRaw(6);
+    }
+    ~WithRawMethod_degradedRead2ClientBreakdown() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status degradedRead2ClientBreakdown(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestdegradedRead2ClientBreakdown(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(6, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
   class WithRawMethod_degradedReadWithBlockStripeID : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_degradedReadWithBlockStripeID() {
-      ::grpc::Service::MarkMethodRaw(5);
+      ::grpc::Service::MarkMethodRaw(7);
     }
     ~WithRawMethod_degradedReadWithBlockStripeID() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1197,7 +1413,7 @@ class proxyService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestdegradedReadWithBlockStripeID(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(5, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(7, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1206,7 +1422,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_recovery() {
-      ::grpc::Service::MarkMethodRaw(6);
+      ::grpc::Service::MarkMethodRaw(8);
     }
     ~WithRawMethod_recovery() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1217,7 +1433,7 @@ class proxyService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void Requestrecovery(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(6, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(8, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1226,7 +1442,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_multipleRecovery() {
-      ::grpc::Service::MarkMethodRaw(7);
+      ::grpc::Service::MarkMethodRaw(9);
     }
     ~WithRawMethod_multipleRecovery() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1237,7 +1453,7 @@ class proxyService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestmultipleRecovery(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(7, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(9, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1246,7 +1462,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_deleteBlock() {
-      ::grpc::Service::MarkMethodRaw(8);
+      ::grpc::Service::MarkMethodRaw(10);
     }
     ~WithRawMethod_deleteBlock() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1257,7 +1473,7 @@ class proxyService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestdeleteBlock(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(8, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(10, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1266,7 +1482,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_scheduleAppend2Datanode() {
-      ::grpc::Service::MarkMethodRaw(9);
+      ::grpc::Service::MarkMethodRaw(11);
     }
     ~WithRawMethod_scheduleAppend2Datanode() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1277,7 +1493,7 @@ class proxyService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestscheduleAppend2Datanode(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(9, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(11, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1286,7 +1502,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_getBlocks() {
-      ::grpc::Service::MarkMethodRaw(10);
+      ::grpc::Service::MarkMethodRaw(12);
     }
     ~WithRawMethod_getBlocks() override {
       BaseClassMustBeDerivedFromService(this);
@@ -1297,7 +1513,7 @@ class proxyService final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestgetBlocks(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(10, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(12, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1411,12 +1627,56 @@ class proxyService final {
       ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
+  class WithRawCallbackMethod_degradedReadBreakdown : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawCallbackMethod_degradedReadBreakdown() {
+      ::grpc::Service::MarkMethodRawCallback(5,
+          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->degradedReadBreakdown(context, request, response); }));
+    }
+    ~WithRawCallbackMethod_degradedReadBreakdown() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status degradedReadBreakdown(::grpc::ServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* degradedReadBreakdown(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
+  };
+  template <class BaseClass>
+  class WithRawCallbackMethod_degradedRead2ClientBreakdown : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawCallbackMethod_degradedRead2ClientBreakdown() {
+      ::grpc::Service::MarkMethodRawCallback(6,
+          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->degradedRead2ClientBreakdown(context, request, response); }));
+    }
+    ~WithRawCallbackMethod_degradedRead2ClientBreakdown() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status degradedRead2ClientBreakdown(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* degradedRead2ClientBreakdown(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
+  };
+  template <class BaseClass>
   class WithRawCallbackMethod_degradedReadWithBlockStripeID : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_degradedReadWithBlockStripeID() {
-      ::grpc::Service::MarkMethodRawCallback(5,
+      ::grpc::Service::MarkMethodRawCallback(7,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->degradedReadWithBlockStripeID(context, request, response); }));
@@ -1438,7 +1698,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_recovery() {
-      ::grpc::Service::MarkMethodRawCallback(6,
+      ::grpc::Service::MarkMethodRawCallback(8,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->recovery(context, request, response); }));
@@ -1460,7 +1720,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_multipleRecovery() {
-      ::grpc::Service::MarkMethodRawCallback(7,
+      ::grpc::Service::MarkMethodRawCallback(9,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->multipleRecovery(context, request, response); }));
@@ -1482,7 +1742,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_deleteBlock() {
-      ::grpc::Service::MarkMethodRawCallback(8,
+      ::grpc::Service::MarkMethodRawCallback(10,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->deleteBlock(context, request, response); }));
@@ -1504,7 +1764,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_scheduleAppend2Datanode() {
-      ::grpc::Service::MarkMethodRawCallback(9,
+      ::grpc::Service::MarkMethodRawCallback(11,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->scheduleAppend2Datanode(context, request, response); }));
@@ -1526,7 +1786,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawCallbackMethod_getBlocks() {
-      ::grpc::Service::MarkMethodRawCallback(10,
+      ::grpc::Service::MarkMethodRawCallback(12,
           new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
                    ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->getBlocks(context, request, response); }));
@@ -1678,12 +1938,66 @@ class proxyService final {
     virtual ::grpc::Status StreameddegradedRead2Client(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proxy_proto::RecoveryRequest,::proxy_proto::DegradedReadReply>* server_unary_streamer) = 0;
   };
   template <class BaseClass>
+  class WithStreamedUnaryMethod_degradedReadBreakdown : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithStreamedUnaryMethod_degradedReadBreakdown() {
+      ::grpc::Service::MarkMethodStreamed(5,
+        new ::grpc::internal::StreamedUnaryHandler<
+          ::proxy_proto::DegradedReadRequest, ::proxy_proto::DegradedReadReply>(
+            [this](::grpc::ServerContext* context,
+                   ::grpc::ServerUnaryStreamer<
+                     ::proxy_proto::DegradedReadRequest, ::proxy_proto::DegradedReadReply>* streamer) {
+                       return this->StreameddegradedReadBreakdown(context,
+                         streamer);
+                  }));
+    }
+    ~WithStreamedUnaryMethod_degradedReadBreakdown() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable regular version of this method
+    ::grpc::Status degradedReadBreakdown(::grpc::ServerContext* /*context*/, const ::proxy_proto::DegradedReadRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    // replace default version of method with streamed unary
+    virtual ::grpc::Status StreameddegradedReadBreakdown(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proxy_proto::DegradedReadRequest,::proxy_proto::DegradedReadReply>* server_unary_streamer) = 0;
+  };
+  template <class BaseClass>
+  class WithStreamedUnaryMethod_degradedRead2ClientBreakdown : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithStreamedUnaryMethod_degradedRead2ClientBreakdown() {
+      ::grpc::Service::MarkMethodStreamed(6,
+        new ::grpc::internal::StreamedUnaryHandler<
+          ::proxy_proto::RecoveryRequest, ::proxy_proto::DegradedReadReply>(
+            [this](::grpc::ServerContext* context,
+                   ::grpc::ServerUnaryStreamer<
+                     ::proxy_proto::RecoveryRequest, ::proxy_proto::DegradedReadReply>* streamer) {
+                       return this->StreameddegradedRead2ClientBreakdown(context,
+                         streamer);
+                  }));
+    }
+    ~WithStreamedUnaryMethod_degradedRead2ClientBreakdown() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable regular version of this method
+    ::grpc::Status degradedRead2ClientBreakdown(::grpc::ServerContext* /*context*/, const ::proxy_proto::RecoveryRequest* /*request*/, ::proxy_proto::DegradedReadReply* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    // replace default version of method with streamed unary
+    virtual ::grpc::Status StreameddegradedRead2ClientBreakdown(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proxy_proto::RecoveryRequest,::proxy_proto::DegradedReadReply>* server_unary_streamer) = 0;
+  };
+  template <class BaseClass>
   class WithStreamedUnaryMethod_degradedReadWithBlockStripeID : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_degradedReadWithBlockStripeID() {
-      ::grpc::Service::MarkMethodStreamed(5,
+      ::grpc::Service::MarkMethodStreamed(7,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proxy_proto::DegradedReadRequest, ::proxy_proto::GetReply>(
             [this](::grpc::ServerContext* context,
@@ -1710,7 +2024,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_recovery() {
-      ::grpc::Service::MarkMethodStreamed(6,
+      ::grpc::Service::MarkMethodStreamed(8,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proxy_proto::RecoveryRequest, ::proxy_proto::RecoveryReply>(
             [this](::grpc::ServerContext* context,
@@ -1737,7 +2051,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_multipleRecovery() {
-      ::grpc::Service::MarkMethodStreamed(7,
+      ::grpc::Service::MarkMethodStreamed(9,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proxy_proto::MultipleRecoveryRequest, ::proxy_proto::GetReply>(
             [this](::grpc::ServerContext* context,
@@ -1764,7 +2078,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_deleteBlock() {
-      ::grpc::Service::MarkMethodStreamed(8,
+      ::grpc::Service::MarkMethodStreamed(10,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proxy_proto::NodeAndBlock, ::proxy_proto::DelReply>(
             [this](::grpc::ServerContext* context,
@@ -1791,7 +2105,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_scheduleAppend2Datanode() {
-      ::grpc::Service::MarkMethodStreamed(9,
+      ::grpc::Service::MarkMethodStreamed(11,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proxy_proto::AppendStripeDataPlacement, ::proxy_proto::SetReply>(
             [this](::grpc::ServerContext* context,
@@ -1818,7 +2132,7 @@ class proxyService final {
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_getBlocks() {
-      ::grpc::Service::MarkMethodStreamed(10,
+      ::grpc::Service::MarkMethodStreamed(12,
         new ::grpc::internal::StreamedUnaryHandler<
           ::proxy_proto::StripeAndBlockIDs, ::proxy_proto::GetReply>(
             [this](::grpc::ServerContext* context,
@@ -1839,9 +2153,9 @@ class proxyService final {
     // replace default version of method with streamed unary
     virtual ::grpc::Status StreamedgetBlocks(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::proxy_proto::StripeAndBlockIDs,::proxy_proto::GetReply>* server_unary_streamer) = 0;
   };
-  typedef WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_encodeAndSetObject<WithStreamedUnaryMethod_decodeAndGetObject<WithStreamedUnaryMethod_degradedRead<WithStreamedUnaryMethod_degradedRead2Client<WithStreamedUnaryMethod_degradedReadWithBlockStripeID<WithStreamedUnaryMethod_recovery<WithStreamedUnaryMethod_multipleRecovery<WithStreamedUnaryMethod_deleteBlock<WithStreamedUnaryMethod_scheduleAppend2Datanode<WithStreamedUnaryMethod_getBlocks<Service > > > > > > > > > > > StreamedUnaryService;
+  typedef WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_encodeAndSetObject<WithStreamedUnaryMethod_decodeAndGetObject<WithStreamedUnaryMethod_degradedRead<WithStreamedUnaryMethod_degradedRead2Client<WithStreamedUnaryMethod_degradedReadBreakdown<WithStreamedUnaryMethod_degradedRead2ClientBreakdown<WithStreamedUnaryMethod_degradedReadWithBlockStripeID<WithStreamedUnaryMethod_recovery<WithStreamedUnaryMethod_multipleRecovery<WithStreamedUnaryMethod_deleteBlock<WithStreamedUnaryMethod_scheduleAppend2Datanode<WithStreamedUnaryMethod_getBlocks<Service > > > > > > > > > > > > > StreamedUnaryService;
   typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_encodeAndSetObject<WithStreamedUnaryMethod_decodeAndGetObject<WithStreamedUnaryMethod_degradedRead<WithStreamedUnaryMethod_degradedRead2Client<WithStreamedUnaryMethod_degradedReadWithBlockStripeID<WithStreamedUnaryMethod_recovery<WithStreamedUnaryMethod_multipleRecovery<WithStreamedUnaryMethod_deleteBlock<WithStreamedUnaryMethod_scheduleAppend2Datanode<WithStreamedUnaryMethod_getBlocks<Service > > > > > > > > > > > StreamedService;
+  typedef WithStreamedUnaryMethod_checkalive<WithStreamedUnaryMethod_encodeAndSetObject<WithStreamedUnaryMethod_decodeAndGetObject<WithStreamedUnaryMethod_degradedRead<WithStreamedUnaryMethod_degradedRead2Client<WithStreamedUnaryMethod_degradedReadBreakdown<WithStreamedUnaryMethod_degradedRead2ClientBreakdown<WithStreamedUnaryMethod_degradedReadWithBlockStripeID<WithStreamedUnaryMethod_recovery<WithStreamedUnaryMethod_multipleRecovery<WithStreamedUnaryMethod_deleteBlock<WithStreamedUnaryMethod_scheduleAppend2Datanode<WithStreamedUnaryMethod_getBlocks<Service > > > > > > > > > > > > > StreamedService;
 };
 
 }  // namespace proxy_proto

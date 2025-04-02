@@ -84,6 +84,10 @@ namespace ECProject
       grpc::ServerContext *context,
       const coordinator_proto::KeyAndClientIP *keyClient,
       coordinator_proto::DegradedReadReply *degradedReadReply) override;
+    grpc::Status getDegradedReadBlockBreakdown(
+      grpc::ServerContext *context,
+      const coordinator_proto::KeyAndClientIP *keyClient,
+      coordinator_proto::DegradedReadReply *degradedReadReply) override;
     // recovery
     grpc::Status getRecovery(
         grpc::ServerContext *context,
@@ -136,7 +140,11 @@ namespace ECProject
     void getStripeFromProxy(std::string client_ip, int client_port, std::string proxy_ip, int proxy_port, int stripe_id, int group_id, std::vector<int> block_ids);
     bool recovery_one_stripe(int stripe_id, int failed_block_id, std::vector<double> &disk_io_time, std::vector<double> &decode_time, double &dest_proxy_network_time);
     bool recovery_full_node(std::vector<int> stripe_ids, std::vector<int> block_ids);
-    bool degraded_read_one_block(int stripe_id, int failed_block_id, std::string client_ip, int client_port, std::vector<double> &read_disk_time, std::vector<double> &decode_time, double &dest_proxy_network_time);
+    bool degraded_read_one_block_breakdown(int stripe_id, int failed_block_id, std::string client_ip, int client_port, 
+      std::vector<double> &disk_io_start_time, std::vector<double> &disk_io_end_time, std::vector<double> &decode_start_time, std::vector<double> &decode_end_time,
+      std::vector<double> &network_start_time, std::vector<double> &network_end_time, double &cross_rack_network_time, double &cross_rack_xor_time,
+      std::vector<double> &grpc_notify_time, std::vector<double> &grpc_start_time, std::vector<double> &data_node_grpc_notify_time, std::vector<double> &data_node_grpc_start_time);
+    bool degraded_read_one_block(int stripe_id, int failed_block_id, std::string client_ip, int client_port);
     ECProject::Config *m_sys_config;
     ECProject::ToolBox *m_toolbox;
     int m_cur_cluster_id = 0;

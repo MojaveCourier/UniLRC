@@ -32,6 +32,7 @@ service datanodeService {
   rpc handleRecovery(MergeParityInfo) returns(RequestResult);
   // get
   rpc handleGet(GetInfo) returns(RequestResult);
+  rpc handleGetBreakdown(GetInfo) returns(RequestResult);
   // delete
   rpc handleDelete(DelInfo) returns(RequestResult);
 }
@@ -47,6 +48,7 @@ message RequestResult {
     int32 valuesizebytes = 2;
     double disk_io_start_time = 3;
     double disk_io_end_time = 4;
+    double grpc_start_time = 5;
 }
 
 message SetInfo {

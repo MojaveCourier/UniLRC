@@ -28,6 +28,8 @@ service proxyService {
   // degraded read
   rpc degradedRead(DegradedReadRequest) returns (DegradedReadReply);
   rpc degradedRead2Client(RecoveryRequest) returns (DegradedReadReply);
+  rpc degradedReadBreakdown(DegradedReadRequest) returns (DegradedReadReply);
+  rpc degradedRead2ClientBreakdown(RecoveryRequest) returns (DegradedReadReply);
   rpc degradedReadWithBlockStripeID(DegradedReadRequest) returns (GetReply);
   // recovery
   rpc recovery(RecoveryRequest) returns (RecoveryReply);
@@ -163,9 +165,17 @@ message DegradedReadRequest{
 }
 
 message DegradedReadReply {
-  double disk_io_time = 1;
-  double network_time = 2;
-  double decode_time = 3;
+  double disk_io_start_time = 1;
+  double disk_io_end_time = 2;
+  double network_start_time = 3;
+  double network_end_time = 4;
+  double decode_start_time = 5;
+  double decode_end_time = 6;
+  double cross_rack_time = 7;
+  double cross_rack_xor_time = 8;
+  double grpc_start_time = 9;
+  double data_node_grpc_notify_time = 10;
+  double data_node_grpc_start_time = 11;
 }
 
 // recovery
@@ -197,9 +207,17 @@ message MultipleRecoveryRequest{
 }
 
 message RecoveryReply {
-  double disk_io_time = 1;
-  double network_time = 2;
-  double decode_time = 3;
+  double disk_io_start_time = 1;
+  double disk_io_end_time = 2;
+  double network_start_time = 3;
+  double network_end_time = 4;
+  double decode_start_time = 5;
+  double decode_end_time = 6;
+  double cross_rack_time = 7;
+  double cross_rack_xor_time = 8;
+  double dest_data_node_network_time = 9;
+  double dest_data_node_disk_io_time = 10;
+  
 }
 
 // append

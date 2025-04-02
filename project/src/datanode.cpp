@@ -279,7 +279,7 @@ namespace ECProject
         std::string block_key = recovery_info->block_key();
         int block_id = recovery_info->block_id();
 
-        auto handler = [this](std::string block_key, int block_id) mutable
+        auto handler = [this, &response](std::string block_key, int block_id) mutable
         {
             try
             {
@@ -301,6 +301,7 @@ namespace ECProject
                     mkdir(targetdir.c_str(), S_IRWXU);
                 }
 
+                std::chrono::high_resolution_clock::time_point begin = std::chrono::high_resolution_clock::now(); // start time for disk io
                 std::ofstream ofs(writepath, std::ios::binary | std::ios::out | std::ios::trunc);
                 if (!ofs.is_open())
                 {
@@ -310,6 +311,9 @@ namespace ECProject
                 ofs.write(buf.data(), m_sys_config->BlockSize);
                 ofs.flush();
                 ofs.close();
+                std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now(); // end time for disk io
+                response->set_disk_io_start_time(std::chrono::duration_cast<std::chrono::duration<double>>(begin.time_since_epoch()).count());
+                response->set_disk_io_end_time(std::chrono::duration_cast<std::chrono::duration<double>>(end.time_since_epoch()).count());
 
                 if (IF_DEBUG)
                 {
@@ -325,7 +329,7 @@ namespace ECProject
         try
         {
             std::thread my_thread(handler, block_key, block_id);
-            my_thread.detach();
+            my_thread.join();
             response->set_message(true);
         }
         catch (const std::exception &e)
@@ -564,11 +568,14 @@ namespace ECProject
         return grpc::Status::OK;
     }
 
-    grpc::Status DatanodeImpl::handleGet(
+    grpc::Status DatanodeImpl::handleGetBreakdown(
         grpc::ServerContext *context,
         const datanode_proto::GetInfo *get_info,
         datanode_proto::RequestResult *response)
     {
+        std::chrono::high_resolution_clock::time_point grpc_start = std::chrono::high_resolution_clock::now(); 
+        response->set_grpc_start_time(std::chrono::duration_cast<std::chrono::duration<double>>(grpc_start.time_since_epoch()).count());
+
         std::string block_key = get_info->block_key();
         int block_size = get_info->block_size();
         std::string proxy_ip = get_info->proxy_ip();
@@ -598,18 +605,77 @@ namespace ECProject
         response->set_disk_io_end_time(disk_io_end_time);
         auto handler = [this](std::string block_key, int block_size, std::string proxy_ip, int proxy_port, char* buf) mutable
         {
-                asio::error_code error;
-                asio::ip::tcp::socket socket(io_context);
-                acceptor.accept(socket);
-                asio::write(socket, asio::buffer(buf, block_size), error);
-                asio::error_code ignore_ec;
-                socket.shutdown(asio::ip::tcp::socket::shutdown_both, ignore_ec);
-                socket.close(ignore_ec);
-                if (IF_DEBUG)
-                {
-                    std::cout << "[Datanode" << m_port << "][GET] write to socket!" << std::endl;
-                }
-                delete buf;
+            asio::error_code error;
+            asio::ip::tcp::socket socket(io_context);
+            acceptor.accept(socket);
+            asio::write(socket, asio::buffer(buf, block_size), error);
+            asio::error_code ignore_ec;
+            socket.shutdown(asio::ip::tcp::socket::shutdown_both, ignore_ec);
+            socket.close(ignore_ec);
+            if (IF_DEBUG)
+            {
+                std::cout << "[Datanode" << m_port << "][GET] write to socket!" << std::endl;
+            }
+            delete buf;
+        };
+        try
+        {
+            if (IF_DEBUG)
+            {
+                std::cout << "[Datanode" << m_port << "][GET] ready to handle get!" << std::endl;
+            }
+            std::thread my_thread(handler, block_key, block_size, proxy_ip, proxy_port, buf);
+            my_thread.detach();
+            response->set_message(true);
+        }
+        catch (std::exception &e)
+        {
+            std::cout << "exception" << std::endl;
+            std::cout << e.what() << std::endl;
+        }
+        return grpc::Status::OK;
+    }
+
+    grpc::Status DatanodeImpl::handleGet(
+        grpc::ServerContext *context,
+        const datanode_proto::GetInfo *get_info,
+        datanode_proto::RequestResult *response)
+    {
+        std::string block_key = get_info->block_key();
+        int block_size = get_info->block_size();
+        std::string proxy_ip = get_info->proxy_ip();
+        int proxy_port = get_info->proxy_port();
+        std::string targetdir = "./storage/" + std::to_string(m_port) + "/";
+        std::string readpath = targetdir + block_key;
+        char *buf = new char[block_size];
+        if (access(readpath.c_str(), 0) == -1)
+        {
+            std::cout << "[Datanode" << m_port << "][Read] file does not exist!" << readpath << std::endl;
+        }
+        else
+        {
+            if (IF_DEBUG)
+            {
+                std::cout << "[Datanode" << m_port << "][GET] read from the disk and write to socket with port " << m_port + ECProject::DATANODE_PORT_SHIFT << std::endl;
+            }
+            std::ifstream ifs(readpath);
+            ifs.read(buf, block_size);
+            ifs.close();
+        }
+        auto handler = [this](std::string block_key, int block_size, std::string proxy_ip, int proxy_port, char* buf) mutable
+        {
+            asio::error_code error;
+            asio::ip::tcp::socket socket(io_context);
+            acceptor.accept(socket);
+            asio::write(socket, asio::buffer(buf, block_size), error);
+            asio::error_code ignore_ec;
+            socket.shutdown(asio::ip::tcp::socket::shutdown_both, ignore_ec);
+            socket.close(ignore_ec);
+            if (IF_DEBUG)
+            {
+                std::cout << "[Datanode" << m_port << "][GET] write to socket!" << std::endl;
+            }
+            delete buf;
         };
         try
         {
