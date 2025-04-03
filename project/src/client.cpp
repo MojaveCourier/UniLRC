@@ -927,7 +927,7 @@ namespace ECProject
     return true;
   }
 
-  bool Client::recovery_breakdown(int stripe_id, int failed_block_id, double &disk_io_time, double &network_time, double &decode_time)
+  bool Client::recovery_breakdown(int stripe_id, int failed_block_id, double &disk_read_time, double &network_time, double &decode_time, double &disk_write_time)
   {
     grpc::ClientContext context;
     coordinator_proto::KeyAndClientIP request;
@@ -944,11 +944,12 @@ namespace ECProject
       std::cout << "[Client] recovery failed!" << std::endl;
       return false;
     }
-    disk_io_time = reply.disk_io_time();
+    disk_read_time = reply.disk_read_time();
     network_time = reply.network_time();
     decode_time = reply.decode_time();
     double coordinator_gRPC_delay = (reply.grpc_start_time() - std::chrono::duration_cast<std::chrono::duration<double>>(grpc_notify.time_since_epoch()).count());
     network_time += coordinator_gRPC_delay;
+    disk_write_time = reply.disk_write_time();
 
     return true;
   }

@@ -3663,18 +3663,19 @@ class RecoveryReply final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDiskIoTimeFieldNumber = 1,
+    kDiskReadTimeFieldNumber = 1,
     kNetworkTimeFieldNumber = 2,
     kDecodeTimeFieldNumber = 3,
-    kGrpcStartTimeFieldNumber = 4,
+    kDiskWriteTimeFieldNumber = 4,
+    kGrpcStartTimeFieldNumber = 5,
   };
-  // double disk_io_time = 1;
-  void clear_disk_io_time();
-  double disk_io_time() const;
-  void set_disk_io_time(double value);
+  // double disk_read_time = 1;
+  void clear_disk_read_time();
+  double disk_read_time() const;
+  void set_disk_read_time(double value);
   private:
-  double _internal_disk_io_time() const;
-  void _internal_set_disk_io_time(double value);
+  double _internal_disk_read_time() const;
+  void _internal_set_disk_read_time(double value);
   public:
 
   // double network_time = 2;
@@ -3695,7 +3696,16 @@ class RecoveryReply final :
   void _internal_set_decode_time(double value);
   public:
 
-  // double grpc_start_time = 4;
+  // double disk_write_time = 4;
+  void clear_disk_write_time();
+  double disk_write_time() const;
+  void set_disk_write_time(double value);
+  private:
+  double _internal_disk_write_time() const;
+  void _internal_set_disk_write_time(double value);
+  public:
+
+  // double grpc_start_time = 5;
   void clear_grpc_start_time();
   double grpc_start_time() const;
   void set_grpc_start_time(double value);
@@ -3712,9 +3722,10 @@ class RecoveryReply final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    double disk_io_time_;
+    double disk_read_time_;
     double network_time_;
     double decode_time_;
+    double disk_write_time_;
     double grpc_start_time_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -5313,24 +5324,24 @@ inline void DegradedReadReply::set_grpc_start_time(double value) {
 
 // RecoveryReply
 
-// double disk_io_time = 1;
-inline void RecoveryReply::clear_disk_io_time() {
-  _impl_.disk_io_time_ = 0;
+// double disk_read_time = 1;
+inline void RecoveryReply::clear_disk_read_time() {
+  _impl_.disk_read_time_ = 0;
 }
-inline double RecoveryReply::_internal_disk_io_time() const {
-  return _impl_.disk_io_time_;
+inline double RecoveryReply::_internal_disk_read_time() const {
+  return _impl_.disk_read_time_;
 }
-inline double RecoveryReply::disk_io_time() const {
-  // @@protoc_insertion_point(field_get:coordinator_proto.RecoveryReply.disk_io_time)
-  return _internal_disk_io_time();
+inline double RecoveryReply::disk_read_time() const {
+  // @@protoc_insertion_point(field_get:coordinator_proto.RecoveryReply.disk_read_time)
+  return _internal_disk_read_time();
 }
-inline void RecoveryReply::_internal_set_disk_io_time(double value) {
+inline void RecoveryReply::_internal_set_disk_read_time(double value) {
   
-  _impl_.disk_io_time_ = value;
+  _impl_.disk_read_time_ = value;
 }
-inline void RecoveryReply::set_disk_io_time(double value) {
-  _internal_set_disk_io_time(value);
-  // @@protoc_insertion_point(field_set:coordinator_proto.RecoveryReply.disk_io_time)
+inline void RecoveryReply::set_disk_read_time(double value) {
+  _internal_set_disk_read_time(value);
+  // @@protoc_insertion_point(field_set:coordinator_proto.RecoveryReply.disk_read_time)
 }
 
 // double network_time = 2;
@@ -5373,7 +5384,27 @@ inline void RecoveryReply::set_decode_time(double value) {
   // @@protoc_insertion_point(field_set:coordinator_proto.RecoveryReply.decode_time)
 }
 
-// double grpc_start_time = 4;
+// double disk_write_time = 4;
+inline void RecoveryReply::clear_disk_write_time() {
+  _impl_.disk_write_time_ = 0;
+}
+inline double RecoveryReply::_internal_disk_write_time() const {
+  return _impl_.disk_write_time_;
+}
+inline double RecoveryReply::disk_write_time() const {
+  // @@protoc_insertion_point(field_get:coordinator_proto.RecoveryReply.disk_write_time)
+  return _internal_disk_write_time();
+}
+inline void RecoveryReply::_internal_set_disk_write_time(double value) {
+  
+  _impl_.disk_write_time_ = value;
+}
+inline void RecoveryReply::set_disk_write_time(double value) {
+  _internal_set_disk_write_time(value);
+  // @@protoc_insertion_point(field_set:coordinator_proto.RecoveryReply.disk_write_time)
+}
+
+// double grpc_start_time = 5;
 inline void RecoveryReply::clear_grpc_start_time() {
   _impl_.grpc_start_time_ = 0;
 }

@@ -170,8 +170,9 @@ message DegradedReadReply {
 }
 
 message RecoveryReply {
-  double disk_io_time = 1;
+  double disk_read_time = 1;
   double network_time = 2;
   double decode_time = 3;
-  double grpc_start_time = 4;
+  double disk_write_time = 4;
+  double grpc_start_time = 5;
 }

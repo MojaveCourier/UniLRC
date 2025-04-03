@@ -1693,13 +1693,14 @@ namespace ECProject
     if (if_success)
     {
       double max_disk_io_time = *std::max_element(disk_io_end_time.begin(), disk_io_end_time.end()) - *std::min_element(disk_io_start_time.begin(), disk_io_start_time.end());
-      recoveryReply->set_disk_io_time(max_disk_io_time + dest_data_node_disk_io_time);
+      recoveryReply->set_disk_read_time(max_disk_io_time);
       double max_decode_time = *std::max_element(decode_end_time.begin(), decode_end_time.end()) - *std::min_element(decode_start_time.begin(), decode_start_time.end());
       recoveryReply->set_decode_time(max_decode_time + cross_rack_xor_time);
       double max_network_time = *std::max_element(network_end_time.begin(), network_end_time.end()) - *std::min_element(network_start_time.begin(), network_start_time.end());
       double max_grpc_delay = *std::max_element(grpc_start_time.begin(), grpc_start_time.end()) - *std::min_element(grpc_notify_time.begin(), grpc_notify_time.end());
       double max_data_node_grpc_delay = *std::max_element(data_node_grpc_start_time.begin(), data_node_grpc_start_time.end()) - *std::min_element(data_node_grpc_notify_time.begin(), data_node_grpc_notify_time.end());
       recoveryReply->set_network_time(max_network_time + cross_rack_network_time + dest_data_node_network_time + max_grpc_delay + max_data_node_grpc_delay);
+      recoveryReply->set_disk_write_time(dest_data_node_disk_io_time);
       
       return grpc::Status::OK;
     }
@@ -2293,7 +2294,30 @@ namespace ECProject
     }
     std::cout << "[Coordinator] start full node recovery of " << node_id << " containing " << block_ids.size() << " blocks" << std::endl;
     response->set_block_num(block_ids.size());
-    recovery_full_node(stripe_ids, block_ids);
+    //recovery_full_node(stripe_ids, block_ids);
+    std::vector<std::thread> recovery_threads;
+    std::vector<bool> recovery_results(stripe_ids.size(), false); // 用于存储每个线程的结果
+    std::mutex result_mutex; // 用于保护共享数据
+    
+    for (int i = 0; i < stripe_ids.size(); i++) {
+        recovery_threads.push_back(std::thread([this, &recovery_results, &result_mutex, i, &stripe_ids, &block_ids]() {
+            bool result = this->recovery_one_block(stripe_ids[i], block_ids[i]);
+            std::lock_guard<std::mutex> lock(result_mutex); // 确保线程安全
+            recovery_results[i] = result; // 保存结果
+        }));
+    }
+    
+    for (auto &thread : recovery_threads) {
+        thread.join(); // 等待所有线程完成
+    }
+    
+    // 检查结果
+    bool all_success = std::all_of(recovery_results.begin(), recovery_results.end(), [](bool res) { return res; });
+    if (all_success) {
+        std::cout << "All recovery operations succeeded!" << std::endl;
+    } else {
+        std::cout << "Some recovery operations failed!" << std::endl;
+    }
 
 
     /*bool ifSuccess = recovery_full_node(stripe_ids, block_ids);
