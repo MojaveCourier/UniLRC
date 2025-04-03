@@ -54,6 +54,10 @@ namespace ECProject
             grpc::ServerContext *context,
             const datanode_proto::MergeParityInfo *recovery_info,
             datanode_proto::RequestResult *response) override;
+        grpc::Status handleRecoveryBreakdown(
+            grpc::ServerContext *context,
+            const datanode_proto::MergeParityInfo *recovery_info,
+            datanode_proto::RequestResult *response) override;
         // get
         grpc::Status handleGet(
             grpc::ServerContext *context,

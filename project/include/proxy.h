@@ -79,6 +79,10 @@ namespace ECProject
         grpc::ServerContext *context,
         const proxy_proto::RecoveryRequest *recovery_request,
         proxy_proto::RecoveryReply *response) override;
+    grpc::Status recoveryBreakdown(
+        grpc::ServerContext *context,
+        const proxy_proto::RecoveryRequest *recovery_request,
+        proxy_proto::RecoveryReply *response) override;
 
     grpc::Status multipleRecovery(
         grpc::ServerContext *context,
@@ -110,6 +114,7 @@ namespace ECProject
     bool GetFromDatanode(const std::string &key, char *value, const size_t value_length, const char *ip, const int port, 
       double *disk_io_start_time, double *disk_io_end_time, double *network_start_time, double *network_end_time, double *grpc_notify_time, double *grpc_start_time);
     bool RecoveryToDatanode(const char *block_key, int block_id, const char *buf, const char *ip, int port);
+    bool RecoveryToDatanodeBreakdown(const char *block_key, int block_id, const char *buf, const char *ip, int port, double *network_time, double *disk_io_time);
     void get_from_node(const std::string &block_key, char *block_value, const size_t block_size, const char *datanode_ip, const int datanode_port, bool *status, int index);
     void get_from_node_breakdown(const std::string &block_key, char *block_value, const size_t block_size, const char *datanode_ip, const int datanode_port, bool *status, int index, 
       double *disk_io_start_time, double *disk_io_end_time, double *network_start_time, double *network_end_time, double *grpc_notify_time, double *grpc_start_time);

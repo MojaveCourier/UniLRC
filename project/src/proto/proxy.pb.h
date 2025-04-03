@@ -4431,8 +4431,11 @@ class RecoveryReply final :
     kDecodeEndTimeFieldNumber = 6,
     kCrossRackTimeFieldNumber = 7,
     kCrossRackXorTimeFieldNumber = 8,
-    kDestDataNodeNetworkTimeFieldNumber = 9,
-    kDestDataNodeDiskIoTimeFieldNumber = 10,
+    kGrpcStartTimeFieldNumber = 9,
+    kDataNodeGrpcNotifyTimeFieldNumber = 10,
+    kDataNodeGrpcStartTimeFieldNumber = 11,
+    kDestDataNodeNetworkTimeFieldNumber = 12,
+    kDestDataNodeDiskIoTimeFieldNumber = 13,
   };
   // double disk_io_start_time = 1;
   void clear_disk_io_start_time();
@@ -4506,7 +4509,34 @@ class RecoveryReply final :
   void _internal_set_cross_rack_xor_time(double value);
   public:
 
-  // double dest_data_node_network_time = 9;
+  // double grpc_start_time = 9;
+  void clear_grpc_start_time();
+  double grpc_start_time() const;
+  void set_grpc_start_time(double value);
+  private:
+  double _internal_grpc_start_time() const;
+  void _internal_set_grpc_start_time(double value);
+  public:
+
+  // double data_node_grpc_notify_time = 10;
+  void clear_data_node_grpc_notify_time();
+  double data_node_grpc_notify_time() const;
+  void set_data_node_grpc_notify_time(double value);
+  private:
+  double _internal_data_node_grpc_notify_time() const;
+  void _internal_set_data_node_grpc_notify_time(double value);
+  public:
+
+  // double data_node_grpc_start_time = 11;
+  void clear_data_node_grpc_start_time();
+  double data_node_grpc_start_time() const;
+  void set_data_node_grpc_start_time(double value);
+  private:
+  double _internal_data_node_grpc_start_time() const;
+  void _internal_set_data_node_grpc_start_time(double value);
+  public:
+
+  // double dest_data_node_network_time = 12;
   void clear_dest_data_node_network_time();
   double dest_data_node_network_time() const;
   void set_dest_data_node_network_time(double value);
@@ -4515,7 +4545,7 @@ class RecoveryReply final :
   void _internal_set_dest_data_node_network_time(double value);
   public:
 
-  // double dest_data_node_disk_io_time = 10;
+  // double dest_data_node_disk_io_time = 13;
   void clear_dest_data_node_disk_io_time();
   double dest_data_node_disk_io_time() const;
   void set_dest_data_node_disk_io_time(double value);
@@ -4540,6 +4570,9 @@ class RecoveryReply final :
     double decode_end_time_;
     double cross_rack_time_;
     double cross_rack_xor_time_;
+    double grpc_start_time_;
+    double data_node_grpc_notify_time_;
+    double data_node_grpc_start_time_;
     double dest_data_node_network_time_;
     double dest_data_node_disk_io_time_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -9948,7 +9981,67 @@ inline void RecoveryReply::set_cross_rack_xor_time(double value) {
   // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.cross_rack_xor_time)
 }
 
-// double dest_data_node_network_time = 9;
+// double grpc_start_time = 9;
+inline void RecoveryReply::clear_grpc_start_time() {
+  _impl_.grpc_start_time_ = 0;
+}
+inline double RecoveryReply::_internal_grpc_start_time() const {
+  return _impl_.grpc_start_time_;
+}
+inline double RecoveryReply::grpc_start_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryReply.grpc_start_time)
+  return _internal_grpc_start_time();
+}
+inline void RecoveryReply::_internal_set_grpc_start_time(double value) {
+  
+  _impl_.grpc_start_time_ = value;
+}
+inline void RecoveryReply::set_grpc_start_time(double value) {
+  _internal_set_grpc_start_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.grpc_start_time)
+}
+
+// double data_node_grpc_notify_time = 10;
+inline void RecoveryReply::clear_data_node_grpc_notify_time() {
+  _impl_.data_node_grpc_notify_time_ = 0;
+}
+inline double RecoveryReply::_internal_data_node_grpc_notify_time() const {
+  return _impl_.data_node_grpc_notify_time_;
+}
+inline double RecoveryReply::data_node_grpc_notify_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryReply.data_node_grpc_notify_time)
+  return _internal_data_node_grpc_notify_time();
+}
+inline void RecoveryReply::_internal_set_data_node_grpc_notify_time(double value) {
+  
+  _impl_.data_node_grpc_notify_time_ = value;
+}
+inline void RecoveryReply::set_data_node_grpc_notify_time(double value) {
+  _internal_set_data_node_grpc_notify_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.data_node_grpc_notify_time)
+}
+
+// double data_node_grpc_start_time = 11;
+inline void RecoveryReply::clear_data_node_grpc_start_time() {
+  _impl_.data_node_grpc_start_time_ = 0;
+}
+inline double RecoveryReply::_internal_data_node_grpc_start_time() const {
+  return _impl_.data_node_grpc_start_time_;
+}
+inline double RecoveryReply::data_node_grpc_start_time() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryReply.data_node_grpc_start_time)
+  return _internal_data_node_grpc_start_time();
+}
+inline void RecoveryReply::_internal_set_data_node_grpc_start_time(double value) {
+  
+  _impl_.data_node_grpc_start_time_ = value;
+}
+inline void RecoveryReply::set_data_node_grpc_start_time(double value) {
+  _internal_set_data_node_grpc_start_time(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.data_node_grpc_start_time)
+}
+
+// double dest_data_node_network_time = 12;
 inline void RecoveryReply::clear_dest_data_node_network_time() {
   _impl_.dest_data_node_network_time_ = 0;
 }
@@ -9968,7 +10061,7 @@ inline void RecoveryReply::set_dest_data_node_network_time(double value) {
   // @@protoc_insertion_point(field_set:proxy_proto.RecoveryReply.dest_data_node_network_time)
 }
 
-// double dest_data_node_disk_io_time = 10;
+// double dest_data_node_disk_io_time = 13;
 inline void RecoveryReply::clear_dest_data_node_disk_io_time() {
   _impl_.dest_data_node_disk_io_time_ = 0;
 }

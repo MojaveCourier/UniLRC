@@ -33,6 +33,7 @@ service proxyService {
   rpc degradedReadWithBlockStripeID(DegradedReadRequest) returns (GetReply);
   // recovery
   rpc recovery(RecoveryRequest) returns (RecoveryReply);
+  rpc recoveryBreakdown(RecoveryRequest) returns (RecoveryReply);
   rpc multipleRecovery(MultipleRecoveryRequest) returns (GetReply);
   // delete
   rpc deleteBlock(NodeAndBlock) returns (DelReply);
@@ -215,8 +216,11 @@ message RecoveryReply {
   double decode_end_time = 6;
   double cross_rack_time = 7;
   double cross_rack_xor_time = 8;
-  double dest_data_node_network_time = 9;
-  double dest_data_node_disk_io_time = 10;
+  double grpc_start_time = 9;
+  double data_node_grpc_notify_time = 10;
+  double data_node_grpc_start_time = 11;
+  double dest_data_node_network_time = 12;
+  double dest_data_node_disk_io_time = 13;
   
 }
 

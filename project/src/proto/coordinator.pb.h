@@ -3666,6 +3666,7 @@ class RecoveryReply final :
     kDiskIoTimeFieldNumber = 1,
     kNetworkTimeFieldNumber = 2,
     kDecodeTimeFieldNumber = 3,
+    kGrpcStartTimeFieldNumber = 4,
   };
   // double disk_io_time = 1;
   void clear_disk_io_time();
@@ -3694,6 +3695,15 @@ class RecoveryReply final :
   void _internal_set_decode_time(double value);
   public:
 
+  // double grpc_start_time = 4;
+  void clear_grpc_start_time();
+  double grpc_start_time() const;
+  void set_grpc_start_time(double value);
+  private:
+  double _internal_grpc_start_time() const;
+  void _internal_set_grpc_start_time(double value);
+  public:
+
   // @@protoc_insertion_point(class_scope:coordinator_proto.RecoveryReply)
  private:
   class _Internal;
@@ -3705,6 +3715,7 @@ class RecoveryReply final :
     double disk_io_time_;
     double network_time_;
     double decode_time_;
+    double grpc_start_time_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -5360,6 +5371,26 @@ inline void RecoveryReply::_internal_set_decode_time(double value) {
 inline void RecoveryReply::set_decode_time(double value) {
   _internal_set_decode_time(value);
   // @@protoc_insertion_point(field_set:coordinator_proto.RecoveryReply.decode_time)
+}
+
+// double grpc_start_time = 4;
+inline void RecoveryReply::clear_grpc_start_time() {
+  _impl_.grpc_start_time_ = 0;
+}
+inline double RecoveryReply::_internal_grpc_start_time() const {
+  return _impl_.grpc_start_time_;
+}
+inline double RecoveryReply::grpc_start_time() const {
+  // @@protoc_insertion_point(field_get:coordinator_proto.RecoveryReply.grpc_start_time)
+  return _internal_grpc_start_time();
+}
+inline void RecoveryReply::_internal_set_grpc_start_time(double value) {
+  
+  _impl_.grpc_start_time_ = value;
+}
+inline void RecoveryReply::set_grpc_start_time(double value) {
+  _internal_set_grpc_start_time(value);
+  // @@protoc_insertion_point(field_set:coordinator_proto.RecoveryReply.grpc_start_time)
 }
 
 #ifdef __GNUC__

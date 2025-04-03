@@ -301,6 +301,74 @@ namespace ECProject
                     mkdir(targetdir.c_str(), S_IRWXU);
                 }
 
+                std::ofstream ofs(writepath, std::ios::binary | std::ios::out | std::ios::trunc);
+                if (!ofs.is_open())
+                {
+                    std::cerr << "[Recovery] Failed to open file: " << writepath << std::endl;
+                    exit(-1);
+                }
+                ofs.write(buf.data(), m_sys_config->BlockSize);
+                ofs.flush();
+                ofs.close();
+
+                if (IF_DEBUG)
+                {
+                    std::cout << "[Datanode" << m_port << "][Recovery] successfully recovery block " << block_key << " with " << m_sys_config->BlockSize << " bytes" << std::endl;
+                }
+            }
+            catch (const std::exception &e)
+            {
+                std::cerr << e.what() << '\n';
+            }
+        };
+
+        try
+        {
+            std::thread my_thread(handler, block_key, block_id);
+            my_thread.join();
+            response->set_message(true);
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+
+        return grpc::Status::OK;
+    }
+
+    grpc::Status DatanodeImpl::handleRecoveryBreakdown(
+        grpc::ServerContext *context,
+        const datanode_proto::MergeParityInfo *recovery_info,
+        datanode_proto::RequestResult *response)
+    {
+        std::chrono::high_resolution_clock::time_point grpc_start_time = std::chrono::high_resolution_clock::now();
+        response->set_grpc_start_time(std::chrono::duration_cast<std::chrono::duration<double>>(grpc_start_time.time_since_epoch()).count());
+
+        std::string block_key = recovery_info->block_key();
+        int block_id = recovery_info->block_id();
+
+        auto handler = [this, &response](std::string block_key, int block_id) mutable
+        {
+            try
+            {
+                std::vector<char> buf(m_sys_config->BlockSize);
+                // only send data
+                asio::error_code ec;
+                asio::ip::tcp::socket socket(io_context);
+                acceptor.accept(socket);
+                asio::read(socket, asio::buffer(buf.data(), m_sys_config->BlockSize), ec);
+
+                asio::error_code ignore_ec;
+                socket.shutdown(asio::ip::tcp::socket::shutdown_both, ignore_ec);
+                socket.close(ignore_ec);
+
+                std::string targetdir = "./storage/" + std::to_string(m_port) + "/";
+                std::string writepath = targetdir + block_key;
+                if(access(targetdir.c_str(), 0) == -1)
+                {
+                    mkdir(targetdir.c_str(), S_IRWXU);
+                }
+
                 std::chrono::high_resolution_clock::time_point begin = std::chrono::high_resolution_clock::now(); // start time for disk io
                 std::ofstream ofs(writepath, std::ios::binary | std::ios::out | std::ios::trunc);
                 if (!ofs.is_open())
@@ -339,6 +407,7 @@ namespace ECProject
 
         return grpc::Status::OK;
     }
+
 
     grpc::Status DatanodeImpl::handleMergeParity(
         grpc::ServerContext *context,
