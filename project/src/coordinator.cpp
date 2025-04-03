@@ -1358,9 +1358,6 @@ namespace ECProject
       std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
       grpc_notify_time.push_back(std::chrono::duration_cast<std::chrono::duration<double>>(start.time_since_epoch()).count());
       status = m_proxy_ptrs[chosen_proxy]->recoveryBreakdown(&recovery_context, recovery_request, &recovery_reply);
-      //disk_io_time.push_back(recovery_reply.disk_io_time());
-      //decode_time.push_back(recovery_reply.decode_time());
-      //dest_proxy_network_time = recovery_reply.network_time();
       if (status.ok())
       {
         disk_io_start_time.push_back(recovery_reply.disk_io_start_time());
@@ -1431,7 +1428,7 @@ namespace ECProject
             degraded_read_request.add_blockids(t_block->block_id);
           }
           std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
-          grpc_notify_time.push_back(std::chrono::duration_cast<std::chrono::duration<double>>(start.time_since_epoch()).count());
+
           grpc::Status status = m_proxy_ptrs[chosen_proxies[i]]->degradedReadBreakdown(&degraded_read_context, degraded_read_request, &degraded_read_reply);
           if (status.ok())
           {
@@ -1445,6 +1442,7 @@ namespace ECProject
             grpc_start_time.push_back(degraded_read_reply.grpc_start_time());
             data_node_grpc_notify_time.push_back(degraded_read_reply.data_node_grpc_notify_time());
             data_node_grpc_start_time.push_back(degraded_read_reply.data_node_grpc_start_time());
+            grpc_notify_time.push_back(std::chrono::duration_cast<std::chrono::duration<double>>(start.time_since_epoch()).count());
     
             std::cout << "[Coordinator] partial degraded read of " << failed_block_id << " success!" << std::endl;
           }
@@ -1487,11 +1485,12 @@ namespace ECProject
         }
         //std::cout << "[Coordinator] start recovery of " << stripe_id << "_" << failed_block_id << std::endl;
         std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
-        grpc_notify_time.push_back(std::chrono::duration_cast<std::chrono::duration<double>>(start.time_since_epoch()).count());
+
         grpc::Status status = m_proxy_ptrs[dest_proxy_ip + ":" + std::to_string(dest_proxy_port)]->recoveryBreakdown(&recovery_context, recovery_request, &recovery_reply);
         if (status.ok())
         {
           std::lock_guard<std::mutex> lock(m_mutex);
+          grpc_notify_time.push_back(std::chrono::duration_cast<std::chrono::duration<double>>(start.time_since_epoch()).count());
           disk_io_start_time.push_back(recovery_reply.disk_io_start_time());
           disk_io_end_time.push_back(recovery_reply.disk_io_end_time());
           decode_start_time.push_back(recovery_reply.decode_start_time());

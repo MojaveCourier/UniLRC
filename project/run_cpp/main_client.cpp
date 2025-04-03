@@ -166,7 +166,7 @@ int main(int argc, char **argv)
     std::cout << "Min time: "<< min_time_span.count() << std::endl;*/
 
     //for single block repair breakdown
-    client.set();
+    /*client.set();
     std::vector<std::chrono::duration<double>> time_spans;
     std::vector<std::chrono::duration<double>> disk_io_time_spans;
     std::vector<std::chrono::duration<double>> network_time_spans;
@@ -189,7 +189,7 @@ int main(int argc, char **argv)
     std::cout << "Average time: " << total_time_span.count() / time_spans.size() << std::endl;
     std::cout << "Average disk io time: " << total_disk_io_time_span.count() / disk_io_time_spans.size() << std::endl;
     std::cout << "Average network time: " << total_network_time_span.count() / network_time_spans.size() << std::endl;
-    std::cout << "Average decode time: " << total_decode_time_span.count() / decode_time_spans.size() << std::endl;
+    std::cout << "Average decode time: " << total_decode_time_span.count() / decode_time_spans.size() << std::endl;*/
 
     //for full node repair
     /*for(int i = 0; i < 500; i++){
