@@ -1273,21 +1273,22 @@ namespace ECProject
         asio::error_code error;
         asio::ip::tcp::resolver resolver(io_context);
         asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(client_ip, std::to_string(client_port));
-        asio::ip::tcp::socket sock_data(io_context);
-        //asio::connect(sock_data, endpoints);
-        sock_data.connect(*endpoints, error);
+        //asio::io_context io_context;
+        asio::ip::tcp::socket socket_data(io_context);
+        asio::connect(socket_data, endpoints);
+        //acceptor.accept(socket_data);
         if (error)
         {
           std::cout << "error in connect" << std::endl;
         }
-        asio::write(sock_data, asio::buffer(res_buf, m_sys_config->BlockSize), error);
+        asio::write(socket_data, asio::buffer(res_buf, m_sys_config->BlockSize), error);
         if (error)
         {
           std::cout << "error in write" << std::endl;
         }
         asio::error_code ignore_ec;
-        sock_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);
-        sock_data.close(ignore_ec);
+        socket_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);
+        socket_data.close(ignore_ec);
         delete res_buf;
         for(int i = 0; i < request_copy->datanodeip_size(); i++)
         {
@@ -2089,13 +2090,18 @@ namespace ECProject
             cross_rack_bufs[i] = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
           }
           std::vector<std::thread> get_from_proxies_threads;
-          std::vector<double> accept_start_time(cross_rack_num, 0.0);
+          std::vector<std::string> cross_rack_ips;
+          //std::vector<int> cross_rack_ports;
+          //for(int i = 0; i < cross_rack_num; i++)
+          //{
+          //  cross_rack_ips.push_back(recovery_request->proxyip(i));
+          //  cross_rack_ports.push_back(recovery_request->proxyport(i));
+          //}
+          //std::lock_guard<std::mutex> lock(m_mutex);
           for(int i = 0; i < cross_rack_num; i++)
           {
-            get_from_proxies_threads.push_back(std::thread([i, this, &cross_rack_bufs, &accept_start_time]()mutable{
-              //asio::io_context io_context;
+            get_from_proxies_threads.push_back(std::thread([i, this, &cross_rack_bufs]()mutable{
               asio::ip::tcp::socket socket(this->io_context);
-              //asio::ip::tcp::resolver resolver(io_context);
               std::cout << "connecting to proxy" << std::endl;
               this->acceptor.accept(socket);
               std::cout << "connected to porxy" << std::endl;

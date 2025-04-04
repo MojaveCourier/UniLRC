@@ -3696,6 +3696,8 @@ class RecoveryRequest final :
     kDatanodeportFieldNumber = 7,
     kBlockkeysFieldNumber = 8,
     kBlockidsFieldNumber = 9,
+    kProxyipFieldNumber = 10,
+    kProxyportFieldNumber = 11,
     kReplacedNodeIpFieldNumber = 1,
     kFailedBlockKeyFieldNumber = 4,
     kReplacedNodePortFieldNumber = 2,
@@ -3794,6 +3796,52 @@ class RecoveryRequest final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
       mutable_blockids();
 
+  // repeated string proxyip = 10;
+  int proxyip_size() const;
+  private:
+  int _internal_proxyip_size() const;
+  public:
+  void clear_proxyip();
+  const std::string& proxyip(int index) const;
+  std::string* mutable_proxyip(int index);
+  void set_proxyip(int index, const std::string& value);
+  void set_proxyip(int index, std::string&& value);
+  void set_proxyip(int index, const char* value);
+  void set_proxyip(int index, const char* value, size_t size);
+  std::string* add_proxyip();
+  void add_proxyip(const std::string& value);
+  void add_proxyip(std::string&& value);
+  void add_proxyip(const char* value);
+  void add_proxyip(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& proxyip() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_proxyip();
+  private:
+  const std::string& _internal_proxyip(int index) const;
+  std::string* _internal_add_proxyip();
+  public:
+
+  // repeated int32 proxyport = 11;
+  int proxyport_size() const;
+  private:
+  int _internal_proxyport_size() const;
+  public:
+  void clear_proxyport();
+  private:
+  int32_t _internal_proxyport(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      _internal_proxyport() const;
+  void _internal_add_proxyport(int32_t value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      _internal_mutable_proxyport();
+  public:
+  int32_t proxyport(int index) const;
+  void set_proxyport(int index, int32_t value);
+  void add_proxyport(int32_t value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      proxyport() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      mutable_proxyport();
+
   // string replaced_node_ip = 1;
   void clear_replaced_node_ip();
   const std::string& replaced_node_ip() const;
@@ -3863,6 +3911,9 @@ class RecoveryRequest final :
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> blockkeys_;
     ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > blockids_;
     mutable std::atomic<int> _blockids_cached_byte_size_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> proxyip_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > proxyport_;
+    mutable std::atomic<int> _proxyport_cached_byte_size_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr replaced_node_ip_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr failed_block_key_;
     int32_t replaced_node_port_;
@@ -9162,6 +9213,128 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
 RecoveryRequest::mutable_blockids() {
   // @@protoc_insertion_point(field_mutable_list:proxy_proto.RecoveryRequest.blockids)
   return _internal_mutable_blockids();
+}
+
+// repeated string proxyip = 10;
+inline int RecoveryRequest::_internal_proxyip_size() const {
+  return _impl_.proxyip_.size();
+}
+inline int RecoveryRequest::proxyip_size() const {
+  return _internal_proxyip_size();
+}
+inline void RecoveryRequest::clear_proxyip() {
+  _impl_.proxyip_.Clear();
+}
+inline std::string* RecoveryRequest::add_proxyip() {
+  std::string* _s = _internal_add_proxyip();
+  // @@protoc_insertion_point(field_add_mutable:proxy_proto.RecoveryRequest.proxyip)
+  return _s;
+}
+inline const std::string& RecoveryRequest::_internal_proxyip(int index) const {
+  return _impl_.proxyip_.Get(index);
+}
+inline const std::string& RecoveryRequest::proxyip(int index) const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryRequest.proxyip)
+  return _internal_proxyip(index);
+}
+inline std::string* RecoveryRequest::mutable_proxyip(int index) {
+  // @@protoc_insertion_point(field_mutable:proxy_proto.RecoveryRequest.proxyip)
+  return _impl_.proxyip_.Mutable(index);
+}
+inline void RecoveryRequest::set_proxyip(int index, const std::string& value) {
+  _impl_.proxyip_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryRequest.proxyip)
+}
+inline void RecoveryRequest::set_proxyip(int index, std::string&& value) {
+  _impl_.proxyip_.Mutable(index)->assign(std::move(value));
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryRequest.proxyip)
+}
+inline void RecoveryRequest::set_proxyip(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.proxyip_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:proxy_proto.RecoveryRequest.proxyip)
+}
+inline void RecoveryRequest::set_proxyip(int index, const char* value, size_t size) {
+  _impl_.proxyip_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:proxy_proto.RecoveryRequest.proxyip)
+}
+inline std::string* RecoveryRequest::_internal_add_proxyip() {
+  return _impl_.proxyip_.Add();
+}
+inline void RecoveryRequest::add_proxyip(const std::string& value) {
+  _impl_.proxyip_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:proxy_proto.RecoveryRequest.proxyip)
+}
+inline void RecoveryRequest::add_proxyip(std::string&& value) {
+  _impl_.proxyip_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:proxy_proto.RecoveryRequest.proxyip)
+}
+inline void RecoveryRequest::add_proxyip(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.proxyip_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:proxy_proto.RecoveryRequest.proxyip)
+}
+inline void RecoveryRequest::add_proxyip(const char* value, size_t size) {
+  _impl_.proxyip_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:proxy_proto.RecoveryRequest.proxyip)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+RecoveryRequest::proxyip() const {
+  // @@protoc_insertion_point(field_list:proxy_proto.RecoveryRequest.proxyip)
+  return _impl_.proxyip_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+RecoveryRequest::mutable_proxyip() {
+  // @@protoc_insertion_point(field_mutable_list:proxy_proto.RecoveryRequest.proxyip)
+  return &_impl_.proxyip_;
+}
+
+// repeated int32 proxyport = 11;
+inline int RecoveryRequest::_internal_proxyport_size() const {
+  return _impl_.proxyport_.size();
+}
+inline int RecoveryRequest::proxyport_size() const {
+  return _internal_proxyport_size();
+}
+inline void RecoveryRequest::clear_proxyport() {
+  _impl_.proxyport_.Clear();
+}
+inline int32_t RecoveryRequest::_internal_proxyport(int index) const {
+  return _impl_.proxyport_.Get(index);
+}
+inline int32_t RecoveryRequest::proxyport(int index) const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryRequest.proxyport)
+  return _internal_proxyport(index);
+}
+inline void RecoveryRequest::set_proxyport(int index, int32_t value) {
+  _impl_.proxyport_.Set(index, value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryRequest.proxyport)
+}
+inline void RecoveryRequest::_internal_add_proxyport(int32_t value) {
+  _impl_.proxyport_.Add(value);
+}
+inline void RecoveryRequest::add_proxyport(int32_t value) {
+  _internal_add_proxyport(value);
+  // @@protoc_insertion_point(field_add:proxy_proto.RecoveryRequest.proxyport)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+RecoveryRequest::_internal_proxyport() const {
+  return _impl_.proxyport_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+RecoveryRequest::proxyport() const {
+  // @@protoc_insertion_point(field_list:proxy_proto.RecoveryRequest.proxyport)
+  return _internal_proxyport();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+RecoveryRequest::_internal_mutable_proxyport() {
+  return &_impl_.proxyport_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+RecoveryRequest::mutable_proxyport() {
+  // @@protoc_insertion_point(field_mutable_list:proxy_proto.RecoveryRequest.proxyport)
+  return _internal_mutable_proxyport();
 }
 
 // -------------------------------------------------------------------

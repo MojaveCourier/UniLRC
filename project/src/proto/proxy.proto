@@ -190,6 +190,8 @@ message RecoveryRequest{
   repeated int32 datanodeport = 7;
   repeated string blockkeys = 8;
   repeated int32 blockids = 9;
+  repeated string proxyip = 10;
+  repeated int32 proxyport = 11;
 }
 
 message MultipleRecoveryRequest{

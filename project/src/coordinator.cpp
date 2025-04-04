@@ -1622,7 +1622,7 @@ namespace ECProject
 
       }
       int cross_rack_num = recovery_group_ids.size() - 1;
-      threads.push_back(std::thread([this, &t_stripe, cross_rack_num, dest_group_id, dest_cluster_id, dest_proxy_ip, dest_proxy_port, stripe_id, failed_block_id](){
+      threads.push_back(std::thread([this, &t_stripe, cross_rack_num, dest_group_id, dest_cluster_id, dest_proxy_ip, dest_proxy_port, stripe_id, failed_block_id, &recovery_group_ids](){
         grpc::ClientContext recovery_context;
         proxy_proto::RecoveryRequest recovery_request;
         proxy_proto::RecoveryReply recovery_reply;
@@ -1632,6 +1632,16 @@ namespace ECProject
         recovery_request.set_replaced_node_ip(m_node_table[t_node_id].node_ip);
         recovery_request.set_replaced_node_port(m_node_table[t_node_id].node_port);
         recovery_request.set_cross_rack_num(cross_rack_num);
+        for(int i = 0; i < recovery_group_ids.size(); i++){
+          if(recovery_group_ids[i] == dest_group_id){
+            continue;
+          }
+          int cluster_id = get_cluster_id_by_group_id(t_stripe, recovery_group_ids[i]);
+          std::string proxy_ip = m_cluster_table[cluster_id].proxy_ip;
+          int proxy_port = m_cluster_table[cluster_id].proxy_port;
+          recovery_request.add_proxyip(proxy_ip);
+          recovery_request.add_proxyport(proxy_port);
+        }
         std::vector<int> blockids = t_stripe.group_to_blocks[dest_group_id];
         for (int i = 0; i < int(blockids.size()); i++)
         {
@@ -2295,22 +2305,14 @@ namespace ECProject
     std::cout << "[Coordinator] start full node recovery of " << node_id << " containing " << block_ids.size() << " blocks" << std::endl;
     response->set_block_num(block_ids.size());
     //recovery_full_node(stripe_ids, block_ids);
-    std::vector<std::thread> recovery_threads;
-    std::vector<bool> recovery_results(stripe_ids.size(), false); // 用于存储每个线程的结果
-    std::mutex result_mutex; // 用于保护共享数据
-    
+    //std::vector<std::thread> recovery_threads;
+    std::vector<bool> recovery_results(stripe_ids.size(), false);
     for (int i = 0; i < stripe_ids.size(); i++) {
-        recovery_threads.push_back(std::thread([this, &recovery_results, &result_mutex, i, &stripe_ids, &block_ids]() {
-            bool result = this->recovery_one_block(stripe_ids[i], block_ids[i]);
-            std::lock_guard<std::mutex> lock(result_mutex); // 确保线程安全
-            recovery_results[i] = result; // 保存结果
-        }));
+        bool result = this->recovery_one_block(stripe_ids[i], block_ids[i]);
+        recovery_results[i] = result; // 保存结果
     }
-    
-    for (auto &thread : recovery_threads) {
-        thread.join(); // 等待所有线程完成
-    }
-    
+  
+        
     // 检查结果
     bool all_success = std::all_of(recovery_results.begin(), recovery_results.end(), [](bool res) { return res; });
     if (all_success) {

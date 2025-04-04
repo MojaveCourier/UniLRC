@@ -30,7 +30,7 @@ int main(int argc, char **argv)
     int k = parameters[0];
     int r = parameters[1];
     int z = parameters[2];
-    double block_size = parameters[3] / 1024 / 1024; //MB
+    double block_size = static_cast<double> (parameters[3]) / 1024 / 1024; //MB
     int n = k + r + z;
     //for read test
     /*for(int i = 0; i < 5; i++){
@@ -196,21 +196,35 @@ int main(int argc, char **argv)
     std::cout << "Average disk write time: " << total_disk_write_time_span.count() / disk_write_time_spans.size() << std::endl;*/
 
     //for full node repair
-    //size_t total_size = 20000; //MB
-    //int stripe_num = total_size / (block_size * n);
-    double total_size = 500 * n * block_size; //MB
-    for(int i = 0; i < 500; i++){
+    size_t total_write_size = 40000; //MB
+    int stripe_num = total_write_size / (block_size * n);
+    int node_num = 5;
+    std::vector<int> node_ids;
+    while(node_ids.size() < node_num){
+        int random_id = rand() % (19 * 30);
+        if(std::find(node_ids.begin(), node_ids.end(), random_id) == node_ids.end()){
+            node_ids.push_back(random_id);
+        }
+    }
+
+    for(int i = 0; i < stripe_num; i++){
         client.set();
     }
-    std::vector<std::chrono::duration<double>> time_spans;
-    std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-    int block_num = client.recovery_full_node(0);
-    std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
-    std::cout << "full node repair time: " << time_span.count() << std::endl;
-    std::cout << "block num: " << block_num << std::endl;
-    std::cout << "Speed: " << total_size / time_span.count() << "MB/s" << std::endl;
-    
+    std::vector<double> recovery_speeds;
+    for(int i = 0; i < node_num; i++){
+        std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+        int block_num = client.recovery_full_node(node_ids[i]);
+        std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+        std::cout << "full node repair time: " << time_span.count() << std::endl;
+        std::cout << "block num: " << block_num << std::endl;
+        double total_size = block_num * block_size; //MB
+        std::cout << "Speed: " << total_size / time_span.count() << "MB/s" << std::endl;
+        recovery_speeds.push_back(total_size / time_span.count());
+    }
+    std::cout << "Average speed: " << std::accumulate(recovery_speeds.begin(), recovery_speeds.end(), 0.0) / recovery_speeds.size() << "MB/s" << std::endl;
+    std::cout << "Max speed: " << *std::max_element(recovery_speeds.begin(), recovery_speeds.end()) << "MB/s" << std::endl;
+    std::cout << "Min speed: " << *std::min_element(recovery_speeds.begin(), recovery_speeds.end()) << "MB/s" << std::endl;
     //for workload test
     /*int stripe_num = 200;
     int workload = 100;
