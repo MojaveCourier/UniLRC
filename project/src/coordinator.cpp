@@ -1091,10 +1091,12 @@ namespace ECProject
     int end_block_id = blockIDsClient->end_block_id();
     std::vector<int> stripe_ids;
     std::vector<int> block_ids;
+    std::vector<int> relative_block_ids;
     for(int i = start_block_id; i <= end_block_id; i++){
       int stripe_id = i / m_sys_config->k;
       stripe_ids.push_back(stripe_id);
       block_ids.push_back(i % m_sys_config->k);
+      relative_block_ids.push_back(i - start_block_id);
     }
     std::vector<int> get_cluster_ids;
     std::vector<int> unique_cluster_ids;
@@ -1108,7 +1110,7 @@ namespace ECProject
     proxy_proto::StripeAndBlockIDs stripe_block_ids[unique_cluster_ids.size()];
     for(int i = 0; i < stripe_ids.size(); i++){
       int idx = std::find(unique_cluster_ids.begin(), unique_cluster_ids.end(), get_cluster_ids[i]) - unique_cluster_ids.begin();
-      stripe_block_ids[idx].add_block_ids(block_ids[i]);
+      stripe_block_ids[idx].add_block_ids(relative_block_ids[i]);
       stripe_block_ids[idx].add_block_keys(m_stripe_table[stripe_ids[i]].blocks[block_ids[i]]->block_key);
       stripe_block_ids[idx].add_datanodeips(m_node_table[m_stripe_table[stripe_ids[i]].blocks[block_ids[i]]->map2node].node_ip);
       stripe_block_ids[idx].add_datanodeports(m_node_table[m_stripe_table[stripe_ids[i]].blocks[block_ids[i]]->map2node].node_port);
@@ -1131,6 +1133,12 @@ namespace ECProject
         }
       }));
     }
+    for (auto &thread : get_threads)
+    {
+      thread.join();
+    }
+    return grpc::Status::OK;
+
   }
 
   grpc::Status

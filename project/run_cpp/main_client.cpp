@@ -196,7 +196,7 @@ int main(int argc, char **argv)
     std::cout << "Average disk write time: " << total_disk_write_time_span.count() / disk_write_time_spans.size() << std::endl;*/
 
     //for full node repair
-    size_t total_write_size = 40000; //MB
+    /*size_t total_write_size = 40000; //MB
     int stripe_num = total_write_size / (block_size * n);
     int node_num = 5;
     std::vector<int> node_ids;
@@ -224,9 +224,10 @@ int main(int argc, char **argv)
     }
     std::cout << "Average speed: " << std::accumulate(recovery_speeds.begin(), recovery_speeds.end(), 0.0) / recovery_speeds.size() << "MB/s" << std::endl;
     std::cout << "Max speed: " << *std::max_element(recovery_speeds.begin(), recovery_speeds.end()) << "MB/s" << std::endl;
-    std::cout << "Min speed: " << *std::min_element(recovery_speeds.begin(), recovery_speeds.end()) << "MB/s" << std::endl;
-    //for workload test
-    /*int stripe_num = 200;
+    std::cout << "Min speed: " << *std::min_element(recovery_speeds.begin(), recovery_speeds.end()) << "MB/s" << std::endl;*/
+    //for workload get test
+    /*size_t total_write_size = 40000; //MB
+    int stripe_num = total_write_size / (block_size * n);
     int workload = 100;
 
     // 随机数生成器（Mersenne Twister算法）
@@ -241,21 +242,79 @@ int main(int argc, char **argv)
     for(int i = 0; i < stripe_num; i++){
         client.set();
     }
+
     for(int i = 0; i < workload; i++){
         double random_double = dist_double(rng);
+        std::shared_ptr<char[]> value;
+        std::chrono::high_resolution_clock::time_point work_load_start = std::chrono::high_resolution_clock::now();
         if(random_double < 0.85){
             int start_block_id = dist_64(rng);
             int end_block_id = start_block_id + 64 - 1;
-            std::string value;
-            client.get_blocks(start_block_id, end_block_id, value);
+            value = client.get_blocks(start_block_id, end_block_id);
         }
         else if(random_double < 0.925){
-
+            int start_block_id = dist_32(rng);
+            int end_block_id = start_block_id + 32 - 1;
+            value = client.get_blocks(start_block_id, end_block_id);
         }
         else{
-
+            int block_id = dist_1(rng);
+            value = client.get_blocks(block_id, block_id);
         }
+        std::chrono::high_resolution_clock::time_point work_load_end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> work_load_time = std::chrono::duration_cast<std::chrono::duration<double>>(work_load_end - work_load_start);
+        if(!value){
+            std::cout << "Get operation failed" << std::endl;
+            continue;
+        }
+        std::cout << "workload time: " << work_load_time.count() << std::endl;
     }*/
+
+    //for workload degraded read test
+    size_t total_write_size = 40000; //MB
+    int stripe_num = total_write_size / (block_size * n);
+    int workload = 100;
+
+    // 随机数生成器（Mersenne Twister算法）
+    std::mt19937 rng(std::random_device{}());
+
+    // 均匀分布
+    std::uniform_int_distribution<int> dist_64(0, k*stripe_num - 64);
+    std::uniform_int_distribution<int> dist_32(0, k*stripe_num - 32);
+    std::uniform_int_distribution<int> dist_1(0, k*stripe_num - 1);
+    std::uniform_real_distribution<double> dist_double(0.0, 1.0);
+
+    for(int i = 0; i < stripe_num; i++){
+        client.set();
+    }
+
+    for(int i = 0; i < workload; i++){
+        double random_double = dist_double(rng);
+        std::shared_ptr<char[]> value;
+        std::chrono::high_resolution_clock::time_point work_load_start = std::chrono::high_resolution_clock::now();
+        if(random_double < 0.85){
+            int start_block_id = dist_64(rng);
+            int end_block_id = start_block_id + 64 - 1;
+            value = client.get_degraded_read_blocks(start_block_id, end_block_id, 0);
+        }
+        else if(random_double < 0.925){
+            int start_block_id = dist_32(rng);
+            int end_block_id = start_block_id + 32 - 1;
+            value = client.get_degraded_read_blocks(start_block_id, end_block_id, 0);
+        }
+        else{
+            int block_id = dist_1(rng);
+            value = client.get_degraded_read_blocks(block_id, block_id, 0);
+        }
+        std::chrono::high_resolution_clock::time_point work_load_end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> work_load_time = std::chrono::duration_cast<std::chrono::duration<double>>(work_load_end - work_load_start);
+        if(!value){
+            std::cout << "Get operation failed" << std::endl;
+            continue;
+        }
+        std::cout << "workload time: " << work_load_time.count() << std::endl;
+    }
+
     
     
     return 0;

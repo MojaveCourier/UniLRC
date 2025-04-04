@@ -3703,6 +3703,8 @@ class RecoveryRequest final :
     kReplacedNodePortFieldNumber = 2,
     kFailedBlockIdFieldNumber = 3,
     kCrossRackNumFieldNumber = 5,
+    kIsToSendBlockIdFieldNumber = 12,
+    kBlockIdToSendFieldNumber = 13,
   };
   // repeated string datanodeip = 6;
   int datanodeip_size() const;
@@ -3897,6 +3899,24 @@ class RecoveryRequest final :
   void _internal_set_cross_rack_num(int32_t value);
   public:
 
+  // bool is_to_send_block_id = 12;
+  void clear_is_to_send_block_id();
+  bool is_to_send_block_id() const;
+  void set_is_to_send_block_id(bool value);
+  private:
+  bool _internal_is_to_send_block_id() const;
+  void _internal_set_is_to_send_block_id(bool value);
+  public:
+
+  // int32 block_id_to_send = 13;
+  void clear_block_id_to_send();
+  int32_t block_id_to_send() const;
+  void set_block_id_to_send(int32_t value);
+  private:
+  int32_t _internal_block_id_to_send() const;
+  void _internal_set_block_id_to_send(int32_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:proxy_proto.RecoveryRequest)
  private:
   class _Internal;
@@ -3919,6 +3939,8 @@ class RecoveryRequest final :
     int32_t replaced_node_port_;
     int32_t failed_block_id_;
     int32_t cross_rack_num_;
+    bool is_to_send_block_id_;
+    int32_t block_id_to_send_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -9335,6 +9357,46 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
 RecoveryRequest::mutable_proxyport() {
   // @@protoc_insertion_point(field_mutable_list:proxy_proto.RecoveryRequest.proxyport)
   return _internal_mutable_proxyport();
+}
+
+// bool is_to_send_block_id = 12;
+inline void RecoveryRequest::clear_is_to_send_block_id() {
+  _impl_.is_to_send_block_id_ = false;
+}
+inline bool RecoveryRequest::_internal_is_to_send_block_id() const {
+  return _impl_.is_to_send_block_id_;
+}
+inline bool RecoveryRequest::is_to_send_block_id() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryRequest.is_to_send_block_id)
+  return _internal_is_to_send_block_id();
+}
+inline void RecoveryRequest::_internal_set_is_to_send_block_id(bool value) {
+  
+  _impl_.is_to_send_block_id_ = value;
+}
+inline void RecoveryRequest::set_is_to_send_block_id(bool value) {
+  _internal_set_is_to_send_block_id(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryRequest.is_to_send_block_id)
+}
+
+// int32 block_id_to_send = 13;
+inline void RecoveryRequest::clear_block_id_to_send() {
+  _impl_.block_id_to_send_ = 0;
+}
+inline int32_t RecoveryRequest::_internal_block_id_to_send() const {
+  return _impl_.block_id_to_send_;
+}
+inline int32_t RecoveryRequest::block_id_to_send() const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryRequest.block_id_to_send)
+  return _internal_block_id_to_send();
+}
+inline void RecoveryRequest::_internal_set_block_id_to_send(int32_t value) {
+  
+  _impl_.block_id_to_send_ = value;
+}
+inline void RecoveryRequest::set_block_id_to_send(int32_t value) {
+  _internal_set_block_id_to_send(value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryRequest.block_id_to_send)
 }
 
 // -------------------------------------------------------------------

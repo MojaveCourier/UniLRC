@@ -1762,6 +1762,10 @@ namespace ECProject
     asio::ip::tcp::resolver resolver(io_context);
     asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(replaced_node_ip, std::to_string(replaced_node_port));
     asio::connect(socket, endpoints);
+    if(recovery_request->is_to_send_block_id()){
+      int32_t block_id_to_send = recovery_request->block_id_to_send();
+      asio::write(socket, asio::buffer(&block_id_to_send, sizeof(int32_t)));
+    }
     if(cross_rack_num){
       asio::write(socket, asio::buffer(real_res_buf, m_sys_config->BlockSize));
     }
