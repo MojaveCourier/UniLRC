@@ -676,97 +676,6 @@ namespace ECProject
     return false;
   }
 
-  /*
-    Function: append within a block stripe
-    1. send the append request including the information of the value to the coordinator
-    2. get the address of proxy
-    3. send the value to the proxy by socket
-  */
-
-  /*
-  bool
-  Client::sub_append(int append_size)
-  {
-    grpc::ClientContext get_proxy_ip_port;
-    coordinator_proto::RequestProxyIPPort request;
-    coordinator_proto::ReplyProxyIPsPorts reply;
-    request.set_key(m_clientID);
-    request.set_valuesizebytes(append_size);
-    request.set_append_mode(m_sys_config->AppendMode);
-    grpc::Status status = m_coordinator_ptr->uploadAppendValue(&get_proxy_ip_port, request, &reply);
-
-    if (!status.ok())
-    {
-      std::cout << "[APPEND216] upload data failed!" << std::endl;
-      return false;
-    }
-    else
-    {
-      std::vector<std::thread> threads;
-      std::vector<char *> cluster_slice_data = m_toolbox->splitCharPointer(m_pre_allocated_buffer, &reply);
-      std::unique_ptr<bool[]> if_commit_arr(new bool[reply.append_keys_size()]);
-      std::fill_n(if_commit_arr.get(), reply.append_keys_size(), false);
-
-      std::vector<std::vector<int>> node_slice_sizes_per_cluster(m_sys_config->z);
-      std::vector<int> modified_data_block_nums_per_cluster(m_sys_config->z, 0);
-      std::vector<int> data_ptr_size_array;
-      int parity_slice_size = -1;
-      int parity_slice_offset = -1;
-      int start_data_block_id = get_append_slice_plans(m_sys_config->AppendMode, m_append_logical_offset, append_size, &node_slice_sizes_per_cluster, &modified_data_block_nums_per_cluster, &data_ptr_size_array, parity_slice_size, parity_slice_offset);
-
-      std::vector<char *> data_ptr_array, global_parity_ptr_array, local_parity_ptr_array;
-      split_for_append_data_and_parity(&reply, cluster_slice_data, node_slice_sizes_per_cluster, modified_data_block_nums_per_cluster, data_ptr_array, global_parity_ptr_array, local_parity_ptr_array);
-
-      if (m_sys_config->AppendMode == "UNILRC_MODE")
-      {
-        ECProject::encode_unilrc_w_append_mode(m_sys_config->k, m_sys_config->r, m_sys_config->z, std::accumulate(modified_data_block_nums_per_cluster.begin(), modified_data_block_nums_per_cluster.end(), 0), reinterpret_cast<unsigned char **>(data_ptr_array.data()), &data_ptr_size_array, reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), start_data_block_id, m_sys_config->UnitSize, false);
-      }
-      else if (m_sys_config->AppendMode == "CACHED_MODE")
-      {
-        get_cached_parity_slices(global_parity_ptr_array, local_parity_ptr_array, parity_slice_size, parity_slice_offset);
-        ECProject::encode_unilrc_w_append_mode(m_sys_config->k, m_sys_config->r, m_sys_config->z, std::accumulate(modified_data_block_nums_per_cluster.begin(), modified_data_block_nums_per_cluster.end(), 0), reinterpret_cast<unsigned char **>(data_ptr_array.data()), &data_ptr_size_array, reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), start_data_block_id, m_sys_config->UnitSize, true);
-        cache_latest_parity_slices(global_parity_ptr_array, local_parity_ptr_array, parity_slice_size, parity_slice_offset);
-      }
-
-      for (int i = 0; i < reply.append_keys_size(); i++)
-      {
-        threads.push_back(std::thread(&Client::async_append_to_proxies,
-                                      this, cluster_slice_data[i], reply.append_keys(i), reply.cluster_slice_sizes(i), reply.proxyips(i), reply.proxyports(i), i, if_commit_arr.get()));
-      }
-      for (auto &thread : threads)
-      {
-        thread.join();
-      }
-
-      // check if all appends are successful
-      bool all_true = std::all_of(if_commit_arr.get(), if_commit_arr.get() + reply.append_keys_size(), [](bool val)
-                                  { return val == true; });
-
-      if (all_true)
-      {
-        // std::cout << "[APPEND244] Client " << m_clientID << " append " << append_size << " bytes successfully!" << std::endl;
-        m_append_logical_offset = (m_append_logical_offset + append_size) % (m_sys_config->BlockSize * m_sys_config->k);
-
-        if (m_append_logical_offset == 0 && m_sys_config->AppendMode == "CACHED_MODE")
-        {
-          for (int i = 0; i < m_sys_config->r + m_sys_config->z; i++)
-          {
-            memset(m_cached_buffer[i], 0, m_sys_config->BlockSize);
-          }
-        }
-
-        return true;
-      }
-      else
-      {
-        return false;
-      }
-    }
-
-    return false;
-  }
-  */
-
   std::shared_ptr<char[]> Client::get_degraded_read_block_breakdown(int stripe_id, int failed_block_id, double &total_time,double &disk_io_time, double &network_time, double &decode_time)
   {
     std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
@@ -845,66 +754,6 @@ namespace ECProject
     t.join();
     std::cout << "[Client] degraded read success!" << std::endl;
     return buf;
-  }
-
-  bool Client::degraded_read(int stripe_id, int failed_block_id, std::string &value)
-  {
-    int block_size = m_sys_config->BlockSize;
-    //assert(failed_block_id >= 0 && failed_block_id < m_sys_config->k);
-    std::cout <<"block_size: " << block_size << std::endl;
-    grpc::ClientContext context;
-    coordinator_proto::KeyAndClientIP request;
-    request.set_key(std::to_string(stripe_id) + "_" + std::to_string(failed_block_id));
-    request.set_clientip(m_clientIPForGet);
-    request.set_clientport(m_clientPortForGet);
-
-    coordinator_proto::RepIfGetSuccess reply;
-    grpc::Status status = m_coordinator_ptr->getDegradedReadValue(&context, request, &reply);
-
-    if (!status.ok())
-    {
-      std::cout << "[Client] degraded read failed!" << std::endl;
-      return false;
-    }
-    else
-    {
-      std::cout << "[Client] degraded read success!" << std::endl;
-    }
-    int block_num = reply.valuesizebytes() / block_size;
-    char ** block_ptrs = new char *[block_num + 1];
-    for(int i = 0; i < block_num + 1; i++){
-      block_ptrs[i] = static_cast<char *>(std::aligned_alloc(32, block_size));
-      memset(block_ptrs[i], 0, block_size);
-    }
-    std::cout << "block_num to get: " << block_num << std::endl;
-    std::vector<std::thread> threads;
-    for(int i = 0; i < block_num; i++){
-      threads.push_back(std::thread([&block_ptrs, i, this, block_size]() mutable{
-      asio::ip::tcp::socket socket_data(io_context);
-      this->acceptor.accept(socket_data);
-      asio::error_code error;
-      //std::vector<char> buf(m_sys_config->BlockSize);
-      size_t len = asio::read(socket_data, asio::buffer(block_ptrs[i], block_size), error);
-      asio::error_code ignore_ec;
-      socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
-      socket_data.close(ignore_ec);
-      }));
-    }
-    for(auto &thread : threads){
-      thread.join();
-    }
-    if(block_num > 1){
-      xor_avx(block_num + 1, block_size, (void **)block_ptrs);
-      value.assign(block_ptrs[block_num], block_size);
-    }
-    else{
-      value.assign(block_ptrs[0], block_size);
-    }
-    for(int i = 0; i < block_num + 1; i++){
-      free(block_ptrs[i]);
-    }
-    delete[] block_ptrs;
-    return true;
   }
 
   bool Client::recovery(int stripe_id, int failed_block_id)
@@ -1156,6 +1005,51 @@ namespace ECProject
     1. send the get request including the information of key and clientipport to the coordinator
     2. accept the value transferred from the proxy
   */
+  bool Client::get(std::string key, std::string &value)
+  {
+    grpc::ClientContext context;
+    coordinator_proto::KeyAndClientIP request;
+    request.set_key(key);
+    request.set_clientip(m_clientIPForGet);
+    request.set_clientport(m_clientPortForGet);
+    // request
+    coordinator_proto::RepIfGetSuccess reply;
+    grpc::Status status = m_coordinator_ptr->getValue(&context, request, &reply);
+    asio::ip::tcp::socket socket_data(io_context);
+    int value_size = reply.valuesizebytes();
+    acceptor.accept(socket_data);
+    asio::error_code error;
+    std::vector<char> buf_key(key.size());
+    std::vector<char> buf(value_size);
+    // read from socket
+    size_t len = asio::read(socket_data, asio::buffer(buf_key, key.size()), error);
+    int flag = 1;
+    for (int i = 0; i < int(key.size()); i++)
+    {
+      if (key[i] != buf_key[i])
+      {
+        flag = 0;
+      }
+    }
+    if (flag)
+    {
+      len = asio::read(socket_data, asio::buffer(buf, value_size), error);
+    }
+    else
+    {
+      std::cout << "[GET] key not matches!" << std::endl;
+    }
+    asio::error_code ignore_ec;
+    socket_data.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
+    socket_data.close(ignore_ec);
+    if (flag)
+    {
+      std::cout << "[GET] get key: " << buf_key.data() << " ,valuesize: " << len << std::endl;
+    }
+    value = std::string(buf.data(), buf.size());
+    return true;
+  }
+
 
   /*
     Function: delete

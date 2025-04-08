@@ -34,7 +34,6 @@ static const char* coordinatorService_method_names[] = {
   "/coordinator_proto.coordinatorService/getStripe",
   "/coordinator_proto.coordinatorService/getBlocks",
   "/coordinator_proto.coordinatorService/getDegradedReadBlocks",
-  "/coordinator_proto.coordinatorService/getDegradedReadValue",
   "/coordinator_proto.coordinatorService/getDegradedReadBlock",
   "/coordinator_proto.coordinatorService/getDegradedReadBlockBreakdown",
   "/coordinator_proto.coordinatorService/getRecovery",
@@ -64,15 +63,14 @@ coordinatorService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>&
   , rpcmethod_getStripe_(coordinatorService_method_names[9], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_getBlocks_(coordinatorService_method_names[10], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_getDegradedReadBlocks_(coordinatorService_method_names[11], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_getDegradedReadValue_(coordinatorService_method_names[12], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_getDegradedReadBlock_(coordinatorService_method_names[13], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_getDegradedReadBlockBreakdown_(coordinatorService_method_names[14], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_getRecovery_(coordinatorService_method_names[15], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_getRecoveryBreakdown_(coordinatorService_method_names[16], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_fullNodeRecovery_(coordinatorService_method_names[17], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_delByKey_(coordinatorService_method_names[18], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_delByStripe_(coordinatorService_method_names[19], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_listStripes_(coordinatorService_method_names[20], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_getDegradedReadBlock_(coordinatorService_method_names[12], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_getDegradedReadBlockBreakdown_(coordinatorService_method_names[13], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_getRecovery_(coordinatorService_method_names[14], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_getRecoveryBreakdown_(coordinatorService_method_names[15], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_fullNodeRecovery_(coordinatorService_method_names[16], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_delByKey_(coordinatorService_method_names[17], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_delByStripe_(coordinatorService_method_names[18], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_listStripes_(coordinatorService_method_names[19], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
 ::grpc::Status coordinatorService::Stub::sayHelloToCoordinator(::grpc::ClientContext* context, const ::coordinator_proto::RequestToCoordinator& request, ::coordinator_proto::ReplyFromCoordinator* response) {
@@ -347,29 +345,6 @@ void coordinatorService::Stub::async::getDegradedReadBlocks(::grpc::ClientContex
 ::grpc::ClientAsyncResponseReader< ::coordinator_proto::ReplyProxyIPsPorts>* coordinatorService::Stub::AsyncgetDegradedReadBlocksRaw(::grpc::ClientContext* context, const ::coordinator_proto::BlockIDsAndClientIP& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncgetDegradedReadBlocksRaw(context, request, cq);
-  result->StartCall();
-  return result;
-}
-
-::grpc::Status coordinatorService::Stub::getDegradedReadValue(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::coordinator_proto::RepIfGetSuccess* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::RepIfGetSuccess, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_getDegradedReadValue_, context, request, response);
-}
-
-void coordinatorService::Stub::async::getDegradedReadValue(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RepIfGetSuccess* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::RepIfGetSuccess, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_getDegradedReadValue_, context, request, response, std::move(f));
-}
-
-void coordinatorService::Stub::async::getDegradedReadValue(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RepIfGetSuccess* response, ::grpc::ClientUnaryReactor* reactor) {
-  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_getDegradedReadValue_, context, request, response, reactor);
-}
-
-::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>* coordinatorService::Stub::PrepareAsyncgetDegradedReadValueRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::coordinator_proto::RepIfGetSuccess, ::coordinator_proto::KeyAndClientIP, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_getDegradedReadValue_, context, request);
-}
-
-::grpc::ClientAsyncResponseReader< ::coordinator_proto::RepIfGetSuccess>* coordinatorService::Stub::AsyncgetDegradedReadValueRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) {
-  auto* result =
-    this->PrepareAsyncgetDegradedReadValueRaw(context, request, cq);
   result->StartCall();
   return result;
 }
@@ -682,12 +657,12 @@ coordinatorService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       coordinatorService_method_names[12],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::RepIfGetSuccess, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](coordinatorService::Service* service,
              ::grpc::ServerContext* ctx,
              const ::coordinator_proto::KeyAndClientIP* req,
-             ::coordinator_proto::RepIfGetSuccess* resp) {
-               return service->getDegradedReadValue(ctx, req, resp);
+             ::coordinator_proto::DegradedReadReply* resp) {
+               return service->getDegradedReadBlock(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       coordinatorService_method_names[13],
@@ -697,20 +672,10 @@ coordinatorService::Service::Service() {
              ::grpc::ServerContext* ctx,
              const ::coordinator_proto::KeyAndClientIP* req,
              ::coordinator_proto::DegradedReadReply* resp) {
-               return service->getDegradedReadBlock(ctx, req, resp);
-             }, this)));
-  AddMethod(new ::grpc::internal::RpcServiceMethod(
-      coordinatorService_method_names[14],
-      ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
-          [](coordinatorService::Service* service,
-             ::grpc::ServerContext* ctx,
-             const ::coordinator_proto::KeyAndClientIP* req,
-             ::coordinator_proto::DegradedReadReply* resp) {
                return service->getDegradedReadBlockBreakdown(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      coordinatorService_method_names[15],
+      coordinatorService_method_names[14],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::RecoveryReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](coordinatorService::Service* service,
@@ -720,7 +685,7 @@ coordinatorService::Service::Service() {
                return service->getRecovery(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      coordinatorService_method_names[16],
+      coordinatorService_method_names[15],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::RecoveryReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](coordinatorService::Service* service,
@@ -730,7 +695,7 @@ coordinatorService::Service::Service() {
                return service->getRecoveryBreakdown(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      coordinatorService_method_names[17],
+      coordinatorService_method_names[16],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::NodeIdFromClient, ::coordinator_proto::RepBlockNum, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](coordinatorService::Service* service,
@@ -740,7 +705,7 @@ coordinatorService::Service::Service() {
                return service->fullNodeRecovery(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      coordinatorService_method_names[18],
+      coordinatorService_method_names[17],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::KeyFromClient, ::coordinator_proto::RepIfDeling, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](coordinatorService::Service* service,
@@ -750,7 +715,7 @@ coordinatorService::Service::Service() {
                return service->delByKey(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      coordinatorService_method_names[19],
+      coordinatorService_method_names[18],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::StripeIdFromClient, ::coordinator_proto::RepIfDeling, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](coordinatorService::Service* service,
@@ -760,7 +725,7 @@ coordinatorService::Service::Service() {
                return service->delByStripe(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      coordinatorService_method_names[20],
+      coordinatorService_method_names[19],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::RequestToCoordinator, ::coordinator_proto::RepStripeIds, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](coordinatorService::Service* service,
@@ -852,13 +817,6 @@ coordinatorService::Service::~Service() {
 }
 
 ::grpc::Status coordinatorService::Service::getDegradedReadBlocks(::grpc::ServerContext* context, const ::coordinator_proto::BlockIDsAndClientIP* request, ::coordinator_proto::ReplyProxyIPsPorts* response) {
-  (void) context;
-  (void) request;
-  (void) response;
-  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-}
-
-::grpc::Status coordinatorService::Service::getDegradedReadValue(::grpc::ServerContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::RepIfGetSuccess* response) {
   (void) context;
   (void) request;
   (void) response;

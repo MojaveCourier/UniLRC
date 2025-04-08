@@ -42,7 +42,6 @@ service coordinatorService {
   rpc getDegradedReadBlocks(BlockIDsAndClientIP) returns (ReplyProxyIPsPorts) {};
 
   // degraded read
-  rpc getDegradedReadValue(KeyAndClientIP) returns (RepIfGetSuccess) {};
   rpc getDegradedReadBlock(KeyAndClientIP) returns (DegradedReadReply) {};
   rpc getDegradedReadBlockBreakdown(KeyAndClientIP) returns (DegradedReadReply) {};
   // recovery
