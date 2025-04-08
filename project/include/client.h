@@ -82,7 +82,7 @@ namespace ECProject
     bool SetParameterByGrpc(ECSchema input_ecschema);
     std::shared_ptr<char[]> get(std::string key, size_t &data_size);
     std::shared_ptr<char[]> get_blocks(int start_block_id, int end_block_id);
-    std::shared_ptr<char[]> get_degraded_read_blocks(int start_block_id, int end_block_id, int failed_block_id);
+    std::shared_ptr<char[]> get_degraded_read_blocks(int start_block_id, int end_block_id);
     bool delete_key(std::string key);
     bool delete_stripe(int stripe_id);
     bool delete_all_stripes();

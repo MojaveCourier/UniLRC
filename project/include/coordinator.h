@@ -75,6 +75,10 @@ namespace ECProject
         grpc::ServerContext *context,
         const coordinator_proto::BlockIDsAndClientIP *blockIDsClient,
         coordinator_proto::ReplyProxyIPsPorts *proxyIPPort) override;
+    grpc::Status getDegradedReadBlocks(
+        grpc::ServerContext *context,
+        const coordinator_proto::BlockIDsAndClientIP *blockIDsClient,
+        coordinator_proto::ReplyProxyIPsPorts *proxyIPPort) override;
     // degraded read
     grpc::Status getDegradedReadValue(
         grpc::ServerContext *context,
@@ -154,6 +158,7 @@ namespace ECProject
       std::vector<double> &network_start_time, std::vector<double> &network_end_time, double &cross_rack_network_time, double &cross_rack_xor_time,
       std::vector<double> &grpc_notify_time, std::vector<double> &grpc_start_time, std::vector<double> &data_node_grpc_notify_time, std::vector<double> &data_node_grpc_start_time);
     bool degraded_read_one_block(int stripe_id, int failed_block_id, std::string client_ip, int client_port);
+    bool degraded_read_one_block_for_workload(int stripe_id, int failed_block_id, std::string client_ip, int client_port, int block_id_to_send);
     ECProject::Config *m_sys_config;
     ECProject::ToolBox *m_toolbox;
     int m_cur_cluster_id = 0;

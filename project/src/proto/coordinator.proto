@@ -39,6 +39,8 @@ service coordinatorService {
 
   rpc getBlocks(BlockIDsAndClientIP) returns (ReplyProxyIPsPorts) {};
 
+  rpc getDegradedReadBlocks(BlockIDsAndClientIP) returns (ReplyProxyIPsPorts) {};
+
   // degraded read
   rpc getDegradedReadValue(KeyAndClientIP) returns (RepIfGetSuccess) {};
   rpc getDegradedReadBlock(KeyAndClientIP) returns (DegradedReadReply) {};
@@ -135,6 +137,7 @@ message BlockIDsAndClientIP{
   int32 end_block_id = 2;
   string clientip = 3;
   int32 clientport = 4;
+  int32 failed_block_id = 5;
 }
 
 // delete

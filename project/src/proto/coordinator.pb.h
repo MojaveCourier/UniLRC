@@ -2393,6 +2393,7 @@ class BlockIDsAndClientIP final :
     kStartBlockIdFieldNumber = 1,
     kEndBlockIdFieldNumber = 2,
     kClientportFieldNumber = 4,
+    kFailedBlockIdFieldNumber = 5,
   };
   // string clientip = 3;
   void clear_clientip();
@@ -2435,6 +2436,15 @@ class BlockIDsAndClientIP final :
   void _internal_set_clientport(int32_t value);
   public:
 
+  // int32 failed_block_id = 5;
+  void clear_failed_block_id();
+  int32_t failed_block_id() const;
+  void set_failed_block_id(int32_t value);
+  private:
+  int32_t _internal_failed_block_id() const;
+  void _internal_set_failed_block_id(int32_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:coordinator_proto.BlockIDsAndClientIP)
  private:
   class _Internal;
@@ -2447,6 +2457,7 @@ class BlockIDsAndClientIP final :
     int32_t start_block_id_;
     int32_t end_block_id_;
     int32_t clientport_;
+    int32_t failed_block_id_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -5033,6 +5044,26 @@ inline void BlockIDsAndClientIP::_internal_set_clientport(int32_t value) {
 inline void BlockIDsAndClientIP::set_clientport(int32_t value) {
   _internal_set_clientport(value);
   // @@protoc_insertion_point(field_set:coordinator_proto.BlockIDsAndClientIP.clientport)
+}
+
+// int32 failed_block_id = 5;
+inline void BlockIDsAndClientIP::clear_failed_block_id() {
+  _impl_.failed_block_id_ = 0;
+}
+inline int32_t BlockIDsAndClientIP::_internal_failed_block_id() const {
+  return _impl_.failed_block_id_;
+}
+inline int32_t BlockIDsAndClientIP::failed_block_id() const {
+  // @@protoc_insertion_point(field_get:coordinator_proto.BlockIDsAndClientIP.failed_block_id)
+  return _internal_failed_block_id();
+}
+inline void BlockIDsAndClientIP::_internal_set_failed_block_id(int32_t value) {
+  
+  _impl_.failed_block_id_ = value;
+}
+inline void BlockIDsAndClientIP::set_failed_block_id(int32_t value) {
+  _internal_set_failed_block_id(value);
+  // @@protoc_insertion_point(field_set:coordinator_proto.BlockIDsAndClientIP.failed_block_id)
 }
 
 // -------------------------------------------------------------------
