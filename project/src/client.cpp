@@ -700,7 +700,7 @@ namespace ECProject
     std::chrono::high_resolution_clock::time_point receive_start = std::chrono::high_resolution_clock::now();
     asio::error_code error;
     std::shared_ptr<char[]> buf(new char[block_size]);
-    std::cout << "start to read" << std::endl;
+    //std::cout << "start to read" << std::endl;
     size_t len = asio::read(socket, asio::buffer(buf.get(), block_size), error);
     if(len != block_size){
       std::cout << "[Error] len != block_size: " << len << std::endl;
@@ -718,7 +718,7 @@ namespace ECProject
     network_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - receive_start).count();
     double coordinator_gRPC_delay = (reply.grpc_start_time() - std::chrono::duration_cast<std::chrono::duration<double>>(grpc_notify.time_since_epoch()).count());
     network_time += coordinator_gRPC_delay;
-    std::cout << "[Client] degraded read success!" << std::endl;
+    //std::cout << "[Client] degraded read success!" << std::endl;
     return buf;
   }
 
@@ -742,7 +742,7 @@ namespace ECProject
     acceptor.accept(socket);
     asio::error_code error;
     std::shared_ptr<char[]> buf(new char[block_size]);
-    std::cout << "start to read" << std::endl;
+    //std::cout << "start to read" << std::endl;
     size_t len = asio::read(socket, asio::buffer(buf.get(), block_size), error);
     if(len != block_size){
       std::cout << "[Error] len != block_size: " << len << std::endl;
@@ -752,7 +752,7 @@ namespace ECProject
     socket.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
     socket.close(ignore_ec); 
     t.join();
-    std::cout << "[Client] degraded read success!" << std::endl;
+    //std::cout << "[Client] degraded read success!" << std::endl;
     return buf;
   }
 
@@ -1172,6 +1172,46 @@ namespace ECProject
     parameters.push_back(m_sys_config->r);
     parameters.push_back(m_sys_config->z);
     parameters.push_back(m_sys_config->BlockSize);
+    if(m_sys_config->CodeType == "AzureLRC")
+    {
+      parameters.push_back(0);
+    }
+    else if(m_sys_config->CodeType == "OptimalLRC")
+    {
+      parameters.push_back(1);
+    }
+    else if(m_sys_config->CodeType == "UniformLRC")
+    {
+      parameters.push_back(2);
+    }
+    else if(m_sys_config->CodeType == "UniLRC")
+    {
+      parameters.push_back(3);
+    }
+    else
+    {
+      std::cout << "[Client] CodeType not supported!" << std::endl;
+      return {};
+    }
     return parameters;
+  }
+
+  bool Client::decode_test(int stripe_id, int failed_block_id, std::string client_ip, int client_port, double &decode_time)
+  {
+    grpc::ClientContext context;
+    coordinator_proto::KeyAndClientIP request;
+    request.set_key(std::to_string(stripe_id) + "_" + std::to_string(failed_block_id));
+    request.set_clientip(client_ip);
+    request.set_clientport(client_port);
+
+    coordinator_proto::DegradedReadReply reply;
+    grpc::Status status = m_coordinator_ptr->decodeTest(&context, request, &reply);
+    decode_time = reply.decode_time();
+    if (!status.ok())
+    {
+      std::cout << "[Client] decode test failed!" << std::endl;
+      return false;
+    }
+    return true;
   }
 } // namespace ECProject

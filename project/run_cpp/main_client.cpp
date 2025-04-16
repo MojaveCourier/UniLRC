@@ -30,17 +30,65 @@ int main(int argc, char **argv)
     int k = parameters[0];
     int r = parameters[1];
     int z = parameters[2];
+    std::string code_type;
+    if(parameters[4] == 0){
+        code_type = "AzureLRC";
+    }
+    else if(parameters[4] == 1){
+        code_type = "OptimalLRC";
+    }
+    else if(parameters[4] == 2){
+        code_type = "UniformLRC";
+    }
+    else if(parameters[4] == 3){
+        code_type = "UniLRC";
+    }
+    else{
+        std::cout << "Code type error" << std::endl;
+        return -1;
+    }
     double block_size = static_cast<double> (parameters[3]) / 1024 / 1024; //MB
     int n = k + r + z;
+
+    /*client.set();
+    std::cout << "Single block recovery test" << std::endl;
+    std::vector<std::chrono::duration<double>> block_recovery_time_spans;
+    for(int i = 0; i < n; i++){
+        std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+        client.recovery(0, i);
+        std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+        block_recovery_time_spans.push_back(time_span);
+        std::cout << "single block repair time: " << time_span.count() << std::endl;
+    }
+    std::chrono::duration<double> block_recovery_total_time_span = std::accumulate(block_recovery_time_spans.begin(), block_recovery_time_spans.end(), std::chrono::duration<double>(0));
+    std::chrono::duration<double> block_recovery_max_time_span = *std::max_element(block_recovery_time_spans.begin(), block_recovery_time_spans.end());
+    std::chrono::duration<double> block_recovery_min_time_span = *std::min_element(block_recovery_time_spans.begin(), block_recovery_time_spans.end());
+    //std::cout << "Total time: " << total_time_span.count() << std::endl;
+    std::cout << "Average time: " << block_recovery_total_time_span.count() / block_recovery_time_spans.size() << std::endl;*/
+
+    
     size_t total_write_size = 40000; //MB
     int stripe_num = total_write_size / (block_size * n);
     std::cout << "Starting set stripe operation" << std::endl;
     for(int i = 0; i < stripe_num; i++){
         client.set();
     }
+    std::cout << "Set stripe operation finished" << std::endl;
+    std::cout << "Conducting experiments, please wait..." << std::endl;
+
+    std::string output_file_name = "test_"  + code_type + + "_" + std::to_string(k) + "_" + std::to_string(r) + "_" + std::to_string(z) + ".txt";
+    std::ofstream output_file(output_file_name);
+    if (!output_file.is_open())
+    {
+        std::cerr << "Error opening file: " << output_file_name << std::endl;
+        return 1;
+    }
+    freopen(output_file_name.c_str(), "w", stdout);
+
 
     //for read test
-    std::cout << "Normal read test" << std::endl;
+    std::cout << "Normal read test start" << std::endl;
     std::vector<std::chrono::duration<double>> read_time_spans;
     for(int i = 0; i < 5; i++){
         size_t data_size;
@@ -55,9 +103,8 @@ int main(int argc, char **argv)
         std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
         read_time_spans.push_back(time_span);
-        std::cout << "get time: " << time_span.count() << std::endl;
+        //std::cout << "get time: " << time_span.count() << std::endl;
     }
-    std::cout << "Get operation succeeded" << std::endl;
     std::chrono::duration<double> read_total_time_span = std::accumulate(read_time_spans.begin(), read_time_spans.end(), std::chrono::duration<double>(0));
     std::cout << "Total time: " << read_total_time_span.count() << std::endl;
     std::cout << "Average time: " << read_total_time_span.count() / read_time_spans.size() << std::endl;
@@ -67,10 +114,11 @@ int main(int argc, char **argv)
     std::chrono::duration<double> read_min_time_span = *std::min_element(read_time_spans.begin(), read_time_spans.end());
     std::cout << "Max speed: " << static_cast<size_t>(block_size) * k / read_min_time_span.count() << "MB/s" << std::endl;
     std::cout << "Min speed: " << static_cast<size_t>(block_size) * k / read_max_time_span.count() << "MB/s" << std::endl;
-    
+    std::cout << "Normal read test end" << std::endl;
+    std::cout << std::endl;
     //for degraded read test
     std::vector<std::chrono::duration<double>> degraded_read_time_spans;
-    std::cout << "Degraded read test" << std::endl;
+    std::cout << "Degraded read test start" << std::endl;
     for(int i = 0; i < k; i++){
         size_t data_size;
         int id = i;
@@ -84,9 +132,8 @@ int main(int argc, char **argv)
         std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
         degraded_read_time_spans.push_back(time_span);
-        std::cout << "get time: " << time_span.count() << std::endl;
+        //std::cout << "get time: " << time_span.count() << std::endl;
     }
-    std::cout << "Degraded read operation succeeded" << std::endl;
     std::chrono::duration<double> degraded_read_total_time_span = std::accumulate(degraded_read_time_spans.begin(), degraded_read_time_spans.end(), std::chrono::duration<double>(0));
     std::cout << "Average time: " << degraded_read_total_time_span.count() / degraded_read_time_spans.size() << std::endl;
     std::chrono::duration<double> degraded_read_max_time_span = *std::max_element(degraded_read_time_spans.begin(), degraded_read_time_spans.end());
@@ -97,10 +144,12 @@ int main(int argc, char **argv)
     std::cout << "Speed" << static_cast<size_t>(block_size)  / (degraded_read_total_time_span.count() / degraded_read_time_spans.size()) << "MB/s" << std::endl;
     std::cout << "Max speed: " << static_cast<size_t>(block_size)  / degraded_read_min_time_span.count() << "MB/s" << std::endl;
     std::cout << "Min speed: " << static_cast<size_t>(block_size)  / degraded_read_max_time_span.count() << "MB/s" << std::endl;
+    std::cout << "Degraded read test end" << std::endl;
+    std::cout << std::endl;
 
 
     //for degraded read breakdown test
-    std::cout << "Degraded read breakdown test" << std::endl;
+    std::cout << "Degraded read breakdown test start" << std::endl;
     std::vector<std::chrono::duration<double>> degraded_read_breakdown_time_spans;
     std::vector<std::chrono::duration<double>> degraded_read_breakdown_disk_io_time_spans;
     std::vector<std::chrono::duration<double>> degraded_read_breakdown_network_time_spans;
@@ -143,10 +192,11 @@ int main(int argc, char **argv)
     std::cout << "Min network time: "<< degraded_read_breakdown_min_network_time_span.count() << std::endl;
     std::cout << "Max decode time: "<< degraded_read_breakdown_max_decode_time_span.count() << std::endl;
     std::cout << "Min decode time: "<< degraded_read_breakdown_min_decode_time_span.count() << std::endl;
-
+    std::cout << "Degraded read breakdown test end" << std::endl;
+    std::cout << std::endl;
 
     //for single block recovery
-    std::cout << "Single block recovery test" << std::endl;
+    std::cout << "Single block recovery test start" << std::endl;
     std::vector<std::chrono::duration<double>> block_recovery_time_spans;
     for(int i = 0; i < n; i++){
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
@@ -154,7 +204,7 @@ int main(int argc, char **argv)
         std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
         block_recovery_time_spans.push_back(time_span);
-        std::cout << "single block repair time: " << time_span.count() << std::endl;
+        //std::cout << "single block repair time: " << time_span.count() << std::endl;
     }
     std::chrono::duration<double> block_recovery_total_time_span = std::accumulate(block_recovery_time_spans.begin(), block_recovery_time_spans.end(), std::chrono::duration<double>(0));
     std::chrono::duration<double> block_recovery_max_time_span = *std::max_element(block_recovery_time_spans.begin(), block_recovery_time_spans.end());
@@ -163,7 +213,8 @@ int main(int argc, char **argv)
     std::cout << "Average time: " << block_recovery_total_time_span.count() / block_recovery_time_spans.size() << std::endl;
     std::cout << "Max time: "<< block_recovery_max_time_span.count() << std::endl;
     std::cout << "Min time: "<< block_recovery_min_time_span.count() << std::endl;
-
+    std::cout << "Single block recovery test end" << std::endl;
+    std::cout << std::endl;
     //for single block recovery breakdown
     std::cout << "Single block recovery breakdown test" << std::endl;
     std::vector<std::chrono::duration<double>> block_recovery_breakdown_time_spans;
@@ -193,9 +244,10 @@ int main(int argc, char **argv)
     std::cout << "Average network time: " << block_recovery_breakdown_total_network_time_span.count() / block_recovery_breakdown_network_time_spans.size() << std::endl;
     std::cout << "Average decode time: " << block_recovery_breakdown_total_decode_time_span.count() / block_recovery_breakdown_decode_time_spans.size() << std::endl;
     std::cout << "Average disk write time: " << block_recovery_breakdown_total_disk_write_time_span.count() / block_recovery_breakdown_disk_write_time_spans.size() << std::endl;
-
+    std::cout << "Single block recovery breakdown test end" << std::endl;
+    std::cout << std::endl;
     //for full node repair
-    std::cout << "Full node repair test" << std::endl;
+    std::cout << "Full node repair test start" << std::endl;
     int node_num = 5;
     std::vector<int> node_ids;
     while(node_ids.size() < node_num){
@@ -211,18 +263,31 @@ int main(int argc, char **argv)
         int block_num = client.recovery_full_node(node_ids[i]);
         std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
-        std::cout << "full node repair time: " << time_span.count() << std::endl;
-        std::cout << "block num: " << block_num << std::endl;
+        //std::cout << "full node repair time: " << time_span.count() << std::endl;
+        //std::cout << "block num: " << block_num << std::endl;
         double total_size = block_num * block_size; //MB
-        std::cout << "Speed: " << total_size / time_span.count() << "MB/s" << std::endl;
+        //std::cout << "Speed: " << total_size / time_span.count() << "MB/s" << std::endl;
         full_node_recovery_speeds.push_back(total_size / time_span.count());
     }
     std::cout << "Average speed: " << std::accumulate(full_node_recovery_speeds.begin(), full_node_recovery_speeds.end(), 0.0) / full_node_recovery_speeds.size() << "MB/s" << std::endl;
     std::cout << "Max speed: " << *std::max_element(full_node_recovery_speeds.begin(), full_node_recovery_speeds.end()) << "MB/s" << std::endl;
     std::cout << "Min speed: " << *std::min_element(full_node_recovery_speeds.begin(), full_node_recovery_speeds.end()) << "MB/s" << std::endl;
-    
+    std::cout << "Full node repair test end" << std::endl;
+    std::cout << std::endl;
+    //for decode test
+    std::cout << "Decode test start" << std::endl;
+    std::vector<double> decode_time_spans;
+    for(int i = 0; i < n; i++){
+        double decode_time_span;
+        client.decode_test(0, i, client_ip, client_port, decode_time_span);
+        decode_time_spans.push_back(decode_time_span);
+    }
+    std::cout << "Average decode time: " << std::endl;
+    std::cout << std::accumulate(decode_time_spans.begin(), decode_time_spans.end(), 0.0) / decode_time_spans.size() << std::endl;
+    std::cout << "Decode test end" << std::endl;
+    std::cout << std::endl;
     //for workload read test
-    std::cout << "Workload read test" << std::endl;
+    std::cout << "Workload read test start" << std::endl;
 
     int workload = 1000;
 
@@ -260,9 +325,11 @@ int main(int argc, char **argv)
         }
         std::cout << "Wokload normal read read time: " << work_load_time.count() << std::endl;
     }
+    std::cout << "Workload read test end" << std::endl;
+    std::cout << std::endl;
 
     //for workload degraded read test
-    std::cout << "Workload degraded read test" << std::endl;
+    std::cout << "Workload degraded read start" << std::endl;
 
     for(int i = 0; i < workload; i++){
         double random_double = dist_double(rng);
@@ -290,7 +357,13 @@ int main(int argc, char **argv)
         }
         std::cout << "Workload degraded read time: " << work_load_time.count() << std::endl;
     }
-
+    std::cout << "Workload degraded read test end" << std::endl;
+    output_file.close();
+    if (freopen("/dev/tty", "w", stdout) == NULL) {
+        std::cerr << "Error redirecting stdout back to console!" << std::endl;
+   }
+    std::cout << "All tests finished" << std::endl;
+    std::cout << "Output file: " << output_file_name << std::endl;
     
     return 0;
 }

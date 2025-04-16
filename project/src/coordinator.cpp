@@ -1443,6 +1443,69 @@ namespace ECProject
     return true;
   }
 
+  grpc::Status CoordinatorImpl::decodeTest(
+    grpc::ServerContext *context,
+    const coordinator_proto::KeyAndClientIP *keyClient,
+    coordinator_proto::DegradedReadReply *degradedReadReply)
+  {
+    std::string code_type = m_sys_config->CodeType;
+    int k = m_sys_config->k;
+    int r = m_sys_config->r;
+    int z = m_sys_config->z;
+    int block_size = m_sys_config->BlockSize;
+    int stripe_id = std::stoi(keyClient->key().substr(0, keyClient->key().find('_')));
+    int failed_block_id = std::stoi(keyClient->key().substr(keyClient->key().find('_') + 1));
+    Stripe &t_stripe = m_stripe_table[stripe_id];
+
+    std::vector<int> recovery_group_ids = get_recovery_group_ids(code_type, k, r, z, failed_block_id);
+    std::vector<int> recovery_block_ids;
+    for(int i = 0; i < recovery_group_ids.size(); i++){
+      std::vector<int> blockids = t_stripe.group_to_blocks[recovery_group_ids[i]];
+      for(int j = 0; j < blockids.size(); j++){
+        if(m_sys_config->CodeType == "AzureLRC" && recovery_block_ids.size() == (k / z))
+          break;
+        if ((m_sys_config->CodeType == "AzureLRC" && blockids[j] >= m_sys_config->k + m_sys_config->r) || blockids[j] == failed_block_id)
+          continue;
+        if(blockids[j] != failed_block_id){
+          recovery_block_ids.push_back(blockids[j]);
+        }
+      }
+    }
+    int block_num = recovery_block_ids.size();
+    unsigned char *recovery_data = static_cast<unsigned char*>(std::aligned_alloc(32, m_sys_config->BlockSize * block_num));
+    std::vector<unsigned char *> recovery_data_ptrs;
+    for(int i = 0; i < block_num; i++){
+      recovery_data_ptrs.push_back(recovery_data + i * block_size);
+    }
+    
+    unsigned char *res = static_cast<unsigned char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
+    std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
+    if(code_type == "AzureLRC"){
+      decode_azure_lrc(k, r, z, block_num, &recovery_block_ids, recovery_data_ptrs.data(), res, block_size, failed_block_id);
+    }
+    else if(code_type == "UniLRC"){
+      decode_unilrc(k, r, z, block_num, &recovery_block_ids, recovery_data_ptrs.data(), res, block_size);
+    }
+    else if(code_type == "OptimalLRC"){
+      decode_optimal_lrc(k, r, z, block_num, &recovery_block_ids, recovery_data_ptrs.data(), res, block_size, failed_block_id);
+    }
+    else if(code_type == "UniformLRC"){
+      decode_uniform_lrc(k, r, z, block_num, &recovery_block_ids, recovery_data_ptrs.data(), res, block_size, failed_block_id);
+    }
+    else{
+      std::cout << "[Coordinator] decodeTest: unknown code type!" << std::endl;
+      return grpc::Status(grpc::INVALID_ARGUMENT, "unknown code type");
+    }
+    std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+    std::cout << "[Coordinator] decodeTest took " << duration.count() << " seconds" << std::endl;
+    degradedReadReply->set_decode_time(duration.count());
+    delete[] res;
+    delete[] recovery_data;
+
+    return grpc::Status::OK;
+  } 
+
   bool CoordinatorImpl::recovery_one_block(int stripe_id, int failed_block_id)
   {
     std::string code_type = m_sys_config->CodeType;

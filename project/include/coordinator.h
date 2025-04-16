@@ -12,6 +12,7 @@
 #include <condition_variable>
 #include <config.h>
 #include <toolbox.h>
+#include "unilrc_encoder.h"
 // #define IF_DEBUG true
 #define IF_DEBUG false
 namespace ECProject
@@ -97,7 +98,10 @@ namespace ECProject
         grpc::ServerContext *context,
         const coordinator_proto::KeyAndClientIP *keyClient,
         coordinator_proto::RecoveryReply *replyClient) override;
-
+    grpc::Status decodeTest(
+        grpc::ServerContext *context,
+        const coordinator_proto::KeyAndClientIP *keyClient,
+        coordinator_proto::DegradedReadReply *degradedReadReply) override;
     grpc::Status fullNodeRecovery(
       grpc::ServerContext *context,
       const coordinator_proto::NodeIdFromClient *request,

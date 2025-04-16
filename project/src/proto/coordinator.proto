@@ -54,6 +54,7 @@ service coordinatorService {
 
   //other
   rpc listStripes(RequestToCoordinator) returns (RepStripeIds) {};
+  rpc decodeTest(KeyAndClientIP) returns (DegradedReadReply) {};
 }
 
 message Parameter {

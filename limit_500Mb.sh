@@ -4,7 +4,7 @@
 if ip link show enp6s0f0 &> /dev/null && \
    ip link show enp6s0f0 | grep -q 'state UP'
 then
-    wondershaper -a enp6s0f0 -d 1048576 -u 1048576
+    wondershaper -a enp6s0f0 -d 512000 -u 512000
     exit 0
 fi
 
@@ -12,7 +12,7 @@ fi
 if ip link show enp6s0f1 &> /dev/null && \
    ip link show enp6s0f1 | grep -q 'state UP'
 then
-    wondershaper -a enp6s0f1 -d 1048576 -u 1048576
+    wondershaper -a enp6s0f1 -d 512000 -u 512000
     exit 0
 fi
 

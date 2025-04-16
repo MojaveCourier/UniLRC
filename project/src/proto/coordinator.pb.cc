@@ -608,7 +608,7 @@ const char descriptor_table_protodef_coordinator_2eproto[] PROTOBUF_SECTION_VARI
   "yReply\022\026\n\016disk_read_time\030\001 \001(\001\022\024\n\014networ"
   "k_time\030\002 \001(\001\022\023\n\013decode_time\030\003 \001(\001\022\027\n\017dis"
   "k_write_time\030\004 \001(\001\022\027\n\017grpc_start_time\030\005 "
-  "\001(\0012\373\016\n\022coordinatorService\022k\n\025sayHelloTo"
+  "\001(\0012\324\017\n\022coordinatorService\022k\n\025sayHelloTo"
   "Coordinator\022\'.coordinator_proto.RequestT"
   "oCoordinator\032\'.coordinator_proto.ReplyFr"
   "omCoordinator\"\000\022`\n\ncheckalive\022\'.coordina"
@@ -656,11 +656,13 @@ const char descriptor_table_protodef_coordinator_2eproto[] PROTOBUF_SECTION_VARI
   "oordinator_proto.RepIfDeling\"\000\022Y\n\013listSt"
   "ripes\022\'.coordinator_proto.RequestToCoord"
   "inator\032\037.coordinator_proto.RepStripeIds\""
-  "\000b\006proto3"
+  "\000\022W\n\ndecodeTest\022!.coordinator_proto.KeyA"
+  "ndClientIP\032$.coordinator_proto.DegradedR"
+  "eadReply\"\000b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_coordinator_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_coordinator_2eproto = {
-    false, false, 3529, descriptor_table_protodef_coordinator_2eproto,
+    false, false, 3618, descriptor_table_protodef_coordinator_2eproto,
     "coordinator.proto",
     &descriptor_table_coordinator_2eproto_once, nullptr, 0, 21,
     schemas, file_default_instances, TableStruct_coordinator_2eproto::offsets,

@@ -42,6 +42,7 @@ static const char* coordinatorService_method_names[] = {
   "/coordinator_proto.coordinatorService/delByKey",
   "/coordinator_proto.coordinatorService/delByStripe",
   "/coordinator_proto.coordinatorService/listStripes",
+  "/coordinator_proto.coordinatorService/decodeTest",
 };
 
 std::unique_ptr< coordinatorService::Stub> coordinatorService::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -71,6 +72,7 @@ coordinatorService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>&
   , rpcmethod_delByKey_(coordinatorService_method_names[17], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_delByStripe_(coordinatorService_method_names[18], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_listStripes_(coordinatorService_method_names[19], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_decodeTest_(coordinatorService_method_names[20], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
 ::grpc::Status coordinatorService::Stub::sayHelloToCoordinator(::grpc::ClientContext* context, const ::coordinator_proto::RequestToCoordinator& request, ::coordinator_proto::ReplyFromCoordinator* response) {
@@ -533,6 +535,29 @@ void coordinatorService::Stub::async::listStripes(::grpc::ClientContext* context
   return result;
 }
 
+::grpc::Status coordinatorService::Stub::decodeTest(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::coordinator_proto::DegradedReadReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_decodeTest_, context, request, response);
+}
+
+void coordinatorService::Stub::async::decodeTest(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::DegradedReadReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_decodeTest_, context, request, response, std::move(f));
+}
+
+void coordinatorService::Stub::async::decodeTest(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::DegradedReadReply* response, ::grpc::ClientUnaryReactor* reactor) {
+  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_decodeTest_, context, request, response, reactor);
+}
+
+::grpc::ClientAsyncResponseReader< ::coordinator_proto::DegradedReadReply>* coordinatorService::Stub::PrepareAsyncdecodeTestRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::coordinator_proto::DegradedReadReply, ::coordinator_proto::KeyAndClientIP, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_decodeTest_, context, request);
+}
+
+::grpc::ClientAsyncResponseReader< ::coordinator_proto::DegradedReadReply>* coordinatorService::Stub::AsyncdecodeTestRaw(::grpc::ClientContext* context, const ::coordinator_proto::KeyAndClientIP& request, ::grpc::CompletionQueue* cq) {
+  auto* result =
+    this->PrepareAsyncdecodeTestRaw(context, request, cq);
+  result->StartCall();
+  return result;
+}
+
 coordinatorService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       coordinatorService_method_names[0],
@@ -734,6 +759,16 @@ coordinatorService::Service::Service() {
              ::coordinator_proto::RepStripeIds* resp) {
                return service->listStripes(ctx, req, resp);
              }, this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      coordinatorService_method_names[20],
+      ::grpc::internal::RpcMethod::NORMAL_RPC,
+      new ::grpc::internal::RpcMethodHandler< coordinatorService::Service, ::coordinator_proto::KeyAndClientIP, ::coordinator_proto::DegradedReadReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+          [](coordinatorService::Service* service,
+             ::grpc::ServerContext* ctx,
+             const ::coordinator_proto::KeyAndClientIP* req,
+             ::coordinator_proto::DegradedReadReply* resp) {
+               return service->decodeTest(ctx, req, resp);
+             }, this)));
 }
 
 coordinatorService::Service::~Service() {
@@ -873,6 +908,13 @@ coordinatorService::Service::~Service() {
 }
 
 ::grpc::Status coordinatorService::Service::listStripes(::grpc::ServerContext* context, const ::coordinator_proto::RequestToCoordinator* request, ::coordinator_proto::RepStripeIds* response) {
+  (void) context;
+  (void) request;
+  (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status coordinatorService::Service::decodeTest(::grpc::ServerContext* context, const ::coordinator_proto::KeyAndClientIP* request, ::coordinator_proto::DegradedReadReply* response) {
   (void) context;
   (void) request;
   (void) response;
