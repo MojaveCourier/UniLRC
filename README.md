@@ -63,7 +63,6 @@ The architecture follows master-worker style, like many state-of-art distributed
 - Compile
 
 ```
-cd project
 sh compile.sh
 ```
 
@@ -82,13 +81,8 @@ sh test.sh
 
 #### Attention
 
-> About Append Test.
-
-- In `parameterConfiguration.xml`, `CodeType` can only be UniLRC, and  `AppendMode` can be REP_MODE, UNILRC_MODE or CACHED_MODE.
-
 - In `parameterConfiguration.xml`, if `CodeType` is UniLRC, the `k`, `r` is computed based on `alpha` and `z`; if `CodeType` is AzureLRC, OptimalLRC or UniformLRC, the `k`, `r`, and `z` are directly specified.
 
-> [Implementing] About Degraded read and Recovery.
 
 
 ### Other
@@ -102,6 +96,5 @@ sh test.sh
 
 #### Tools
 
-- use `small_tools/generator_file.py` to generate files with random string of specified length.
 - use `small_tools/generator_sh.py` to generate configuration file and running shell for proxy and data node.
 
