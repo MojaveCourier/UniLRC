@@ -303,7 +303,7 @@ int main(int argc, char **argv)
         double random_double = dist_double(rng);
         std::shared_ptr<char[]> value;
         std::chrono::high_resolution_clock::time_point work_load_start = std::chrono::high_resolution_clock::now();
-        if(random_double < 0.85){
+        if(random_double < 0.825){
             int start_block_id = dist_64(rng);
             int end_block_id = start_block_id + 64 - 1;
             value = client.get_blocks(start_block_id, end_block_id);
@@ -335,7 +335,7 @@ int main(int argc, char **argv)
         double random_double = dist_double(rng);
         std::shared_ptr<char[]> value;
         std::chrono::high_resolution_clock::time_point work_load_start = std::chrono::high_resolution_clock::now();
-        if(random_double < 0.85){
+        if(random_double < 0.825){
             int start_block_id = dist_64(rng);
             int end_block_id = start_block_id + 64 - 1;
             value = client.get_degraded_read_blocks(start_block_id, end_block_id);
