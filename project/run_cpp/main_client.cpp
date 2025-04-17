@@ -149,7 +149,7 @@ int main(int argc, char **argv)
 
 
     //for degraded read breakdown test
-    std::cout << "Degraded read breakdown test start" << std::endl;
+    /*std::cout << "Degraded read breakdown test start" << std::endl;
     std::vector<std::chrono::duration<double>> degraded_read_breakdown_time_spans;
     std::vector<std::chrono::duration<double>> degraded_read_breakdown_disk_io_time_spans;
     std::vector<std::chrono::duration<double>> degraded_read_breakdown_network_time_spans;
@@ -193,7 +193,7 @@ int main(int argc, char **argv)
     std::cout << "Max decode time: "<< degraded_read_breakdown_max_decode_time_span.count() << std::endl;
     std::cout << "Min decode time: "<< degraded_read_breakdown_min_decode_time_span.count() << std::endl;
     std::cout << "Degraded read breakdown test end" << std::endl;
-    std::cout << std::endl;
+    std::cout << std::endl;*/
 
     //for single block recovery
     std::cout << "Single block recovery test start" << std::endl;
@@ -216,7 +216,7 @@ int main(int argc, char **argv)
     std::cout << "Single block recovery test end" << std::endl;
     std::cout << std::endl;
     //for single block recovery breakdown
-    std::cout << "Single block recovery breakdown test" << std::endl;
+    /*std::cout << "Single block recovery breakdown test" << std::endl;
     std::vector<std::chrono::duration<double>> block_recovery_breakdown_time_spans;
     std::vector<std::chrono::duration<double>> block_recovery_breakdown_disk_read_time_spans;
     std::vector<std::chrono::duration<double>> block_recovery_breakdown_network_time_spans;
@@ -245,7 +245,7 @@ int main(int argc, char **argv)
     std::cout << "Average decode time: " << block_recovery_breakdown_total_decode_time_span.count() / block_recovery_breakdown_decode_time_spans.size() << std::endl;
     std::cout << "Average disk write time: " << block_recovery_breakdown_total_disk_write_time_span.count() / block_recovery_breakdown_disk_write_time_spans.size() << std::endl;
     std::cout << "Single block recovery breakdown test end" << std::endl;
-    std::cout << std::endl;
+    std::cout << std::endl;*/
     //for full node repair
     std::cout << "Full node repair test start" << std::endl;
     int node_num = 5;
