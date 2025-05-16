@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 定义配置文件目录
-CONFIG_DIR="/users/qiliang/UniEC/project/config"
+CONFIG_DIR="/users/qiliang/UniLRC/project/config"
 
 # 定义 hosts 文件路径
 HOSTS_FILE="hosts"
