@@ -50,7 +50,7 @@ The architecture follows master-worker style, like many state-of-art distributed
     - CACHED_MODE: Cached mode
   * `alpha`: Parameter for coding (1)
   * `CodeType`: Type of erasure coding scheme, can be:
-    - UniLRC: Uniform LRC
+    - UniLRC: UniLRC
     - AzureLRC: Azure LRC
     - OptimalLRC: Optimal LRC
     - UniformLRC: Uniform LRC
@@ -70,10 +70,10 @@ sh compile.sh
 
 ```
 # Run proxy and datanode
-sh run_proxy_datanode.sh
+sh start_proxy.sh
 
 # Run coordinator
-sh run_coordinator.sh
+sh start_coordinator.sh
 
 # Run client
 sh test.sh
