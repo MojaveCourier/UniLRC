@@ -1,0 +1,6 @@
+/home/tangfengming/codeField/UniLRC/project/build/CMakeFiles/run_coordinator.dir
+/home/tangfengming/codeField/UniLRC/project/build/CMakeFiles/run_proxy.dir
+/home/tangfengming/codeField/UniLRC/project/build/CMakeFiles/run_datanode.dir
+/home/tangfengming/codeField/UniLRC/project/build/CMakeFiles/main_client.dir
+/home/tangfengming/codeField/UniLRC/project/build/CMakeFiles/edit_cache.dir
+/home/tangfengming/codeField/UniLRC/project/build/CMakeFiles/rebuild_cache.dir

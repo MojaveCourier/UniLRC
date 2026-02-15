@@ -1,4 +1,5 @@
-#include "unilrc_encoder.h"
+#include <cassert>
+#include "encoder.h"
 #include <iostream>
 #include <unordered_map>
 
@@ -144,6 +145,23 @@ ECProject::gf_invert_matrix(unsigned char *in_mat, unsigned char *out_mat, const
         return 0;
 }
 
+
+void ECProject::encode_lotuslrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **parity_ptrs, int block_size)
+{
+    for(int i = 0; i < r + z; i++){
+        memset(parity_ptrs[i], 0, block_size);
+    }
+    int m = k + r;
+    unsigned char *encode_matrix = new unsigned char[(m + z) * k];
+    gen_lotuslrc_matrix(encode_matrix, k, r, z);
+
+    unsigned char *g_tbls = new unsigned char[k * (r + z) * 32];
+    ec_init_tables(k, r + z, &encode_matrix[k * k], g_tbls);
+    ec_encode_data_avx2(block_size, k, r + z, g_tbls, data_ptrs, parity_ptrs);
+
+    delete[] encode_matrix;
+    delete[] g_tbls;
+}
 
 void ECProject::encode_unilrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **parity_ptrs, int block_size)
 {
@@ -394,9 +412,16 @@ void ECProject::gen_uniform_lrc_matrix(unsigned char *encode_matrix, int k, int 
     gf_gen_cauchy_matrix1(encode_matrix, m, k);
     unsigned char *local_vector = new unsigned char[k];
     gf_gen_local_vector(local_vector, k, r);
-    int group_size = (k + r) / z;
+    int group_size = (k + r) / z; // need to be adjusted for more general cases
+    int larger_group_num = (k + r) % z;
     for(int i = 0; i < k; i++){
-        int row = i / group_size;
+        int row;
+        if(i < (z - larger_group_num) * group_size){
+            row = i / group_size;
+        }
+        else{
+            row = (z - larger_group_num) * group_size + (i - (z - larger_group_num) * group_size) / (group_size + 1);
+        }
         encode_matrix[(m + row) * k + i] = local_vector[i];
     }
     for(int i = 0; i < r; i++){
@@ -407,6 +432,41 @@ void ECProject::gen_uniform_lrc_matrix(unsigned char *encode_matrix, int k, int 
     delete[] local_vector;
 }
 
+void ECProject::gen_lotuslrc_matrix(unsigned char *encode_matrix, int k, int r, int z)
+{
+    assert(z % 2 == 0 && "z must be even");
+    int group_num = z / 2;
+    int m = k + r;
+    memset(encode_matrix, 0, (m + z) * k);
+    gf_gen_cauchy_matrix1(encode_matrix, m, k);
+    
+    int group_size = (k + r) / group_num;
+    int larger_group_num = (k + r) % group_num;
+
+    unsigned char *local_vector0 = new unsigned char[k];
+    gf_gen_local_vector(local_vector0, k, r);
+    unsigned char *local_vector1 = new unsigned char[k];
+    gf_gen_local_vector(local_vector1, k, r + 1);
+    
+    for(int i = 0; i < group_num - larger_group_num; i++){
+        memcpy(encode_matrix + (m + i) * k + i * group_size, local_vector0 + i * group_size, group_size * sizeof(unsigned char));
+        memcpy(encode_matrix + (m + i + group_num) * k + i * group_size, local_vector1 + i * group_size, group_size * sizeof(unsigned char));
+    }
+    for(int i = 0; i < larger_group_num; i++){
+        memcpy(encode_matrix + (m + i) * k + (group_num - larger_group_num) * group_size, local_vector0 + i * group_size, group_size * sizeof(unsigned char));
+        memcpy(encode_matrix + (m + i + group_num) * k + (group_num - larger_group_num) * group_size, local_vector1 + i * group_size, group_size * sizeof(unsigned char));
+    }
+    delete[] local_vector0;
+    delete[] local_vector1;
+
+    for(int i = 0; i < r; i++){
+        for(int j = 0; j < k; j++){
+            encode_matrix[(m + r + group_num - r + i) * k + j] ^= encode_matrix[(k + i) * k + j];
+            encode_matrix[(m + r + group_num - r + group_num + i) * k + j] ^= encode_matrix[(k + i) * k + j];
+        }
+    }
+
+}
 
 void ECProject::decode_unilrc(const int k, const int r, const int z, const int block_num,
                               const std::vector<int> *block_indexes, unsigned char **block_ptrs, unsigned char *res_ptr, int block_size)

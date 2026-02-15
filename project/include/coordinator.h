@@ -12,7 +12,7 @@
 #include <condition_variable>
 #include <config.h>
 #include <toolbox.h>
-#include "unilrc_encoder.h"
+#include "encoder.h"
 // #define IF_DEBUG true
 #define IF_DEBUG false
 namespace ECProject

@@ -12,3 +12,5 @@ data/*
 project/config/*
 small_tools/*
 logs/*
+.clangd
+project/compile_commands.json

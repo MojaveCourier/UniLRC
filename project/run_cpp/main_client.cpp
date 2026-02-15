@@ -10,7 +10,7 @@
 #include <chrono>
 #include <algorithm>
 #include <random>
-#include "unilrc_encoder.h"
+#include "encoder.h"
 
 int main(int argc, char **argv)
 {

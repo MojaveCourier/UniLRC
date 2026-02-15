@@ -5,7 +5,7 @@
 #include <thread>
 #include <assert.h>
 #include <chrono>
-#include "unilrc_encoder.h"
+#include "encoder.h"
 namespace ECProject
 {
   std::string Client::sayHelloToCoordinatorByGrpc(std::string hello)

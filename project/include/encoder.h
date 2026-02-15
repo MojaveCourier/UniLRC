@@ -1,5 +1,5 @@
-#ifndef UNILRC_ENCODER_H
-#define UNILRC_ENCODER_H
+#ifndef encoder_H
+#define encoder_H
 #include <memory>
 #include <vector>
 #include <cstring>
@@ -45,6 +45,10 @@ namespace ECProject
         0x59, 0x5f, 0xb0, 0x9c, 0xa9, 0xa0, 0x51, 0x0b, 0xf5, 0x16, 0xeb, 0x7a, 0x75, 0x2c, 0xd7,
         0x4f, 0xae, 0xd5, 0xe9, 0xe6, 0xe7, 0xad, 0xe8, 0x74, 0xd6, 0xf4, 0xea, 0xa8, 0x50, 0x58,
         0xaf};
+
+    void encode_lotuslrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **parity_ptrs, int block_size);
+
+    void gen_lotuslrc_matrix(unsigned char *encode_matrix, int k, int r, int z);
 
     void encode_unilrc(int k, int r, int z, unsigned char **data_ptrs, unsigned char **parity_ptrs, int block_size);
 
