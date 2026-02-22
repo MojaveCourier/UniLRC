@@ -178,8 +178,6 @@ namespace ECProject
     std::map<int, Stripe> m_stripe_table;
     std::map<std::string, StripeOffset> m_cur_offset_table;
     std::map<int, std::vector<int>> m_recovery_group_lookup_table;
-    
-    std::vector<int> get_data_block_num_per_group(int k, int r, int z, std::string code_type);
 
   private:
     std::mutex m_mutex;

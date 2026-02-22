@@ -1,2 +1,0 @@
-# Hashes of file build rules.
-6eb5290e7aeb2cd8135bac166a81c4ad /home/tangfengming/codeField/UniLRC/project/src/proto/coordinator.pb.cc

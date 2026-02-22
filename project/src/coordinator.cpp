@@ -3,6 +3,7 @@
 #include <random>
 #include <unistd.h>
 #include "lrc.h"
+#include "encoder.h"
 #include <sys/time.h>
 #include <chrono>
 
@@ -1029,85 +1030,6 @@ namespace ECProject
     }
   }
 
-  std::vector<int> CoordinatorImpl::get_data_block_num_per_group(int k, int r, int z, std::string code_type)
-  {
-    std::vector<int> data_block_num_per_group;
-    if (code_type == "AzureLRC")
-    {
-      for (int i = 0; i < z; i++)
-      {
-        data_block_num_per_group.push_back((k / z));
-      }
-      data_block_num_per_group.push_back(0);
-    }
-    else if (code_type == "OptimalLRC")
-    {
-      int group_size = r + 1;
-      int local_group_size = (k / z);
-      int group_num_of_one_local_group = local_group_size / group_size + 1;
-      int group_num = z * group_num_of_one_local_group + 1;
-      for (int i = 0; i < group_num - 1; i++)
-      {
-        if ((i + 1) % group_num_of_one_local_group)
-        {
-          data_block_num_per_group.push_back(group_size);
-        }
-        else
-        {
-          data_block_num_per_group.push_back(local_group_size % group_size);
-        }
-      }
-      data_block_num_per_group.push_back(0);
-    }
-    else if (code_type == "UniformLRC")
-    {
-      /*int group_size = r + 1;
-      int local_group_size = int((k + r) / z);
-      int larger_local_group_num = int((k + r) % z);
-
-      int group_num_of_one_local_group = local_group_size / group_size + (bool)(local_group_size % group_size);
-      for (int i = 0; i < z - 1; i++)
-      {
-        if (i + larger_local_group_num == z)
-        {
-          local_group_size++;
-          group_num_of_one_local_group = local_group_size / group_size + (bool)(local_group_size % group_size);
-        }
-        for (int j = 0; j < group_num_of_one_local_group; j++)
-        {
-          if (j == group_num_of_one_local_group - 1)
-          {
-            data_block_num_per_group.push_back(local_group_size % group_size);
-          }
-          else
-          {
-            data_block_num_per_group.push_back(group_size);
-          }
-        }
-      }
-      data_block_num_per_group.push_back(local_group_size - r);
-      for(int i = 0; i < group_num_of_one_local_group -1; i++)
-      {
-        data_block_num_per_group.push_back(0);
-      }*/
-
-      for(int i = 0; i < z -1; i++){
-        data_block_num_per_group.push_back((k+r) / z);
-      }
-      data_block_num_per_group.push_back(0);
-    }
-    else if (code_type == "UniLRC")
-    {
-      int local_data_num = k / z;
-      for (int i = 0; i < z; i++)
-      {
-        data_block_num_per_group.push_back(local_data_num);
-      }
-    }
-    return data_block_num_per_group;
-  }
-
-  
   void CoordinatorImpl::getStripeFromProxy(std::string client_ip, int client_port, std::string proxy_ip, int proxy_port, int stripe_id, int group_id, std::vector<int> block_ids)
   {
     std::cout << "[GET] getting stripe " << stripe_id << " from proxy " << proxy_ip << ":" << proxy_port << std::endl;
@@ -1158,7 +1080,7 @@ namespace ECProject
       num_data_groups--;
     }
     //std::cout << "[GET] getting stripe " << stripe_id << " with " << num_data_groups << " data groups" << std::endl;
-    std::vector<int> block_num_per_group = get_data_block_num_per_group(k, m_sys_config->r, m_sys_config->z, code_type);
+    std::vector<int> block_num_per_group = ECProject::get_data_block_num_per_group(k, m_sys_config->r, m_sys_config->z, code_type);
     std::vector<int> get_cluster_ids;
     for (int i = 0; i < num_data_groups; i++)
     {

@@ -76,9 +76,6 @@ namespace ECProject
     bool recovery(int stripe_id, int failed_block_id);
     bool multi_block_recovery(int stripe_id, std::vector<int> block_ids);
     int recovery_full_node(int node_id);
-    std::vector<int> get_data_block_num_per_group(int k, int r, int z, std::string code_type);
-    std::vector<int> get_global_parity_block_num_per_group(int k, int r, int z, std::string code_type);
-    std::vector<int> get_local_parity_block_num_per_group(int k, int r, int z, std::string code_type);
     bool set(std::string key, std::string value);
     bool SetParameterByGrpc(ECSchema input_ecschema);
     std::shared_ptr<char[]> get(std::string key, size_t &data_size);

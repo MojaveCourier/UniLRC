@@ -130,6 +130,11 @@ namespace ECProject
     int xor_avx(int vects, int len, void **array);
 
     bool get_multi_decode_plan(int k, int r, int z, std::string code_type, const std::vector<int> failed_block_indexes, std::vector<int> &decode_block_indexes, std::vector<std::vector<int>> &decode_factors);
+
+    /* Data layout / placement: per-group block counts for data, global parity, local parity (by code_type) */
+    std::vector<int> get_data_block_num_per_group(int k, int r, int z, const std::string &code_type);
+    std::vector<int> get_global_parity_block_num_per_group(int k, int r, int z, const std::string &code_type);
+    std::vector<int> get_local_parity_block_num_per_group(int k, int r, int z, const std::string &code_type);
 }
 
 #endif
