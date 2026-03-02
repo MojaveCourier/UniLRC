@@ -453,6 +453,10 @@ namespace ECProject
         //ECProject::encode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
         ECProject::encode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(parity_ptr_array.data()), m_sys_config->BlockSize);
       }
+      else if (m_sys_config->CodeType == "LotusLRC")
+      {
+        ECProject::encode_lotuslrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(parity_ptr_array.data()), m_sys_config->BlockSize);
+      }
       for (int i = 0; i < reply.append_keys_size(); i++)
       {
         threads.push_back(std::thread(&Client::async_append_to_proxies,
@@ -1082,6 +1086,10 @@ namespace ECProject
     else if(m_sys_config->CodeType == "UniLRC")
     {
       parameters.push_back(3);
+    }
+    else if(m_sys_config->CodeType == "LotusLRC")
+    {
+      parameters.push_back(4);
     }
     else
     {

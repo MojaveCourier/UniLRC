@@ -440,21 +440,18 @@ void ECProject::gen_lotuslrc_matrix(unsigned char *encode_matrix, int k, int r, 
     memset(encode_matrix, 0, (m + z) * k);
     gf_gen_cauchy_matrix1(encode_matrix, m, k);
     
-    int group_size = (k + r) / group_num;
-    int larger_group_num = (k + r) % group_num;
+    int group_size = k / group_num;
+    //std::vector<int> data_block_num_per_local_group = get_data_block_num_per_local_group_lotuslrc(k, r, z);
+    //std::vector<int> global_parity_block_num_per_local_group = get_global_parity_block_num_per_local_group_lotuslrc(k, r, z);
 
     unsigned char *local_vector0 = new unsigned char[k];
     gf_gen_local_vector(local_vector0, k, r);
     unsigned char *local_vector1 = new unsigned char[k];
     gf_gen_local_vector(local_vector1, k, r + 1);
     
-    for(int i = 0; i < group_num - larger_group_num; i++){
-        memcpy(encode_matrix + (m + i) * k + i * group_size, local_vector0 + i * group_size, group_size * sizeof(unsigned char));
-        memcpy(encode_matrix + (m + i + group_num) * k + i * group_size, local_vector1 + i * group_size, group_size * sizeof(unsigned char));
-    }
-    for(int i = 0; i < larger_group_num; i++){
-        memcpy(encode_matrix + (m + i) * k + (group_num - larger_group_num) * group_size, local_vector0 + i * group_size, group_size * sizeof(unsigned char));
-        memcpy(encode_matrix + (m + i + group_num) * k + (group_num - larger_group_num) * group_size, local_vector1 + i * group_size, group_size * sizeof(unsigned char));
+    for(int i = 0; i < group_num; i++){
+        memcpy(encode_matrix + (m + i * 2) * k + i * group_size, local_vector0 + i * group_size, group_size * sizeof(unsigned char));
+        memcpy(encode_matrix + (m + i * 2 + 1) * k + i * group_size, local_vector1 + i * group_size, group_size * sizeof(unsigned char));
     }
     delete[] local_vector0;
     delete[] local_vector1;
@@ -462,7 +459,7 @@ void ECProject::gen_lotuslrc_matrix(unsigned char *encode_matrix, int k, int r, 
     for(int i = 0; i < r; i++){
         for(int j = 0; j < k; j++){
             encode_matrix[(m + r + group_num - r + i) * k + j] ^= encode_matrix[(k + i) * k + j];
-            encode_matrix[(m + r + group_num - r + group_num + i) * k + j] ^= encode_matrix[(k + i) * k + j];
+            encode_matrix[(m + r + group_num - r + i + 1) * k + j] ^= encode_matrix[(k + i) * k + j];
         }
     }
 

@@ -158,3 +158,12 @@ foreach (_target
             -lJerasure -lgf_complete
             )
 endforeach ()
+
+# Layout 单元测试（仅依赖 encoder_layout，不依赖 gRPC）
+add_executable(layout_test
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/layout.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/encoder_layout.cpp
+)
+target_include_directories(layout_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)

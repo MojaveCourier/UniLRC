@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstring>
 #include <chrono>
+#include <unordered_map>
 namespace ECProject
 {
     static const unsigned char gff_base[] = {
@@ -135,6 +136,25 @@ namespace ECProject
     std::vector<int> get_data_block_num_per_group(int k, int r, int z, const std::string &code_type);
     std::vector<int> get_global_parity_block_num_per_group(int k, int r, int z, const std::string &code_type);
     std::vector<int> get_local_parity_block_num_per_group(int k, int r, int z, const std::string &code_type);
+
+    /* LotusLRC layout: interface for user implementation (stub in encoder_layout.cpp) */
+    std::vector<int> get_data_block_num_per_group_lotuslrc(int k, int r, int z);
+    std::vector<int> get_global_parity_block_num_per_group_lotuslrc(int k, int r, int z);
+    std::vector<int> get_local_parity_block_num_per_group_lotuslrc(int k, int r, int z);
+
+    std::unordered_map<int, int> get_lotuslrc_block_id_to_group_id(int k, int r, int z);
+    std::unordered_map<int, std::vector<int>> get_lotuslrc_group_id_to_block_ids(int k, int r, int z);
+
+    std::vector<int> get_data_block_num_per_local_group_lotuslrc(int k, int r, int z);
+    std::vector<int> get_global_parity_block_num_per_local_group_lotuslrc(int k, int r, int z);
+    std::vector<int> get_local_parity_block_num_per_local_group_lotuslrc(int k, int r, int z);
+
+    int get_lotuslrc_local_group_id_to_block_id(int k, int r, int z, int local_group_id);
+    int get_lotuslrc_block_id_to_local_group_id(int k, int r, int z, int block_id);
+
+    std::vector<int> get_lotuslrc_group_sizes(int k, int r, int z);
+    std::vector<int> get_lotuslrc_local_group_sizes(int k, int r, int z);
+    std::vector<int> get_lotuslrc_group_num_per_local_group(int k, int r, int z);
 }
 
 #endif
