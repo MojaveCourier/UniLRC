@@ -141,10 +141,14 @@ namespace ECProject
     std::vector<int> get_data_block_num_per_group_azurelrc(int k, int r, int z);
     std::vector<int> get_global_parity_block_num_per_group_azurelrc(int k, int r, int z);
     std::vector<int> get_local_parity_block_num_per_group_azurelrc(int k, int r, int z);
+    std::unordered_map<int, int> get_azurelrc_block_id_to_group_id(int k, int r, int z);
+    std::unordered_map<int, std::vector<int>> get_azurelrc_group_id_to_block_ids(int k, int r, int z);
 
     std::vector<int> get_data_block_num_per_group_optimal_lrc(int k, int r, int z);
     std::vector<int> get_global_parity_block_num_per_group_optimal_lrc(int k, int r, int z);
     std::vector<int> get_local_parity_block_num_per_group_optimal_lrc(int k, int r, int z);
+    std::unordered_map<int, int> get_optimal_lrc_block_id_to_group_id(int k, int r, int z);
+    std::unordered_map<int, std::vector<int>> get_optimal_lrc_group_id_to_block_ids(int k, int r, int z);
 
     std::vector<int> get_data_block_num_per_group_uniform_lrc(int k, int r, int z);
     std::vector<int> get_global_parity_block_num_per_group_uniform_lrc(int k, int r, int z);

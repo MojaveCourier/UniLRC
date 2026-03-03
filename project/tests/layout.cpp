@@ -68,6 +68,7 @@ int main()
   std::cin >> k >> r >> z;
   lotuslrc_print_params(k, r, z);
 
+  std::cout << "\n--- OptimalLRC ---" << std::endl;
   std::vector<int> data_block_num_per_group_optimal_lrc = ECProject::get_data_block_num_per_group_optimal_lrc(k, r, z);
   print_vector("data_block_num_per_group_optimal_lrc", data_block_num_per_group_optimal_lrc);
   std::vector<int> global_parity_block_num_per_group_optimal_lrc = ECProject::get_global_parity_block_num_per_group_optimal_lrc(k, r, z);
@@ -102,7 +103,26 @@ int main()
     std::cout << "]" << std::endl;
   }
 
+  std::cout << "\n--- AzureLRC ---" << std::endl;
+  std::vector<int> data_block_num_per_group_azurelrc = ECProject::get_data_block_num_per_group_azurelrc(k, r, z);
+  print_vector("data_block_num_per_group_azurelrc", data_block_num_per_group_azurelrc);
+  std::vector<int> global_parity_block_num_per_group_azurelrc = ECProject::get_global_parity_block_num_per_group_azurelrc(k, r, z);
+  print_vector("global_parity_block_num_per_group_azurelrc", global_parity_block_num_per_group_azurelrc);
+  std::vector<int> local_parity_block_num_per_group_azurelrc = ECProject::get_local_parity_block_num_per_group_azurelrc(k, r, z);
+  print_vector("local_parity_block_num_per_group_azurelrc", local_parity_block_num_per_group_azurelrc);
+  std::unordered_map<int, int> block_id_to_group_id_azurelrc = ECProject::get_azurelrc_block_id_to_group_id(k, r, z);
+  for (int i = 0; i < k + r + z; ++i)
+  {
+    std::cout << "  block " << i << " -> group " << block_id_to_group_id_azurelrc[i] << std::endl;
+  }
+  std::unordered_map<int, std::vector<int>> group_id_to_block_ids_azurelrc = ECProject::get_azurelrc_group_id_to_block_ids(k, r, z);
+  for (size_t i = 0; i < group_id_to_block_ids_azurelrc.size(); ++i)
+  {
+    std::cout << "  group " << i << " -> blocks [";
+    for (int j = 0; j < group_id_to_block_ids_azurelrc[i].size(); ++j)
+      std::cout << group_id_to_block_ids_azurelrc[i][j] << " ";
+    std::cout << "]" << std::endl;
+  }
 
-  
   return 0;
 }

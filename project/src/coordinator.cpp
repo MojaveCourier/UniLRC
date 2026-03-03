@@ -160,55 +160,38 @@ namespace ECProject
 
   void CoordinatorImpl::initialize_optimal_lrc_stripe_placement(Stripe *stripe)
   {
-    // range 0~k-1: data blocks
-    // range k~k+r-1: global parity blocks
-    // range k+r~k+r+z-1: local parity blocks
+    int k = stripe->k, r = stripe->r, z = stripe->z;
+    std::unordered_map<int, int> block_id_to_group_id =
+        ECProject::get_optimal_lrc_block_id_to_group_id(k, r, z);
+
     Block *blocks_info = new Block[stripe->n];
-    // a stripe is only created by a single client
     assert(stripe->object_keys.size() == 1);
-    // choose a cluster: round robin
     int t_cluster_id = stripe->stripe_id % m_sys_config->ClusterNum;
-    int group_size = stripe->r + 1;
-    int local_group_size = int(stripe->k / stripe->z);
-    int group_num_of_one_local_group = local_group_size / group_size;
-    if (local_group_size % group_size != 0)
-      group_num_of_one_local_group++;
 
     for (int i = 0; i < stripe->n; i++)
     {
       blocks_info[i].block_size = m_sys_config->BlockSize;
       blocks_info[i].map2stripe = stripe->stripe_id;
       blocks_info[i].map2key = stripe->object_keys[0];
+      blocks_info[i].block_id = i;
+      blocks_info[i].map2group = block_id_to_group_id.at(i);
+
       if (i < stripe->k)
       {
-        std::string tmp = "_D";
-        if (i < 10)
-          tmp = "_D0";
-        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i);
-        blocks_info[i].block_id = i;
         blocks_info[i].block_type = 'D';
-        blocks_info[i].map2group = (i % local_group_size / group_size) + i / local_group_size * group_num_of_one_local_group;
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + "_D" + std::to_string(i);
       }
-      else if (i >= stripe->k && i < stripe->k + stripe->r)
+      else if (i < stripe->k + stripe->r)
       {
-        std::string tmp = "_G";
-        if (i - stripe->k < 10)
-          tmp = "_G0";
-        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k);
-        blocks_info[i].block_id = i;
         blocks_info[i].block_type = 'G';
-        blocks_info[i].map2group = stripe->z * group_num_of_one_local_group;
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + "_G" + std::to_string(i - stripe->k);
       }
       else
       {
-        std::string tmp = "_L";
-        if (i - stripe->k - stripe->r < 10)
-          tmp = "_L0";
-        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k - stripe->r);
-        blocks_info[i].block_id = i;
         blocks_info[i].block_type = 'L';
-        blocks_info[i].map2group = (i - stripe->k - stripe->r + 1) * group_num_of_one_local_group - 1;
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + "_L" + std::to_string(i - stripe->k - stripe->r);
       }
+
       blocks_info[i].map2cluster = (t_cluster_id + blocks_info[i].map2group) % m_sys_config->ClusterNum;
       int t_node_id = randomly_select_a_node(blocks_info[i].map2cluster, stripe->stripe_id);
       blocks_info[i].map2node = t_node_id;
@@ -225,69 +208,38 @@ namespace ECProject
 
   void CoordinatorImpl::initialize_uniform_lrc_stripe_placement(Stripe *stripe)
   {
-    // range 0~k-1: data blocks
-    // range k~k+r-1: global parity blocks
-    // range k+r~k+r+z-1: local parity blocks
+    int k = stripe->k, r = stripe->r, z = stripe->z;
+    std::unordered_map<int, int> block_id_to_group_id =
+        ECProject::get_uniform_lrc_block_id_to_group_id(k, r, z);
+
     Block *blocks_info = new Block[stripe->n];
-    // a stripe is only created by a single client
     assert(stripe->object_keys.size() == 1);
-    // choose a cluster: round robin
     int t_cluster_id = stripe->stripe_id % m_sys_config->ClusterNum;
 
-    int group_size = stripe->r + 1;
-    int local_group_size = int((stripe->k + stripe->r) / stripe->z);
-    int larger_local_group_num = int((stripe->k + stripe->r) % stripe->z);
-    int group_num = -1;
-    int block_num = 0;
-
-    for (int i = 0; i < stripe->z; i++)
-    {
-      if (i + larger_local_group_num == stripe->z)
-      {
-        local_group_size++;
-      }
-      for (int j = 0; j < local_group_size; j++)
-      {
-        if (j % group_size == 0)
-        {
-          group_num++;
-        }
-        blocks_info[block_num++].map2group = group_num;
-      }
-      blocks_info[stripe->k + stripe->r + i].map2group = group_num;
-    }
     for (int i = 0; i < stripe->n; i++)
     {
       blocks_info[i].block_size = m_sys_config->BlockSize;
       blocks_info[i].map2stripe = stripe->stripe_id;
       blocks_info[i].map2key = stripe->object_keys[0];
+      blocks_info[i].block_id = i;
+      blocks_info[i].map2group = block_id_to_group_id.at(i);
+
       if (i < stripe->k)
       {
-        std::string tmp = "_D";
-        if (i < 10)
-          tmp = "_D0";
-        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i);
-        blocks_info[i].block_id = i;
         blocks_info[i].block_type = 'D';
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + "_D" + std::to_string(i);
       }
-      else if (i >= stripe->k && i < stripe->k + stripe->r)
+      else if (i < stripe->k + stripe->r)
       {
-        std::string tmp = "_G";
-        if (i - stripe->k < 10)
-          tmp = "_G0";
-        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k);
-        blocks_info[i].block_id = i;
         blocks_info[i].block_type = 'G';
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + "_G" + std::to_string(i - stripe->k);
       }
       else
       {
-        std::string tmp = "_L";
-        if (i - stripe->k - stripe->r < 10)
-          tmp = "_L0";
-        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k - stripe->r);
-        blocks_info[i].block_id = i;
         blocks_info[i].block_type = 'L';
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + "_L" + std::to_string(i - stripe->k - stripe->r);
       }
+
       blocks_info[i].map2cluster = (t_cluster_id + blocks_info[i].map2group) % m_sys_config->ClusterNum;
       int t_node_id = randomly_select_a_node(blocks_info[i].map2cluster, stripe->stripe_id);
       blocks_info[i].map2node = t_node_id;
@@ -345,59 +297,89 @@ namespace ECProject
     stripe->num_groups = stripe->group_to_blocks.size();
   }
 
-  void CoordinatorImpl::initialize_unilrc_and_azurelrc_stripe_placement(Stripe *stripe)
+  void CoordinatorImpl::initialize_azurelrc_stripe_placement(Stripe *stripe)
   {
-    std::string code_type = m_sys_config->CodeType;
+    int k = stripe->k, r = stripe->r, z = stripe->z;
+    std::unordered_map<int, int> block_id_to_group_id =
+        ECProject::get_azurelrc_block_id_to_group_id(k, r, z);
 
-    // range 0~k-1: data blocks
-    // range k~k+r-1: global parity blocks
-    // range k+r~k+r+z-1: local parity blocks
     Block *blocks_info = new Block[stripe->n];
-    // a stripe is only created by a single client
     assert(stripe->object_keys.size() == 1);
-    // choose a cluster: round robin
     int t_cluster_id = stripe->stripe_id % m_sys_config->ClusterNum;
+
     for (int i = 0; i < stripe->n; i++)
     {
       blocks_info[i].block_size = m_sys_config->BlockSize;
       blocks_info[i].map2stripe = stripe->stripe_id;
       blocks_info[i].map2key = stripe->object_keys[0];
+      blocks_info[i].block_id = i;
+      blocks_info[i].map2group = block_id_to_group_id.at(i);
+
       if (i < stripe->k)
       {
-        std::string tmp = "_D";
-        if (i < 10)
-          tmp = "_D0";
-        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i);
-        blocks_info[i].block_id = i;
         blocks_info[i].block_type = 'D';
-        blocks_info[i].map2group = int(i / (stripe->k / stripe->z));
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + "_D" + std::to_string(i);
       }
-      else if (i >= stripe->k && i < stripe->k + stripe->r)
+      else if (i < stripe->k + stripe->r)
       {
-        std::string tmp = "_G";
-        if (i - stripe->k < 10)
-          tmp = "_G0";
-        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k);
-        blocks_info[i].block_id = i;
         blocks_info[i].block_type = 'G';
-        if (code_type == "UniLRC")
-        {
-          blocks_info[i].map2group = int((i - stripe->k) / (stripe->r / stripe->z));
-        }
-        else if (code_type == "AzureLRC")
-        {
-          blocks_info[i].map2group = int(stripe->z);
-        }
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + "_G" + std::to_string(i - stripe->k);
       }
       else
       {
-        std::string tmp = "_L";
-        if (i - stripe->k - stripe->r < 10)
-          tmp = "_L0";
-        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k - stripe->r);
-        blocks_info[i].block_id = i;
         blocks_info[i].block_type = 'L';
-        blocks_info[i].map2group = int((i - stripe->k - stripe->r) / (stripe->z / stripe->z));
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + "_L" + std::to_string(i - stripe->k - stripe->r);
+      }
+
+      blocks_info[i].map2cluster = (t_cluster_id + blocks_info[i].map2group) % m_sys_config->ClusterNum;
+      int t_node_id = randomly_select_a_node(blocks_info[i].map2cluster, stripe->stripe_id);
+      blocks_info[i].map2node = t_node_id;
+      update_stripe_info_in_node(t_node_id, stripe->stripe_id, i);
+      m_cluster_table[blocks_info[i].map2cluster].blocks.push_back(&blocks_info[i]);
+      m_cluster_table[blocks_info[i].map2cluster].stripes.insert(stripe->stripe_id);
+      stripe->blocks.push_back(&blocks_info[i]);
+      stripe->place2clusters.insert(blocks_info[i].map2cluster);
+      add_to_map(stripe->group_to_blocks, blocks_info[i].map2group, i);
+    }
+
+    stripe->num_groups = stripe->group_to_blocks.size();
+  }
+
+  void CoordinatorImpl::initialize_unilrc_stripe_placement(Stripe *stripe)
+  {
+    int k = stripe->k, r = stripe->r, z = stripe->z;
+    Block *blocks_info = new Block[stripe->n];
+    assert(stripe->object_keys.size() == 1);
+    int t_cluster_id = stripe->stripe_id % m_sys_config->ClusterNum;
+    int local_data_num = k / z;
+    int local_global_parity_num = r / z;
+
+    for (int i = 0; i < stripe->n; i++)
+    {
+      blocks_info[i].block_size = m_sys_config->BlockSize;
+      blocks_info[i].map2stripe = stripe->stripe_id;
+      blocks_info[i].map2key = stripe->object_keys[0];
+      blocks_info[i].block_id = i;
+      if (i < stripe->k)
+        blocks_info[i].map2group = i / local_data_num;
+      else if (i < stripe->k + stripe->r)
+        blocks_info[i].map2group = (i - stripe->k) / local_global_parity_num;
+      else
+        blocks_info[i].map2group = (i - stripe->k - stripe->r);
+      if (i < stripe->k)
+      {
+        blocks_info[i].block_type = 'D';
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + "_D" + std::to_string(i);
+      }
+      else if (i < stripe->k + stripe->r)
+      {
+        blocks_info[i].block_type = 'G';
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + "_G" + std::to_string(i - stripe->k);
+      }
+      else
+      {
+        blocks_info[i].block_type = 'L';
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + "_L" + std::to_string(i - stripe->k - stripe->r);
       }
       blocks_info[i].map2cluster = (t_cluster_id + blocks_info[i].map2group) % m_sys_config->ClusterNum;
       int t_node_id = randomly_select_a_node(blocks_info[i].map2cluster, stripe->stripe_id);
@@ -640,7 +622,17 @@ namespace ECProject
       t_stripe.r = m_sys_config->r;
       t_stripe.z = m_sys_config->z;
       t_stripe.object_keys.push_back(clientID);
-      initialize_unilrc_and_azurelrc_stripe_placement(&t_stripe);
+      std::string code_type_append = m_sys_config->CodeType;
+      if (code_type_append == "UniLRC")
+        initialize_unilrc_stripe_placement(&t_stripe);
+      else if (code_type_append == "AzureLRC")
+        initialize_azurelrc_stripe_placement(&t_stripe);
+      else if (code_type_append == "OptimalLRC")
+        initialize_optimal_lrc_stripe_placement(&t_stripe);
+      else if (code_type_append == "UniformLRC")
+        initialize_uniform_lrc_stripe_placement(&t_stripe);
+      else if (code_type_append == "LotusLRC")
+        initialize_lotuslrc_stripe_placement(&t_stripe);
       m_stripe_table[t_stripe.stripe_id] = t_stripe;
       stripe = &m_stripe_table[t_stripe.stripe_id];
     }
@@ -800,22 +792,16 @@ namespace ECProject
     t_stripe.r = m_sys_config->r;
     t_stripe.z = m_sys_config->z;
     t_stripe.object_keys.push_back(clientID);
-    if (code_type == "UniLRC" || code_type == "AzureLRC")
-    {
-      initialize_unilrc_and_azurelrc_stripe_placement(&t_stripe);
-    }
+    if (code_type == "UniLRC")
+      initialize_unilrc_stripe_placement(&t_stripe);
+    else if (code_type == "AzureLRC")
+      initialize_azurelrc_stripe_placement(&t_stripe);
     else if (code_type == "OptimalLRC")
-    {
-      initialize_optimal_lrc_stripe_placement(&t_stripe); // need adjustment for more general cases
-    }
+      initialize_optimal_lrc_stripe_placement(&t_stripe);
     else if (code_type == "UniformLRC")
-    {
       initialize_uniform_lrc_stripe_placement(&t_stripe);
-    }
     else if (code_type == "LotusLRC")
-    {
       initialize_lotuslrc_stripe_placement(&t_stripe);
-    }
 
     print_stripe_data_placement(t_stripe);
 
@@ -868,18 +854,16 @@ namespace ECProject
     t_stripe.r = m_sys_config->r;
     t_stripe.z = m_sys_config->z;
     t_stripe.object_keys.push_back(clientID);
-    if (code_type == "UniLRC" || code_type == "AzureLRC")
-    {
-      initialize_unilrc_and_azurelrc_stripe_placement(&t_stripe);
-    }
+    if (code_type == "UniLRC")
+      initialize_unilrc_stripe_placement(&t_stripe);
+    else if (code_type == "AzureLRC")
+      initialize_azurelrc_stripe_placement(&t_stripe);
     else if (code_type == "OptimalLRC")
-    {
       initialize_optimal_lrc_stripe_placement(&t_stripe);
-    }
     else if (code_type == "UniformLRC")
-    {
       initialize_uniform_lrc_stripe_placement(&t_stripe);
-    }
+    else if (code_type == "LotusLRC")
+      initialize_lotuslrc_stripe_placement(&t_stripe);
 
     print_stripe_data_placement(t_stripe);
 

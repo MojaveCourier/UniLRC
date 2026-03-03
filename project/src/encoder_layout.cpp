@@ -72,6 +72,16 @@ namespace ECProject
     return get_local_parity_block_num_per_group_optimal_lrc(k, r, z); // AzureLRC is the same as OptimalLRC
   }
 
+  std::unordered_map<int, int> get_azurelrc_block_id_to_group_id(int k, int r, int z)
+  {
+    return get_optimal_lrc_block_id_to_group_id(k, r, z);
+  }
+
+  std::unordered_map<int, std::vector<int>> get_azurelrc_group_id_to_block_ids(int k, int r, int z)
+  {
+    return get_optimal_lrc_group_id_to_block_ids(k, r, z);
+  }
+
   /* ----- OptimalLRC ----- */
   std::vector<int> get_data_block_num_per_group_optimal_lrc(int k, int r, int z)
   {
@@ -122,6 +132,43 @@ namespace ECProject
     return local_parity_block_num_per_group;
   }
 
+  std::unordered_map<int, int> get_optimal_lrc_block_id_to_group_id(int k, int r, int z)
+  {
+    std::unordered_map<int, int> block_id_to_group_id;
+    std::unordered_map<int, std::vector<int>> group_id_to_block_ids = get_optimal_lrc_group_id_to_block_ids(k, r, z);
+    for (size_t i = 0; i < group_id_to_block_ids.size(); i++)
+      for (size_t j = 0; j < group_id_to_block_ids[(int)i].size(); j++)
+        block_id_to_group_id[group_id_to_block_ids[(int)i][(int)j]] = (int)i;
+    return block_id_to_group_id;
+  }
+
+  std::unordered_map<int, std::vector<int>> get_optimal_lrc_group_id_to_block_ids(int k, int r, int z)
+  {
+    std::unordered_map<int, std::vector<int>> group_id_to_block_ids;
+    std::vector<int> data_block_num_per_group = get_data_block_num_per_group_optimal_lrc(k, r, z);
+    std::vector<int> global_parity_block_num_per_group = get_global_parity_block_num_per_group_optimal_lrc(k, r, z);
+    std::vector<int> local_parity_block_num_per_group = get_local_parity_block_num_per_group_optimal_lrc(k, r, z);
+    int cur_data_block_id = 0;
+    int cur_global_parity_block_id = k;
+    int cur_local_parity_block_id = k + r;
+    for (size_t i = 0; i < data_block_num_per_group.size(); i++){
+      std::vector<int> block_ids;
+      for (int j = 0; j < data_block_num_per_group[i]; j++){
+        block_ids.push_back(cur_data_block_id);
+        cur_data_block_id++;
+      }
+      for (int j = 0; j < global_parity_block_num_per_group[i]; j++){
+        block_ids.push_back(cur_global_parity_block_id);
+        cur_global_parity_block_id++;
+      }
+      for (int j = 0; j < local_parity_block_num_per_group[i]; j++){
+        block_ids.push_back(cur_local_parity_block_id);
+        cur_local_parity_block_id++;
+      }
+      group_id_to_block_ids[(int)i] = block_ids;
+    }
+    return group_id_to_block_ids;
+  }
   /* ----- UniformLRC ----- */
   std::vector<int> get_data_block_num_per_group_uniform_lrc(int k, int r, int z)
   {

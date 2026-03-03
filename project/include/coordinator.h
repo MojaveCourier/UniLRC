@@ -140,7 +140,8 @@ namespace ECProject
     int count_block_num(char type, int cluster_id, int stripe_id, int group_id);
     bool find_block(char type, int cluster_id, int stripe_id);
 
-    void initialize_unilrc_and_azurelrc_stripe_placement(Stripe *stripe);
+    void initialize_unilrc_stripe_placement(Stripe *stripe);
+    void initialize_azurelrc_stripe_placement(Stripe *stripe);
     void initialize_optimal_lrc_stripe_placement(Stripe *stripe);
     void initialize_uniform_lrc_stripe_placement(Stripe *stripe);
     void initialize_lotuslrc_stripe_placement(Stripe *stripe);
