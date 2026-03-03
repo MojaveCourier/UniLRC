@@ -67,5 +67,42 @@ int main()
   int k = 12, r = 4, z = 4;
   std::cin >> k >> r >> z;
   lotuslrc_print_params(k, r, z);
+
+  std::vector<int> data_block_num_per_group_optimal_lrc = ECProject::get_data_block_num_per_group_optimal_lrc(k, r, z);
+  print_vector("data_block_num_per_group_optimal_lrc", data_block_num_per_group_optimal_lrc);
+  std::vector<int> global_parity_block_num_per_group_optimal_lrc = ECProject::get_global_parity_block_num_per_group_optimal_lrc(k, r, z);
+  print_vector("global_parity_block_num_per_group_optimal_lrc", global_parity_block_num_per_group_optimal_lrc);
+  std::vector<int> local_parity_block_num_per_group_optimal_lrc = ECProject::get_local_parity_block_num_per_group_optimal_lrc(k, r, z);
+  print_vector("local_parity_block_num_per_group_optimal_lrc", local_parity_block_num_per_group_optimal_lrc);
+
+  std::cout << "\n--- UniformLRC ---" << std::endl;
+  std::vector<int> group_sizes_uniform_lrc = ECProject::get_uniform_lrc_group_sizes(k, r, z);
+  print_vector("group_sizes_uniform_lrc", group_sizes_uniform_lrc);
+  std::vector<int> group_num_per_local_group_uniform_lrc = ECProject::get_uniform_lrc_group_num_per_local_group(k, r, z);
+  print_vector("group_num_per_local_group_uniform_lrc", group_num_per_local_group_uniform_lrc);
+  std::vector<int> local_group_sizes_uniform_lrc = ECProject::get_uniform_lrc_local_group_sizes(k, r, z);
+  print_vector("local_group_sizes_uniform_lrc", local_group_sizes_uniform_lrc);
+  std::vector<int> data_block_num_per_group_uniform_lrc = ECProject::get_data_block_num_per_group_uniform_lrc(k, r, z);
+  print_vector("data_block_num_per_group_uniform_lrc", data_block_num_per_group_uniform_lrc);
+  std::vector<int> global_parity_block_num_per_group_uniform_lrc = ECProject::get_global_parity_block_num_per_group_uniform_lrc(k, r, z);
+  print_vector("global_parity_block_num_per_group_uniform_lrc", global_parity_block_num_per_group_uniform_lrc);
+  std::vector<int> local_parity_block_num_per_group_uniform_lrc = ECProject::get_local_parity_block_num_per_group_uniform_lrc(k, r, z);
+  print_vector("local_parity_block_num_per_group_uniform_lrc", local_parity_block_num_per_group_uniform_lrc);
+  std::unordered_map<int, int> block_id_to_group_id_uniform_lrc = ECProject::get_uniform_lrc_block_id_to_group_id(k, r, z);
+  for (int i = 0; i < k + r + z; ++i)
+  {
+    std::cout << "  block " << i << " -> group " << block_id_to_group_id_uniform_lrc[i] << std::endl;
+  }
+  std::unordered_map<int, std::vector<int>> group_id_to_block_ids_uniform_lrc = ECProject::get_uniform_lrc_group_id_to_block_ids(k, r, z);
+  for (size_t i = 0; i < group_id_to_block_ids_uniform_lrc.size(); ++i)
+  {
+    std::cout << "  group " << i << " -> blocks [";
+    for (int j = 0; j < group_id_to_block_ids_uniform_lrc[i].size(); ++j)
+      std::cout << group_id_to_block_ids_uniform_lrc[i][j] << " ";
+    std::cout << "]" << std::endl;
+  }
+
+
+  
   return 0;
 }

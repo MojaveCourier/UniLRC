@@ -806,7 +806,7 @@ namespace ECProject
     }
     else if (code_type == "OptimalLRC")
     {
-      initialize_optimal_lrc_stripe_placement(&t_stripe);
+      initialize_optimal_lrc_stripe_placement(&t_stripe); // need adjustment for more general cases
     }
     else if (code_type == "UniformLRC")
     {
