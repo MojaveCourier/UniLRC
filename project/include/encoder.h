@@ -4,7 +4,9 @@
 #include <vector>
 #include <cstring>
 #include <chrono>
+#include <string>
 #include <unordered_map>
+#include <utility>
 namespace ECProject
 {
     static const unsigned char gff_base[] = {
@@ -141,12 +143,14 @@ namespace ECProject
     std::vector<int> get_data_block_num_per_group_azurelrc(int k, int r, int z);
     std::vector<int> get_global_parity_block_num_per_group_azurelrc(int k, int r, int z);
     std::vector<int> get_local_parity_block_num_per_group_azurelrc(int k, int r, int z);
+    int get_azurelrc_block_id_to_local_group_id(int k, int r, int z, int block_id);
     std::unordered_map<int, int> get_azurelrc_block_id_to_group_id(int k, int r, int z);
     std::unordered_map<int, std::vector<int>> get_azurelrc_group_id_to_block_ids(int k, int r, int z);
 
     std::vector<int> get_data_block_num_per_group_optimal_lrc(int k, int r, int z);
     std::vector<int> get_global_parity_block_num_per_group_optimal_lrc(int k, int r, int z);
     std::vector<int> get_local_parity_block_num_per_group_optimal_lrc(int k, int r, int z);
+    int get_optimal_lrc_block_id_to_local_group_id(int k, int r, int z, int block_id);
     std::unordered_map<int, int> get_optimal_lrc_block_id_to_group_id(int k, int r, int z);
     std::unordered_map<int, std::vector<int>> get_optimal_lrc_group_id_to_block_ids(int k, int r, int z);
 
@@ -156,12 +160,14 @@ namespace ECProject
     std::vector<int> get_uniform_lrc_local_group_sizes(int k, int r, int z);
     std::vector<int> get_uniform_lrc_group_sizes(int k, int r, int z);
     std::vector<int> get_uniform_lrc_group_num_per_local_group(int k, int r, int z);
+    int get_uniform_lrc_block_id_to_local_group_id(int k, int r, int z, int block_id);
     std::unordered_map<int, int> get_uniform_lrc_block_id_to_group_id(int k, int r, int z);
     std::unordered_map<int, std::vector<int>> get_uniform_lrc_group_id_to_block_ids(int k, int r, int z);
 
     std::vector<int> get_data_block_num_per_group_unilrc(int k, int r, int z);
     std::vector<int> get_global_parity_block_num_per_group_unilrc(int k, int r, int z);
     std::vector<int> get_local_parity_block_num_per_group_unilrc(int k, int r, int z);
+    int get_unilrc_block_id_to_local_group_id(int k, int r, int z, int block_id);
 
     /* LotusLRC layout */
     std::vector<int> get_data_block_num_per_group_lotuslrc(int k, int r, int z);
@@ -181,6 +187,15 @@ namespace ECProject
     std::vector<int> get_lotuslrc_group_sizes(int k, int r, int z);
     std::vector<int> get_lotuslrc_local_group_sizes(int k, int r, int z);
     std::vector<int> get_lotuslrc_group_num_per_local_group(int k, int r, int z);
+
+    /* Single-block recovery / degraded read: (group_id, block_ids) per group. Caller uses when non-empty; otherwise fallback to get_recovery_group_ids + stripe.group_to_blocks. */
+    std::vector<std::pair<int, std::vector<int>>> get_recovery_group_and_block_ids(const std::string &code_type, int k, int r, int z, int failed_block_id);
+
+    std::vector<std::pair<int, std::vector<int>>> get_recovery_group_and_block_ids_optimal_lrc(int k, int r, int z, int failed_block_id);
+    std::vector<std::pair<int, std::vector<int>>> get_recovery_group_and_block_ids_uniform_lrc(int k, int r, int z, int failed_block_id);
+    std::vector<std::pair<int, std::vector<int>>> get_recovery_group_and_block_ids_unilrc(int k, int r, int z, int failed_block_id);
+    std::vector<std::pair<int, std::vector<int>>> get_recovery_group_and_block_ids_azurelrc(int k, int r, int z, int failed_block_id);
+    std::vector<std::pair<int, std::vector<int>>> get_recovery_group_and_block_ids_lotuslrc(int k, int r, int z, int failed_block_id);
 }
 
 #endif

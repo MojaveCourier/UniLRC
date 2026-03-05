@@ -6,7 +6,8 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-
+#include <algorithm>
+#include <numeric>
 namespace ECProject
 {
 
@@ -82,6 +83,19 @@ namespace ECProject
     return get_optimal_lrc_group_id_to_block_ids(k, r, z);
   }
 
+  int get_azurelrc_block_id_to_local_group_id(int k, int r, int z, int block_id)
+  {
+    int local_group_size = k / z;
+    if(block_id < k)
+      return block_id / local_group_size;
+    else if(block_id < k + r)
+      return -1; // global parity blocks do not belong to any local group, return -1 to indicate this
+    else
+      return (block_id - k - r);
+    throw std::runtime_error("block id is out of range");
+    return -1;
+  }
+
   /* ----- OptimalLRC ----- */
   std::vector<int> get_data_block_num_per_group_optimal_lrc(int k, int r, int z)
   {
@@ -130,6 +144,19 @@ namespace ECProject
     }
     local_parity_block_num_per_group.push_back(0);
     return local_parity_block_num_per_group;
+  }
+
+  int get_optimal_lrc_block_id_to_local_group_id(int k, int r, int z, int block_id)
+  {
+    int local_group_size = k / z;
+    if(block_id < k)
+      return block_id / local_group_size;
+    else if(block_id < k + r)
+      return 0; // global parity blocks repeatedly belong to all local groups, use the first for recovery plan
+    else
+      return (block_id - k - r);
+    throw std::runtime_error("block id is out of range");
+    return -1;
   }
 
   std::unordered_map<int, int> get_optimal_lrc_block_id_to_group_id(int k, int r, int z)
@@ -225,6 +252,23 @@ namespace ECProject
     for (int i = 0; i < larger_group_num; i++) // put larger local groups in the last positions
       local_group_sizes.push_back(group_size + 1);
     return local_group_sizes;
+  }
+
+  int get_uniform_lrc_block_id_to_local_group_id(int k, int r, int z, int block_id)
+  {
+    if(block_id >= k + r)
+      return (block_id - k - r);
+    else{
+      std::vector<int> local_group_sizes = get_uniform_lrc_local_group_sizes(k, r, z);
+      int cur_start = 0;
+      for (size_t i = 0; i < local_group_sizes.size(); i++){
+        if(block_id < cur_start + local_group_sizes[i] - 1)
+          return i;
+        cur_start += local_group_sizes[i] - 1; // exclude the local parity block
+      }
+      throw std::runtime_error("block id is out of range");
+      return -1;
+    }
   }
 
   std::unordered_map<int, int> get_uniform_lrc_block_id_to_group_id(int k, int r, int z){
@@ -508,13 +552,13 @@ namespace ECProject
       for (size_t i = 0; i < global_parity_block_num_per_local_group.size(); i++)
       {
         cur_sum += global_parity_block_num_per_local_group[i];
-        if (block_id < cur_sum)
+        if ((block_id - k) < cur_sum)
           return (int)i;
       }
     }
     else
     {
-      return (block_id - k - r) % (z / 2);
+      return (block_id - k - r) / 2;
     }
     throw std::runtime_error("block id is out of range");
   }
@@ -563,4 +607,200 @@ namespace ECProject
     return group_num_per_local_group;
   }
 
+/* ----- Recovery group and block ids ----- */
+
+  std::vector<std::pair<int, std::vector<int>>> get_recovery_group_and_block_ids(const std::string &code_type, int k, int r, int z, int failed_block_id)
+  {
+    if (code_type == "AzureLRC")
+      return get_recovery_group_and_block_ids_azurelrc(k, r, z, failed_block_id);
+    else if (code_type == "OptimalLRC")
+      return get_recovery_group_and_block_ids_optimal_lrc(k, r, z, failed_block_id);
+    else if (code_type == "UniformLRC")
+      return get_recovery_group_and_block_ids_uniform_lrc(k, r, z, failed_block_id);
+    else if (code_type == "UniLRC")
+      return get_recovery_group_and_block_ids_unilrc(k, r, z, failed_block_id);
+    else if (code_type == "LotusLRC")
+      return get_recovery_group_and_block_ids_lotuslrc(k, r, z, failed_block_id);
+    else
+      throw std::runtime_error("unknown code type");
+  }
+
+  std::vector<std::pair<int, std::vector<int>>> get_recovery_group_and_block_ids_azurelrc(int k, int r, int z, int failed_block_id)
+  {
+    std::vector<std::pair<int, std::vector<int>>> recovery_group_and_block_ids;
+    std::vector<int> recovery_block_ids;
+    if(failed_block_id < k)
+    {
+      int local_group_size = k / z;
+      int local_group_id = failed_block_id / local_group_size;
+      for (int i = local_group_id * local_group_size; i < (local_group_id + 1) * local_group_size; i++)
+      {
+        if (i != failed_block_id)
+          recovery_block_ids.push_back(i);
+      }
+      recovery_block_ids.push_back(k + r + local_group_id); // plus one local parity block
+    }
+    else if(failed_block_id < k + r)
+    {
+      for(int i = r - 1; i < k + r; i++) // global parity blocks need global recovery; 
+      {
+        if (i != failed_block_id)
+          recovery_block_ids.push_back(i);
+      }
+    }
+    else
+    {
+      int local_group_size = k / z;
+      int local_group_id = failed_block_id - k - r;
+      for (int i = local_group_id * local_group_size; i < (local_group_id + 1) * local_group_size; i++)
+      {
+        if (i != failed_block_id)
+          recovery_block_ids.push_back(i);
+      }
+    }
+    std::unordered_map<int, int> block_id_to_group_id = get_azurelrc_block_id_to_group_id(k, r, z);
+    for (size_t i = 0; i < recovery_block_ids.size(); i++)
+    {
+      int gid = block_id_to_group_id[recovery_block_ids[i]];
+      auto it = std::find_if(recovery_group_and_block_ids.begin(), recovery_group_and_block_ids.end(),
+          [gid](const std::pair<int, std::vector<int>> &p) { return p.first == gid; });
+      if (it == recovery_group_and_block_ids.end())
+        recovery_group_and_block_ids.push_back({gid, {recovery_block_ids[i]}});
+      else
+        it->second.push_back(recovery_block_ids[i]);
+    }
+    return recovery_group_and_block_ids;
+  }
+
+  std::vector<std::pair<int, std::vector<int>>> get_recovery_group_and_block_ids_lotuslrc(int k, int r, int z, int failed_block_id)
+  {
+    std::vector<std::pair<int, std::vector<int>>> recovery_group_and_block_ids;
+    int local_group_id = get_lotuslrc_block_id_to_local_group_id(k, r, z, failed_block_id);
+    std::vector<int> group_num_per_local_group = get_lotuslrc_group_num_per_local_group(k, r, z);
+    std::vector<int> group_ids;
+    int start_group_id = std::accumulate(group_num_per_local_group.begin(), group_num_per_local_group.begin() + local_group_id, 0);
+    for (size_t i = 0; i < (size_t)group_num_per_local_group[local_group_id]; i++)
+    {
+      group_ids.push_back((int)(start_group_id + i));
+    }
+    std::unordered_map<int, std::vector<int>> group_id_to_block_ids = get_lotuslrc_group_id_to_block_ids(k, r, z);
+    for (size_t i = 0; i < group_ids.size(); i++)
+    {
+      recovery_group_and_block_ids.push_back({group_ids[i], group_id_to_block_ids[group_ids[i]]});
+    }
+    // remove the failed block
+    for (size_t i = 0; i < recovery_group_and_block_ids.size(); i++)
+    {
+      for (size_t j = 0; j < recovery_group_and_block_ids[i].second.size(); j++)
+      {
+        if (recovery_group_and_block_ids[i].second[j] == failed_block_id)
+          recovery_group_and_block_ids[i].second.erase(recovery_group_and_block_ids[i].second.begin() + (std::ptrdiff_t)j);
+      }
+    }
+    // remove one the last block of the last group because lotuslrc has two local parity blocks, if the last group is empty, remove the group
+    if (recovery_group_and_block_ids.size() > 0)
+    {
+      if (recovery_group_and_block_ids[recovery_group_and_block_ids.size() - 1].second.size() > 0)
+        recovery_group_and_block_ids[recovery_group_and_block_ids.size() - 1].second.pop_back();
+      if (recovery_group_and_block_ids[recovery_group_and_block_ids.size() - 1].second.size() == 0)
+        recovery_group_and_block_ids.erase(recovery_group_and_block_ids.begin() + (std::ptrdiff_t)recovery_group_and_block_ids.size() - 1);
+    }
+    return recovery_group_and_block_ids;
+  }
+
+  std::vector<std::pair<int, std::vector<int>>> get_recovery_group_and_block_ids_optimal_lrc(int k, int r, int z, int failed_block_id)
+  {
+    std::vector<std::pair<int, std::vector<int>>> recovery_group_and_block_ids;
+    std::vector<int> recovery_block_ids;
+    if(failed_block_id < k)
+    {
+      int local_group_size = k / z;
+      int local_group_id = failed_block_id / local_group_size;
+      for (int i = local_group_id * local_group_size; i < (local_group_id + 1) * local_group_size; i++)
+      {
+        if (i != failed_block_id)
+          recovery_block_ids.push_back(i);
+      }
+      recovery_block_ids.push_back(k + r + local_group_id); // plus one local parity block
+      for(int i = k; i < k + r; i++)
+      {  
+        recovery_block_ids.push_back(i); // optimal lrc need global parity blocks for local group recovery
+      }
+    }
+    else if(failed_block_id < k + r)
+    {
+      // use the first local group for recovery
+      for(int i = 0; i < k / z; i++)
+      {  
+        recovery_block_ids.push_back(i);
+      }
+      recovery_block_ids.push_back(k + r); // plus one local parity block
+      for(int i = k; i < k + r; i++)
+      {
+        if(i != failed_block_id)
+        recovery_block_ids.push_back(i); // optimal lrc need global parity blocks for local group recovery
+      }
+    }
+    else
+    {
+      int local_group_size = k / z;
+      int local_group_id = failed_block_id - k - r;
+      for (int i = local_group_id * local_group_size; i < (local_group_id + 1) * local_group_size; i++)
+      {
+        if (i != failed_block_id)
+          recovery_block_ids.push_back(i);
+      }
+      for(int i = k; i < k + r; i++)
+      {
+        recovery_block_ids.push_back(i); // optimal lrc need global parity blocks for local group recovery
+      }
+    }
+    std::unordered_map<int, int> block_id_to_group_id = get_optimal_lrc_block_id_to_group_id(k, r, z);
+    for (size_t i = 0; i < recovery_block_ids.size(); i++)
+    {
+      int gid = block_id_to_group_id[recovery_block_ids[i]];
+      auto it = std::find_if(recovery_group_and_block_ids.begin(), recovery_group_and_block_ids.end(),
+          [gid](const std::pair<int, std::vector<int>> &p) { return p.first == gid; });
+      if (it == recovery_group_and_block_ids.end())
+        recovery_group_and_block_ids.push_back({gid, {recovery_block_ids[i]}});
+      else
+        it->second.push_back(recovery_block_ids[i]);
+    }
+    return recovery_group_and_block_ids;
+  }
+
+  std::vector<std::pair<int, std::vector<int>>> get_recovery_group_and_block_ids_uniform_lrc(int k, int r, int z, int failed_block_id)
+  {
+    std::vector<std::pair<int, std::vector<int>>> recovery_group_and_block_ids;
+    int local_group_id = get_uniform_lrc_block_id_to_local_group_id(k, r, z, failed_block_id);
+    std::vector<int> group_num_per_local_group = get_uniform_lrc_group_num_per_local_group(k, r, z);
+    std::vector<int> group_ids;
+    int start_group_id = std::accumulate(group_num_per_local_group.begin(), group_num_per_local_group.begin() + local_group_id, 0);
+    for (size_t i = 0; i < (size_t)group_num_per_local_group[local_group_id]; i++)
+    {
+      group_ids.push_back((int)(start_group_id + i));
+    }
+    std::unordered_map<int, std::vector<int>> group_id_to_block_ids = get_uniform_lrc_group_id_to_block_ids(k, r, z);
+    for (size_t i = 0; i < group_ids.size(); i++)
+    {
+      recovery_group_and_block_ids.push_back({group_ids[i], group_id_to_block_ids[group_ids[i]]});
+    }
+    // remove the failed block, if the failed block is the last block of the group, remove the group
+    for (size_t i = 0; i < recovery_group_and_block_ids.size(); i++)
+    {
+      for (size_t j = 0; j < recovery_group_and_block_ids[i].second.size(); j++)
+      {
+        if (recovery_group_and_block_ids[i].second[j] == failed_block_id)
+          recovery_group_and_block_ids[i].second.erase(recovery_group_and_block_ids[i].second.begin() + (std::ptrdiff_t)j);
+        if (recovery_group_and_block_ids[i].second.size() == 0)
+          recovery_group_and_block_ids.erase(recovery_group_and_block_ids.begin() + (std::ptrdiff_t)i);
+      }
+    }
+    return recovery_group_and_block_ids;
+  }
+
+  std::vector<std::pair<int, std::vector<int>>> get_recovery_group_and_block_ids_unilrc(int k, int r, int z, int failed_block_id)
+  {
+    return {{0, {failed_block_id}}}; // TODO
+  }
 } // namespace ECProject

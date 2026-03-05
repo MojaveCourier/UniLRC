@@ -167,3 +167,12 @@ add_executable(layout_test
 target_include_directories(layout_test PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
+
+# 单块修复方案单元测试（get_recovery_group_and_block_ids）
+add_executable(recovery_plan_test
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/recovery_plan_test.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/encoder_layout.cpp
+)
+target_include_directories(recovery_plan_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
