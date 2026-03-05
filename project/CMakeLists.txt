@@ -12,6 +12,8 @@ set(CMAKE_ASM_NASM_OUTPUT_EXTENSION .o)
 # 设置 NASM 编译选项时添加包含路径
 set(CMAKE_ASM_NASM_FLAGS "-f elf64 -I${CMAKE_CURRENT_SOURCE_DIR}/src/asm")
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(ASM_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/asm/reg_sizes.asm
     ${CMAKE_CURRENT_SOURCE_DIR}/src/asm/gf_vect_dot_prod_avx2.asm
@@ -146,6 +148,7 @@ foreach (_target
             ${CMAKE_CURRENT_SOURCE_DIR}/src/config.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/src/encoder.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/src/encoder_layout.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/recovery_strategy.cpp
             #${_target}.cpp
             )
     target_link_libraries(${_target}
@@ -172,7 +175,7 @@ target_include_directories(layout_test PRIVATE
 add_executable(recovery_plan_test
     ${CMAKE_CURRENT_SOURCE_DIR}/tests/recovery_plan_test.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/encoder_layout.cpp
-)
-target_include_directories(recovery_plan_test PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/recovery_strategy.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/encoder.cpp
+    ${ASM_SOURCES}
 )
