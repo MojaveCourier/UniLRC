@@ -196,6 +196,8 @@ namespace ECProject
     std::vector<std::pair<int, std::vector<int>>> get_recovery_group_and_block_ids_unilrc(int k, int r, int z, int failed_block_id);
     std::vector<std::pair<int, std::vector<int>>> get_recovery_group_and_block_ids_azurelrc(int k, int r, int z, int failed_block_id);
     std::vector<std::pair<int, std::vector<int>>> get_recovery_group_and_block_ids_lotuslrc(int k, int r, int z, int failed_block_id);
+
+    std::vector<std::pair<int, std::vector<int>>> get_recovery_group_and_block_ids_lotuslrc_2block_recovery(int k, int r, int z, int failed_block_id0, int failed_block_id1);
 }
 
 #endif

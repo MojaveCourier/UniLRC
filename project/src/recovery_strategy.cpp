@@ -262,6 +262,41 @@ std::vector<std::pair<int, std::vector<int>>> get_recovery_group_and_block_ids_l
   return recovery_group_and_block_ids;
 }
 
+std::vector<std::pair<int, std::vector<int>>> get_recovery_group_and_block_ids_lotuslrc_2block_recovery(int k, int r, int z, int failed_block_id0, int failed_block_id1)
+{
+    std::vector<std::pair<int, std::vector<int>>> recovery_group_and_block_ids;
+    int local_group_id = get_lotuslrc_block_id_to_local_group_id(k, r, z, failed_block_id0);
+    int local_group_id1 = get_lotuslrc_block_id_to_local_group_id(k, r, z, failed_block_id1);
+    if (local_group_id != local_group_id1)
+    {
+      throw std::runtime_error("failed blocks are not in the same local group");
+    }
+    std::vector<int> group_num_per_local_group = get_lotuslrc_group_num_per_local_group(k, r, z);
+    std::vector<int> group_ids;
+    int start_group_id = std::accumulate(group_num_per_local_group.begin(), group_num_per_local_group.begin() + local_group_id, 0);
+    for (size_t i = 0; i < (size_t)group_num_per_local_group[local_group_id]; i++)
+    {
+      group_ids.push_back((int)(start_group_id + i));
+    }
+    std::unordered_map<int, std::vector<int>> group_id_to_block_ids = get_lotuslrc_group_id_to_block_ids(k, r, z);
+    for (size_t i = 0; i < group_ids.size(); i++)
+    {
+      recovery_group_and_block_ids.push_back({group_ids[i], group_id_to_block_ids[group_ids[i]]});
+    }
+    // remove the failed block, if the failed block is the last block of the group, remove the group
+    for (size_t i = 0; i < recovery_group_and_block_ids.size(); i++)
+    {
+      for (size_t j = 0; j < recovery_group_and_block_ids[i].second.size(); j++)
+      {
+        if (recovery_group_and_block_ids[i].second[j] == failed_block_id0 || recovery_group_and_block_ids[i].second[j] == failed_block_id1)
+          recovery_group_and_block_ids[i].second.erase(recovery_group_and_block_ids[i].second.begin() + (std::ptrdiff_t)j);
+      }
+      if (recovery_group_and_block_ids[i].second.size() == 0)
+        recovery_group_and_block_ids.erase(recovery_group_and_block_ids.begin() + (std::ptrdiff_t)i);
+    }
+    return recovery_group_and_block_ids;  
+}
+
 std::vector<std::pair<int, std::vector<int>>> get_recovery_group_and_block_ids_optimal_lrc(int k, int r, int z, int failed_block_id)
 {
   std::vector<std::pair<int, std::vector<int>>> recovery_group_and_block_ids;
