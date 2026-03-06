@@ -13,10 +13,13 @@ if [ ! -f "$CONFIG" ]; then
 fi
 
 # 读 INI：取 [section] 下 key 的值（去掉首尾空格）
+# 使用字面匹配 [section]，避免在 awk 正则中 [cluster] 被当作字符类
 get_ini() {
   local section="$1" key="$2"
-  awk -F'=' -v S="[$section]" -v K="$key" '
-    $0 ~ S { f=1; next }
+  local section_regex='\['"$section"'\]'
+  awk -F'=' -v S="$section_regex" -v K="$key" '
+    $0 ~ "^[ \t]*" S "[ \t]*$" { f=1; next }
+    f && /^[ \t]*\[/ { f=0; next }
     f && /^[ \t]*#/ { next }
     f && NF >= 2 { gsub(/^[ \t]+|[ \t]+$/,"",$1); if ($1 == K) { gsub(/^[ \t]+|[ \t]+$/,"",$2); print $2; exit } }
   ' "$CONFIG"
@@ -52,7 +55,15 @@ fi
 
 BUILD="$REMOTE_REPO/project/cmake/build"
 
-for (( c=0; c<CLUSTER_NUM; c++ )); do
+# 本机运行时只在最开始 kill 一次，避免每次循环都杀掉已启动的进程
+if [ "$USE_LOCALHOST" = 1 ]; then
+  pkill -9 run_datanode 2>/dev/null || true
+  pkill -9 run_proxy 2>/dev/null || true
+  sleep 1
+fi
+
+c=0
+while [ "$c" -lt "$CLUSTER_NUM" ]; do
   if [ "$USE_LOCALHOST" = 1 ]; then
     NODE_IP="127.0.0.1"
   else
@@ -60,16 +71,27 @@ for (( c=0; c<CLUSTER_NUM; c++ )); do
   fi
   PROXY_PORT=$((FIRST_PORT + c))
 
-  REMOTE_CMD="cd $REMOTE_REPO && pkill -9 run_datanode 2>/dev/null; pkill -9 run_proxy 2>/dev/null; sleep 1; "
-  for (( d=0; d<DN_PER; d++ )); do
+  if [ "$USE_LOCALHOST" = 1 ]; then
+    REMOTE_CMD="cd $REMOTE_REPO && "
+  else
+    REMOTE_CMD="cd $REMOTE_REPO && pkill -9 run_datanode 2>/dev/null; pkill -9 run_proxy 2>/dev/null; sleep 1; "
+  fi
+  d=0
+  while [ "$d" -lt "$DN_PER" ]; do
     DP=$((DN_PORT_START + c * DN_PER + d))
-    REMOTE_CMD+="$BUILD/run_datanode ${NODE_IP}:${DP} & "
+    REMOTE_CMD="$REMOTE_CMD$BUILD/run_datanode ${NODE_IP}:${DP} & "
+    d=$((d + 1))
   done
-  REMOTE_CMD+="sleep 2 && $BUILD/run_proxy ${NODE_IP}:${PROXY_PORT} ${COORD_IP} &"
+  REMOTE_CMD="$REMOTE_CMD sleep 2 && $BUILD/run_proxy ${NODE_IP}:${PROXY_PORT} ${COORD_IP} &"
 
   echo "Cluster $c: ${SSH_USER}@${NODE_IP} (proxy ${NODE_IP}:${PROXY_PORT})"
-  ssh -o ConnectTimeout=5 "${SSH_USER}@${NODE_IP}" "$REMOTE_CMD" || {
-    echo "Failed: cluster $c at $NODE_IP"
-  }
+  if [ "$NODE_IP" = "127.0.0.1" ]; then
+    bash -c "$REMOTE_CMD" || { echo "Failed: cluster $c at $NODE_IP"; }
+  else
+    ssh -o ConnectTimeout=5 "${SSH_USER}@${NODE_IP}" "$REMOTE_CMD" || {
+      echo "Failed: cluster $c at $NODE_IP"
+    }
+  fi
+  c=$((c + 1))
 done
 echo "Done."

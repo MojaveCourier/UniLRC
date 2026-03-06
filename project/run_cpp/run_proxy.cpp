@@ -25,9 +25,18 @@ int main(int argc, char **argv)
 
     char buff[256];
     getcwd(buff, 256);
-    std::string cwf = std::string(argv[0]);
-    std::string config_path = std::string(buff) + cwf.substr(1, cwf.rfind('/') - 1) + "/../../config/clusterInformation.xml";
-    std::string sys_config_path = std::string(buff) + cwf.substr(1, cwf.rfind('/') - 1) + "/../../config/parameterConfiguration.xml";
+    std::string exe_path(argv[0]);
+    std::string exe_dir;
+    size_t last_slash = exe_path.rfind('/');
+    if (last_slash != std::string::npos) {
+        exe_dir = exe_path.substr(0, last_slash);
+        if (exe_dir.empty() || exe_dir[0] != '/')
+            exe_dir = std::string(buff) + "/" + exe_dir;
+    } else {
+        exe_dir = buff;
+    }
+    std::string config_path = exe_dir + "/../../config/clusterInformation.xml";
+    std::string sys_config_path = exe_dir + "/../../config/parameterConfiguration.xml";
 
     // std::string config_path = "/home/GuanTian/lql/UniLRC/project/config/test_clusterInformation.xml";
     // std::string sys_config_path = "/home/GuanTian/lql/UniLRC/project/config/parameterConfiguration.xml";

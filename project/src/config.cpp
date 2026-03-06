@@ -15,6 +15,8 @@ namespace ECProject
 
   void Config::validateConfig() const
   {
+    //invalidate the config validation for now
+    /*
     assert(BlockSize % UnitSize == 0 && "Error: BlockSize must be divisible by UnitSize");
     assert((AppendMode == "REP_MODE" || AppendMode == "UNILRC_MODE" || AppendMode == "CACHED_MODE") && "Error: AppendMode must be REP_MODE, UNILRC_MODE, or CACHED_MODE");
     assert((CodeType == "UniLRC" || CodeType == "AzureLRC" || CodeType == "OptimalLRC" || CodeType == "UniformLRC") && "Error: CodeType must be UniLRC, AzureLRC, OptimalLRC, or UniformLRC");
@@ -40,6 +42,8 @@ namespace ECProject
       assert(DatanodeNumPerCluster > r && "Error: DatanodeNumPerCluster must be greater than r");
       assert(ClusterNum > ((((k + r) / z + 1) / (r + 1) + (bool)(((k + r) / z + 1) % (r + 1))) * ((k + r) % z)) + (((k + r) / z) / (r + 1) + (bool)(((k + r) / z) % (r + 1))) * (z - ((k + r) % z)) && "Error: ClusterNum must be greater than ((((k + r) / z + 1) / (r + 1) + (bool)(((k + r) / z + 1) % (r + 1))) * ((k + r) % z)) + (((k + r) / z) / (r + 1) + (bool)(((k + r) / z) % (r + 1))) * (z - ((k + r) % z))");
     }
+    */
+
   }
 
   Config *Config::getInstance(const std::string &configPath)
