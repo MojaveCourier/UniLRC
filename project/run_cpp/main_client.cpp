@@ -75,14 +75,6 @@ int main(int argc, char **argv)
     std::cout << "Conducting experiments, please wait..." << std::endl;
     std::chrono::duration<double> set_time = std::chrono::duration_cast<std::chrono::duration<double>>(set_end - set_start);
     std::cout << "write throughput: " << (static_cast<double> (total_write_size) / set_time.count() / 1024) << "MB/s" << std::endl;
-    std::string output_file_name = "test_"  + code_type + + "_" + std::to_string(k) + "_" + std::to_string(r) + "_" + std::to_string(z) + ".txt";
-    std::ofstream output_file(output_file_name);
-    if (!output_file.is_open())
-    {
-        std::cerr << "Error opening file: " << output_file_name << std::endl;
-        return 1;
-    }
-    freopen(output_file_name.c_str(), "w", stdout);
     std::mt19937 rng(std::random_device{}());
 
     std::uniform_int_distribution<int> dist_500(0, k*stripe_num - 500);
@@ -139,7 +131,7 @@ int main(int argc, char **argv)
         std::cout << operation << " operation time: " << time_span.count() << " seconds" << std::endl;
     }*/
 
-    /*
+    
     //for read test
     std::cout << "Normal read test start" << std::endl;
     std::vector<std::chrono::duration<double>> read_time_spans;
@@ -199,7 +191,7 @@ int main(int argc, char **argv)
     std::cout << "Min speed: " << static_cast<size_t>(block_size)  / degraded_read_max_time_span.count() << "MB/s" << std::endl;
     std::cout << "Degraded read test end" << std::endl;
     std::cout << std::endl;
-    */
+    
     //for single block recovery
     /*
     std::cout << "Single block recovery test start" << std::endl;

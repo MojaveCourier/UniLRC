@@ -1105,13 +1105,10 @@ namespace ECProject
     int stripe_id = std::stoi(keyClient->key());
     Stripe &t_stripe = m_stripe_table[stripe_id];
     int k = t_stripe.k;
-    int num_data_groups = t_stripe.num_groups;
     std::string code_type = m_sys_config->CodeType;
-    if(code_type != "UniLRC"){
-      num_data_groups--;
-    }
     //std::cout << "[GET] getting stripe " << stripe_id << " with " << num_data_groups << " data groups" << std::endl;
     std::vector<int> block_num_per_group = ECProject::get_data_block_num_per_group(k, m_sys_config->r, m_sys_config->z, code_type);
+    int num_data_groups = block_num_per_group.size();
     std::vector<int> get_cluster_ids;
     for (int i = 0; i < num_data_groups; i++)
     {
