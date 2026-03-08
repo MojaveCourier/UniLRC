@@ -505,7 +505,7 @@ void ECProject::decode_azure_lrc(const int k, const int r, const int z, const in
         memset(temp_matrix, 0, k * k);
         int used_row[k];
         std::unordered_map<int, int> idx_to_row;
-        for(int i = k / z, j = 0; j < k && i < k + r; i++){
+        for(int i = 0, j = 0; j < k && i < k + r; i++){
             if(i != failed_block_id){
                 used_row[j] = i;
                 idx_to_row[i] = j;
