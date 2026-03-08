@@ -2036,6 +2036,10 @@ namespace ECProject
         {
           decode_uniform_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, recovery_request->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf), m_sys_config->BlockSize, failed_block_id);
         }
+        else if (code_type == "LotusLRC")
+        {
+          decode_lotus_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, recovery_request->datanodeip_size(), &block_idxs, block_ptrs.data(), reinterpret_cast<unsigned char *>(res_buf), m_sys_config->BlockSize, failed_block_id);
+        }
         else
         {
           std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] code type error!" << std::endl;

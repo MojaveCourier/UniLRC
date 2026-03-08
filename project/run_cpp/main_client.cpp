@@ -63,7 +63,7 @@ int main(int argc, char **argv)
     double block_size = static_cast<double> (parameters[3]) / 1024 / 1024; //MB
     int n = k + r + z;
     
-    size_t total_write_size = 4000; //MB
+    size_t total_write_size = 400; //MB
     int stripe_num = total_write_size / (block_size * n);
     std::cout << "Starting set stripe operation" << std::endl;
     std::chrono::high_resolution_clock::time_point set_start = std::chrono::high_resolution_clock::now();
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
     std::cout << "Normal read test end" << std::endl;
     std::cout << std::endl;
     //for degraded read test
-    /*
+    
     std::vector<std::chrono::duration<double>> degraded_read_time_spans;
     std::cout << "Degraded read test start" << std::endl;
     for(int i = 0; i < k; i++){
@@ -141,9 +141,9 @@ int main(int argc, char **argv)
     std::cout << "Min speed: " << static_cast<size_t>(block_size)  / degraded_read_max_time_span.count() << "MB/s" << std::endl;
     std::cout << "Degraded read test end" << std::endl;
     std::cout << std::endl;
-    */
+    
     //for single block recovery
-    /*
+    
     std::cout << "Single block recovery test start" << std::endl;
     std::vector<std::chrono::duration<double>> block_recovery_time_spans;
     for(int i = 0; i < n; i++){
@@ -163,7 +163,7 @@ int main(int argc, char **argv)
     std::cout << "Min time: "<< block_recovery_min_time_span.count() << std::endl;
     std::cout << "Single block recovery test end" << std::endl;
     std::cout << std::endl;
-    */
+    
     /*
     //for full node repair
     std::cout << "Full node repair test start" << std::endl;
