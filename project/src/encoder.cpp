@@ -481,6 +481,9 @@ void ECProject::decode_azure_lrc(const int k, const int r, const int z, const in
                                  const std::vector<int> *block_indexes, unsigned char **block_ptrs, unsigned char *res_ptr, int block_size,
                                  int failed_block_id)
 {
+    if(block_num == 0){
+        return;
+    }
     memset(res_ptr, 0, block_size);
     if (failed_block_id < k || failed_block_id >= k + r){
         unsigned char *vect_ptrs[block_num + 1];
@@ -541,6 +544,9 @@ void ECProject::decode_azure_lrc(const int k, const int r, const int z, const in
 void ECProject::decode_optimal_lrc(const int k, const int r, const int z, const int block_num,
                                    const std::vector<int> *block_indexes, unsigned char **block_ptrs, unsigned char *res_ptr, int block_size, int failed_block_id)
 {
+    if(block_num == 0){
+        return;
+    }
     memset(res_ptr, 0, block_size);
     unsigned char *local_vector;
     local_vector = new unsigned char[k];
@@ -577,6 +583,9 @@ void ECProject::decode_optimal_lrc(const int k, const int r, const int z, const 
 void ECProject::decode_uniform_lrc(const int k, const int r, const int z, const int block_num,
                                    const std::vector<int> *block_indexes, unsigned char **block_ptrs, unsigned char *res_ptr, int block_size, int failed_block_id)
 {
+    if(block_num == 0){
+        return;
+    }
     memset(res_ptr, 0, block_size);
     unsigned char *local_vector;
     local_vector = new unsigned char[k];
@@ -605,6 +614,49 @@ void ECProject::decode_uniform_lrc(const int k, const int r, const int z, const 
     ec_encode_data_avx2(block_size, block_num, 1, g_tbls, block_ptrs, res_ptr_ptr);
 
     delete[] local_vector;
+    delete[] decode_vector;
+    delete[] g_tbls;
+    delete[] res_ptr_ptr;
+}
+
+void ECProject::decode_lotus_lrc(const int k, const int r, const int z, const int block_num,
+                                 const std::vector<int> *block_indexes, unsigned char **block_ptrs, unsigned char *res_ptr, int block_size,
+                                 int failed_block_id)
+{
+    if(block_num == 0){
+        return;
+    }
+    memset(res_ptr, 0, block_size);
+    unsigned char *decode_vector = new unsigned char[block_num];
+    if(failed_block_id < k + r + z / 2){
+        unsigned char *local_vector = new unsigned char[k];
+        gf_gen_local_vector(local_vector, k, r);
+        unsigned char factor = 1;
+        if(failed_block_id < k){
+            factor = gf_inv(local_vector[failed_block_id]);
+        }
+        for(int i = 0; i < block_num; i++){
+            decode_vector[i] = gf_mul(local_vector[block_indexes->at(i)], factor);
+        }
+        delete[] local_vector;
+    }
+    else{
+        unsigned char *local_vector = new unsigned char[k];
+        gf_gen_local_vector(local_vector, k, r + 1);  // for the second half of the local parity
+        unsigned char factor = 1;
+        if(failed_block_id < k){
+            factor = gf_inv(local_vector[failed_block_id]);
+        }
+        for(int i = 0; i < block_num; i++){
+            decode_vector[i] = gf_mul(local_vector[block_indexes->at(i)], factor);
+        }
+        delete[] local_vector;
+    }
+    unsigned char *g_tbls = new unsigned char[block_num * 32];
+    unsigned char **res_ptr_ptr = new unsigned char *[1];
+    res_ptr_ptr[0] = res_ptr;
+    ec_init_tables(block_num, 1, decode_vector, g_tbls);
+    ec_encode_data_avx2(block_size, block_num, 1, g_tbls, block_ptrs, res_ptr_ptr);
     delete[] decode_vector;
     delete[] g_tbls;
     delete[] res_ptr_ptr;
