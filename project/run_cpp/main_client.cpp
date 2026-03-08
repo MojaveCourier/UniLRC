@@ -80,57 +80,6 @@ int main(int argc, char **argv)
     std::uniform_int_distribution<int> dist_500(0, k*stripe_num - 500);
     std::uniform_real_distribution<double> dist_double(0.0, 1.0);
     
-    /*std::string trace_file_path = std::string(buff) + cwf.substr(1, cwf.rfind('/') - 1) + "/../../../trace/ibm_test_trace.csv";
-    std::fstream trace_file(trace_file_path);
-    std::string trace_line;
-    while(std::getline(trace_file, trace_line)){
-        std::string operation;
-        int operation_size;
-        std::istringstream iss(trace_line);
-        std::getline(iss, operation, ',');
-        iss >> operation_size;
-        std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-        if(operation == "GET"){
-            int start_block_id = dist_500(rng);
-            client.get_blocks(start_block_id, start_block_id + operation_size - 1);
-        }
-        else if(operation == "PUT"){
-            client.sub_set(operation_size);
-        }
-        else{
-            std::cerr << "Unknown operation: " << operation << std::endl;
-            return -1;
-        }
-        std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
-        std::cout << operation << " operation time: " << time_span.count() << " seconds" << std::endl;
-    }*/
-
-    /*std::string trace_file_path = std::string(buff) + cwf.substr(1, cwf.rfind('/') - 1) + "/../../../trace/ycsb_final.txt";
-    std::fstream trace_file(trace_file_path);
-    std::string trace_line;
-    while(std::getline(trace_file, trace_line)){
-        std::string operation;
-        std::istringstream iss(trace_line);
-        std::getline(iss, operation, ' ');
-        std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-        if(operation == "R"){
-            int block_id;
-            iss >> block_id;
-            client.get_blocks(block_id, block_id);
-        }
-        else if(operation == "U"){
-            client.sub_set(1);
-        }
-        else{
-            std::cerr << "Unknown operation: " << operation << std::endl;
-            return -1;
-        }
-        std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
-        std::cout << operation << " operation time: " << time_span.count() << " seconds" << std::endl;
-    }*/
-
     
     //for read test
     std::cout << "Normal read test start" << std::endl;
@@ -162,6 +111,7 @@ int main(int argc, char **argv)
     std::cout << "Normal read test end" << std::endl;
     std::cout << std::endl;
     //for degraded read test
+    /*
     std::vector<std::chrono::duration<double>> degraded_read_time_spans;
     std::cout << "Degraded read test start" << std::endl;
     for(int i = 0; i < k; i++){
@@ -191,7 +141,7 @@ int main(int argc, char **argv)
     std::cout << "Min speed: " << static_cast<size_t>(block_size)  / degraded_read_max_time_span.count() << "MB/s" << std::endl;
     std::cout << "Degraded read test end" << std::endl;
     std::cout << std::endl;
-    
+    */
     //for single block recovery
     /*
     std::cout << "Single block recovery test start" << std::endl;

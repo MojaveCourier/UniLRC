@@ -1127,6 +1127,9 @@ namespace ECProject
     std::vector<std::thread> threads;
     for (int i = 0; i < num_data_groups; i++)
     {
+      if(block_num_per_group[i] == 0){
+        continue;
+      }
       std::vector<int> block_ids;
       for (int j = 0; j < t_stripe.group_to_blocks[i].size(); j++)
       {
@@ -1636,6 +1639,7 @@ namespace ECProject
       for (size_t i = 0; i < plan.size(); i++)
         chosen_proxies.push_back(m_cluster_table[get_cluster_id_by_group_id(t_stripe, plan[i].first)].proxy_ip + ":" + std::to_string(m_cluster_table[get_cluster_id_by_group_id(t_stripe, plan[i].first)].proxy_port));
       std::vector<std::thread> threads;
+      int cross_rack_num = 0;
       for (size_t i = 0; i < plan.size(); i++)
       {
         if (plan[i].first == dest_group_id)
@@ -1657,8 +1661,8 @@ namespace ECProject
           else
             std::cout << "[Coordinator] partial degraded read of " << failed_block_id << " failed!" << std::endl;
         }));
+        cross_rack_num++;
       }
-      int cross_rack_num = (int)plan.size() - 1;
       std::vector<int> dest_block_ids;
       for (size_t i = 0; i < plan.size(); i++)
         if (plan[i].first == dest_group_id)
@@ -1991,6 +1995,7 @@ namespace ECProject
       for (size_t i = 0; i < plan.size(); i++)
         chosen_proxies.push_back(m_cluster_table[get_cluster_id_by_group_id(t_stripe, plan[i].first)].proxy_ip + ":" + std::to_string(m_cluster_table[get_cluster_id_by_group_id(t_stripe, plan[i].first)].proxy_port));
       std::vector<std::thread> threads;
+      int cross_rack_num = 0;
       for (size_t i = 0; i < plan.size(); i++)
       {
         if (plan[i].first == dest_group_id)
@@ -2012,8 +2017,8 @@ namespace ECProject
           else
             std::cout << "[Coordinator] partial degraded read of " << failed_block_id << " failed!" << std::endl;
         }));
+        cross_rack_num++;
       }
-      int cross_rack_num = (int)plan.size() - 1;
       std::vector<int> dest_block_ids;
       for (size_t i = 0; i < plan.size(); i++)
         if (plan[i].first == dest_group_id)
