@@ -158,7 +158,6 @@ void ECProject::encode_lotuslrc(int k, int r, int z, unsigned char **data_ptrs, 
     unsigned char *g_tbls = new unsigned char[k * (r + z) * 32];
     ec_init_tables(k, r + z, &encode_matrix[k * k], g_tbls);
     ec_encode_data_avx2(block_size, k, r + z, g_tbls, data_ptrs, parity_ptrs);
-
     delete[] encode_matrix;
     delete[] g_tbls;
 }
@@ -458,8 +457,8 @@ void ECProject::gen_lotuslrc_matrix(unsigned char *encode_matrix, int k, int r, 
 
     for(int i = 0; i < r; i++){
         for(int j = 0; j < k; j++){
-            encode_matrix[(m + r + group_num - r + i) * k + j] ^= encode_matrix[(k + i) * k + j];
-            encode_matrix[(m + r + group_num - r + i + 1) * k + j] ^= encode_matrix[(k + i) * k + j];
+            encode_matrix[(m + group_num - r + i) * k + j] ^= encode_matrix[(k + i) * k + j]; // assume one local group has at most one global parity block, may need to be adjusted for more general cases
+            encode_matrix[(m + group_num - r + i + 1) * k + j] ^= encode_matrix[(k + i) * k + j];
         }
     }
 

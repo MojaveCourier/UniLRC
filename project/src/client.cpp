@@ -420,6 +420,7 @@ namespace ECProject
     else
     {
       std::vector<std::thread> threads;
+      assert((reply.sum_append_size() == static_cast<size_t>(m_sys_config->BlockSize) * static_cast<size_t>(m_sys_config->k + m_sys_config->r + m_sys_config->z)) && "sum_append_size is not equal to the block stripe size!");
       std::vector<char *> cluster_slice_data = m_toolbox->splitCharPointer(m_pre_allocated_buffer, &reply);
       std::unique_ptr<bool[]> if_commit_arr(new bool[reply.append_keys_size()]);
       std::fill_n(if_commit_arr.get(), reply.append_keys_size(), false);
@@ -428,6 +429,13 @@ namespace ECProject
       std::vector<int> data_block_num_per_group = ECProject::get_data_block_num_per_group(m_sys_config->k, m_sys_config->r, m_sys_config->z, m_sys_config->CodeType);
       std::vector<int> global_parity_block_num_per_group = ECProject::get_global_parity_block_num_per_group(m_sys_config->k, m_sys_config->r, m_sys_config->z, m_sys_config->CodeType);
       std::vector<int> local_parity_block_num_per_group = ECProject::get_local_parity_block_num_per_group(m_sys_config->k, m_sys_config->r, m_sys_config->z, m_sys_config->CodeType);
+      // 对每个 group 检查：client 的 (data+global+local)*BlockSize 与 coordinator 下发的 cluster_slice_sizes(i) 一致
+      assert(static_cast<size_t>(reply.cluster_slice_sizes_size()) == data_block_num_per_group.size() && "group count mismatch");
+      for (size_t i = 0; i < data_block_num_per_group.size(); i++) {
+        size_t expected = static_cast<size_t>(data_block_num_per_group[i] + global_parity_block_num_per_group[i] + local_parity_block_num_per_group[i]) * static_cast<size_t>(m_sys_config->BlockSize);
+        size_t actual = static_cast<size_t>(reply.cluster_slice_sizes(static_cast<int>(i)));
+        assert(expected == actual && "per-group slice size mismatch (client layout vs coordinator)");
+      }
       std::vector<char *> data_ptr_array, global_parity_ptr_array, local_parity_ptr_array;
       split_for_set_data_and_parity(&reply, cluster_slice_data, data_block_num_per_group, global_parity_block_num_per_group, local_parity_block_num_per_group, data_ptr_array, global_parity_ptr_array, local_parity_ptr_array);
       std::vector<char *> parity_ptr_array;
@@ -440,17 +448,14 @@ namespace ECProject
       }
       else if (m_sys_config->CodeType == "OptimalLRC")
       {
-        //ECProject::encode_optimal_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
         ECProject::encode_optimal_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(parity_ptr_array.data()), m_sys_config->BlockSize);
       }
       else if (m_sys_config->CodeType == "UniformLRC")
       {
-        //ECProject::encode_uniform_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
         ECProject::encode_uniform_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(parity_ptr_array.data()), m_sys_config->BlockSize);
       }
       else if (m_sys_config->CodeType == "AzureLRC")
       {
-        //ECProject::encode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
         ECProject::encode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(parity_ptr_array.data()), m_sys_config->BlockSize);
       }
       else if (m_sys_config->CodeType == "LotusLRC")
@@ -521,6 +526,14 @@ namespace ECProject
       std::vector<int> global_parity_block_num_per_group = ECProject::get_global_parity_block_num_per_group(m_sys_config->k, m_sys_config->r, m_sys_config->z, m_sys_config->CodeType);
       std::vector<int> local_parity_block_num_per_group = ECProject::get_local_parity_block_num_per_group(m_sys_config->k, m_sys_config->r, m_sys_config->z, m_sys_config->CodeType);
       m_toolbox->remove_common_zeros(data_block_num_per_group, global_parity_block_num_per_group, local_parity_block_num_per_group);
+
+      // 对每个 group 检查：client 的 (data+global+local)*BlockSize 与 coordinator 下发的 cluster_slice_sizes(i) 一致
+      assert(static_cast<size_t>(reply.cluster_slice_sizes_size()) == data_block_num_per_group.size() && "group count mismatch (sub_set)");
+      for (size_t i = 0; i < data_block_num_per_group.size(); i++) {
+        size_t expected = static_cast<size_t>(data_block_num_per_group[i] + global_parity_block_num_per_group[i] + local_parity_block_num_per_group[i]) * static_cast<size_t>(m_sys_config->BlockSize);
+        size_t actual = static_cast<size_t>(reply.cluster_slice_sizes(static_cast<int>(i)));
+        assert(expected == actual && "per-group slice size mismatch (client layout vs coordinator, sub_set)");
+      }
 
       std::vector<char *> data_ptr_array, global_parity_ptr_array, local_parity_ptr_array;
       split_for_set_data_and_parity(&reply, cluster_slice_data, data_block_num_per_group, global_parity_block_num_per_group, local_parity_block_num_per_group, data_ptr_array, global_parity_ptr_array, local_parity_ptr_array);

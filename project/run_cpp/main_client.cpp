@@ -63,8 +63,8 @@ int main(int argc, char **argv)
     double block_size = static_cast<double> (parameters[3]) / 1024 / 1024; //MB
     int n = k + r + z;
     
-    size_t total_write_size = 400; //MB
-    int stripe_num = total_write_size / (block_size * n);
+    size_t total_write_size = 1000; //MB
+    int stripe_num = total_write_size / (block_size * k);
     std::cout << "Starting set stripe operation" << std::endl;
     std::chrono::high_resolution_clock::time_point set_start = std::chrono::high_resolution_clock::now();
     for(int i = 0; i < stripe_num; i++){
