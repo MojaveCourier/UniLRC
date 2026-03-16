@@ -110,7 +110,7 @@ namespace ECProject
       grpc::ServerContext *context,
       const coordinator_proto::NodeIdFromClient *request,
       coordinator_proto::RepBlockNum* response) override;
-    grpc::Status multiBlockRecovery(
+    grpc::Status globalRecovery(
       grpc::ServerContext *context,
       const coordinator_proto::StripeIdAndBlockIDsFromClient *request,
       coordinator_proto::RecoveryReply *replyClient) override;

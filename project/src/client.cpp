@@ -1142,7 +1142,7 @@ namespace ECProject
     }
 
     coordinator_proto::RecoveryReply reply;
-    grpc::Status status = m_coordinator_ptr->multiBlockRecovery(&context, request, &reply);
+    grpc::Status status = m_coordinator_ptr->globalRecovery(&context, request, &reply);
     if (!status.ok())
     {
       std::cout << "[Client] multi block recovery failed!" << std::endl;

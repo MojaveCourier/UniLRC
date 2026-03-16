@@ -2294,7 +2294,7 @@ namespace ECProject
     return grpc::Status::OK;
   } 
 
-  grpc::Status CoordinatorImpl::multiBlockRecovery(
+  grpc::Status CoordinatorImpl::globalRecovery(
     grpc::ServerContext *context,
     const coordinator_proto::StripeIdAndBlockIDsFromClient *request,
     coordinator_proto::RecoveryReply *replyClient)
@@ -2313,40 +2313,120 @@ namespace ECProject
     int chosen_node_id = randomly_select_a_node(chosen_cluster_id, stripe_id);
     std::vector<int> decode_block_ids;
     std::vector<std::vector<int>> decode_factors;
-    bool ifGetDecodePlanSuccess = ECProject::get_multi_decode_plan(m_sys_config->k, m_sys_config->r, m_sys_config->z, m_sys_config->CodeType, block_ids, decode_block_ids, decode_factors);
+    bool ifGetDecodePlanSuccess = ECProject::get_global_decode_plan(m_sys_config->k, m_sys_config->r, m_sys_config->z, m_sys_config->CodeType, block_ids, decode_block_ids, decode_factors);
     if(!ifGetDecodePlanSuccess){
       std::cout << "[Coordinator] get multi decode plan failed!" << std::endl;
       return grpc::Status(grpc::StatusCode::INTERNAL, "Get multi decode plan failed!");
     }
-    std::cout << "[Coordinator] get multi decode plan success!" << std::endl;
-    // TODO: notify source proxies and dest proxy, including partial decoding...
-    std::vector<int> source_proxies;
-    std::vector<std::vector<int>> source_datanodes;
-    std::vector<std::vector<int>> decode_blocks_split_for_proxies;
-    std::vector<std::vector<int>> decode_factors_split_for_proxies;
-    for(int i = 0; i < decode_block_ids.size(); i++){
-      int source_proxy = m_stripe_table[stripe_id].blocks[decode_block_ids[i]]->map2cluster;
-      auto it = std::find(source_proxies.begin(), source_proxies.end(), source_proxy);
-      if(it == source_proxies.end()){
-        source_proxies.push_back(source_proxy);
-        std::vector<int> t_source_datanodes;
-        t_source_datanodes.push_back(m_stripe_table[stripe_id].blocks[decode_block_ids[i]]->map2node);
-        source_datanodes.push_back(t_source_datanodes);
-        std::vector<int> t_decode_blocks;
-        t_decode_blocks.push_back(decode_block_ids[i]);
-        decode_blocks_split_for_proxies.push_back(t_decode_blocks);
-        std::vector<int> t_decode_factors;
-        t_decode_factors.push_back(decode_factors[i][0]);
-        decode_factors_split_for_proxies.push_back(t_decode_factors);
+    std::cout << "[Coordinator] get multi decode plan success! " << decode_block_ids.size() << " blocks to decode" << std::endl;
+
+    Stripe &t_stripe = m_stripe_table[stripe_id];
+    // Group decode blocks by cluster (cluster_id -> list of block ids in that cluster)
+    std::vector<int> clusters_with_blocks;
+    std::vector<std::vector<int>> decode_blocks_per_cluster;
+    for (size_t i = 0; i < decode_block_ids.size(); i++)
+    {
+      int cid = t_stripe.blocks[decode_block_ids[i]]->map2cluster;
+      auto it = std::find(clusters_with_blocks.begin(), clusters_with_blocks.end(), cid);
+      if (it == clusters_with_blocks.end())
+      {
+        clusters_with_blocks.push_back(cid);
+        decode_blocks_per_cluster.push_back(std::vector<int>(1, decode_block_ids[i]));
       }
-      else{
-        int index = std::distance(source_proxies.begin(), it);
-        source_datanodes[index].push_back(m_stripe_table[stripe_id].blocks[decode_block_ids[i]]->map2node);
-        decode_blocks_split_for_proxies[index].push_back(decode_block_ids[i]);
-        decode_factors_split_for_proxies[index].push_back(decode_factors[i][0]);
+      else
+      {
+        size_t idx = std::distance(clusters_with_blocks.begin(), it);
+        decode_blocks_per_cluster[idx].push_back(decode_block_ids[i]);
       }
     }
+    // Dest cluster: e.g. first failed block's cluster
+    int dest_cluster_id = t_stripe.blocks[block_ids[0]]->map2cluster;
+    std::string dest_proxy_ip = m_cluster_table[dest_cluster_id].proxy_ip;
+    int dest_proxy_port = m_cluster_table[dest_cluster_id].proxy_port;
+    std::string dest_proxy_key = dest_proxy_ip + ":" + std::to_string(dest_proxy_port);
+    int cross_rack_num = 0;
+    for (size_t i = 0; i < clusters_with_blocks.size(); i++)
+      if (clusters_with_blocks[i] != dest_cluster_id)
+        cross_rack_num++;
 
+    // Replaced node and key per failed block (for dest recovery request)
+    std::vector<std::string> replaced_ips(block_num);
+    std::vector<int> replaced_ports(block_num);
+    std::vector<std::string> failed_keys(block_num);
+    for (int f = 0; f < block_num; f++)
+    {
+      int bid = block_ids[f];
+      int cid = t_stripe.blocks[bid]->map2cluster;
+      int node_id = randomly_select_a_node(cid, stripe_id);
+      replaced_ips[f] = m_node_table[node_id].node_ip;
+      replaced_ports[f] = m_node_table[node_id].node_port;
+      failed_keys[f] = t_stripe.blocks[bid]->block_key;
+    }
+
+    // Run dest recovery in a thread (it will block on accept), then call degradedRead on each non-dest source
+    std::vector<std::thread> threads;
+    grpc::Status dest_status;
+    std::mutex dest_status_mutex;
+    threads.push_back(std::thread([this, &t_stripe, dest_proxy_key, dest_cluster_id, stripe_id, block_num, &block_ids, &decode_block_ids, &failed_keys, &replaced_ips, &replaced_ports, cross_rack_num, &decode_blocks_per_cluster, &clusters_with_blocks, &dest_status, &dest_status_mutex]() {
+      grpc::ClientContext recovery_context;
+      proxy_proto::RecoveryRequest recovery_request;
+      proxy_proto::RecoveryReply recovery_reply;
+      recovery_request.set_cross_rack_num(cross_rack_num);
+      for (int i = 0; i < block_num; i++)
+      {
+        recovery_request.add_failed_block_ids(block_ids[i]);
+        recovery_request.add_failed_block_keys(failed_keys[i]);
+        recovery_request.add_replaced_node_ips(replaced_ips[i]);
+        recovery_request.add_replaced_node_ports(replaced_ports[i]);
+      }
+      for (size_t i = 0; i < decode_block_ids.size(); i++)
+        recovery_request.add_decode_block_ids(decode_block_ids[i]);
+      size_t dest_idx = 0;
+      for (; dest_idx < clusters_with_blocks.size(); dest_idx++)
+        if (clusters_with_blocks[dest_idx] == dest_cluster_id)
+          break;
+      if (dest_idx < clusters_with_blocks.size())
+        add_block_list_to_recovery_request(t_stripe, decode_blocks_per_cluster[dest_idx], &recovery_request);
+      grpc::Status st = m_proxy_ptrs[dest_proxy_key]->recovery(&recovery_context, recovery_request, &recovery_reply);
+      std::lock_guard<std::mutex> lock(dest_status_mutex);
+      dest_status = st;
+    }));
+
+    for (size_t i = 0; i < clusters_with_blocks.size(); i++)
+    {
+      if (clusters_with_blocks[i] == dest_cluster_id)
+        continue;
+      std::string proxy_key = m_cluster_table[clusters_with_blocks[i]].proxy_ip + ":" + std::to_string(m_cluster_table[clusters_with_blocks[i]].proxy_port);
+      threads.push_back(std::thread([this, &t_stripe, proxy_key, dest_proxy_ip, dest_proxy_port, stripe_id, block_num, &block_ids, &decode_block_ids, &decode_blocks_per_cluster, i]() {
+        grpc::ClientContext degraded_context;
+        proxy_proto::DegradedReadRequest degraded_request;
+        proxy_proto::DegradedReadReply degraded_reply;
+        degraded_request.set_clientip(dest_proxy_ip);
+        degraded_request.set_clientport(dest_proxy_port + ECProject::PROXY_PORT_SHIFT);
+        for (int j = 0; j < block_num; j++)
+          degraded_request.add_failed_block_ids(block_ids[j]);
+        for (size_t j = 0; j < decode_block_ids.size(); j++)
+          degraded_request.add_decode_block_ids(decode_block_ids[j]);
+        add_block_list_to_degraded_read_request(t_stripe, decode_blocks_per_cluster[i], &degraded_request);
+        grpc::Status st = m_proxy_ptrs[proxy_key]->degradedRead(&degraded_context, degraded_request, &degraded_reply);
+        if (!st.ok())
+          std::cout << "[Coordinator] globalRecovery degradedRead from proxy " << proxy_key << " failed: " << st.error_message() << std::endl;
+      }));
+    }
+
+    for (size_t i = 0; i < threads.size(); i++)
+      threads[i].join();
+
+    {
+      std::lock_guard<std::mutex> lock(dest_status_mutex);
+      if (!dest_status.ok())
+      {
+        std::cout << "[Coordinator] globalRecovery recovery on dest failed: " << dest_status.error_message() << std::endl;
+        return grpc::Status(grpc::StatusCode::INTERNAL, "globalRecovery dest recovery failed: " + dest_status.error_message());
+      }
+    }
+    std::cout << "[Coordinator] globalRecovery success for stripe " << stripe_id << " blocks " << block_num << std::endl;
+    return grpc::Status::OK;
   }
 
   grpc::Status CoordinatorImpl::delByKey(

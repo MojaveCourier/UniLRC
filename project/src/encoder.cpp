@@ -661,6 +661,30 @@ void ECProject::decode_lotus_lrc(const int k, const int r, const int z, const in
     delete[] res_ptr_ptr;
 }
 
+// placeholder
+// TODO: implement this function in encoder.cpp with isa-l
+void ECProject::decode_with_coefficients(unsigned char **block_ptrs, const int *coefficients, int num_blocks, unsigned char *res_buf, int block_size)
+{
+    if (num_blocks == 0)
+        return;
+    memset(res_buf, 0, block_size);
+    for (int pos = 0; pos < block_size; pos++) {
+        for (int s = 0; s < num_blocks; s++)
+            res_buf[pos] ^= gf_mul(static_cast<unsigned char>(coefficients[s]), block_ptrs[s][pos]);
+    }
+}
+
+void ECProject::decode_with_coefficients_batch(unsigned char **block_ptrs, const std::vector<std::vector<int>> &decode_factors, unsigned char **out_bufs, int num_blocks, int block_num, int block_size)
+{
+    if (block_num == 0)
+        return;
+    for (int f = 0; f < block_num; f++) {
+        if (decode_factors[f].size() < static_cast<size_t>(num_blocks))
+            continue;
+        decode_with_coefficients(block_ptrs, decode_factors[f].data(), num_blocks, out_bufs[f], block_size);
+    }
+}
+
 void
 ECProject::ec_encode_data_avx2(int len, int k, int rows, unsigned char *g_tbls, unsigned char **data,
                     unsigned char **coding)

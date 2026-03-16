@@ -95,6 +95,11 @@ namespace ECProject
                           const std::vector<int> *block_indexes, unsigned char **block_ptrs, unsigned char *res_ptr, int block_size,
                           int failed_block_id);
 
+    /** Coefficient-based decode: res_buf = sum_s gf_mul(coefficients[s], block_ptrs[s]). If num_blocks==0, return (caller pre-zeroes res_buf). */
+    void decode_with_coefficients(unsigned char **block_ptrs, const int *coefficients, int num_blocks, unsigned char *res_buf, int block_size);
+    /** Batch: for each f, out_bufs[f] = decode with decode_factors[f] over all num_blocks source blocks. decode_factors.size()==block_num, each row length num_blocks. */
+    void decode_with_coefficients_batch(unsigned char **block_ptrs, const std::vector<std::vector<int>> &decode_factors, unsigned char **out_bufs, int num_blocks, int block_num, int block_size);
+
     int xor_avx(int vects, int len, void **array);
 
     unsigned char
@@ -135,7 +140,7 @@ namespace ECProject
 
     int xor_avx(int vects, int len, void **array);
 
-    bool get_multi_decode_plan(int k, int r, int z, std::string code_type, const std::vector<int> failed_block_indexes, std::vector<int> &decode_block_indexes, std::vector<std::vector<int>> &decode_factors);
+    bool get_global_decode_plan(int k, int r, int z, std::string code_type, const std::vector<int> failed_block_indexes, std::vector<int> &decode_block_indexes, std::vector<std::vector<int>> &decode_factors);
 
     /* Data layout / placement: per-group block counts for data, global parity, local parity (by code_type) */
     std::vector<int> get_data_block_num_per_group(int k, int r, int z, const std::string &code_type);

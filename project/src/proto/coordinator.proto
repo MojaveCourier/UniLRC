@@ -49,7 +49,7 @@ service coordinatorService {
   rpc getRecovery(KeyAndClientIP) returns (RecoveryReply) {};
   rpc getRecoveryBreakdown(KeyAndClientIP) returns (RecoveryReply) {};
   rpc fullNodeRecovery(NodeIdFromClient) returns (RepBlockNum) {};
-  rpc multiBlockRecovery(StripeIdAndBlockIDsFromClient) returns (RecoveryReply) {};
+  rpc globalRecovery(StripeIdAndBlockIDsFromClient) returns (RecoveryReply) {};
   // delete
   rpc delByKey(KeyFromClient) returns (RepIfDeling) {};
   rpc delByStripe(StripeIdFromClient) returns (RepIfDeling) {};

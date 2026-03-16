@@ -13,9 +13,49 @@
 #include <vector>
 
 namespace ECProject {
-
-bool get_multi_decode_plan(int k, int r, int z, std::string code_type, const std::vector<int> failed_block_indexes, std::vector<int> &decode_block_indexes, std::vector<std::vector<int>> &decode_factors)
+// only support failed block indexes in the same group
+bool get_global_decode_plan(int k, int r, int z, std::string code_type, const std::vector<int> failed_block_indexes, std::vector<int> &decode_block_indexes, std::vector<std::vector<int>> &decode_factors) // TODO: change factors with unsigned char, and add new function to use them to decode
 {
+    // Special-case: LotusLRC with exactly two failed blocks in the SAME local group.
+    // For this case we only need blocks from the same local group as sources.
+    // Here we only construct decode_block_indexes; decode_factors are left as a placeholder
+    // for the developer to fill with proper coefficients.
+    if (code_type == "LotusLRC" && failed_block_indexes.size() == 2) {
+        int f0 = failed_block_indexes[0];
+        int f1 = failed_block_indexes[1];
+        try {
+            int lg0 = get_lotuslrc_block_id_to_local_group_id(k, r, z, f0);
+            int lg1 = get_lotuslrc_block_id_to_local_group_id(k, r, z, f1);
+            if (lg0 == lg1) {
+                std::vector<std::pair<int, std::vector<int>>> groups =
+                    get_recovery_group_and_block_ids_lotuslrc_2block_recovery(k, r, z, f0, f1);
+                std::vector<int> sources;
+                for (const auto &p : groups) {
+                    for (int bid : p.second) {
+                        sources.push_back(bid);
+                    }
+                }
+                if (sources.empty()) {
+                    decode_block_indexes.clear();
+                    decode_factors.clear();
+                    return false;
+                }
+                decode_block_indexes = std::move(sources);
+                // Placeholder: allocate decode_factors with correct shape but
+                // zero coefficients. Actual coefficient generation for this
+                // special case should be implemented later.
+                decode_factors.clear();
+                decode_factors.resize(2);
+                for (int i = 0; i < 2; i++) {
+                    decode_factors[i].assign(decode_block_indexes.size(), 0);
+                }
+                return true;
+            }
+        } catch (const std::exception &) {
+            // Fall through to generic global plan if mapping fails
+        }
+    }
+
     int m = k + r;
     int nrows = k + r + z;
     unsigned char gen_matrix[k * (k + r + z)];
@@ -31,6 +71,9 @@ bool get_multi_decode_plan(int k, int r, int z, std::string code_type, const std
     }
     else if(code_type == "UniformLRC"){
         gen_uniform_lrc_matrix(gen_matrix, k, r, z);
+    }
+    else if(code_type == "LotusLRC"){
+        gen_lotuslrc_matrix(gen_matrix, k, r, z);
     }
     else{
         std::cerr << "Error: Unsupported code type " << code_type << std::endl;

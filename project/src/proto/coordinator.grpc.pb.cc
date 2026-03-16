@@ -40,7 +40,7 @@ static const char* coordinatorService_method_names[] = {
   "/coordinator_proto.coordinatorService/getRecovery",
   "/coordinator_proto.coordinatorService/getRecoveryBreakdown",
   "/coordinator_proto.coordinatorService/fullNodeRecovery",
-  "/coordinator_proto.coordinatorService/multiBlockRecovery",
+  "/coordinator_proto.coordinatorService/globalRecovery",
   "/coordinator_proto.coordinatorService/delByKey",
   "/coordinator_proto.coordinatorService/delByStripe",
   "/coordinator_proto.coordinatorService/listStripes",
@@ -72,7 +72,7 @@ coordinatorService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>&
   , rpcmethod_getRecovery_(coordinatorService_method_names[15], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_getRecoveryBreakdown_(coordinatorService_method_names[16], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_fullNodeRecovery_(coordinatorService_method_names[17], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_multiBlockRecovery_(coordinatorService_method_names[18], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_globalRecovery_(coordinatorService_method_names[18], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_delByKey_(coordinatorService_method_names[19], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_delByStripe_(coordinatorService_method_names[20], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_listStripes_(coordinatorService_method_names[21], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
@@ -493,25 +493,25 @@ void coordinatorService::Stub::async::fullNodeRecovery(::grpc::ClientContext* co
   return result;
 }
 
-::grpc::Status coordinatorService::Stub::multiBlockRecovery(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdAndBlockIDsFromClient& request, ::coordinator_proto::RecoveryReply* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::coordinator_proto::StripeIdAndBlockIDsFromClient, ::coordinator_proto::RecoveryReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_multiBlockRecovery_, context, request, response);
+::grpc::Status coordinatorService::Stub::globalRecovery(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdAndBlockIDsFromClient& request, ::coordinator_proto::RecoveryReply* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::coordinator_proto::StripeIdAndBlockIDsFromClient, ::coordinator_proto::RecoveryReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_globalRecovery_, context, request, response);
 }
 
-void coordinatorService::Stub::async::multiBlockRecovery(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdAndBlockIDsFromClient* request, ::coordinator_proto::RecoveryReply* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::coordinator_proto::StripeIdAndBlockIDsFromClient, ::coordinator_proto::RecoveryReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_multiBlockRecovery_, context, request, response, std::move(f));
+void coordinatorService::Stub::async::globalRecovery(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdAndBlockIDsFromClient* request, ::coordinator_proto::RecoveryReply* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::coordinator_proto::StripeIdAndBlockIDsFromClient, ::coordinator_proto::RecoveryReply, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_globalRecovery_, context, request, response, std::move(f));
 }
 
-void coordinatorService::Stub::async::multiBlockRecovery(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdAndBlockIDsFromClient* request, ::coordinator_proto::RecoveryReply* response, ::grpc::ClientUnaryReactor* reactor) {
-  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_multiBlockRecovery_, context, request, response, reactor);
+void coordinatorService::Stub::async::globalRecovery(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdAndBlockIDsFromClient* request, ::coordinator_proto::RecoveryReply* response, ::grpc::ClientUnaryReactor* reactor) {
+  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_globalRecovery_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::coordinator_proto::RecoveryReply>* coordinatorService::Stub::PrepareAsyncmultiBlockRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdAndBlockIDsFromClient& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::coordinator_proto::RecoveryReply, ::coordinator_proto::StripeIdAndBlockIDsFromClient, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_multiBlockRecovery_, context, request);
+::grpc::ClientAsyncResponseReader< ::coordinator_proto::RecoveryReply>* coordinatorService::Stub::PrepareAsyncglobalRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdAndBlockIDsFromClient& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::coordinator_proto::RecoveryReply, ::coordinator_proto::StripeIdAndBlockIDsFromClient, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_globalRecovery_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::coordinator_proto::RecoveryReply>* coordinatorService::Stub::AsyncmultiBlockRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdAndBlockIDsFromClient& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::coordinator_proto::RecoveryReply>* coordinatorService::Stub::AsyncglobalRecoveryRaw(::grpc::ClientContext* context, const ::coordinator_proto::StripeIdAndBlockIDsFromClient& request, ::grpc::CompletionQueue* cq) {
   auto* result =
-    this->PrepareAsyncmultiBlockRecoveryRaw(context, request, cq);
+    this->PrepareAsyncglobalRecoveryRaw(context, request, cq);
   result->StartCall();
   return result;
 }
@@ -797,7 +797,7 @@ coordinatorService::Service::Service() {
              ::grpc::ServerContext* ctx,
              const ::coordinator_proto::StripeIdAndBlockIDsFromClient* req,
              ::coordinator_proto::RecoveryReply* resp) {
-               return service->multiBlockRecovery(ctx, req, resp);
+               return service->globalRecovery(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       coordinatorService_method_names[19],
@@ -970,7 +970,7 @@ coordinatorService::Service::~Service() {
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status coordinatorService::Service::multiBlockRecovery(::grpc::ServerContext* context, const ::coordinator_proto::StripeIdAndBlockIDsFromClient* request, ::coordinator_proto::RecoveryReply* response) {
+::grpc::Status coordinatorService::Service::globalRecovery(::grpc::ServerContext* context, const ::coordinator_proto::StripeIdAndBlockIDsFromClient* request, ::coordinator_proto::RecoveryReply* response) {
   (void) context;
   (void) request;
   (void) response;

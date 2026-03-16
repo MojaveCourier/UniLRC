@@ -164,6 +164,10 @@ message DegradedReadRequest{
   repeated int32 datanodeport = 7;
   repeated string blockkeys = 8;
   repeated int32 blockids = 9;
+  // multi-block global recovery: full k source block ids
+  repeated int32 decode_block_ids = 10;
+  // multi-block global recovery: block ids to repair this round
+  repeated int32 failed_block_ids = 11;
 }
 
 message PartialDecodingRequest{
@@ -206,6 +210,15 @@ message RecoveryRequest{
   repeated int32 proxyport = 11;
   bool is_to_send_block_id = 12;
   int32 block_id_to_send = 13;
+  // multi-block global recovery: full k source block ids
+  repeated int32 decode_block_ids = 14;
+  // multi-block global recovery: block ids to repair this round (>=1)
+  repeated int32 failed_block_ids = 15;
+  // per failed block write-back node (same order as failed_block_ids)
+  repeated string replaced_node_ips = 16;
+  repeated int32 replaced_node_ports = 17;
+  // per failed block key for write-back (same order as failed_block_ids)
+  repeated string failed_block_keys = 18;
 }
 
 message MultipleRecoveryRequest{

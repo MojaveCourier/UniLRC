@@ -1178,6 +1178,63 @@ namespace ECProject
         std::cout << "[Proxy" << m_self_cluster_id << "][GET]"
                   << "read from datanodes success!" << std::endl;
 
+        // Multi-block global recovery: decode with coefficients, send block_num*block_size to dest
+        if (request_copy->failed_block_ids_size() > 0 && request_copy->decode_block_ids_size() > 0)
+        {
+          std::vector<int> failed_block_ids_vec;
+          for (int i = 0; i < request_copy->failed_block_ids_size(); i++)
+            failed_block_ids_vec.push_back(request_copy->failed_block_ids(i));
+          std::vector<int> decode_block_indexes_out;
+          std::vector<std::vector<int>> decode_factors_out;
+          if (!get_global_decode_plan(m_sys_config->k, m_sys_config->r, m_sys_config->z, code_type, failed_block_ids_vec, decode_block_indexes_out, decode_factors_out))
+          {
+            std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] get_global_decode_plan failed!" << std::endl;
+            std::free(res_buf);
+            for (int i = 0; i < request_copy->datanodeip_size(); i++)
+              std::free(get_bufs[i]);
+            return;
+          }
+          int block_num = static_cast<int>(failed_block_ids_vec.size());
+          int num_local = request_copy->datanodeip_size();
+          char *multi_res_buf = static_cast<char*>(std::aligned_alloc(32, static_cast<size_t>(block_num) * m_sys_config->BlockSize));
+          std::memset(multi_res_buf, 0, static_cast<size_t>(block_num) * m_sys_config->BlockSize);
+          std::vector<unsigned char *> block_ptrs = convertToUnsignedCharArray(get_bufs);
+          for (int f = 0; f < block_num; f++)
+          {
+            std::vector<int> local_coeffs(num_local);
+            for (int i = 0; i < num_local; i++)
+            {
+              int bid = request_copy->blockids(i);
+              int j = 0;
+              for (; j < static_cast<int>(decode_block_indexes_out.size()); j++)
+                if (decode_block_indexes_out[j] == bid) break;
+              local_coeffs[i] = (j < static_cast<int>(decode_block_indexes_out.size())) ? decode_factors_out[f][j] : 0;
+            }
+            decode_with_coefficients(block_ptrs.data(), local_coeffs.data(), num_local, reinterpret_cast<unsigned char*>(multi_res_buf) + f * m_sys_config->BlockSize, m_sys_config->BlockSize);
+          }
+          std::string client_ip = request_copy->clientip();
+          int client_port = request_copy->clientport();
+          asio::error_code error;
+          asio::ip::tcp::resolver resolver(io_context);
+          asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(client_ip, std::to_string(client_port));
+          asio::ip::tcp::socket socket_data(io_context);
+          asio::connect(socket_data, endpoints);
+          if (error)
+            std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] multi-block connect error" << std::endl;
+          else
+            asio::write(socket_data, asio::buffer(multi_res_buf, static_cast<size_t>(block_num) * m_sys_config->BlockSize), error);
+          if (error)
+            std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] multi-block write error" << std::endl;
+          asio::error_code ignore_ec;
+          socket_data.shutdown(asio::ip::tcp::socket::shutdown_send, ignore_ec);
+          socket_data.close(ignore_ec);
+          std::free(multi_res_buf);
+          std::free(res_buf);
+          for (int i = 0; i < request_copy->datanodeip_size(); i++)
+            std::free(get_bufs[i]);
+          return;
+        }
+
         std::vector<int> block_idxs;
         for (int i = 0; i < request_copy->datanodeip_size(); i++)
         {
@@ -1970,6 +2027,110 @@ namespace ECProject
 
       std::string code_type = m_sys_config->CodeType;
       int cross_rack_num = recovery_request->cross_rack_num();
+
+      // Multi-block global recovery: one round read k blocks, decode all failed blocks, XOR cross-rack partials, write each
+      if (recovery_request->failed_block_ids_size() > 0 && recovery_request->decode_block_ids_size() > 0)
+      {
+        int block_num = recovery_request->failed_block_ids_size();
+        size_t total_size = static_cast<size_t>(block_num) * m_sys_config->BlockSize;
+        char *res_buf = static_cast<char*>(std::aligned_alloc(32, total_size));
+        std::memset(res_buf, 0, total_size);
+
+        int num_local = recovery_request->datanodeip_size();
+        if (num_local > 0)
+        {
+          std::unique_ptr<bool[]> status(new bool[num_local]);
+          std::fill_n(status.get(), num_local, false);
+          std::vector<char*> get_bufs(num_local);
+          for (int i = 0; i < num_local; i++)
+            get_bufs[i] = static_cast<char*>(std::aligned_alloc(32, m_sys_config->BlockSize));
+          std::vector<std::thread> get_threads;
+          for (int i = 0; i < num_local; i++)
+            get_threads.push_back(std::thread(&ProxyImpl::get_from_node, this, recovery_request->blockkeys(i), get_bufs[i], m_sys_config->BlockSize, recovery_request->datanodeip(i).c_str(), recovery_request->datanodeport(i), status.get(), i));
+          for (int i = 0; i < num_local; i++)
+            get_threads[i].join();
+          bool all_true = std::all_of(status.get(), status.get() + num_local, [](bool val) { return val == true; });
+          if (!all_true)
+          {
+            std::cout << "[Proxy" << m_self_cluster_id << "][Recovery] multi-block read from datanodes failed!" << std::endl;
+            for (int i = 0; i < num_local; i++)
+              std::free(get_bufs[i]);
+            std::free(res_buf);
+            return grpc::Status(grpc::StatusCode::INTERNAL, "multi-block recovery: read from datanodes failed");
+          }
+          std::vector<int> failed_block_ids_vec;
+          for (int i = 0; i < block_num; i++)
+            failed_block_ids_vec.push_back(recovery_request->failed_block_ids(i));
+          std::vector<int> decode_block_indexes_out;
+          std::vector<std::vector<int>> decode_factors_out;
+          if (!get_global_decode_plan(m_sys_config->k, m_sys_config->r, m_sys_config->z, code_type, failed_block_ids_vec, decode_block_indexes_out, decode_factors_out))
+          {
+            std::cout << "[Proxy" << m_self_cluster_id << "][Recovery] multi-block get_global_decode_plan failed!" << std::endl;
+            for (int i = 0; i < num_local; i++)
+              std::free(get_bufs[i]);
+            std::free(res_buf);
+            return grpc::Status(grpc::StatusCode::INTERNAL, "multi-block recovery: get_global_decode_plan failed");
+          }
+          std::vector<unsigned char *> block_ptrs = convertToUnsignedCharArray(get_bufs);
+          for (int f = 0; f < block_num; f++)
+          {
+            std::vector<int> local_coeffs(num_local);
+            for (int i = 0; i < num_local; i++)
+            {
+              int bid = recovery_request->blockids(i);
+              int j = 0;
+              for (; j < static_cast<int>(decode_block_indexes_out.size()); j++)
+                if (decode_block_indexes_out[j] == bid) break;
+              local_coeffs[i] = (j < static_cast<int>(decode_block_indexes_out.size())) ? decode_factors_out[f][j] : 0;
+            }
+            decode_with_coefficients(block_ptrs.data(), local_coeffs.data(), num_local, reinterpret_cast<unsigned char*>(res_buf) + f * m_sys_config->BlockSize, m_sys_config->BlockSize);
+          }
+          for (int i = 0; i < num_local; i++)
+            std::free(get_bufs[i]);
+        }
+
+        if (cross_rack_num > 0)
+        {
+          std::vector<char*> cross_rack_bufs(cross_rack_num);
+          for (int i = 0; i < cross_rack_num; i++)
+            cross_rack_bufs[i] = static_cast<char*>(std::aligned_alloc(32, total_size));
+          std::vector<std::thread> get_from_proxies_threads;
+          for (int i = 0; i < cross_rack_num; i++)
+          {
+            get_from_proxies_threads.push_back(std::thread([i, this, total_size, &cross_rack_bufs]() mutable {
+              asio::ip::tcp::socket socket(this->io_context);
+              this->acceptor.accept(socket);
+              asio::error_code error;
+              asio::read(socket, asio::buffer(cross_rack_bufs[i], total_size), error);
+              asio::error_code ignore_ec;
+              socket.shutdown(asio::ip::tcp::socket::shutdown_receive, ignore_ec);
+              socket.close(ignore_ec);
+            }));
+          }
+          for (int i = 0; i < cross_rack_num; i++)
+            get_from_proxies_threads[i].join();
+          for (size_t pos = 0; pos < total_size; pos++)
+            for (int i = 0; i < cross_rack_num; i++)
+              res_buf[pos] ^= cross_rack_bufs[i][pos];
+          for (int i = 0; i < cross_rack_num; i++)
+            std::free(cross_rack_bufs[i]);
+        }
+
+        for (int f = 0; f < block_num; f++)
+        {
+          std::string key = recovery_request->failed_block_keys_size() > f ? recovery_request->failed_block_keys(f) : "";
+          int bid = recovery_request->failed_block_ids(f);
+          std::string ip = recovery_request->replaced_node_ips_size() > f ? recovery_request->replaced_node_ips(f) : "";
+          int port = recovery_request->replaced_node_ports_size() > f ? recovery_request->replaced_node_ports(f) : 0;
+          if (!key.empty() && port != 0)
+            RecoveryToDatanode(key.c_str(), bid, res_buf + f * m_sys_config->BlockSize, ip.c_str(), port);
+          std::cout << "[Proxy" << m_self_cluster_id << "][Recovery] send to the datanode " << ip << ":" << port << " block " << bid << std::endl;
+        }
+        std::free(res_buf);
+        return grpc::Status::OK;
+      }
+
+      // Single-block path
       // auto status = std::make_shared<std::vector<bool>>(recovery_request->datanodeip_size(), false);
       std::unique_ptr<bool[]> status(new bool[recovery_request->datanodeip_size()]);
       std::fill_n(status.get(), recovery_request->datanodeip_size(), false);
