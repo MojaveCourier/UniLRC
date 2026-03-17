@@ -95,11 +95,6 @@ namespace ECProject
                           const std::vector<int> *block_indexes, unsigned char **block_ptrs, unsigned char *res_ptr, int block_size,
                           int failed_block_id);
 
-    /** Coefficient-based decode: res_buf = sum_s gf_mul(coefficients[s], block_ptrs[s]). If num_blocks==0, return (caller pre-zeroes res_buf). */
-    void decode_with_coefficients(unsigned char **block_ptrs, const int *coefficients, int num_blocks, unsigned char *res_buf, int block_size);
-    /** Batch: for each f, out_bufs[f] = decode with decode_factors[f] over all num_blocks source blocks. decode_factors.size()==block_num, each row length num_blocks. */
-    void decode_with_coefficients_batch(unsigned char **block_ptrs, const std::vector<std::vector<int>> &decode_factors, unsigned char **out_bufs, int num_blocks, int block_num, int block_size);
-
     int xor_avx(int vects, int len, void **array);
 
     unsigned char
@@ -140,7 +135,20 @@ namespace ECProject
 
     int xor_avx(int vects, int len, void **array);
 
-    bool get_global_decode_plan(int k, int r, int z, std::string code_type, const std::vector<int> failed_block_indexes, std::vector<int> &decode_block_indexes, std::vector<std::vector<int>> &decode_factors);
+    // Global multi-block decode plan:
+    // - failed_block_indexes: ids of failed blocks (row indices in generator matrix)
+    // - global_decode_block_indexes: chosen source block ids (columns to read)
+    // - local_source_block_ids/local_matrix: optional. If both non-null, this function
+    //   will also build a local coefficient matrix of size (rows x cols) where rows is
+    //   the number of failed blocks and cols == local_source_block_ids->size().
+    //   local_matrix is row-major: local_matrix[f * cols + i] corresponds to
+    //   failed_block_indexes[f] and (*local_source_block_ids)[i].
+    bool get_global_decode_plan(int k, int r, int z, const std::string &code_type,
+                                const std::vector<int> &failed_block_indexes,
+                                std::vector<int> &global_decode_block_indexes,
+                                const std::vector<int> *local_source_block_ids,
+                                unsigned char *local_matrix,
+                                int &rows, int &cols);
 
     /* Data layout / placement: per-group block counts for data, global parity, local parity (by code_type) */
     std::vector<int> get_data_block_num_per_group(int k, int r, int z, const std::string &code_type);

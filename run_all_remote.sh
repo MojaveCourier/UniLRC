@@ -44,7 +44,7 @@ REMOTE_REPO="$SCRIPT_DIR"
   exit 1
 }
 
-# 127.0.0.1 则所有节点 IP 均为 127.0.0.1
+# 127.0.0.1 则所有节点 IP 均为 127.0.0.1（选项 B）
 if [ "$FIRST_IP" = "127.0.0.1" ]; then
   USE_LOCALHOST=1
 else
@@ -62,36 +62,57 @@ if [ "$USE_LOCALHOST" = 1 ]; then
   sleep 1
 fi
 
+ip_idx=0
 c=0
 while [ "$c" -lt "$CLUSTER_NUM" ]; do
-  if [ "$USE_LOCALHOST" = 1 ]; then
-    NODE_IP="127.0.0.1"
-  else
-    NODE_IP="${PREFIX}$((FIRST_OCTET + c))"
-  fi
   PROXY_PORT=$((FIRST_PORT + c))
 
+  # Allocate unique IPs globally (same logic as generate_xml_from_ini.py):
+  # - proxy gets one IP
+  # - each datanode in this cluster gets its own IP
   if [ "$USE_LOCALHOST" = 1 ]; then
-    REMOTE_CMD="cd $REMOTE_REPO && "
+    PROXY_IP="127.0.0.1"
   else
-    REMOTE_CMD="cd $REMOTE_REPO && pkill -9 run_datanode 2>/dev/null; pkill -9 run_proxy 2>/dev/null; sleep 1; "
+    PROXY_IP="${PREFIX}$((FIRST_OCTET + ip_idx))"
+    ip_idx=$((ip_idx + 1))
   fi
+
+  echo "Cluster $c: proxy ${PROXY_IP}:${PROXY_PORT}"
+
+  # Start datanodes (each potentially on a different host)
   d=0
   while [ "$d" -lt "$DN_PER" ]; do
     DP=$((DN_PORT_START + c * DN_PER + d))
-    REMOTE_CMD="$REMOTE_CMD$BUILD/run_datanode ${NODE_IP}:${DP} & "
+    if [ "$USE_LOCALHOST" = 1 ]; then
+      DN_IP="127.0.0.1"
+    else
+      DN_IP="${PREFIX}$((FIRST_OCTET + ip_idx))"
+      ip_idx=$((ip_idx + 1))
+    fi
+    echo "  datanode $d: ${DN_IP}:${DP}"
+    if [ "$DN_IP" = "127.0.0.1" ]; then
+      bash -c "cd $REMOTE_REPO && $BUILD/run_datanode ${DN_IP}:${DP} &" || {
+        echo "Failed: datanode $d of cluster $c at $DN_IP"
+      }
+    else
+      ssh -o ConnectTimeout=5 "${SSH_USER}@${DN_IP}" "cd $REMOTE_REPO && pkill -9 run_datanode 2>/dev/null || true; sleep 1; $BUILD/run_datanode ${DN_IP}:${DP} &" || {
+        echo "Failed: datanode $d of cluster $c at $DN_IP"
+      }
+    fi
     d=$((d + 1))
   done
-  REMOTE_CMD="$REMOTE_CMD sleep 2 && $BUILD/run_proxy ${NODE_IP}:${PROXY_PORT} ${COORD_IP} &"
 
-  echo "Cluster $c: ${SSH_USER}@${NODE_IP} (proxy ${NODE_IP}:${PROXY_PORT})"
-  if [ "$NODE_IP" = "127.0.0.1" ]; then
-    bash -c "$REMOTE_CMD" || { echo "Failed: cluster $c at $NODE_IP"; }
+  # Start proxy (on PROXY_IP host)
+  if [ "$PROXY_IP" = "127.0.0.1" ]; then
+    bash -c "cd $REMOTE_REPO && sleep 2 && $BUILD/run_proxy ${PROXY_IP}:${PROXY_PORT} ${COORD_IP} &" || {
+      echo "Failed: proxy of cluster $c at $PROXY_IP"
+    }
   else
-    ssh -o ConnectTimeout=5 "${SSH_USER}@${NODE_IP}" "$REMOTE_CMD" || {
-      echo "Failed: cluster $c at $NODE_IP"
+    ssh -o ConnectTimeout=5 "${SSH_USER}@${PROXY_IP}" "cd $REMOTE_REPO && pkill -9 run_proxy 2>/dev/null || true; sleep 2; $BUILD/run_proxy ${PROXY_IP}:${PROXY_PORT} ${COORD_IP} &" || {
+      echo "Failed: proxy of cluster $c at $PROXY_IP"
     }
   fi
+
   c=$((c + 1))
 done
 echo "Done."

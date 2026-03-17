@@ -2312,8 +2312,10 @@ namespace ECProject
     int chosen_cluster_id = randomly_select_a_cluster(stripe_id);
     int chosen_node_id = randomly_select_a_node(chosen_cluster_id, stripe_id);
     std::vector<int> decode_block_ids;
-    std::vector<std::vector<int>> decode_factors;
-    bool ifGetDecodePlanSuccess = ECProject::get_global_decode_plan(m_sys_config->k, m_sys_config->r, m_sys_config->z, m_sys_config->CodeType, block_ids, decode_block_ids, decode_factors);
+    int rows = 0, cols = 0;
+    bool ifGetDecodePlanSuccess = ECProject::get_global_decode_plan(
+        m_sys_config->k, m_sys_config->r, m_sys_config->z, m_sys_config->CodeType,
+        block_ids, decode_block_ids, nullptr, nullptr, rows, cols);
     if(!ifGetDecodePlanSuccess){
       std::cout << "[Coordinator] get multi decode plan failed!" << std::endl;
       return grpc::Status(grpc::StatusCode::INTERNAL, "Get multi decode plan failed!");
@@ -2372,6 +2374,8 @@ namespace ECProject
       proxy_proto::RecoveryRequest recovery_request;
       proxy_proto::RecoveryReply recovery_reply;
       recovery_request.set_cross_rack_num(cross_rack_num);
+      std::cout << "[Coordinator] globalRecovery dest_cluster_id: " << dest_cluster_id << std::endl;
+      std::cout << "[Coordinator] globalRecovery cross_rack_num: " << cross_rack_num << std::endl;
       for (int i = 0; i < block_num; i++)
       {
         recovery_request.add_failed_block_ids(block_ids[i]);
@@ -2397,6 +2401,8 @@ namespace ECProject
       if (clusters_with_blocks[i] == dest_cluster_id)
         continue;
       std::string proxy_key = m_cluster_table[clusters_with_blocks[i]].proxy_ip + ":" + std::to_string(m_cluster_table[clusters_with_blocks[i]].proxy_port);
+      std::cout << "[Coordinator] globalRecovery proxy_key: " << proxy_key << std::endl;
+      std::cout << "[Coordinator] globalRecovery clusters_with_blocks[i] number: " << clusters_with_blocks[i] << std::endl;
       threads.push_back(std::thread([this, &t_stripe, proxy_key, dest_proxy_ip, dest_proxy_port, stripe_id, block_num, &block_ids, &decode_block_ids, &decode_blocks_per_cluster, i]() {
         grpc::ClientContext degraded_context;
         proxy_proto::DegradedReadRequest degraded_request;

@@ -170,10 +170,6 @@ int main(int argc, char **argv)
     std::vector<int> block_ids;
     block_ids.push_back(0);
     block_ids.push_back(1);
-    block_ids.push_back(2);
-    block_ids.push_back(3);
-    block_ids.push_back(4);
-    block_ids.push_back(5);
     if (!client.multi_block_recovery(0, block_ids))
     {
         std::cout << "Multi block recovery (0,1) failed!" << std::endl;

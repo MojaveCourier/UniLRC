@@ -14,12 +14,16 @@
 
 namespace ECProject {
 // only support failed block indexes in the same group
-bool get_global_decode_plan(int k, int r, int z, std::string code_type, const std::vector<int> failed_block_indexes, std::vector<int> &decode_block_indexes, std::vector<std::vector<int>> &decode_factors) // TODO: change factors with unsigned char, and add new function to use them to decode
+bool get_global_decode_plan(int k, int r, int z, const std::string &code_type,
+                            const std::vector<int> &failed_block_indexes,
+                            std::vector<int> &global_decode_block_indexes,
+                            const std::vector<int> *local_source_block_ids,
+                            unsigned char *local_matrix,
+                            int &rows, int &cols)
 {
-    // Special-case: LotusLRC with exactly two failed blocks in the SAME local group.
-    // For this case we only need blocks from the same local group as sources.
-    // Here we only construct decode_block_indexes; decode_factors are left as a placeholder
-    // for the developer to fill with proper coefficients.
+    // LotusLRC: two failed blocks in the same local group can use a smaller local system.
+    // Here we only set up global_decode_block_indexes and a compact full_coeffs matrix.
+    // The actual coefficient values for this special case should be filled in later.
     if (code_type == "LotusLRC" && failed_block_indexes.size() == 2) {
         int f0 = failed_block_indexes[0];
         int f1 = failed_block_indexes[1];
@@ -27,6 +31,7 @@ bool get_global_decode_plan(int k, int r, int z, std::string code_type, const st
             int lg0 = get_lotuslrc_block_id_to_local_group_id(k, r, z, f0);
             int lg1 = get_lotuslrc_block_id_to_local_group_id(k, r, z, f1);
             if (lg0 == lg1) {
+                // Same local group: use all usable blocks from this local group as sources.
                 std::vector<std::pair<int, std::vector<int>>> groups =
                     get_recovery_group_and_block_ids_lotuslrc_2block_recovery(k, r, z, f0, f1);
                 std::vector<int> sources;
@@ -35,24 +40,41 @@ bool get_global_decode_plan(int k, int r, int z, std::string code_type, const st
                         sources.push_back(bid);
                     }
                 }
-                if (sources.empty()) {
-                    decode_block_indexes.clear();
-                    decode_factors.clear();
-                    return false;
+                if (!sources.empty()) {
+                    global_decode_block_indexes = sources;
+                    int F = 2;
+                    int K = static_cast<int>(sources.size());
+                    rows = F;
+                    cols = 0;
+                    std::vector<unsigned char> full_coeffs(F * K);
+                    // TODO: fill full_coeffs[f * K + j] with real coefficients for LotusLRC 2-block local system.
+                    // Currently they are left as zeros for placeholder.
+
+                    if (local_source_block_ids != nullptr && local_matrix != nullptr) {
+                        cols = static_cast<int>(local_source_block_ids->size());
+                        for (int f = 0; f < F; ++f) {
+                            for (int i = 0; i < cols; ++i) {
+                                int local_bid = (*local_source_block_ids)[i];
+                                int j_global = -1;
+                                for (int j = 0; j < K; ++j) {
+                                    if (global_decode_block_indexes[j] == local_bid) {
+                                        j_global = j;
+                                        break;
+                                    }
+                                }
+                                unsigned char val = 0;
+                                if (j_global != -1) {
+                                    val = full_coeffs[f * K + j_global];
+                                }
+                                local_matrix[f * cols + i] = val;
+                            }
+                        }
+                    }
+                    return true;
                 }
-                decode_block_indexes = std::move(sources);
-                // Placeholder: allocate decode_factors with correct shape but
-                // zero coefficients. Actual coefficient generation for this
-                // special case should be implemented later.
-                decode_factors.clear();
-                decode_factors.resize(2);
-                for (int i = 0; i < 2; i++) {
-                    decode_factors[i].assign(decode_block_indexes.size(), 0);
-                }
-                return true;
             }
         } catch (const std::exception &) {
-            // Fall through to generic global plan if mapping fails
+            // fall through to generic global plan on any error
         }
     }
 
@@ -99,8 +121,8 @@ bool get_global_decode_plan(int k, int r, int z, std::string code_type, const st
 
     // If still fewer than k rows, cannot form left-inverse
     if ((int)candidates.size() < k) {
-        decode_block_indexes.clear();
-        decode_factors.clear();
+        global_decode_block_indexes.clear();
+        rows = cols = 0;
         return false;
     }
 
@@ -155,8 +177,8 @@ bool get_global_decode_plan(int k, int r, int z, std::string code_type, const st
     // check if we found k independent rows (need cur >= k)
     if (cur < k) {
         delete[] mat;
-        decode_block_indexes.clear();
-        decode_factors.clear();
+        global_decode_block_indexes.clear();
+        rows = cols = 0;
         return false;
     }
 
@@ -178,29 +200,55 @@ bool get_global_decode_plan(int k, int r, int z, std::string code_type, const st
         delete[] mat;
         delete[] tempM;
         delete[] invM;
-        decode_block_indexes.clear();
-        decode_factors.clear();
+        global_decode_block_indexes.clear();
+        rows = cols = 0;
         return false;
     }
 
-    // decode_block_indexes = chosen (sources)
-    decode_block_indexes = chosen;
+    // global_decode_block_indexes = chosen (sources)
+    global_decode_block_indexes = chosen;
 
-    // For each failed block, compute coefficients c = G_row_failed * invM
-    decode_factors.clear();
-    for (int fidx : failed_block_indexes) {
-        std::vector<int> factors(k);
-        unsigned char *coeff = new unsigned char[k];
-        gf_mul_vect_matrix(gen_matrix + fidx * k, invM, coeff, k);
-        for (int i = 0; i < k; i++) factors[i] = (int)coeff[i];
-        decode_factors.push_back(std::move(factors));
+    // For each failed block, compute global coefficients c = G_row_failed * invM
+    int F = static_cast<int>(failed_block_indexes.size());
+    int K = static_cast<int>(global_decode_block_indexes.size());
+    rows = F;
+    cols = 0;
+    std::vector<unsigned char> full_coeffs(F * K);
+    for (int f = 0; f < F; ++f) {
+        int fidx = failed_block_indexes[f];
+        unsigned char *coeff = new unsigned char[K];
+        gf_mul_vect_matrix(gen_matrix + fidx * k, invM, coeff, K);
+        for (int j = 0; j < K; ++j) {
+            full_coeffs[f * K + j] = coeff[j];
+        }
         delete[] coeff;
+    }
+
+    // If caller requested a local matrix, project global coefficients onto its local sources
+    if (local_source_block_ids != nullptr && local_matrix != nullptr) {
+        cols = static_cast<int>(local_source_block_ids->size());
+        for (int f = 0; f < F; ++f) {
+            for (int i = 0; i < cols; ++i) {
+                int local_bid = (*local_source_block_ids)[i];
+                int j_global = -1;
+                for (int j = 0; j < K; ++j) {
+                    if (global_decode_block_indexes[j] == local_bid) {
+                        j_global = j;
+                        break;
+                    }
+                }
+                unsigned char val = 0;
+                if (j_global != -1) {
+                    val = full_coeffs[f * K + j_global];
+                }
+                local_matrix[f * cols + i] = val;
+            }
+        }
     }
 
     delete[] mat;
     delete[] tempM;
     delete[] invM;
-    // done
     return true;
 }
 

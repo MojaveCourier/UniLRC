@@ -1178,15 +1178,22 @@ namespace ECProject
         std::cout << "[Proxy" << m_self_cluster_id << "][GET]"
                   << "read from datanodes success!" << std::endl;
 
-        // Multi-block global recovery: decode with coefficients, send block_num*block_size to dest
+        // Multi-block global recovery: use coefficient matrix + ISA-L encode, send block_num*block_size to dest
         if (request_copy->failed_block_ids_size() > 0 && request_copy->decode_block_ids_size() > 0)
         {
           std::vector<int> failed_block_ids_vec;
           for (int i = 0; i < request_copy->failed_block_ids_size(); i++)
             failed_block_ids_vec.push_back(request_copy->failed_block_ids(i));
           std::vector<int> decode_block_indexes_out;
-          std::vector<std::vector<int>> decode_factors_out;
-          if (!get_global_decode_plan(m_sys_config->k, m_sys_config->r, m_sys_config->z, code_type, failed_block_ids_vec, decode_block_indexes_out, decode_factors_out))
+          std::vector<int> local_ids;
+          for (int i = 0; i < request_copy->blockids_size(); ++i)
+            local_ids.push_back(request_copy->blockids(i));
+
+          int rows = 0, cols = 0;
+          std::vector<unsigned char> local_matrix(failed_block_ids_vec.size() * local_ids.size());
+          if (!get_global_decode_plan(m_sys_config->k, m_sys_config->r, m_sys_config->z, code_type,
+                                      failed_block_ids_vec, decode_block_indexes_out,
+                                      &local_ids, local_matrix.data(), rows, cols))
           {
             std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] get_global_decode_plan failed!" << std::endl;
             std::free(res_buf);
@@ -1199,19 +1206,15 @@ namespace ECProject
           char *multi_res_buf = static_cast<char*>(std::aligned_alloc(32, static_cast<size_t>(block_num) * m_sys_config->BlockSize));
           std::memset(multi_res_buf, 0, static_cast<size_t>(block_num) * m_sys_config->BlockSize);
           std::vector<unsigned char *> block_ptrs = convertToUnsignedCharArray(get_bufs);
-          for (int f = 0; f < block_num; f++)
-          {
-            std::vector<int> local_coeffs(num_local);
-            for (int i = 0; i < num_local; i++)
-            {
-              int bid = request_copy->blockids(i);
-              int j = 0;
-              for (; j < static_cast<int>(decode_block_indexes_out.size()); j++)
-                if (decode_block_indexes_out[j] == bid) break;
-              local_coeffs[i] = (j < static_cast<int>(decode_block_indexes_out.size())) ? decode_factors_out[f][j] : 0;
-            }
-            decode_with_coefficients(block_ptrs.data(), local_coeffs.data(), num_local, reinterpret_cast<unsigned char*>(multi_res_buf) + f * m_sys_config->BlockSize, m_sys_config->BlockSize);
-          }
+          // rows = block_num, cols = num_local
+          std::vector<unsigned char*> data_ptrs = block_ptrs;
+          std::vector<unsigned char*> out_ptrs(block_num);
+          for (int f = 0; f < block_num; ++f)
+            out_ptrs[f] = reinterpret_cast<unsigned char*>(multi_res_buf) + f * m_sys_config->BlockSize;
+          std::vector<unsigned char> g_tbls(cols * rows * 32);
+          ec_init_tables(cols, rows, local_matrix.data(), g_tbls.data());
+          ec_encode_data_avx2(m_sys_config->BlockSize, cols, rows, g_tbls.data(),
+                              data_ptrs.data(), out_ptrs.data());
           std::string client_ip = request_copy->clientip();
           int client_port = request_copy->clientport();
           asio::error_code error;
@@ -2062,8 +2065,15 @@ namespace ECProject
           for (int i = 0; i < block_num; i++)
             failed_block_ids_vec.push_back(recovery_request->failed_block_ids(i));
           std::vector<int> decode_block_indexes_out;
-          std::vector<std::vector<int>> decode_factors_out;
-          if (!get_global_decode_plan(m_sys_config->k, m_sys_config->r, m_sys_config->z, code_type, failed_block_ids_vec, decode_block_indexes_out, decode_factors_out))
+          std::vector<int> local_ids;
+          for (int i = 0; i < num_local; ++i)
+            local_ids.push_back(recovery_request->blockids(i));
+
+          int rows = 0, cols = 0;
+          std::vector<unsigned char> local_matrix(block_num * num_local);
+          if (!get_global_decode_plan(m_sys_config->k, m_sys_config->r, m_sys_config->z, code_type,
+                                      failed_block_ids_vec, decode_block_indexes_out,
+                                      &local_ids, local_matrix.data(), rows, cols))
           {
             std::cout << "[Proxy" << m_self_cluster_id << "][Recovery] multi-block get_global_decode_plan failed!" << std::endl;
             for (int i = 0; i < num_local; i++)
@@ -2072,19 +2082,14 @@ namespace ECProject
             return grpc::Status(grpc::StatusCode::INTERNAL, "multi-block recovery: get_global_decode_plan failed");
           }
           std::vector<unsigned char *> block_ptrs = convertToUnsignedCharArray(get_bufs);
-          for (int f = 0; f < block_num; f++)
-          {
-            std::vector<int> local_coeffs(num_local);
-            for (int i = 0; i < num_local; i++)
-            {
-              int bid = recovery_request->blockids(i);
-              int j = 0;
-              for (; j < static_cast<int>(decode_block_indexes_out.size()); j++)
-                if (decode_block_indexes_out[j] == bid) break;
-              local_coeffs[i] = (j < static_cast<int>(decode_block_indexes_out.size())) ? decode_factors_out[f][j] : 0;
-            }
-            decode_with_coefficients(block_ptrs.data(), local_coeffs.data(), num_local, reinterpret_cast<unsigned char*>(res_buf) + f * m_sys_config->BlockSize, m_sys_config->BlockSize);
-          }
+          std::vector<unsigned char*> data_ptrs = block_ptrs;
+          std::vector<unsigned char*> out_ptrs(block_num);
+          for (int f = 0; f < block_num; ++f)
+            out_ptrs[f] = reinterpret_cast<unsigned char*>(res_buf) + f * m_sys_config->BlockSize;
+          std::vector<unsigned char> g_tbls(cols * rows * 32);
+          ec_init_tables(cols, rows, local_matrix.data(), g_tbls.data());
+          ec_encode_data_avx2(m_sys_config->BlockSize, cols, rows, g_tbls.data(),
+                              data_ptrs.data(), out_ptrs.data());
           for (int i = 0; i < num_local; i++)
             std::free(get_bufs[i]);
         }

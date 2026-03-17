@@ -40,11 +40,23 @@ def compute_cluster_info(cfg):
         prefix = parts[0] + "."
         first_octet = int(parts[1])
     clusters = []
+    # IP allocation:
+    # - If first_proxy_ip is 127.0.0.1, keep all IPs as 127.0.0.1 (option B).
+    # - Otherwise, allocate unique IPs globally starting from first_proxy_ip:
+    #   proxy + all datanodes across all clusters each get a distinct IP by incrementing the last octet.
+    ip_idx = 0
     for c in range(n):
-        ip = "127.0.0.1" if use_localhost else f"{prefix}{first_octet + c}"
+        proxy_ip = "127.0.0.1" if use_localhost else f"{prefix}{first_octet + ip_idx}"
+        if not use_localhost:
+            ip_idx += 1
         proxy_port = first_port + c
-        datanodes = [f"{ip}:{dn_start + c * dn_per + d}" for d in range(dn_per)]
-        clusters.append({"proxy": f"{ip}:{proxy_port}", "datanodes": datanodes})
+        datanodes = []
+        for d in range(dn_per):
+            dn_ip = "127.0.0.1" if use_localhost else f"{prefix}{first_octet + ip_idx}"
+            if not use_localhost:
+                ip_idx += 1
+            datanodes.append(f"{dn_ip}:{dn_start + c * dn_per + d}")
+        clusters.append({"proxy": f"{proxy_ip}:{proxy_port}", "datanodes": datanodes})
     return clusters, n, dn_per, sect.get("coordinator_ip", "0.0.0.0").strip()
 
 
