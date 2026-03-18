@@ -16,12 +16,24 @@ fi
 # 使用字面匹配 [section]，避免在 awk 正则中 [cluster] 被当作字符类
 get_ini() {
   local section="$1" key="$2"
-  local section_regex='\['"$section"'\]'
-  awk -F'=' -v S="$section_regex" -v K="$key" '
-    $0 ~ "^[ \t]*" S "[ \t]*$" { f=1; next }
-    f && /^[ \t]*\[/ { f=0; next }
-    f && /^[ \t]*#/ { next }
-    f && NF >= 2 { gsub(/^[ \t]+|[ \t]+$/,"",$1); if ($1 == K) { gsub(/^[ \t]+|[ \t]+$/,"",$2); print $2; exit } }
+  awk -F'=' -v SECTION="$section" -v KEY="$key" '
+    function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
+    /^[ \t]*#/ { next }
+    /^[ \t]*\[/ {
+      line = trim($0)
+      f = (line == "[" SECTION "]")
+      next
+    }
+    f && NF >= 2 {
+      k = trim($1)
+      if (k == KEY) {
+        v = $0
+        sub(/^[^=]*=/, "", v)   # keep value even if it contains '='
+        v = trim(v)
+        print v
+        exit
+      }
+    }
   ' "$CONFIG"
 }
 
@@ -59,7 +71,7 @@ BUILD="$REMOTE_REPO/project/cmake/build"
 if [ "$USE_LOCALHOST" = 1 ]; then
   pkill -9 run_datanode 2>/dev/null || true
   pkill -9 run_proxy 2>/dev/null || true
-  sleep 1
+  sleep 0.002
 fi
 
 ip_idx=0
@@ -91,11 +103,13 @@ while [ "$c" -lt "$CLUSTER_NUM" ]; do
     fi
     echo "  datanode $d: ${DN_IP}:${DP}"
     if [ "$DN_IP" = "127.0.0.1" ]; then
-      bash -c "cd $REMOTE_REPO && $BUILD/run_datanode ${DN_IP}:${DP} &" || {
+      # Detach output to avoid blocking this script
+      bash -c "cd $REMOTE_REPO && nohup $BUILD/run_datanode ${DN_IP}:${DP} </dev/null >\"/tmp/unilrc-datanode-${DN_IP//./_}-${DP}.log\" 2>&1 &" || {
         echo "Failed: datanode $d of cluster $c at $DN_IP"
       }
     else
-      ssh -o ConnectTimeout=5 "${SSH_USER}@${DN_IP}" "cd $REMOTE_REPO && pkill -9 run_datanode 2>/dev/null || true; sleep 1; $BUILD/run_datanode ${DN_IP}:${DP} &" || {
+      # Use -n and nohup + redirection so ssh returns immediately (no stdout/stderr attached)
+      ssh -n -o ConnectTimeout=5 "${SSH_USER}@${DN_IP}" "cd $REMOTE_REPO && pkill -9 run_datanode 2>/dev/null || true; sleep 0.002; nohup $BUILD/run_datanode ${DN_IP}:${DP} </dev/null >\"/tmp/unilrc-datanode-${DN_IP//./_}-${DP}.log\" 2>&1 &" || {
         echo "Failed: datanode $d of cluster $c at $DN_IP"
       }
     fi
@@ -104,11 +118,11 @@ while [ "$c" -lt "$CLUSTER_NUM" ]; do
 
   # Start proxy (on PROXY_IP host)
   if [ "$PROXY_IP" = "127.0.0.1" ]; then
-    bash -c "cd $REMOTE_REPO && sleep 2 && $BUILD/run_proxy ${PROXY_IP}:${PROXY_PORT} ${COORD_IP} &" || {
+    bash -c "cd $REMOTE_REPO && sleep 0.002 && nohup $BUILD/run_proxy ${PROXY_IP}:${PROXY_PORT} ${COORD_IP} </dev/null >\"/tmp/unilrc-proxy-${PROXY_IP//./_}-${PROXY_PORT}.log\" 2>&1 &" || {
       echo "Failed: proxy of cluster $c at $PROXY_IP"
     }
   else
-    ssh -o ConnectTimeout=5 "${SSH_USER}@${PROXY_IP}" "cd $REMOTE_REPO && pkill -9 run_proxy 2>/dev/null || true; sleep 2; $BUILD/run_proxy ${PROXY_IP}:${PROXY_PORT} ${COORD_IP} &" || {
+    ssh -n -o ConnectTimeout=5 "${SSH_USER}@${PROXY_IP}" "cd $REMOTE_REPO && pkill -9 run_proxy 2>/dev/null || true; sleep 0.002; nohup $BUILD/run_proxy ${PROXY_IP}:${PROXY_PORT} ${COORD_IP} </dev/null >\"/tmp/unilrc-proxy-${PROXY_IP//./_}-${PROXY_PORT}.log\" 2>&1 &" || {
       echo "Failed: proxy of cluster $c at $PROXY_IP"
     }
   fi

@@ -2114,11 +2114,18 @@ namespace ECProject
           }
           for (int i = 0; i < cross_rack_num; i++)
             get_from_proxies_threads[i].join();
-          for (size_t pos = 0; pos < total_size; pos++)
+            char *real_res_buf = static_cast<char*>(std::aligned_alloc(32, total_size));
+            char **buf_ptrs = new char*[cross_rack_num + 2];
             for (int i = 0; i < cross_rack_num; i++)
-              res_buf[pos] ^= cross_rack_bufs[i][pos];
-          for (int i = 0; i < cross_rack_num; i++)
-            std::free(cross_rack_bufs[i]);
+              buf_ptrs[i] = cross_rack_bufs[i];
+            buf_ptrs[cross_rack_num] = res_buf;
+            buf_ptrs[cross_rack_num + 1] = real_res_buf;
+            xor_avx(cross_rack_num + 2, static_cast<int>(total_size), (void**)buf_ptrs);
+            for (int i = 0; i < cross_rack_num; i++)
+              std::free(cross_rack_bufs[i]);
+            delete[] buf_ptrs;
+            std::free(res_buf);
+            res_buf = real_res_buf;
         }
 
         for (int f = 0; f < block_num; f++)

@@ -411,16 +411,19 @@ void ECProject::gen_uniform_lrc_matrix(unsigned char *encode_matrix, int k, int 
     gf_gen_cauchy_matrix1(encode_matrix, m, k);
     unsigned char *local_vector = new unsigned char[k];
     gf_gen_local_vector(local_vector, k, r);
-    int group_size = (k + r) / z; // need to be adjusted for more general cases
-    int larger_group_num = (k + r) % z;
+    // Partition k data blocks into z groups with sizes differing by at most 1.
+    // NOTE: local parity rows only depend on data indices [0, k).
+    int group_size = k / z;
+    int larger_group_num = k % z;
     for(int i = 0; i < k; i++){
         int row;
         if(i < (z - larger_group_num) * group_size){
             row = i / group_size;
         }
         else{
-            row = (z - larger_group_num) * group_size + (i - (z - larger_group_num) * group_size) / (group_size + 1);
+            row = (z - larger_group_num) + (i - (z - larger_group_num) * group_size) / (group_size + 1);
         }
+        assert(row >= 0 && row < z && "UniformLRC local parity row out of range");
         encode_matrix[(m + row) * k + i] = local_vector[i];
     }
     for(int i = 0; i < r; i++){

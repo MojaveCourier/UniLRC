@@ -165,25 +165,74 @@ int main(int argc, char **argv)
     std::cout << "Single block recovery test end" << std::endl;
     std::cout << std::endl;
     */
-    //for multi block recovery (test blocks 0 and 1)
-    std::cout << "Multi block recovery test start (blocks 0, 1)" << std::endl;
-    std::vector<int> block_ids;
-    block_ids.push_back(0);
-    block_ids.push_back(1);
-    if (!client.multi_block_recovery(0, block_ids))
+    // for one block recovery
     {
-        std::cout << "Multi block recovery (0,1) failed!" << std::endl;
-        return -1;
+        std::vector<std::chrono::duration<double>> one_block_recovery_time_spans;
+        std::cout << "One block recovery test start" << std::endl;
+        for(int i = 0; i < 10; i++){
+            std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+            client.recovery(0, 0);
+            std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+            one_block_recovery_time_spans.push_back(time_span);
+            std::cout << "[" << i << "th] One block recovery time: " << time_span.count() << "s" << std::endl;
+            sleep(1);
+        }
+        std::chrono::duration<double> one_block_recovery_total_time_span = std::accumulate(one_block_recovery_time_spans.begin(), one_block_recovery_time_spans.end(), std::chrono::duration<double>(0));
+        std::chrono::duration<double> one_block_recovery_max_time_span = *std::max_element(one_block_recovery_time_spans.begin(), one_block_recovery_time_spans.end());
+        std::chrono::duration<double> one_block_recovery_min_time_span = *std::min_element(one_block_recovery_time_spans.begin(), one_block_recovery_time_spans.end());
+        std::cout << "Average time: " << one_block_recovery_total_time_span.count() / one_block_recovery_time_spans.size() << std::endl;
+        std::cout << "Max time: "<< one_block_recovery_max_time_span.count() << std::endl;
+        std::cout << "Min time: "<< one_block_recovery_min_time_span.count() << std::endl;
+        std::cout << "One block recovery test end" << std::endl;
+        std::cout << std::endl;
     }
-    std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-    client.multi_block_recovery(0, block_ids);
-    std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
-    std::cout << "Multi block recovery time (blocks 0,1): " << time_span.count() << " s" << std::endl;
-    double recovered_mb = static_cast<double>(block_ids.size()) * block_size;
-    std::cout << "Multi block recovery throughput: " << (recovered_mb / time_span.count()) << " MB/s" << std::endl;
-    std::cout << "Multi block recovery test end" << std::endl;
-    std::cout << std::endl;
+
+    // for multi block recovery (test blocks 0 and 1)
+    {
+        std::vector<std::chrono::duration<double>> multi_block_recovery_time_spans;
+        std::cout << "Multi block recovery test start (blocks 0, 1)" << std::endl;
+        for(int i = 0; i < 10; i++){
+            std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+            client.multi_block_recovery(0, {0,1}); // to optimize recovery time, we can globally recover blocks 0 first
+            //client.recovery(0, 1); // then recover block 1 locally
+            std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+            multi_block_recovery_time_spans.push_back(time_span);
+            std::cout << "[" << i << "th] Multi block recovery time: " << time_span.count() << "s" << std::endl;
+            sleep(1);
+        }
+        std::chrono::duration<double> multi_block_recovery_total_time_span = std::accumulate(multi_block_recovery_time_spans.begin(), multi_block_recovery_time_spans.end(), std::chrono::duration<double>(0));
+        std::chrono::duration<double> multi_block_recovery_max_time_span = *std::max_element(multi_block_recovery_time_spans.begin(), multi_block_recovery_time_spans.end());
+        std::chrono::duration<double> multi_block_recovery_min_time_span = *std::min_element(multi_block_recovery_time_spans.begin(), multi_block_recovery_time_spans.end());
+        std::cout << "Average time: " << multi_block_recovery_total_time_span.count() / multi_block_recovery_time_spans.size() << std::endl;
+        std::cout << "Max time: "<< multi_block_recovery_max_time_span.count() << std::endl;
+        std::cout << "Min time: "<< multi_block_recovery_min_time_span.count() << std::endl;
+        std::cout << "Multi block recovery test end" << std::endl;
+        std::cout << std::endl;
+    }
+    // for multi block recovery (test one rack)
+    {
+        std::vector<std::chrono::duration<double>> multi_block_recovery_one_rack_time_spans;
+        std::cout << "Multi block recovery test start (one rack)" << std::endl;
+        for(int i = 0; i < 10; i++){
+            std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+            client.multi_block_recovery(0, {0, 1, 2, 3});
+            std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+            multi_block_recovery_one_rack_time_spans.push_back(time_span);
+            std::cout << "[" << i << "th] Multi block recovery one rack time: " << time_span.count() << "s" << std::endl;
+            sleep(1);
+        }
+        std::chrono::duration<double> multi_block_recovery_one_rack_total_time_span = std::accumulate(multi_block_recovery_one_rack_time_spans.begin(), multi_block_recovery_one_rack_time_spans.end(), std::chrono::duration<double>(0));
+        std::chrono::duration<double> multi_block_recovery_one_rack_max_time_span = *std::max_element(multi_block_recovery_one_rack_time_spans.begin(), multi_block_recovery_one_rack_time_spans.end());
+        std::chrono::duration<double> multi_block_recovery_one_rack_min_time_span = *std::min_element(multi_block_recovery_one_rack_time_spans.begin(), multi_block_recovery_one_rack_time_spans.end());
+        std::cout << "Average time: " << multi_block_recovery_one_rack_total_time_span.count() / multi_block_recovery_one_rack_time_spans.size() << std::endl;
+        std::cout << "Max time: "<< multi_block_recovery_one_rack_max_time_span.count() << std::endl;
+        std::cout << "Min time: "<< multi_block_recovery_one_rack_min_time_span.count() << std::endl;
+        std::cout << "Multi block recovery test end" << std::endl;
+        std::cout << std::endl;
+    }
     
     /*
     //for full node repair
