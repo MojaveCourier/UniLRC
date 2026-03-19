@@ -1360,7 +1360,8 @@ namespace ECProject
       std::string chosen_proxy = m_cluster_table[chosen_cluster_id].proxy_ip + ":" + std::to_string(m_cluster_table[chosen_cluster_id].proxy_port);
       recovery_request.set_failed_block_id(failed_block_id);
       recovery_request.set_failed_block_key(t_stripe.blocks[failed_block_id]->block_key);
-      int t_node_id = randomly_select_a_node(chosen_cluster_id, stripe_id);
+      // Write recovery result back to the original failed block node.
+      int t_node_id = t_stripe.blocks[failed_block_id]->map2node;
       recovery_request.set_replaced_node_ip(m_node_table[t_node_id].node_ip);
       recovery_request.set_replaced_node_port(m_node_table[t_node_id].node_port);
       recovery_request.set_cross_rack_num(0);
@@ -1485,7 +1486,8 @@ namespace ECProject
         proxy_proto::RecoveryReply recovery_reply;
         recovery_request.set_failed_block_id(failed_block_id);
         recovery_request.set_failed_block_key(t_stripe.blocks[failed_block_id]->block_key);
-        int t_node_id = randomly_select_a_node(dest_cluster_id, stripe_id);
+        // Write recovery result back to the original failed block node.
+        int t_node_id = t_stripe.blocks[failed_block_id]->map2node;
         recovery_request.set_replaced_node_ip(m_node_table[t_node_id].node_ip);
         recovery_request.set_replaced_node_port(m_node_table[t_node_id].node_port);
         recovery_request.set_cross_rack_num(cross_rack_num);
@@ -1617,7 +1619,8 @@ namespace ECProject
         proxy_proto::RecoveryReply recovery_reply;
         recovery_request.set_failed_block_id(failed_block_id);
         recovery_request.set_failed_block_key(t_stripe.blocks[failed_block_id]->block_key);
-        int t_node_id = randomly_select_a_node(chosen_cluster_id, stripe_id);
+        // Write recovery result back to the original failed block node.
+        int t_node_id = t_stripe.blocks[failed_block_id]->map2node;
         recovery_request.set_replaced_node_ip(m_node_table[t_node_id].node_ip);
         recovery_request.set_replaced_node_port(m_node_table[t_node_id].node_port);
         recovery_request.set_cross_rack_num(0);
@@ -1670,13 +1673,16 @@ namespace ECProject
           dest_block_ids = plan[i].second;
           break;
         }
-      threads.push_back(std::thread([this, &t_stripe, dest_proxy_ip, dest_proxy_port, dest_cluster_id, stripe_id, failed_block_id, cross_rack_num, dest_group_id, dest_block_ids, &plan]() {
+      bool dest_success = false;
+      std::mutex dest_mutex;
+      threads.push_back(std::thread([this, &t_stripe, dest_proxy_ip, dest_proxy_port, dest_cluster_id, stripe_id, failed_block_id, cross_rack_num, dest_group_id, dest_block_ids, &plan, &dest_success, &dest_mutex]() {
         grpc::ClientContext recovery_context;
         proxy_proto::RecoveryRequest recovery_request;
         proxy_proto::RecoveryReply recovery_reply;
         recovery_request.set_failed_block_id(failed_block_id);
         recovery_request.set_failed_block_key(t_stripe.blocks[failed_block_id]->block_key);
-        int t_node_id = randomly_select_a_node(dest_cluster_id, stripe_id);
+        // Write recovery result back to the original failed block node.
+        int t_node_id = t_stripe.blocks[failed_block_id]->map2node;
         recovery_request.set_replaced_node_ip(m_node_table[t_node_id].node_ip);
         recovery_request.set_replaced_node_port(m_node_table[t_node_id].node_port);
         recovery_request.set_cross_rack_num(cross_rack_num);
@@ -1689,14 +1695,22 @@ namespace ECProject
           }
         add_block_list_to_recovery_request(t_stripe, dest_block_ids, &recovery_request);
         grpc::Status st = m_proxy_ptrs[dest_proxy_ip + ":" + std::to_string(dest_proxy_port)]->recovery(&recovery_context, recovery_request, &recovery_reply);
+        {
+          std::lock_guard<std::mutex> lock(dest_mutex);
+          dest_success = st.ok();
+        }
         if (st.ok())
           std::cout << "[Coordinator] recovery of " << stripe_id << "_" << failed_block_id << " success!" << std::endl;
         else
           std::cout << "[Coordinator] recovery of " << stripe_id << "_" << failed_block_id << " failed!" << std::endl;
       }));
-      for (size_t i = 0; i < threads.size(); i++)
-        threads[i].join();
-      return true;
+      for (size_t i = 0; i + 1 < threads.size(); i++)
+        threads[i].detach();
+      threads.back().join();
+      {
+        std::lock_guard<std::mutex> lock(dest_mutex);
+        return dest_success;
+      }
     }
     std::cout << "[Coordinator] recovery_one_block: get_recovery_group_and_block_ids returned empty" << std::endl;
     return false;
@@ -2358,8 +2372,8 @@ namespace ECProject
     for (int f = 0; f < block_num; f++)
     {
       int bid = block_ids[f];
-      int cid = t_stripe.blocks[bid]->map2cluster;
-      int node_id = randomly_select_a_node(cid, stripe_id);
+      // For globalRecovery, write each failed block back to its original node.
+      int node_id = t_stripe.blocks[bid]->map2node;
       replaced_ips[f] = m_node_table[node_id].node_ip;
       replaced_ports[f] = m_node_table[node_id].node_port;
       failed_keys[f] = t_stripe.blocks[bid]->block_key;
@@ -2420,8 +2434,9 @@ namespace ECProject
       }));
     }
 
-    for (size_t i = 0; i < threads.size(); i++)
-      threads[i].join();
+    for (size_t i = 1; i < threads.size(); i++)
+      threads[i].detach();
+    threads[0].join();
 
     {
       std::lock_guard<std::mutex> lock(dest_status_mutex);

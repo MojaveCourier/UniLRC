@@ -63,7 +63,7 @@ int main(int argc, char **argv)
     double block_size = static_cast<double> (parameters[3]) / 1024 / 1024; //MB
     int n = k + r + z;
     
-    size_t total_write_size = 1000; //MB
+    size_t total_write_size = 10000; //MB
     int stripe_num = total_write_size / (block_size * k);
     std::cout << "Starting set stripe operation" << std::endl;
     std::chrono::high_resolution_clock::time_point set_start = std::chrono::high_resolution_clock::now();
@@ -76,6 +76,7 @@ int main(int argc, char **argv)
     std::chrono::duration<double> set_time = std::chrono::duration_cast<std::chrono::duration<double>>(set_end - set_start);
     std::cout << "write throughput: " << (static_cast<double> (total_write_size) / set_time.count() / 1024) << "MB/s" << std::endl;
     std::mt19937 rng(std::random_device{}());
+    sleep(5);
 
     std::uniform_int_distribution<int> dist_500(0, k*stripe_num - 500);
     std::uniform_real_distribution<double> dist_double(0.0, 1.0);
@@ -165,6 +166,11 @@ int main(int argc, char **argv)
     std::cout << "Single block recovery test end" << std::endl;
     std::cout << std::endl;
     */
+    client.recovery(0, 0);
+    client.multi_block_recovery(0, {0, 1});
+    sleep(5);
+
+
     // for one block recovery
     {
         std::vector<std::chrono::duration<double>> one_block_recovery_time_spans;
@@ -176,7 +182,7 @@ int main(int argc, char **argv)
             std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
             one_block_recovery_time_spans.push_back(time_span);
             std::cout << "[" << i << "th] One block recovery time: " << time_span.count() << "s" << std::endl;
-            sleep(1);
+            //sleep(2);
         }
         std::chrono::duration<double> one_block_recovery_total_time_span = std::accumulate(one_block_recovery_time_spans.begin(), one_block_recovery_time_spans.end(), std::chrono::duration<double>(0));
         std::chrono::duration<double> one_block_recovery_max_time_span = *std::max_element(one_block_recovery_time_spans.begin(), one_block_recovery_time_spans.end());
@@ -200,7 +206,7 @@ int main(int argc, char **argv)
             std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
             multi_block_recovery_time_spans.push_back(time_span);
             std::cout << "[" << i << "th] Multi block recovery time: " << time_span.count() << "s" << std::endl;
-            sleep(1);
+            //sleep(2);
         }
         std::chrono::duration<double> multi_block_recovery_total_time_span = std::accumulate(multi_block_recovery_time_spans.begin(), multi_block_recovery_time_spans.end(), std::chrono::duration<double>(0));
         std::chrono::duration<double> multi_block_recovery_max_time_span = *std::max_element(multi_block_recovery_time_spans.begin(), multi_block_recovery_time_spans.end());
@@ -222,7 +228,7 @@ int main(int argc, char **argv)
             std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
             multi_block_recovery_one_rack_time_spans.push_back(time_span);
             std::cout << "[" << i << "th] Multi block recovery one rack time: " << time_span.count() << "s" << std::endl;
-            sleep(1);
+            //sleep(2);
         }
         std::chrono::duration<double> multi_block_recovery_one_rack_total_time_span = std::accumulate(multi_block_recovery_one_rack_time_spans.begin(), multi_block_recovery_one_rack_time_spans.end(), std::chrono::duration<double>(0));
         std::chrono::duration<double> multi_block_recovery_one_rack_max_time_span = *std::max_element(multi_block_recovery_one_rack_time_spans.begin(), multi_block_recovery_one_rack_time_spans.end());

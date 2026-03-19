@@ -20,7 +20,14 @@ namespace ECProject
 {
   bool ProxyImpl::init_coordinator()
   {
-    m_coordinator_ptr = coordinator_proto::coordinatorService::NewStub(grpc::CreateChannel(m_coordinator_address, grpc::InsecureChannelCredentials()));
+    // Initialize coordinator stub once; reuse the same channel to avoid repeated
+    // gRPC connection setup overhead on health checks and RPCs.
+    if (m_coordinator_ptr)
+    {
+      return true;
+    }
+    m_coordinator_ptr = coordinator_proto::coordinatorService::NewStub(
+        grpc::CreateChannel(m_coordinator_address, grpc::InsecureChannelCredentials()));
     // coordinator_proto::RequestToCoordinator req;
     // coordinator_proto::ReplyFromCoordinator rep;
     // grpc::ClientContext context;
@@ -84,7 +91,9 @@ namespace ECProject
 
     std::cout << "[Proxy] checkalive" << request->name() << std::endl;
     response->set_message(false);
-    init_coordinator();
+    // Coordinator stub is already initialized in constructor; avoid rebuilding it here.
+    // If you later want to support reconnection, consider checking channel state instead
+    // of unconditionally recreating the stub on each health check.
     return grpc::Status::OK;
   }
 
