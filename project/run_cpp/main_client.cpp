@@ -31,7 +31,7 @@ int main(int argc, char **argv)
     std::cout << "Current working directory: " << sys_config_path << std::endl;
 
     const ECProject::Config *config = ECProject::Config::getInstance(sys_config_path);
-    std::string client_ip = "127.0.0.1";
+    std::string client_ip = "10.10.1.1";
     int client_port = 44444;
     ECProject::Client client(client_ip, client_port, config->CoordinatorIP + ":" + std::to_string(config->CoordinatorPort), sys_config_path);
     std::cout << client.sayHelloToCoordinatorByGrpc("Client ID: " + client_ip + ":" + std::to_string(client_port)) << std::endl;
@@ -166,12 +166,13 @@ int main(int argc, char **argv)
     std::cout << "Single block recovery test end" << std::endl;
     std::cout << std::endl;
     */
-    client.recovery(0, 0);
-    client.multi_block_recovery(0, {0, 1});
-    sleep(5);
+    //client.recovery(0, 0);
+    //client.multi_block_recovery(0, {0, 1});
+    //sleep(5);
 
 
     // for one block recovery
+    
     {
         std::vector<std::chrono::duration<double>> one_block_recovery_time_spans;
         std::cout << "One block recovery test start" << std::endl;
@@ -193,15 +194,16 @@ int main(int argc, char **argv)
         std::cout << "One block recovery test end" << std::endl;
         std::cout << std::endl;
     }
-
+    
     // for multi block recovery (test blocks 0 and 1)
+    
     {
         std::vector<std::chrono::duration<double>> multi_block_recovery_time_spans;
         std::cout << "Multi block recovery test start (blocks 0, 1)" << std::endl;
         for(int i = 0; i < 10; i++){
             std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-            client.multi_block_recovery(0, {0,1}); // to optimize recovery time, we can globally recover blocks 0 first
-            //client.recovery(0, 1); // then recover block 1 locally
+            client.multi_block_recovery(0, {0}); // to optimize recovery time, we can globally recover blocks 0 first
+            client.recovery(0, 1); // then recover block 1 locally
             std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
             multi_block_recovery_time_spans.push_back(time_span);
@@ -217,13 +219,14 @@ int main(int argc, char **argv)
         std::cout << "Multi block recovery test end" << std::endl;
         std::cout << std::endl;
     }
+    
     // for multi block recovery (test one rack)
     {
         std::vector<std::chrono::duration<double>> multi_block_recovery_one_rack_time_spans;
         std::cout << "Multi block recovery test start (one rack)" << std::endl;
         for(int i = 0; i < 10; i++){
             std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-            client.multi_block_recovery(0, {0, 1, 2, 3});
+            client.multi_block_recovery(0, {0, 1, 2, 3, 4, 5});
             std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
             multi_block_recovery_one_rack_time_spans.push_back(time_span);

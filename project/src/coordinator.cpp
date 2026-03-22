@@ -2323,10 +2323,11 @@ namespace ECProject
     for(int i = 0; i < block_ids.size(); i++){
       node_ids.push_back(m_stripe_table[stripe_id].blocks[block_ids[i]]->map2node);
     }
-    int chosen_cluster_id = randomly_select_a_cluster(stripe_id);
-    int chosen_node_id = randomly_select_a_node(chosen_cluster_id, stripe_id);
+    //int chosen_cluster_id = randomly_select_a_cluster(stripe_id);
+    //int chosen_node_id = randomly_select_a_node(chosen_cluster_id, stripe_id);
     std::vector<int> decode_block_ids;
     int rows = 0, cols = 0;
+    std::cout << "[Coordinator] get global decode plan start" << std::endl;
     bool ifGetDecodePlanSuccess = ECProject::get_global_decode_plan(
         m_sys_config->k, m_sys_config->r, m_sys_config->z, m_sys_config->CodeType,
         block_ids, decode_block_ids, nullptr, nullptr, rows, cols);
