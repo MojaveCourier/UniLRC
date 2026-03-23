@@ -154,7 +154,10 @@ message StripeIdFromClient {
 
 message StripeIdAndBlockIDsFromClient {
   int32 stripe_id = 1;
+  // All failed / unavailable block ids in this stripe (input to decode plan).
   repeated int32 block_ids = 2;
+  // Subset of block_ids to repair in this RPC; if empty, repair all block_ids.
+  repeated int32 recovery_block_ids = 3;
 }
 
 message NodeIdFromClient {

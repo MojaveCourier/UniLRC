@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace ECProject {
@@ -19,8 +20,32 @@ bool get_global_decode_plan(int k, int r, int z, const std::string &code_type,
                             std::vector<int> &global_decode_block_indexes,
                             const std::vector<int> *local_source_block_ids,
                             unsigned char *local_matrix,
-                            int &rows, int &cols)
+                            int &rows, int &cols,
+                            const std::vector<int> *recovery_block_indexes)
 {
+    std::vector<int> recovery_order;
+    if (recovery_block_indexes != nullptr && !recovery_block_indexes->empty()) {
+        std::unordered_set<int> failed_set_early(failed_block_indexes.begin(), failed_block_indexes.end());
+        for (int bid : *recovery_block_indexes) {
+            if (!failed_set_early.count(bid)) {
+                std::cerr << "Error: get_global_decode_plan recovery block id " << bid
+                          << " is not in failed_block_indexes" << std::endl;
+                global_decode_block_indexes.clear();
+                rows = cols = 0;
+                return false;
+            }
+        }
+        recovery_order = *recovery_block_indexes;
+    } else {
+        recovery_order = failed_block_indexes;
+    }
+    const int R = static_cast<int>(recovery_order.size());
+    if (R == 0) {
+        global_decode_block_indexes.clear();
+        rows = cols = 0;
+        return false;
+    }
+
     // LotusLRC: two failed blocks in the same local group can use a smaller local system.
     // Here we only set up global_decode_block_indexes and a compact full_coeffs matrix.
     // The actual coefficient values for this special case should be filled in later.
@@ -42,17 +67,25 @@ bool get_global_decode_plan(int k, int r, int z, const std::string &code_type,
                 }
                 if (!sources.empty()) {
                     global_decode_block_indexes = sources;
-                    int F = 2;
+                    const int F_lotus = 2;
                     int K = static_cast<int>(sources.size());
-                    rows = F;
+                    rows = R;
                     cols = 0;
-                    std::vector<unsigned char> full_coeffs(F * K);
+                    std::vector<unsigned char> full_coeffs(F_lotus * K);
                     // TODO: fill full_coeffs[f * K + j] with real coefficients for LotusLRC 2-block local system.
                     // Currently they are left as zeros for placeholder.
 
                     if (local_source_block_ids != nullptr && local_matrix != nullptr) {
                         cols = static_cast<int>(local_source_block_ids->size());
-                        for (int f = 0; f < F; ++f) {
+                        for (int rr = 0; rr < R; ++rr) {
+                            int f_src = -1;
+                            if (recovery_order[rr] == f0) f_src = 0;
+                            else if (recovery_order[rr] == f1) f_src = 1;
+                            else {
+                                global_decode_block_indexes.clear();
+                                rows = cols = 0;
+                                return false;
+                            }
                             for (int i = 0; i < cols; ++i) {
                                 int local_bid = (*local_source_block_ids)[i];
                                 int j_global = -1;
@@ -64,9 +97,9 @@ bool get_global_decode_plan(int k, int r, int z, const std::string &code_type,
                                 }
                                 unsigned char val = 0;
                                 if (j_global != -1) {
-                                    val = full_coeffs[f * K + j_global];
+                                    val = full_coeffs[f_src * K + j_global];
                                 }
-                                local_matrix[f * cols + i] = val;
+                                local_matrix[rr * cols + i] = val;
                             }
                         }
                     }
@@ -103,20 +136,20 @@ bool get_global_decode_plan(int k, int r, int z, const std::string &code_type,
                 if (!failed_map.count(i)) global_decode_block_indexes.push_back(i);
             }
 
-            rows = F;
+            rows = R;
             cols = 0;
 
             // For proxy: fill local_matrix (rows x cols) with placeholder coefficients.
             if (local_source_block_ids != nullptr && local_matrix != nullptr) {
                 cols = static_cast<int>(local_source_block_ids->size());
-                for (int f = 0; f < F; ++f) {
+                for (int rr = 0; rr < R; ++rr) {
                     for (int j = 0; j < cols; ++j) {
                         const int local_bid = (*local_source_block_ids)[j];
                         unsigned char val = 0;
                         if (local_bid >= 0 && local_bid < nrows && !failed_map.count(local_bid)) {
                             val = 1;
                         }
-                        local_matrix[f * cols + j] = val;
+                        local_matrix[rr * cols + j] = val;
                     }
                 }
             }
@@ -258,7 +291,6 @@ bool get_global_decode_plan(int k, int r, int z, const std::string &code_type,
     // For each failed block, compute global coefficients c = G_row_failed * invM
     int F = static_cast<int>(failed_block_indexes.size());
     int K = static_cast<int>(global_decode_block_indexes.size());
-    rows = F;
     cols = 0;
     std::vector<unsigned char> full_coeffs(F * K);
     for (int f = 0; f < F; ++f) {
@@ -271,10 +303,28 @@ bool get_global_decode_plan(int k, int r, int z, const std::string &code_type,
         delete[] coeff;
     }
 
+    rows = R;
+
     // If caller requested a local matrix, project global coefficients onto its local sources
     if (local_source_block_ids != nullptr && local_matrix != nullptr) {
         cols = static_cast<int>(local_source_block_ids->size());
-        for (int f = 0; f < F; ++f) {
+        for (int rr = 0; rr < R; ++rr) {
+            const int want_bid = recovery_order[rr];
+            int f_row = -1;
+            for (int f = 0; f < F; ++f) {
+                if (failed_block_indexes[f] == want_bid) {
+                    f_row = f;
+                    break;
+                }
+            }
+            if (f_row < 0) {
+                delete[] mat;
+                delete[] tempM;
+                delete[] invM;
+                global_decode_block_indexes.clear();
+                rows = cols = 0;
+                return false;
+            }
             for (int i = 0; i < cols; ++i) {
                 int local_bid = (*local_source_block_ids)[i];
                 int j_global = -1;
@@ -286,9 +336,9 @@ bool get_global_decode_plan(int k, int r, int z, const std::string &code_type,
                 }
                 unsigned char val = 0;
                 if (j_global != -1) {
-                    val = full_coeffs[f * K + j_global];
+                    val = full_coeffs[f_row * K + j_global];
                 }
-                local_matrix[f * cols + i] = val;
+                local_matrix[rr * cols + i] = val;
             }
         }
     }

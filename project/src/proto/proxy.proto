@@ -168,6 +168,9 @@ message DegradedReadRequest{
   repeated int32 decode_block_ids = 10;
   // multi-block global recovery: block ids to repair this round
   repeated int32 failed_block_ids = 11;
+  // If non-empty, all failed block ids for decode plan (must be a superset of failed_block_ids).
+  // If empty, failed_block_ids is used as the full failure set (backward compatible).
+  repeated int32 all_failed_block_ids = 12;
 }
 
 message PartialDecodingRequest{
@@ -219,6 +222,9 @@ message RecoveryRequest{
   repeated int32 replaced_node_ports = 17;
   // per failed block key for write-back (same order as failed_block_ids)
   repeated string failed_block_keys = 18;
+  // If non-empty, all failed block ids for decode plan (must be a superset of failed_block_ids).
+  // If empty, failed_block_ids is used as the full failure set (backward compatible).
+  repeated int32 all_failed_block_ids = 19;
 }
 
 message MultipleRecoveryRequest{

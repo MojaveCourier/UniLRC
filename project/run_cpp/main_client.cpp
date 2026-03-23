@@ -172,7 +172,7 @@ int main(int argc, char **argv)
 
 
     // for one block recovery
-    
+    /*
     {
         std::vector<std::chrono::duration<double>> one_block_recovery_time_spans;
         std::cout << "One block recovery test start" << std::endl;
@@ -194,9 +194,9 @@ int main(int argc, char **argv)
         std::cout << "One block recovery test end" << std::endl;
         std::cout << std::endl;
     }
-    
+    */
     // for multi block recovery (test blocks 0 and 1)
-    
+    /*
     {
         std::vector<std::chrono::duration<double>> multi_block_recovery_time_spans;
         std::cout << "Multi block recovery test start (blocks 0, 1)" << std::endl;
@@ -219,14 +219,15 @@ int main(int argc, char **argv)
         std::cout << "Multi block recovery test end" << std::endl;
         std::cout << std::endl;
     }
-    
+    */
     // for multi block recovery (test one rack)
     {
         std::vector<std::chrono::duration<double>> multi_block_recovery_one_rack_time_spans;
         std::cout << "Multi block recovery test start (one rack)" << std::endl;
         for(int i = 0; i < 10; i++){
             std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-            client.multi_block_recovery(0, {0, 1, 2, 3, 4, 5});
+            client.multi_block_recovery(0, {0, 1, 2,3,4,5}, {0, 1,2,3,4});
+            client.recovery(0, 5);
             std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
             multi_block_recovery_one_rack_time_spans.push_back(time_span);

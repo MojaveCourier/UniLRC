@@ -2917,6 +2917,7 @@ class StripeIdAndBlockIDsFromClient final :
 
   enum : int {
     kBlockIdsFieldNumber = 2,
+    kRecoveryBlockIdsFieldNumber = 3,
     kStripeIdFieldNumber = 1,
   };
   // repeated int32 block_ids = 2;
@@ -2941,6 +2942,28 @@ class StripeIdAndBlockIDsFromClient final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
       mutable_block_ids();
 
+  // repeated int32 recovery_block_ids = 3;
+  int recovery_block_ids_size() const;
+  private:
+  int _internal_recovery_block_ids_size() const;
+  public:
+  void clear_recovery_block_ids();
+  private:
+  int32_t _internal_recovery_block_ids(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      _internal_recovery_block_ids() const;
+  void _internal_add_recovery_block_ids(int32_t value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      _internal_mutable_recovery_block_ids();
+  public:
+  int32_t recovery_block_ids(int index) const;
+  void set_recovery_block_ids(int index, int32_t value);
+  void add_recovery_block_ids(int32_t value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      recovery_block_ids() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      mutable_recovery_block_ids();
+
   // int32 stripe_id = 1;
   void clear_stripe_id();
   int32_t stripe_id() const;
@@ -2960,6 +2983,8 @@ class StripeIdAndBlockIDsFromClient final :
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > block_ids_;
     mutable std::atomic<int> _block_ids_cached_byte_size_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > recovery_block_ids_;
+    mutable std::atomic<int> _recovery_block_ids_cached_byte_size_;
     int32_t stripe_id_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -5462,6 +5487,53 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
 StripeIdAndBlockIDsFromClient::mutable_block_ids() {
   // @@protoc_insertion_point(field_mutable_list:coordinator_proto.StripeIdAndBlockIDsFromClient.block_ids)
   return _internal_mutable_block_ids();
+}
+
+// repeated int32 recovery_block_ids = 3;
+inline int StripeIdAndBlockIDsFromClient::_internal_recovery_block_ids_size() const {
+  return _impl_.recovery_block_ids_.size();
+}
+inline int StripeIdAndBlockIDsFromClient::recovery_block_ids_size() const {
+  return _internal_recovery_block_ids_size();
+}
+inline void StripeIdAndBlockIDsFromClient::clear_recovery_block_ids() {
+  _impl_.recovery_block_ids_.Clear();
+}
+inline int32_t StripeIdAndBlockIDsFromClient::_internal_recovery_block_ids(int index) const {
+  return _impl_.recovery_block_ids_.Get(index);
+}
+inline int32_t StripeIdAndBlockIDsFromClient::recovery_block_ids(int index) const {
+  // @@protoc_insertion_point(field_get:coordinator_proto.StripeIdAndBlockIDsFromClient.recovery_block_ids)
+  return _internal_recovery_block_ids(index);
+}
+inline void StripeIdAndBlockIDsFromClient::set_recovery_block_ids(int index, int32_t value) {
+  _impl_.recovery_block_ids_.Set(index, value);
+  // @@protoc_insertion_point(field_set:coordinator_proto.StripeIdAndBlockIDsFromClient.recovery_block_ids)
+}
+inline void StripeIdAndBlockIDsFromClient::_internal_add_recovery_block_ids(int32_t value) {
+  _impl_.recovery_block_ids_.Add(value);
+}
+inline void StripeIdAndBlockIDsFromClient::add_recovery_block_ids(int32_t value) {
+  _internal_add_recovery_block_ids(value);
+  // @@protoc_insertion_point(field_add:coordinator_proto.StripeIdAndBlockIDsFromClient.recovery_block_ids)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+StripeIdAndBlockIDsFromClient::_internal_recovery_block_ids() const {
+  return _impl_.recovery_block_ids_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+StripeIdAndBlockIDsFromClient::recovery_block_ids() const {
+  // @@protoc_insertion_point(field_list:coordinator_proto.StripeIdAndBlockIDsFromClient.recovery_block_ids)
+  return _internal_recovery_block_ids();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+StripeIdAndBlockIDsFromClient::_internal_mutable_recovery_block_ids() {
+  return &_impl_.recovery_block_ids_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+StripeIdAndBlockIDsFromClient::mutable_recovery_block_ids() {
+  // @@protoc_insertion_point(field_mutable_list:coordinator_proto.StripeIdAndBlockIDsFromClient.recovery_block_ids)
+  return _internal_mutable_recovery_block_ids();
 }
 
 // -------------------------------------------------------------------

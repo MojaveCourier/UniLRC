@@ -142,13 +142,17 @@ namespace ECProject
     //   will also build a local coefficient matrix of size (rows x cols) where rows is
     //   the number of failed blocks and cols == local_source_block_ids->size().
     //   local_matrix is row-major: local_matrix[f * cols + i] corresponds to
-    //   failed_block_indexes[f] and (*local_source_block_ids)[i].
+    //   recovery_block_indexes[f] and (*local_source_block_ids)[i].
+    // - failed_block_indexes: all unavailable blocks (decode plan input).
+    // - recovery_block_indexes: optional; if null or empty, recover all failed in failed_block_indexes order.
+    //   Otherwise must be a subset (same ids as in failed_block_indexes); rows = recovery size.
     bool get_global_decode_plan(int k, int r, int z, const std::string &code_type,
                                 const std::vector<int> &failed_block_indexes,
                                 std::vector<int> &global_decode_block_indexes,
                                 const std::vector<int> *local_source_block_ids,
                                 unsigned char *local_matrix,
-                                int &rows, int &cols);
+                                int &rows, int &cols,
+                                const std::vector<int> *recovery_block_indexes = nullptr);
 
     /* Data layout / placement: per-group block counts for data, global parity, local parity (by code_type) */
     std::vector<int> get_data_block_num_per_group(int k, int r, int z, const std::string &code_type);

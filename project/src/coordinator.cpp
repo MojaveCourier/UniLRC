@@ -2314,14 +2314,35 @@ namespace ECProject
     coordinator_proto::RecoveryReply *replyClient)
   {
     int stripe_id = request->stripe_id();
-    int block_num = request->block_ids_size();
-    std::vector<int> block_ids;
-    for(int i = 0; i < block_num; i++){
-      block_ids.push_back(request->block_ids(i));
+    const int all_failed_num = request->block_ids_size();
+    std::vector<int> all_failed;
+    all_failed.reserve(static_cast<size_t>(all_failed_num));
+    for (int i = 0; i < all_failed_num; i++) {
+      all_failed.push_back(request->block_ids(i));
+    }
+    std::unordered_set<int> all_failed_set(all_failed.begin(), all_failed.end());
+    std::vector<int> recover;
+    if (request->recovery_block_ids_size() > 0) {
+      recover.reserve(static_cast<size_t>(request->recovery_block_ids_size()));
+      for (int i = 0; i < request->recovery_block_ids_size(); i++) {
+        int bid = request->recovery_block_ids(i);
+        if (!all_failed_set.count(bid)) {
+          std::cout << "[Coordinator] globalRecovery: recovery_block_id " << bid << " not in block_ids" << std::endl;
+          return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT,
+                              "recovery_block_ids must be subset of block_ids");
+        }
+        recover.push_back(bid);
+      }
+    } else {
+      recover = all_failed;
+    }
+    const int recover_num = static_cast<int>(recover.size());
+    if (recover_num == 0) {
+      return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "no blocks to recover");
     }
     std::vector<int> node_ids;
-    for(int i = 0; i < block_ids.size(); i++){
-      node_ids.push_back(m_stripe_table[stripe_id].blocks[block_ids[i]]->map2node);
+    for (int i = 0; i < all_failed_num; i++) {
+      node_ids.push_back(m_stripe_table[stripe_id].blocks[all_failed[i]]->map2node);
     }
     //int chosen_cluster_id = randomly_select_a_cluster(stripe_id);
     //int chosen_node_id = randomly_select_a_node(chosen_cluster_id, stripe_id);
@@ -2330,7 +2351,7 @@ namespace ECProject
     std::cout << "[Coordinator] get global decode plan start" << std::endl;
     bool ifGetDecodePlanSuccess = ECProject::get_global_decode_plan(
         m_sys_config->k, m_sys_config->r, m_sys_config->z, m_sys_config->CodeType,
-        block_ids, decode_block_ids, nullptr, nullptr, rows, cols);
+        all_failed, decode_block_ids, nullptr, nullptr, rows, cols, nullptr);
     if(!ifGetDecodePlanSuccess){
       std::cout << "[Coordinator] get multi decode plan failed!" << std::endl;
       return grpc::Status(grpc::StatusCode::INTERNAL, "Get multi decode plan failed!");
@@ -2356,8 +2377,8 @@ namespace ECProject
         decode_blocks_per_cluster[idx].push_back(decode_block_ids[i]);
       }
     }
-    // Dest cluster: e.g. first failed block's cluster
-    int dest_cluster_id = t_stripe.blocks[block_ids[0]]->map2cluster;
+    // Dest cluster: first block to recover this round
+    int dest_cluster_id = t_stripe.blocks[recover[0]]->map2cluster;
     std::string dest_proxy_ip = m_cluster_table[dest_cluster_id].proxy_ip;
     int dest_proxy_port = m_cluster_table[dest_cluster_id].proxy_port;
     std::string dest_proxy_key = dest_proxy_ip + ":" + std::to_string(dest_proxy_port);
@@ -2366,14 +2387,14 @@ namespace ECProject
       if (clusters_with_blocks[i] != dest_cluster_id)
         cross_rack_num++;
 
-    // Replaced node and key per failed block (for dest recovery request)
-    std::vector<std::string> replaced_ips(block_num);
-    std::vector<int> replaced_ports(block_num);
-    std::vector<std::string> failed_keys(block_num);
-    for (int f = 0; f < block_num; f++)
+    // Replaced node and key per recovered block (for dest recovery request)
+    std::vector<std::string> replaced_ips(recover_num);
+    std::vector<int> replaced_ports(recover_num);
+    std::vector<std::string> failed_keys(recover_num);
+    for (int f = 0; f < recover_num; f++)
     {
-      int bid = block_ids[f];
-      // For globalRecovery, write each failed block back to its original node.
+      int bid = recover[f];
+      // For globalRecovery, write each recovered block back to its original node.
       int node_id = t_stripe.blocks[bid]->map2node;
       replaced_ips[f] = m_node_table[node_id].node_ip;
       replaced_ports[f] = m_node_table[node_id].node_port;
@@ -2384,16 +2405,18 @@ namespace ECProject
     std::vector<std::thread> threads;
     grpc::Status dest_status;
     std::mutex dest_status_mutex;
-    threads.push_back(std::thread([this, &t_stripe, dest_proxy_key, dest_cluster_id, stripe_id, block_num, &block_ids, &decode_block_ids, &failed_keys, &replaced_ips, &replaced_ports, cross_rack_num, &decode_blocks_per_cluster, &clusters_with_blocks, &dest_status, &dest_status_mutex]() {
+    threads.push_back(std::thread([this, &t_stripe, dest_proxy_key, dest_cluster_id, stripe_id, recover_num, &all_failed, &recover, &decode_block_ids, &failed_keys, &replaced_ips, &replaced_ports, cross_rack_num, &decode_blocks_per_cluster, &clusters_with_blocks, &dest_status, &dest_status_mutex]() {
       grpc::ClientContext recovery_context;
       proxy_proto::RecoveryRequest recovery_request;
       proxy_proto::RecoveryReply recovery_reply;
       recovery_request.set_cross_rack_num(cross_rack_num);
       std::cout << "[Coordinator] globalRecovery dest_cluster_id: " << dest_cluster_id << std::endl;
       std::cout << "[Coordinator] globalRecovery cross_rack_num: " << cross_rack_num << std::endl;
-      for (int i = 0; i < block_num; i++)
+      for (size_t i = 0; i < all_failed.size(); i++)
+        recovery_request.add_all_failed_block_ids(all_failed[i]);
+      for (int i = 0; i < recover_num; i++)
       {
-        recovery_request.add_failed_block_ids(block_ids[i]);
+        recovery_request.add_failed_block_ids(recover[i]);
         recovery_request.add_failed_block_keys(failed_keys[i]);
         recovery_request.add_replaced_node_ips(replaced_ips[i]);
         recovery_request.add_replaced_node_ports(replaced_ports[i]);
@@ -2418,14 +2441,16 @@ namespace ECProject
       std::string proxy_key = m_cluster_table[clusters_with_blocks[i]].proxy_ip + ":" + std::to_string(m_cluster_table[clusters_with_blocks[i]].proxy_port);
       std::cout << "[Coordinator] globalRecovery proxy_key: " << proxy_key << std::endl;
       std::cout << "[Coordinator] globalRecovery clusters_with_blocks[i] number: " << clusters_with_blocks[i] << std::endl;
-      threads.push_back(std::thread([this, &t_stripe, proxy_key, dest_proxy_ip, dest_proxy_port, stripe_id, block_num, &block_ids, &decode_block_ids, &decode_blocks_per_cluster, i]() {
+      threads.push_back(std::thread([this, &t_stripe, proxy_key, dest_proxy_ip, dest_proxy_port, stripe_id, recover_num, &all_failed, &recover, &decode_block_ids, &decode_blocks_per_cluster, i]() {
         grpc::ClientContext degraded_context;
         proxy_proto::DegradedReadRequest degraded_request;
         proxy_proto::DegradedReadReply degraded_reply;
         degraded_request.set_clientip(dest_proxy_ip);
         degraded_request.set_clientport(dest_proxy_port + ECProject::PROXY_PORT_SHIFT);
-        for (int j = 0; j < block_num; j++)
-          degraded_request.add_failed_block_ids(block_ids[j]);
+        for (size_t j = 0; j < all_failed.size(); j++)
+          degraded_request.add_all_failed_block_ids(all_failed[j]);
+        for (int j = 0; j < recover_num; j++)
+          degraded_request.add_failed_block_ids(recover[j]);
         for (size_t j = 0; j < decode_block_ids.size(); j++)
           degraded_request.add_decode_block_ids(decode_block_ids[j]);
         add_block_list_to_degraded_read_request(t_stripe, decode_blocks_per_cluster[i], &degraded_request);
@@ -2447,7 +2472,8 @@ namespace ECProject
         return grpc::Status(grpc::StatusCode::INTERNAL, "globalRecovery dest recovery failed: " + dest_status.error_message());
       }
     }
-    std::cout << "[Coordinator] globalRecovery success for stripe " << stripe_id << " blocks " << block_num << std::endl;
+    std::cout << "[Coordinator] globalRecovery success for stripe " << stripe_id
+              << " recovered " << recover_num << " / " << all_failed_num << " failed blocks" << std::endl;
     return grpc::Status::OK;
   }
 

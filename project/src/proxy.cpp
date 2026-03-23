@@ -1190,19 +1190,30 @@ namespace ECProject
         // Multi-block global recovery: use coefficient matrix + ISA-L encode, send block_num*block_size to dest
         if (request_copy->failed_block_ids_size() > 0 && request_copy->decode_block_ids_size() > 0)
         {
-          std::vector<int> failed_block_ids_vec;
-          for (int i = 0; i < request_copy->failed_block_ids_size(); i++)
-            failed_block_ids_vec.push_back(request_copy->failed_block_ids(i));
+          std::vector<int> all_failed_for_decode;
+          std::vector<int> recover_block_ids;
+          if (request_copy->all_failed_block_ids_size() > 0) {
+            for (int i = 0; i < request_copy->all_failed_block_ids_size(); i++)
+              all_failed_for_decode.push_back(request_copy->all_failed_block_ids(i));
+            for (int i = 0; i < request_copy->failed_block_ids_size(); i++)
+              recover_block_ids.push_back(request_copy->failed_block_ids(i));
+          } else {
+            for (int i = 0; i < request_copy->failed_block_ids_size(); i++)
+              recover_block_ids.push_back(request_copy->failed_block_ids(i));
+            all_failed_for_decode = recover_block_ids;
+          }
           std::vector<int> decode_block_indexes_out;
           std::vector<int> local_ids;
           for (int i = 0; i < request_copy->blockids_size(); ++i)
             local_ids.push_back(request_copy->blockids(i));
 
           int rows = 0, cols = 0;
-          std::vector<unsigned char> local_matrix(failed_block_ids_vec.size() * local_ids.size());
+          const int block_num = static_cast<int>(recover_block_ids.size());
+          std::vector<unsigned char> local_matrix(static_cast<size_t>(block_num) * local_ids.size());
           if (!get_global_decode_plan(m_sys_config->k, m_sys_config->r, m_sys_config->z, code_type,
-                                      failed_block_ids_vec, decode_block_indexes_out,
-                                      &local_ids, local_matrix.data(), rows, cols))
+                                      all_failed_for_decode, decode_block_indexes_out,
+                                      &local_ids, local_matrix.data(), rows, cols,
+                                      &recover_block_ids))
           {
             std::cout << "[Proxy" << m_self_cluster_id << "][Degrade read] get_global_decode_plan failed!" << std::endl;
             std::free(res_buf);
@@ -1210,8 +1221,6 @@ namespace ECProject
               std::free(get_bufs[i]);
             return;
           }
-          int block_num = static_cast<int>(failed_block_ids_vec.size());
-          int num_local = request_copy->datanodeip_size();
           char *multi_res_buf = static_cast<char*>(std::aligned_alloc(32, static_cast<size_t>(block_num) * m_sys_config->BlockSize));
           std::memset(multi_res_buf, 0, static_cast<size_t>(block_num) * m_sys_config->BlockSize);
           std::vector<unsigned char *> block_ptrs = convertToUnsignedCharArray(get_bufs);
@@ -2043,7 +2052,19 @@ namespace ECProject
       // Multi-block global recovery: one round read k blocks, decode all failed blocks, XOR cross-rack partials, write each
       if (recovery_request->failed_block_ids_size() > 0 && recovery_request->decode_block_ids_size() > 0)
       {
-        int block_num = recovery_request->failed_block_ids_size();
+        std::vector<int> all_failed_for_decode;
+        std::vector<int> recover_block_ids;
+        if (recovery_request->all_failed_block_ids_size() > 0) {
+          for (int i = 0; i < recovery_request->all_failed_block_ids_size(); i++)
+            all_failed_for_decode.push_back(recovery_request->all_failed_block_ids(i));
+          for (int i = 0; i < recovery_request->failed_block_ids_size(); i++)
+            recover_block_ids.push_back(recovery_request->failed_block_ids(i));
+        } else {
+          for (int i = 0; i < recovery_request->failed_block_ids_size(); i++)
+            recover_block_ids.push_back(recovery_request->failed_block_ids(i));
+          all_failed_for_decode = recover_block_ids;
+        }
+        const int block_num = static_cast<int>(recover_block_ids.size());
         size_t total_size = static_cast<size_t>(block_num) * m_sys_config->BlockSize;
         char *res_buf = static_cast<char*>(std::aligned_alloc(32, total_size));
         std::memset(res_buf, 0, total_size);
@@ -2070,19 +2091,17 @@ namespace ECProject
             std::free(res_buf);
             return grpc::Status(grpc::StatusCode::INTERNAL, "multi-block recovery: read from datanodes failed");
           }
-          std::vector<int> failed_block_ids_vec;
-          for (int i = 0; i < block_num; i++)
-            failed_block_ids_vec.push_back(recovery_request->failed_block_ids(i));
           std::vector<int> decode_block_indexes_out;
           std::vector<int> local_ids;
           for (int i = 0; i < num_local; ++i)
             local_ids.push_back(recovery_request->blockids(i));
 
           int rows = 0, cols = 0;
-          std::vector<unsigned char> local_matrix(block_num * num_local);
+          std::vector<unsigned char> local_matrix(static_cast<size_t>(block_num) * static_cast<size_t>(num_local));
           if (!get_global_decode_plan(m_sys_config->k, m_sys_config->r, m_sys_config->z, code_type,
-                                      failed_block_ids_vec, decode_block_indexes_out,
-                                      &local_ids, local_matrix.data(), rows, cols))
+                                      all_failed_for_decode, decode_block_indexes_out,
+                                      &local_ids, local_matrix.data(), rows, cols,
+                                      &recover_block_ids))
           {
             std::cout << "[Proxy" << m_self_cluster_id << "][Recovery] multi-block get_global_decode_plan failed!" << std::endl;
             for (int i = 0; i < num_local; i++)

@@ -74,7 +74,9 @@ namespace ECProject
     std::shared_ptr<char[]> get_degraded_read_block_breakdown(int stripe_id, int failed_block_id, double &total_time, double &disk_io_time, double &network_time, double &encode_time);
     bool recovery_breakdown(int stripe_id, int failed_block_id, double &disk_read_time, double &network_time, double &decode_time, double &disk_write_time);
     bool recovery(int stripe_id, int failed_block_id);
-    bool multi_block_recovery(int stripe_id, std::vector<int> block_ids);
+    // all_failed_block_ids: full failed set for decode plan; recovery_block_ids: subset to repair (empty = repair all)
+    bool multi_block_recovery(int stripe_id, std::vector<int> all_failed_block_ids,
+                              const std::vector<int> &recovery_block_ids = {});
     int recovery_full_node(int node_id);
     bool set(std::string key, std::string value);
     bool SetParameterByGrpc(ECSchema input_ecschema);

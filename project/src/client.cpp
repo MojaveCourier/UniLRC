@@ -1131,15 +1131,16 @@ namespace ECProject
     return true;
   }
 
-  bool Client::multi_block_recovery(int stripe_id, std::vector<int> block_ids)
+  bool Client::multi_block_recovery(int stripe_id, std::vector<int> all_failed_block_ids,
+                                    const std::vector<int> &recovery_block_ids)
   {
     grpc::ClientContext context;
     coordinator_proto::StripeIdAndBlockIDsFromClient request;
     request.set_stripe_id(stripe_id);
-    for(int i = 0; i < block_ids.size(); i++)
-    {
-      request.add_block_ids(block_ids[i]);
-    }
+    for (size_t i = 0; i < all_failed_block_ids.size(); i++)
+      request.add_block_ids(all_failed_block_ids[i]);
+    for (size_t i = 0; i < recovery_block_ids.size(); i++)
+      request.add_recovery_block_ids(recovery_block_ids[i]);
 
     coordinator_proto::RecoveryReply reply;
     grpc::Status status = m_coordinator_ptr->globalRecovery(&context, request, &reply);

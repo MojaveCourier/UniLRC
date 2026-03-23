@@ -3140,6 +3140,7 @@ class DegradedReadRequest final :
     kBlockidsFieldNumber = 9,
     kDecodeBlockIdsFieldNumber = 10,
     kFailedBlockIdsFieldNumber = 11,
+    kAllFailedBlockIdsFieldNumber = 12,
     kClientipFieldNumber = 1,
     kFailedBlockKeyFieldNumber = 5,
     kClientportFieldNumber = 2,
@@ -3282,6 +3283,28 @@ class DegradedReadRequest final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
       mutable_failed_block_ids();
 
+  // repeated int32 all_failed_block_ids = 12;
+  int all_failed_block_ids_size() const;
+  private:
+  int _internal_all_failed_block_ids_size() const;
+  public:
+  void clear_all_failed_block_ids();
+  private:
+  int32_t _internal_all_failed_block_ids(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      _internal_all_failed_block_ids() const;
+  void _internal_add_all_failed_block_ids(int32_t value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      _internal_mutable_all_failed_block_ids();
+  public:
+  int32_t all_failed_block_ids(int index) const;
+  void set_all_failed_block_ids(int index, int32_t value);
+  void add_all_failed_block_ids(int32_t value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      all_failed_block_ids() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      mutable_all_failed_block_ids();
+
   // string clientip = 1;
   void clear_clientip();
   const std::string& clientip() const;
@@ -3355,6 +3378,8 @@ class DegradedReadRequest final :
     mutable std::atomic<int> _decode_block_ids_cached_byte_size_;
     ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > failed_block_ids_;
     mutable std::atomic<int> _failed_block_ids_cached_byte_size_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > all_failed_block_ids_;
+    mutable std::atomic<int> _all_failed_block_ids_cached_byte_size_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr clientip_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr failed_block_key_;
     int32_t clientport_;
@@ -4059,6 +4084,7 @@ class RecoveryRequest final :
     kReplacedNodeIpsFieldNumber = 16,
     kReplacedNodePortsFieldNumber = 17,
     kFailedBlockKeysFieldNumber = 18,
+    kAllFailedBlockIdsFieldNumber = 19,
     kReplacedNodeIpFieldNumber = 1,
     kFailedBlockKeyFieldNumber = 4,
     kReplacedNodePortFieldNumber = 2,
@@ -4319,6 +4345,28 @@ class RecoveryRequest final :
   std::string* _internal_add_failed_block_keys();
   public:
 
+  // repeated int32 all_failed_block_ids = 19;
+  int all_failed_block_ids_size() const;
+  private:
+  int _internal_all_failed_block_ids_size() const;
+  public:
+  void clear_all_failed_block_ids();
+  private:
+  int32_t _internal_all_failed_block_ids(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      _internal_all_failed_block_ids() const;
+  void _internal_add_all_failed_block_ids(int32_t value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      _internal_mutable_all_failed_block_ids();
+  public:
+  int32_t all_failed_block_ids(int index) const;
+  void set_all_failed_block_ids(int index, int32_t value);
+  void add_all_failed_block_ids(int32_t value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      all_failed_block_ids() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      mutable_all_failed_block_ids();
+
   // string replaced_node_ip = 1;
   void clear_replaced_node_ip();
   const std::string& replaced_node_ip() const;
@@ -4417,6 +4465,8 @@ class RecoveryRequest final :
     ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > replaced_node_ports_;
     mutable std::atomic<int> _replaced_node_ports_cached_byte_size_;
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> failed_block_keys_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > all_failed_block_ids_;
+    mutable std::atomic<int> _all_failed_block_ids_cached_byte_size_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr replaced_node_ip_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr failed_block_key_;
     int32_t replaced_node_port_;
@@ -8981,6 +9031,53 @@ DegradedReadRequest::mutable_failed_block_ids() {
   return _internal_mutable_failed_block_ids();
 }
 
+// repeated int32 all_failed_block_ids = 12;
+inline int DegradedReadRequest::_internal_all_failed_block_ids_size() const {
+  return _impl_.all_failed_block_ids_.size();
+}
+inline int DegradedReadRequest::all_failed_block_ids_size() const {
+  return _internal_all_failed_block_ids_size();
+}
+inline void DegradedReadRequest::clear_all_failed_block_ids() {
+  _impl_.all_failed_block_ids_.Clear();
+}
+inline int32_t DegradedReadRequest::_internal_all_failed_block_ids(int index) const {
+  return _impl_.all_failed_block_ids_.Get(index);
+}
+inline int32_t DegradedReadRequest::all_failed_block_ids(int index) const {
+  // @@protoc_insertion_point(field_get:proxy_proto.DegradedReadRequest.all_failed_block_ids)
+  return _internal_all_failed_block_ids(index);
+}
+inline void DegradedReadRequest::set_all_failed_block_ids(int index, int32_t value) {
+  _impl_.all_failed_block_ids_.Set(index, value);
+  // @@protoc_insertion_point(field_set:proxy_proto.DegradedReadRequest.all_failed_block_ids)
+}
+inline void DegradedReadRequest::_internal_add_all_failed_block_ids(int32_t value) {
+  _impl_.all_failed_block_ids_.Add(value);
+}
+inline void DegradedReadRequest::add_all_failed_block_ids(int32_t value) {
+  _internal_add_all_failed_block_ids(value);
+  // @@protoc_insertion_point(field_add:proxy_proto.DegradedReadRequest.all_failed_block_ids)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+DegradedReadRequest::_internal_all_failed_block_ids() const {
+  return _impl_.all_failed_block_ids_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+DegradedReadRequest::all_failed_block_ids() const {
+  // @@protoc_insertion_point(field_list:proxy_proto.DegradedReadRequest.all_failed_block_ids)
+  return _internal_all_failed_block_ids();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+DegradedReadRequest::_internal_mutable_all_failed_block_ids() {
+  return &_impl_.all_failed_block_ids_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+DegradedReadRequest::mutable_all_failed_block_ids() {
+  // @@protoc_insertion_point(field_mutable_list:proxy_proto.DegradedReadRequest.all_failed_block_ids)
+  return _internal_mutable_all_failed_block_ids();
+}
+
 // -------------------------------------------------------------------
 
 // PartialDecodingRequest
@@ -10449,6 +10546,53 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
 RecoveryRequest::mutable_failed_block_keys() {
   // @@protoc_insertion_point(field_mutable_list:proxy_proto.RecoveryRequest.failed_block_keys)
   return &_impl_.failed_block_keys_;
+}
+
+// repeated int32 all_failed_block_ids = 19;
+inline int RecoveryRequest::_internal_all_failed_block_ids_size() const {
+  return _impl_.all_failed_block_ids_.size();
+}
+inline int RecoveryRequest::all_failed_block_ids_size() const {
+  return _internal_all_failed_block_ids_size();
+}
+inline void RecoveryRequest::clear_all_failed_block_ids() {
+  _impl_.all_failed_block_ids_.Clear();
+}
+inline int32_t RecoveryRequest::_internal_all_failed_block_ids(int index) const {
+  return _impl_.all_failed_block_ids_.Get(index);
+}
+inline int32_t RecoveryRequest::all_failed_block_ids(int index) const {
+  // @@protoc_insertion_point(field_get:proxy_proto.RecoveryRequest.all_failed_block_ids)
+  return _internal_all_failed_block_ids(index);
+}
+inline void RecoveryRequest::set_all_failed_block_ids(int index, int32_t value) {
+  _impl_.all_failed_block_ids_.Set(index, value);
+  // @@protoc_insertion_point(field_set:proxy_proto.RecoveryRequest.all_failed_block_ids)
+}
+inline void RecoveryRequest::_internal_add_all_failed_block_ids(int32_t value) {
+  _impl_.all_failed_block_ids_.Add(value);
+}
+inline void RecoveryRequest::add_all_failed_block_ids(int32_t value) {
+  _internal_add_all_failed_block_ids(value);
+  // @@protoc_insertion_point(field_add:proxy_proto.RecoveryRequest.all_failed_block_ids)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+RecoveryRequest::_internal_all_failed_block_ids() const {
+  return _impl_.all_failed_block_ids_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+RecoveryRequest::all_failed_block_ids() const {
+  // @@protoc_insertion_point(field_list:proxy_proto.RecoveryRequest.all_failed_block_ids)
+  return _internal_all_failed_block_ids();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+RecoveryRequest::_internal_mutable_all_failed_block_ids() {
+  return &_impl_.all_failed_block_ids_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+RecoveryRequest::mutable_all_failed_block_ids() {
+  // @@protoc_insertion_point(field_mutable_list:proxy_proto.RecoveryRequest.all_failed_block_ids)
+  return _internal_mutable_all_failed_block_ids();
 }
 
 // -------------------------------------------------------------------
