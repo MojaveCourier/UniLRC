@@ -369,6 +369,179 @@ namespace ECProject
     stripe->num_groups = stripe->group_to_blocks.size();
   }
 
+  void CoordinatorImpl::initialize_xue_tripe_placement(Stripe *stripe)
+  {
+    // Xue placement definition:
+    // k: data blocks, r: local parity blocks (and local groups), z: global parity blocks.
+    Block *blocks_info = new Block[stripe->n];
+    assert(stripe->object_keys.size() == 1);
+    assert(stripe->r > 0 && stripe->z > 0);
+    assert(stripe->k % stripe->r == 0 && "Xue placement requires k % r == 0");
+
+    const int k = stripe->k;
+    const int r = stripe->r; // local group number == local parity number
+    const int z = stripe->z; // global parity number
+    const int h = k / r;
+    const int cluster_num = m_sys_config->ClusterNum;
+    const int global_cluster_id = stripe->stripe_id % cluster_num;
+    int cluster_cursor = (global_cluster_id + 1) % cluster_num;
+
+    auto next_cluster = [&](bool avoid_global) -> int
+    {
+      int cid = cluster_cursor % cluster_num;
+      cluster_cursor++;
+      if (avoid_global && cluster_num > 1 && cid == global_cluster_id)
+      {
+        cid = cluster_cursor % cluster_num;
+        cluster_cursor++;
+      }
+      return cid;
+    };
+
+    auto place_block = [&](int block_idx, int cluster_id)
+    {
+      int t_node_id = randomly_select_a_node(cluster_id, stripe->stripe_id);
+      blocks_info[block_idx].map2cluster = cluster_id;
+      blocks_info[block_idx].map2node = t_node_id;
+      update_stripe_info_in_node(t_node_id, stripe->stripe_id, block_idx);
+      m_cluster_table[cluster_id].blocks.push_back(&blocks_info[block_idx]);
+      m_cluster_table[cluster_id].stripes.insert(stripe->stripe_id);
+      stripe->blocks.push_back(&blocks_info[block_idx]);
+      stripe->place2clusters.insert(cluster_id);
+      add_to_map(stripe->group_to_blocks, blocks_info[block_idx].map2group, block_idx);
+    };
+
+    // Build block metadata with Xue numbering:
+    // [0, k): data, [k, k + r): local parity, [k + r, k + r + z): global parity.
+    for (int i = 0; i < stripe->n; i++)
+    {
+      blocks_info[i].block_size = m_sys_config->BlockSize;
+      blocks_info[i].map2stripe = stripe->stripe_id;
+      blocks_info[i].map2key = stripe->object_keys[0];
+      if (i < k)
+      {
+        std::string tmp = "_D";
+        if (i < 10)
+          tmp = "_D0";
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i);
+        blocks_info[i].block_id = i;
+        blocks_info[i].block_type = 'D';
+        blocks_info[i].map2group = i / h;
+      }
+      else if (i < k + r)
+      {
+        const int local_idx = i - k;
+        std::string tmp = "_L";
+        if (local_idx < 10)
+          tmp = "_L0";
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(local_idx);
+        blocks_info[i].block_id = i;
+        blocks_info[i].block_type = 'L';
+        blocks_info[i].map2group = local_idx;
+      }
+      else
+      {
+        const int global_idx = i - k - r;
+        std::string tmp = "_G";
+        if (global_idx < 10)
+          tmp = "_G0";
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(global_idx);
+        blocks_info[i].block_id = i;
+        blocks_info[i].block_type = 'G';
+        blocks_info[i].map2group = r;
+      }
+    }
+
+    // Step 1: place all global parity blocks in one rotating cluster.
+    for (int i = 0; i < z; i++)
+    {
+      place_block(k + r + i, global_cluster_id);
+    }
+
+    // Track remaining data range per local group after Steps 2-4.
+    std::vector<int> remain_start(r, 0);
+    std::vector<int> remain_count(r, 0);
+
+    // Step 2-4 per local group.
+    for (int g = 0; g < r; g++)
+    {
+      int group_data_begin = g * h;
+      int consumed = 0;
+
+      // Step 2: place z data + local parity in one cluster for this local group.
+      int primary_cluster_id = next_cluster(true);
+      int first_data_num = std::min(z, h);
+      for (int t = 0; t < first_data_num; t++)
+      {
+        place_block(group_data_begin + t, primary_cluster_id);
+      }
+      place_block(k + g, primary_cluster_id);
+      consumed += first_data_num;
+
+      if (consumed >= h)
+      {
+        continue;
+      }
+
+      // Step 3: place one data block with global parity cluster.
+      place_block(group_data_begin + consumed, global_cluster_id);
+      consumed++;
+
+      // Step 4: place each z+1 data blocks into one cluster.
+      while (consumed + (z + 1) <= h)
+      {
+        int chunk_cluster_id = next_cluster(true);
+        for (int t = 0; t < z + 1; t++)
+        {
+          place_block(group_data_begin + consumed + t, chunk_cluster_id);
+        }
+        consumed += z + 1;
+      }
+
+      remain_start[g] = group_data_begin + consumed;
+      remain_count[g] = h - consumed;
+    }
+
+    // Step 5: m = (h - z - 1) mod (z + 1), aggregate leftovers from theta groups.
+    int m = 0;
+    for (int g = 0; g < r; g++)
+    {
+      if (remain_count[g] > 0)
+      {
+        m = remain_count[g];
+        break;
+      }
+    }
+    if (m > 0)
+    {
+      int theta = 1;
+      if (m > 1)
+      {
+        theta = std::max(1, z / (m - 1));
+      }
+      else
+      {
+        theta = r;
+      }
+      for (int g = 0; g < r;)
+      {
+        int batch_cluster_id = next_cluster(true);
+        int grouped = 0;
+        while (g < r && grouped < theta)
+        {
+          for (int t = 0; t < remain_count[g]; t++)
+          {
+            place_block(remain_start[g] + t, batch_cluster_id);
+          }
+          g++;
+          grouped++;
+        }
+      }
+    }
+
+    stripe->num_groups = stripe->group_to_blocks.size();
+  }
+
   void CoordinatorImpl::add_to_map(std::map<int, std::vector<int>> &map, int key, int value)
   {
     if (map.find(key) == map.end())
@@ -572,6 +745,7 @@ namespace ECProject
     std::string clientID = keyValueSize->key();
     int appendSizeBytes = keyValueSize->valuesizebytes();
     std::string append_mode = keyValueSize->append_mode();
+    std::string code_type = m_sys_config->CodeType;
 
     // 1. record metadata
     // logical offset within the block stripe
@@ -596,7 +770,26 @@ namespace ECProject
       t_stripe.r = m_sys_config->r;
       t_stripe.z = m_sys_config->z;
       t_stripe.object_keys.push_back(clientID);
-      initialize_unilrc_and_azurelrc_stripe_placement(&t_stripe);
+      if (code_type == "UniLRC" || code_type == "AzureLRC")
+      {
+        initialize_unilrc_and_azurelrc_stripe_placement(&t_stripe);
+      }
+      else if (code_type == "OptimalLRC")
+      {
+        initialize_optimal_lrc_stripe_placement(&t_stripe);
+      }
+      else if (code_type == "UniformLRC")
+      {
+        initialize_uniform_lrc_stripe_placement(&t_stripe);
+      }
+      else if (code_type == "XueLRC")
+      {
+        initialize_xue_tripe_placement(&t_stripe);
+      }
+      else
+      {
+        return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "Unsupported code type");
+      }
       m_stripe_table[t_stripe.stripe_id] = t_stripe;
       stripe = &m_stripe_table[t_stripe.stripe_id];
     }
@@ -747,7 +940,7 @@ namespace ECProject
     size_t setSizeBytes = keyValueSize->valuesizebytes();
     std::string code_type = m_sys_config->CodeType;
     assert(setSizeBytes == static_cast<size_t>(m_sys_config->BlockSize) * static_cast<size_t>(m_sys_config->k) && "set size is not equal to the block stripe size!");
-    assert((code_type == "UniLRC" || code_type == "AzureLRC" || code_type == "OptimalLRC" || code_type == "UniformLRC") && "Error: code type must be UniLRC, AzureLRC, OptimalLRC, or UniformLRC!");
+    assert((code_type == "UniLRC" || code_type == "AzureLRC" || code_type == "OptimalLRC" || code_type == "UniformLRC" || code_type == "XueLRC") && "Error: code type must be UniLRC, AzureLRC, OptimalLRC, UniformLRC, or XueLRC!");
 
     Stripe t_stripe;
     t_stripe.stripe_id = m_cur_stripe_id++;
@@ -767,6 +960,10 @@ namespace ECProject
     else if (code_type == "UniformLRC")
     {
       initialize_uniform_lrc_stripe_placement(&t_stripe);
+    }
+    else if (code_type == "XueLRC")
+    {
+      initialize_xue_tripe_placement(&t_stripe);
     }
 
     print_stripe_data_placement(t_stripe);
@@ -811,7 +1008,7 @@ namespace ECProject
     size_t setSizeBytes = keyValueSize->valuesizebytes();
     std::string code_type = m_sys_config->CodeType;
     assert(setSizeBytes <= static_cast<size_t>(m_sys_config->BlockSize) * static_cast<size_t>(m_sys_config->k) && "subset size is larger than the block size!");
-    assert((code_type == "UniLRC" || code_type == "AzureLRC" || code_type == "OptimalLRC" || code_type == "UniformLRC") && "Error: code type must be UniLRC, AzureLRC, OptimalLRC, or UniformLRC!");
+    assert((code_type == "UniLRC" || code_type == "AzureLRC" || code_type == "OptimalLRC" || code_type == "UniformLRC" || code_type == "XueLRC") && "Error: code type must be UniLRC, AzureLRC, OptimalLRC, UniformLRC, or XueLRC!");
 
     Stripe t_stripe;
     t_stripe.stripe_id = m_cur_stripe_id++;
@@ -831,6 +1028,10 @@ namespace ECProject
     else if (code_type == "UniformLRC")
     {
       initialize_uniform_lrc_stripe_placement(&t_stripe);
+    }
+    else if (code_type == "XueLRC")
+    {
+      initialize_xue_tripe_placement(&t_stripe);
     }
 
     print_stripe_data_placement(t_stripe);

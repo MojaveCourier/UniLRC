@@ -1,18 +1,18 @@
 #!/bin/bash
 
-cd /users/qiliang
+cd /users/xue
 sudo chmod 777 -R UniLRC
 cd UniLRC
 
 
 # 定义源文件夹路径
-SOURCE_DIR="/users/qiliang/UniLRC"
+SOURCE_DIR="/users/xue/UniLRC"
 
 # 定义 hosts 文件路径
 HOSTS_FILE="hosts"
 
 # 定义远程目标文件夹路径
-REMOTE_DIR="/users/qiliang/UniLRC"
+REMOTE_DIR="/users/xue/UniLRC"
 
 # 检查 hosts 文件是否存在
 if [[ ! -f "$HOSTS_FILE" ]]; then
@@ -38,7 +38,7 @@ while read -r ip; do
 
 done < "$HOSTS_FILE"
 
-cd /users/qiliang/UniLRC
+cd /users/xue/UniLRC
 sh generate_run_proxy.sh
 
 echo "All done!"
