@@ -8,6 +8,14 @@
 #include "unilrc_encoder.h"
 namespace ECProject
 {
+  namespace
+  {
+    bool is_azure_like_code(const std::string &code_type)
+    {
+      return code_type == "AzureLRC" || code_type == "XueLRC";
+    }
+  }
+
   std::string Client::sayHelloToCoordinatorByGrpc(std::string hello)
   {
     coordinator_proto::RequestToCoordinator request;
@@ -392,7 +400,7 @@ namespace ECProject
   std::vector<int> Client::get_data_block_num_per_group(int k, int r, int z, std::string code_type)
   {
     std::vector<int> data_block_num_per_group;
-    if (code_type == "AzureLRC")
+    if (is_azure_like_code(code_type))
     {
       for (int i = 0; i < z; i++)
       {
@@ -469,7 +477,7 @@ namespace ECProject
   std::vector<int> Client::get_global_parity_block_num_per_group(int k, int r, int z, std::string code_type)
   {
     std::vector<int> global_pairty_block_num_per_group;
-    if (code_type == "AzureLRC")
+    if (is_azure_like_code(code_type))
     {
       for (int i = 0; i < z; i++)
       {
@@ -527,7 +535,7 @@ namespace ECProject
   std::vector<int> Client::get_local_parity_block_num_per_group(int k, int r, int z, std::string code_type)
   {
     std::vector<int> local_parity_block_num_per_group;
-    if (code_type == "AzureLRC")
+    if (is_azure_like_code(code_type))
     {
       for (int i = 0; i < z; i++)
       {
@@ -629,7 +637,7 @@ namespace ECProject
       std::unique_ptr<bool[]> if_commit_arr(new bool[reply.append_keys_size()]);
       std::fill_n(if_commit_arr.get(), reply.append_keys_size(), false);
 
-      assert(m_sys_config->CodeType == "UniLRC" || m_sys_config->CodeType == "OptimalLRC" || m_sys_config->CodeType == "UniformLRC" || m_sys_config->CodeType == "AzureLRC");
+      assert(m_sys_config->CodeType == "UniLRC" || m_sys_config->CodeType == "OptimalLRC" || m_sys_config->CodeType == "UniformLRC" || is_azure_like_code(m_sys_config->CodeType));
       std::vector<int> data_block_num_per_group = get_data_block_num_per_group(m_sys_config->k, m_sys_config->r, m_sys_config->z, m_sys_config->CodeType);
       std::vector<int> global_parity_block_num_per_group = get_global_parity_block_num_per_group(m_sys_config->k, m_sys_config->r, m_sys_config->z, m_sys_config->CodeType);
       std::vector<int> local_parity_block_num_per_group = get_local_parity_block_num_per_group(m_sys_config->k, m_sys_config->r, m_sys_config->z, m_sys_config->CodeType);
@@ -653,7 +661,7 @@ namespace ECProject
         //ECProject::encode_uniform_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
         ECProject::encode_uniform_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(parity_ptr_array.data()), m_sys_config->BlockSize);
       }
-      else if (m_sys_config->CodeType == "AzureLRC")
+      else if (is_azure_like_code(m_sys_config->CodeType))
       {
         //ECProject::encode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
         ECProject::encode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(parity_ptr_array.data()), m_sys_config->BlockSize);
@@ -709,7 +717,7 @@ namespace ECProject
       std::unique_ptr<bool[]> if_commit_arr(new bool[reply.append_keys_size()]);
       std::fill_n(if_commit_arr.get(), reply.append_keys_size(), false);
 
-      assert(m_sys_config->CodeType == "UniLRC" || m_sys_config->CodeType == "OptimalLRC" || m_sys_config->CodeType == "UniformLRC" || m_sys_config->CodeType == "AzureLRC");
+      assert(m_sys_config->CodeType == "UniLRC" || m_sys_config->CodeType == "OptimalLRC" || m_sys_config->CodeType == "UniformLRC" || is_azure_like_code(m_sys_config->CodeType));
       std::vector<int> data_block_num_per_group = get_data_block_num_per_group(m_sys_config->k, m_sys_config->r, m_sys_config->z, m_sys_config->CodeType);
       int capacity = block_num;
       for(int i = 0; i < data_block_num_per_group.size(); i++)
@@ -743,7 +751,7 @@ namespace ECProject
         //ECProject::encode_uniform_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
         ECProject::partial_encode_uniform_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, block_num, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(parity_ptr_array.data()), m_sys_config->BlockSize);
       }
-      else if (m_sys_config->CodeType == "AzureLRC")
+      else if (is_azure_like_code(m_sys_config->CodeType))
       {
         //ECProject::encode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(global_parity_ptr_array.data()), reinterpret_cast<unsigned char **>(local_parity_ptr_array.data()), m_sys_config->BlockSize);
         ECProject::partial_encode_azure_lrc(m_sys_config->k, m_sys_config->r, m_sys_config->z, block_num, reinterpret_cast<unsigned char **>(data_ptr_array.data()), reinterpret_cast<unsigned char **>(parity_ptr_array.data()), m_sys_config->BlockSize);
@@ -774,6 +782,62 @@ namespace ECProject
     }
 
     return false;
+  }
+
+  bool Client::xue_update(int stripe_id, const std::vector<std::pair<int, int>> &logical_ranges)
+  {
+    if (logical_ranges.empty())
+    {
+      std::cout << "[XUE_UPDATE] Empty logical ranges." << std::endl;
+      return false;
+    }
+    grpc::ClientContext get_proxy_ip_port;
+    coordinator_proto::XueUpdateRequest request;
+    coordinator_proto::ReplyProxyIPsPorts reply;
+    request.set_client_id(m_clientID);
+    request.set_stripe_id(stripe_id);
+    for (const auto &r : logical_ranges)
+    {
+      if (r.second <= r.first)
+      {
+        std::cout << "[XUE_UPDATE] Invalid logical range: [" << r.first
+                  << ", " << r.second << ") (require start < end)" << std::endl;
+        return false;
+      }
+      auto *range = request.add_ranges();
+      range->set_logical_offset_start(r.first);
+      range->set_logical_offset_end(r.second);
+    }
+
+    grpc::Status status = m_coordinator_ptr->uploadXueUpdate(&get_proxy_ip_port, request, &reply);
+    if (!status.ok())
+    {
+      std::cout << "[XUE_UPDATE] upload failed: " << status.error_message() << std::endl;
+      return false;
+    }
+
+    std::vector<std::thread> threads;
+    std::vector<char *> cluster_slice_data = m_toolbox->splitCharPointer(m_pre_allocated_buffer, &reply);
+    std::unique_ptr<bool[]> if_commit_arr(new bool[reply.append_keys_size()]);
+    std::fill_n(if_commit_arr.get(), reply.append_keys_size(), false);
+
+    for (int i = 0; i < reply.append_keys_size(); i++)
+    {
+      threads.push_back(std::thread(&Client::async_append_to_proxies,
+                                    this, cluster_slice_data[i], reply.append_keys(i), reply.cluster_slice_sizes(i), reply.proxyips(i), reply.proxyports(i), i, if_commit_arr.get()));
+    }
+    for (auto &thread : threads)
+    {
+      thread.join();
+    }
+
+    bool all_true = std::all_of(if_commit_arr.get(), if_commit_arr.get() + reply.append_keys_size(), [](bool val)
+                                { return val == true; });
+    if (!all_true)
+    {
+      std::cout << "[XUE_UPDATE] commit check failed for at least one cluster slice." << std::endl;
+    }
+    return all_true;
   }
 
   std::shared_ptr<char[]> Client::get_degraded_read_block_breakdown(int stripe_id, int failed_block_id, double &total_time,double &disk_io_time, double &network_time, double &decode_time)
@@ -1272,7 +1336,7 @@ namespace ECProject
     parameters.push_back(m_sys_config->r);
     parameters.push_back(m_sys_config->z);
     parameters.push_back(m_sys_config->BlockSize);
-    if(m_sys_config->CodeType == "AzureLRC")
+    if(is_azure_like_code(m_sys_config->CodeType))
     {
       parameters.push_back(0);
     }

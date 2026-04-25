@@ -12,3 +12,6 @@ data/*
 project/config/*
 small_tools/*
 logs/*
+project/build/*
+project/cmake/*
+project/cache/*

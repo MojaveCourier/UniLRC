@@ -1,5 +1,6 @@
 import os
 import socket
+import xml.etree.ElementTree as ET
 import netifaces
 
 current_path = os.getcwd()
@@ -42,6 +43,43 @@ def get_interface_with_ip_prefix(prefix="10.10.1"):
 
 
 cluster_informtion = {}
+
+
+def load_cluster_information_xml(xml_path):
+    """从 project/config/clusterInformation.xml 填充 cluster_informtion，与手工编辑的配置一致。"""
+    global cluster_informtion
+    cluster_informtion = {}
+    tree = ET.parse(xml_path)
+    root = tree.getroot()
+    for cluster_el in root.findall("cluster"):
+        cid = int(cluster_el.get("id"))
+        proxy = cluster_el.get("proxy")
+        if not proxy:
+            raise ValueError("cluster id=%s missing proxy attribute" % cid)
+        datanode_list = []
+        for dn in cluster_el.findall("./datanodes/datanode"):
+            uri = dn.get("uri")
+            if not uri:
+                continue
+            host, port_s = uri.rsplit(":", 1)
+            datanode_list.append([host, int(port_s)])
+        cluster_informtion[cid] = {"proxy": proxy, "datanode": datanode_list}
+
+
+def resolve_cluster_id_for_local_ip(local_ip):
+    """本机 IP 与某 cluster 的 proxy 或任一 datanode 主机一致时，返回该 cluster id。"""
+    if not local_ip:
+        return None
+    for cid, info in cluster_informtion.items():
+        proxy_host = info["proxy"].split(":", 1)[0]
+        if proxy_host == local_ip:
+            return cid
+        for host, _port in info["datanode"]:
+            if host == local_ip:
+                return cid
+    return None
+
+
 def generate_cluster_info_dict():
     for i in range(proxy_num):
         new_cluster = {}
@@ -58,9 +96,16 @@ def generate_cluster_info_dict():
             
 def generate_run_proxy_datanode_file():
     local_ip = get_interface_with_ip_prefix(prefix="10.10.1")
+    if isinstance(local_ip, tuple):
+        local_ip = local_ip[0]
+    if not local_ip:
+        print("Warning: no 10.10.1.x address found; skip run_proxy_datanode.sh")
+        return
+    cluster_id = resolve_cluster_id_for_local_ip(local_ip)
+    if cluster_id is None:
+        print("Skip run_proxy_datanode.sh: no cluster in clusterInformation.xml matches local_ip", local_ip)
+        return
     #local_ip = "0.0.0.0" # for test
-    local_ip_last_segment = local_ip.split('.')[-1]
-    cluster_id = int(local_ip_last_segment) - 3
     #cluster_id = 0 # for test
     file_name = parent_path + '/run_proxy_datanode.sh'
     with open(file_name, 'w') as f:
@@ -80,7 +125,6 @@ def generate_run_proxy_datanode_file():
         
 def generater_cluster_information_xml():
     file_name = parent_path + '/project/config/clusterInformation.xml'
-    import xml.etree.ElementTree as ET
     root = ET.Element('clusters')
     root.text = "\n\t"
     for cluster_id in cluster_informtion.keys():
@@ -117,16 +161,25 @@ def cluster_generate_run_proxy_datanode_file(ip, port, i):
         f.write("\n")
 
 if __name__ == "__main__":
-    generate_cluster_info_dict()
+    xml_path = os.path.join(parent_path, "project", "config", "clusterInformation.xml")
+    if os.path.isfile(xml_path):
+        load_cluster_information_xml(xml_path)
+    else:
+        print("Warning:", xml_path, "not found; falling back to generate_cluster_info_dict()")
+        generate_cluster_info_dict()
     # print(cluster_informtion)
     local_ip = get_interface_with_ip_prefix(prefix="10.10.1")
+    if isinstance(local_ip, tuple):
+        local_ip = local_ip[0]
     #local_ip = "0.0.0.0" # for test
-    local_ip_last_segment = local_ip.split('.')[-1]
-    if int (local_ip_last_segment) >= 3: 
-        generate_run_proxy_datanode_file()
-    #generater_cluster_information_xml()
+    generate_run_proxy_datanode_file()
     #generate_run_proxy_datanode_file() # for test
-    generater_cluster_information_xml()
+    # 不再默认重写 clusterInformation.xml：update_all -> generate_run_proxy 会在各节点执行本脚本，
+    # 若总是调用 generater_cluster_information_xml() 会覆盖人工编辑的配置。
+    # 需要按脚本内 proxy_ip_list 重新生成 XML 时，在 small_tools 目录执行：
+    #   GENERATE_CLUSTER_INFORMATION_XML=1 python3 generator_sh.py
+    if os.environ.get("GENERATE_CLUSTER_INFORMATION_XML") == "1":
+        generater_cluster_information_xml()
     
     # cnt = 0
     # for proxy in proxy_ip_list:

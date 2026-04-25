@@ -162,9 +162,8 @@ namespace ECProject
 
                 if (append_offset == 0)
                 {
-                    // std::cout << "create data block file with path: " << writepath << std::endl;
-                    assert(access(writepath.c_str(), 0) == -1 && "File already exists with append_offset == 0!");
-                    // Create new file if append_offset is 0
+                    // append_offset==0 允许重建同名块文件（例如重复更新同一 block_key）。
+                    // 这里统一使用 trunc，避免因文件已存在触发断言导致进程崩溃。
                     std::ofstream create_file(writepath, std::ios::binary | std::ios::out | std::ios::trunc);
                     create_file.close();
                 }

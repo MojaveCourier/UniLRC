@@ -7,7 +7,9 @@
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/health_check_service_interface.h>
 #include <meta_definition.h>
+#include <map>
 #include <mutex>
+#include <string>
 #include <thread>
 #include <condition_variable>
 #include <config.h>
@@ -64,6 +66,10 @@ namespace ECProject
     grpc::Status uploadAppendValue(
         grpc::ServerContext *context,
         const coordinator_proto::RequestProxyIPPort *keyValueSize,
+        coordinator_proto::ReplyProxyIPsPorts *proxyIPPort) override;
+    grpc::Status uploadXueUpdate(
+        grpc::ServerContext *context,
+        const coordinator_proto::XueUpdateRequest *request,
         coordinator_proto::ReplyProxyIPsPorts *proxyIPPort) override;
     // get
     grpc::Status getValue(
@@ -148,6 +154,11 @@ namespace ECProject
     std::vector<proxy_proto::AppendStripeDataPlacement> generate_add_plans(Stripe *stripe);
     std::vector<proxy_proto::AppendStripeDataPlacement> generate_sub_add_plans(Stripe *stripe, size_t subset_size);
     std::vector<proxy_proto::AppendStripeDataPlacement> generateAppendPlan(Stripe *stripe, int curr_logical_offset, int append_size);
+    /** 与 generateAppendPlan 相同：由条带逻辑偏移区间得到各块 (size, 块内offset) 及校验条带尺寸 */
+    bool build_slice_plan_for_logical_range(Stripe *stripe, int logical_offset_start, int append_size,
+                                            std::map<int, std::pair<int, int>> *out_block_to_slice_sizes,
+                                            int *out_parity_slice_size, int *out_parity_slice_offset,
+                                            bool *out_is_merge_parity, std::string *err_msg);
     void update_stripe_info_in_node(int t_node_id, int stripe_id, int index);
     int getClusterAppendSize(Stripe *stripe, const std::map<int, std::pair<int, int>> &block_to_slice_sizes, int curr_group_id, int parity_slice_size);
     void notify_proxies_ready(const proxy_proto::AppendStripeDataPlacement &plan);

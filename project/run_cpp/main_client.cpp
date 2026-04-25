@@ -53,7 +53,7 @@ int main(int argc, char **argv)
 
 
     
-    size_t total_write_size = 4000; //MB
+    size_t total_write_size = 3000; //MB
     int stripe_num = total_write_size / (block_size * n);
     std::cout << "Starting set stripe operation" << std::endl;
     std::chrono::high_resolution_clock::time_point set_start = std::chrono::high_resolution_clock::now();
@@ -65,19 +65,63 @@ int main(int argc, char **argv)
     std::cout << "Conducting experiments, please wait..." << std::endl;
     std::chrono::duration<double> set_time = std::chrono::duration_cast<std::chrono::duration<double>>(set_end - set_start);
     std::cout << "write throughput: " << (static_cast<double> (total_write_size) / set_time.count() / 1024) << "MB/s" << std::endl;
-    
-    std::string output_file_name = "test_"  + code_type + + "_" + std::to_string(k) + "_" + std::to_string(r) + "_" + std::to_string(z) + ".txt";
-    std::ofstream output_file(output_file_name);
-    if (!output_file.is_open())
+    char input;
+    std::cout << "Start update? (type 'y' to proceed): " << std::endl;
+    std::cin >> input;
+    if (input == 'y') 
     {
-        std::cerr << "Error opening file: " << output_file_name << std::endl;
-        return 1;
-    }
-    freopen(output_file_name.c_str(), "w", stdout);
-    std::mt19937 rng(std::random_device{}());
+        std::string method;
+        std::cout << "Select update method: " << std::endl;
+        std::cin >> method;
 
-    std::uniform_int_distribution<int> dist_500(0, k*stripe_num - 500);
-    std::uniform_real_distribution<double> dist_double(0.0, 1.0);
+        if (method == "xue") 
+        {
+            int stripe_id = 0;
+            int range_cnt = 0;
+            std::cout << "Input stripe_id range_count: " << std::endl;
+            std::cin >> stripe_id >> range_cnt;
+            if (range_cnt <= 0)
+            {
+                std::cout << "Invalid range_count: " << range_cnt << std::endl;
+                return 1;
+            }
+            std::vector<std::pair<int, int>> logical_ranges;
+            logical_ranges.reserve(static_cast<size_t>(range_cnt));
+            std::cout << "Input each logical range as [start, end): logical_offset_start logical_offset_end_exclusive" << std::endl;
+            for (int i = 0; i < range_cnt; i++)
+            {
+                int logical_offset_start = 0;
+                int logical_offset_end = 0;
+                std::cin >> logical_offset_start >> logical_offset_end;
+                logical_ranges.emplace_back(logical_offset_start, logical_offset_end);
+            }
+            std::cout << "Calling xue's update function..." << std::endl;
+            const bool ok = client.xue_update(stripe_id, logical_ranges);
+            std::cout << "xue_update result: " << (ok ? "success" : "failed") << std::endl;
+        } 
+        else 
+        {
+            std::cout << "Unknown method: " << method << std::endl;
+        }
+    } 
+    else 
+    {
+        std::cout << "Update cancelled." << std::endl;
+    }
+
+    
+    // std::string output_file_name = "test_"  + code_type + + "_" + std::to_string(k) + "_" + std::to_string(r) + "_" + std::to_string(z) + ".txt";
+    // std::ofstream output_file(output_file_name);
+    // if (!output_file.is_open())
+    // {
+    //     std::cerr << "Error opening file: " << output_file_name << std::endl;
+    //     return 1;
+    // }
+    // freopen(output_file_name.c_str(), "w", stdout);
+    // std::mt19937 rng(std::random_device{}());
+
+    // std::uniform_int_distribution<int> dist_500(0, k*stripe_num - 500);
+    // std::uniform_real_distribution<double> dist_double(0.0, 1.0);
     
     /*std::string trace_file_path = std::string(buff) + cwf.substr(1, cwf.rfind('/') - 1) + "/../../../trace/ibm_test_trace.csv";
     std::fstream trace_file(trace_file_path);
@@ -132,65 +176,65 @@ int main(int argc, char **argv)
 
     
     //for read test
-    std::cout << "Normal read test start" << std::endl;
-    std::vector<std::chrono::duration<double>> read_time_spans;
-    for(int i = 0; i < 5; i++){
-        size_t data_size;
-        int id = i;
-        std::string key = std::to_string(id);
-        std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-        std::shared_ptr<char[]> data = client.get(key, data_size);
-        if(!data){
-            std::cout << "Get operation failed" << std::endl;
-            continue;
-        }
-        std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
-        read_time_spans.push_back(time_span);
-        //std::cout << "get time: " << time_span.count() << std::endl;
-    }
-    std::chrono::duration<double> read_total_time_span = std::accumulate(read_time_spans.begin(), read_time_spans.end(), std::chrono::duration<double>(0));
-    std::cout << "Total time: " << read_total_time_span.count() << std::endl;
-    std::cout << "Average time: " << read_total_time_span.count() / read_time_spans.size() << std::endl;
-    std::cout << "Throughput: " << read_time_spans.size() / read_total_time_span.count() << std::endl;
-    std::cout << "Speed" << static_cast<size_t>(block_size) * k / (read_total_time_span.count() / read_time_spans.size()) << "MB/s" << std::endl;
-    std::chrono::duration<double> read_max_time_span = *std::max_element(read_time_spans.begin(), read_time_spans.end());
-    std::chrono::duration<double> read_min_time_span = *std::min_element(read_time_spans.begin(), read_time_spans.end());
-    std::cout << "Max speed: " << static_cast<size_t>(block_size) * k / read_min_time_span.count() << "MB/s" << std::endl;
-    std::cout << "Min speed: " << static_cast<size_t>(block_size) * k / read_max_time_span.count() << "MB/s" << std::endl;
-    std::cout << "Normal read test end" << std::endl;
-    std::cout << std::endl;
+    // std::cout << "Normal read test start" << std::endl;
+    // std::vector<std::chrono::duration<double>> read_time_spans;
+    // for(int i = 0; i < 5; i++){
+    //     size_t data_size;
+    //     int id = i;
+    //     std::string key = std::to_string(id);
+    //     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+    //     std::shared_ptr<char[]> data = client.get(key, data_size);
+    //     if(!data){
+    //         std::cout << "Get operation failed" << std::endl;
+    //         continue;
+    //     }
+    //     std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+    //     std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+    //     read_time_spans.push_back(time_span);
+    //     //std::cout << "get time: " << time_span.count() << std::endl;
+    // }
+    // std::chrono::duration<double> read_total_time_span = std::accumulate(read_time_spans.begin(), read_time_spans.end(), std::chrono::duration<double>(0));
+    // std::cout << "Total time: " << read_total_time_span.count() << std::endl;
+    // std::cout << "Average time: " << read_total_time_span.count() / read_time_spans.size() << std::endl;
+    // std::cout << "Throughput: " << read_time_spans.size() / read_total_time_span.count() << std::endl;
+    // std::cout << "Speed" << static_cast<size_t>(block_size) * k / (read_total_time_span.count() / read_time_spans.size()) << "MB/s" << std::endl;
+    // std::chrono::duration<double> read_max_time_span = *std::max_element(read_time_spans.begin(), read_time_spans.end());
+    // std::chrono::duration<double> read_min_time_span = *std::min_element(read_time_spans.begin(), read_time_spans.end());
+    // std::cout << "Max speed: " << static_cast<size_t>(block_size) * k / read_min_time_span.count() << "MB/s" << std::endl;
+    // std::cout << "Min speed: " << static_cast<size_t>(block_size) * k / read_max_time_span.count() << "MB/s" << std::endl;
+    // std::cout << "Normal read test end" << std::endl;
+    // std::cout << std::endl;
     
-    //for degraded read test
-    std::vector<std::chrono::duration<double>> degraded_read_time_spans;
-    std::cout << "Degraded read test start" << std::endl;
-    for(int i = 0; i < k; i++){
-        size_t data_size;
-        int id = i;
-        std::string key = std::to_string(id);
-        std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-        std::shared_ptr<char[]> data = client.get_degraded_read_block(0, i);
-        if(!data){
-            std::cout << "Degraded read operation failed" << std::endl;
-            continue;
-        }
-        std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
-        degraded_read_time_spans.push_back(time_span);
-        //std::cout << "get time: " << time_span.count() << std::endl;
-    }
-    std::chrono::duration<double> degraded_read_total_time_span = std::accumulate(degraded_read_time_spans.begin(), degraded_read_time_spans.end(), std::chrono::duration<double>(0));
-    std::cout << "Average time: " << degraded_read_total_time_span.count() / degraded_read_time_spans.size() << std::endl;
-    std::chrono::duration<double> degraded_read_max_time_span = *std::max_element(degraded_read_time_spans.begin(), degraded_read_time_spans.end());
-    std::chrono::duration<double> degraded_read_min_time_span = *std::min_element(degraded_read_time_spans.begin(), degraded_read_time_spans.end());
-    std::cout << "Max time: "<< degraded_read_max_time_span.count() << std::endl;
-    std::cout << "Min time: "<< degraded_read_min_time_span.count() << std::endl;
-    std::cout << "Throughput: " << degraded_read_time_spans.size() / degraded_read_total_time_span.count() << std::endl;
-    std::cout << "Speed" << static_cast<size_t>(block_size)  / (degraded_read_total_time_span.count() / degraded_read_time_spans.size()) << "MB/s" << std::endl;
-    std::cout << "Max speed: " << static_cast<size_t>(block_size)  / degraded_read_min_time_span.count() << "MB/s" << std::endl;
-    std::cout << "Min speed: " << static_cast<size_t>(block_size)  / degraded_read_max_time_span.count() << "MB/s" << std::endl;
-    std::cout << "Degraded read test end" << std::endl;
-    std::cout << std::endl;
+    // //for degraded read test
+    // std::vector<std::chrono::duration<double>> degraded_read_time_spans;
+    // std::cout << "Degraded read test start" << std::endl;
+    // for(int i = 0; i < k; i++){
+    //     size_t data_size;
+    //     int id = i;
+    //     std::string key = std::to_string(id);
+    //     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+    //     std::shared_ptr<char[]> data = client.get_degraded_read_block(0, i);
+    //     if(!data){
+    //         std::cout << "Degraded read operation failed" << std::endl;
+    //         continue;
+    //     }
+    //     std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+    //     std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+    //     degraded_read_time_spans.push_back(time_span);
+    //     //std::cout << "get time: " << time_span.count() << std::endl;
+    // }
+    // std::chrono::duration<double> degraded_read_total_time_span = std::accumulate(degraded_read_time_spans.begin(), degraded_read_time_spans.end(), std::chrono::duration<double>(0));
+    // std::cout << "Average time: " << degraded_read_total_time_span.count() / degraded_read_time_spans.size() << std::endl;
+    // std::chrono::duration<double> degraded_read_max_time_span = *std::max_element(degraded_read_time_spans.begin(), degraded_read_time_spans.end());
+    // std::chrono::duration<double> degraded_read_min_time_span = *std::min_element(degraded_read_time_spans.begin(), degraded_read_time_spans.end());
+    // std::cout << "Max time: "<< degraded_read_max_time_span.count() << std::endl;
+    // std::cout << "Min time: "<< degraded_read_min_time_span.count() << std::endl;
+    // std::cout << "Throughput: " << degraded_read_time_spans.size() / degraded_read_total_time_span.count() << std::endl;
+    // std::cout << "Speed" << static_cast<size_t>(block_size)  / (degraded_read_total_time_span.count() / degraded_read_time_spans.size()) << "MB/s" << std::endl;
+    // std::cout << "Max speed: " << static_cast<size_t>(block_size)  / degraded_read_min_time_span.count() << "MB/s" << std::endl;
+    // std::cout << "Min speed: " << static_cast<size_t>(block_size)  / degraded_read_max_time_span.count() << "MB/s" << std::endl;
+    // std::cout << "Degraded read test end" << std::endl;
+    // std::cout << std::endl;
     
     //for single block recovery
     /*
