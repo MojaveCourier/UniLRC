@@ -193,77 +193,34 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
       return "载荷(" + payload + ")";
     }
 
-    inline std::string transfer_actor_line_cn(const std::string &payload, int from_c, int to_c)
-    {
-      if (payload == "data_delta")
-      {
-        return "谁传: 源集群 " + fmt_cluster_id(from_c) + " 上的数据块增量 -> 目的集群 " + fmt_cluster_id(to_c);
-      }
-      if (payload == "parity_delta")
-      {
-        return "谁传: 源集群 " + fmt_cluster_id(from_c) + " 上的校验/衍生校验更新 -> 目的集群 " + fmt_cluster_id(to_c);
-      }
-      return "谁传: " + fmt_cluster_id(from_c) + " -> " + fmt_cluster_id(to_c);
-    }
-
     void log_append_route_decisions(const std::vector<TransferPlanDecision> &decisions)
     {
-      for (size_t di = 0; di < decisions.size(); ++di)
-      {
-        const auto &d = decisions[di];
-        std::cout << "[APPEND-ROUTE] 决策#" << di << " | " << d.reason << " | 涉及数据块 id:";
-        for (int bid : d.block_ids)
-        {
-          std::cout << " " << bid;
-        }
-        std::cout << std::endl;
-        if (d.has_direct_fallback)
-        {
-          std::cout << "  备注: 本决策含「中转路径 vs 直传备选」二选一，调度阶段只会执行其中一支。\n";
-        }
-        for (size_t si = 0; si < d.steps.size(); ++si)
-        {
-          const auto &s = d.steps[si];
-          std::cout << "  ----------\n";
-          std::cout << "  第 " << (si + 1) << " 步 / 共 " << d.steps.size() << " 步\n";
-          std::cout << "  " << transfer_actor_line_cn(s.payload, s.from_cluster, s.to_cluster) << "\n";
-          std::cout << "  从哪到哪: " << fmt_cluster_id(s.from_cluster) << " -> " << fmt_cluster_id(s.to_cluster) << "\n";
-          std::cout << "  传什么(类型): " << payload_content_cn(s.payload) << "\n";
-          std::cout << "  传什么(语义): " << s.path_desc << "\n";
-          {
-            std::ostringstream szos;
-            szos << std::fixed << std::setprecision(1) << s.transfer_size;
-            std::cout << "  调度用传输量权重: " << szos.str() << " (字节量级，用于估算时长)\n";
-          }
-          if (s.depends_on_prev)
-          {
-            std::cout << "  顺序: 须等待本决策中「上一步」完成后才能开始（逻辑串行）\n";
-          }
-          else if (si == 0)
-          {
-            std::cout << "  顺序: 本决策的入口步骤（无前驱步骤）\n";
-          }
-          else
-          {
-            std::cout << "  顺序: 不依赖上一步完成即可开始（与上一步逻辑上允许并行；是否同开由调度器端口约束决定）\n";
-          }
-          if (si + 1 < d.steps.size() && !s.depends_on_prev && !d.steps[si + 1].depends_on_prev)
-          {
-            std::cout << "  并行提示: 下一步也不依赖本步完成，两步在路由层可并行发起（仍受调度器约束）\n";
-          }
-        }
-      }
+      (void)decisions;
+      return; // unfinished function
     }
 
     void log_append_schedule_visual(const std::vector<ScheduledTask> &schedule)
     {
+      // debug
+      std::cout << "[log_append_schedule_visual] schedule:";
+      for (const auto &t : schedule)
+      {
+        std::cout << " " << t.task_id << " " << t.from_cluster << " " << t.to_cluster << " " << t.payload << " " << t.path_desc << " " << t.start_time << " " << t.end_time << " " << t.duration << std::endl;
+        std::cout << "  从 t=" << fmt_sim_time(t.start_time) << " 到 t=" << fmt_sim_time(t.end_time)
+                  << "，传输 " << payload_content_cn(t.payload)
+                  << "，从 " << fmt_cluster_id(t.from_cluster)
+                  << " 到 " << fmt_cluster_id(t.to_cluster)
+                  << "，内容: " << t.path_desc << std::endl;
+      }
+      // debug end
       if (schedule.empty())
       {
-        std::cout << "[APPEND-SCHEDULE] (无传输任务)\n";
+        std::cout << "[XUE_UPDATE_TRANSMISSION] (无传输任务)\n";
         return;
       }
       const int n = static_cast<int>(schedule.size());
-      std::cout << "[APPEND-SCHEDULE] 共 " << n << " 个传输任务（时间为调度仿真相对时刻 t，与 duration 同单位；非真实墙钟）\n";
+      std::cout << "[XUE_UPDATE_TRANSMISSION] 共 " << n
+                << " 条传输（时间为调度仿真相对时刻 t，与 duration 同单位）\n";
 
       std::vector<int> order(n);
       std::iota(order.begin(), order.end(), 0);
@@ -282,82 +239,13 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
       for (int ii : order)
       {
         const auto &t = schedule[ii];
-        std::cout << "\n  [时间窗 t ∈ [" << fmt_sim_time(t.start_time) << ", " << fmt_sim_time(t.end_time) << ")]"
-                  << " task#" << t.task_id << " 决策#" << t.decision_id << "\n";
-        std::cout << "    " << transfer_actor_line_cn(t.payload, t.from_cluster, t.to_cluster) << "\n";
-        std::cout << "    从哪到哪: " << fmt_cluster_id(t.from_cluster) << " -> " << fmt_cluster_id(t.to_cluster) << "\n";
-        std::cout << "    载荷: " << payload_content_cn(t.payload) << " | 持续时长≈" << fmt_sim_time(t.duration) << "\n";
-        std::cout << "    内容: " << t.path_desc << "\n";
-
-        std::vector<int> overlap_tasks;
-        for (const auto &u : schedule)
-        {
-          if (u.task_id == t.task_id)
-          {
-            continue;
-          }
-          const double lo = std::max(t.start_time, u.start_time);
-          const double hi = std::min(t.end_time, u.end_time);
-          if (hi > lo + 1e-9)
-          {
-            overlap_tasks.push_back(u.task_id);
-          }
-        }
-        if (!overlap_tasks.empty())
-        {
-          std::cout << "    与此任务时间重叠（链路上可能并行）的其它 task:";
-          for (int tid : overlap_tasks)
-          {
-            std::cout << " #" << tid;
-          }
-          std::cout << "\n";
-          for (int tid : overlap_tasks)
-          {
-            const ScheduledTask *peer = nullptr;
-            for (const auto &u : schedule)
-            {
-              if (u.task_id == tid)
-              {
-                peer = &u;
-                break;
-              }
-            }
-            if (peer != nullptr)
-            {
-              std::cout << "      并行伙伴 task#" << peer->task_id << ": " << fmt_cluster_id(peer->from_cluster) << " -> "
-                        << fmt_cluster_id(peer->to_cluster) << " | " << payload_content_cn(peer->payload) << "\n";
-            }
-          }
-        }
-        else
-        {
-          std::cout << "    无其它 task 与本次全程时间重叠\n";
-        }
+        std::cout << "  从 t=" << fmt_sim_time(t.start_time) << " 到 t=" << fmt_sim_time(t.end_time)
+                  << "，传输 " << payload_content_cn(t.payload)
+                  << "，从 " << fmt_cluster_id(t.from_cluster)
+                  << " 到 " << fmt_cluster_id(t.to_cluster)
+                  << "，内容: " << t.path_desc << std::endl;
       }
-
-      std::cout << "\n[APPEND-SCHEDULE-WAVE] 同一仿真起始时刻 t 开传的一波（同波内彼此可能并行）\n";
-      int i = 0;
-      while (i < n)
-      {
-        const int idx0 = order[i];
-        const double wave_st = schedule[idx0].start_time;
-        int j = i + 1;
-        while (j < n && std::abs(schedule[order[j]].start_time - wave_st) < 1e-9)
-        {
-          ++j;
-        }
-        std::cout << "  波次: t_start=" << fmt_sim_time(wave_st) << " 并行开传任务数=" << (j - i) << "\n";
-        for (int k = i; k < j; ++k)
-        {
-          const auto &t = schedule[order[k]];
-          std::cout << "    - task#" << t.task_id << " 决策#" << t.decision_id << " | "
-                    << fmt_cluster_id(t.from_cluster) << " -> " << fmt_cluster_id(t.to_cluster) << " | "
-                    << payload_content_cn(t.payload) << " | t∈[" << fmt_sim_time(t.start_time) << ","
-                    << fmt_sim_time(t.end_time) << "]\n";
-          std::cout << "      " << t.path_desc << "\n";
-        }
-        i = j;
-      }
+      return;
     }
 
     std::vector<ScheduledTask> schedule_transfer_steps(const std::vector<TransferPlanDecision> &decisions) // 调度传输步骤
@@ -368,68 +256,67 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
         return scheduled; // 如果决策列表为空，则返回空调度任务列表
       }
 
-      struct RawTask  // 原始任务，暂存还没被排进时间表的原始任务
+      struct RawTask
       {
-        int decision_id = -1; // 决策ID
-        int from_cluster = -1; // 从哪个集群
-        int to_cluster = -1; // 到哪个集群
-        std::string payload; // 更新内容
-        double duration = 0.0; // 持续时间
-        int alt_group = -1; // 备用组ID：如果几个任务是互斥的，会属于一个组
-        int alt_kind = 0; // 备用类型：0是正常，1是中转首跳，2是中转备选，3是直传备选
-        std::string path_desc; // 路径描述
-        double transfer_size = 1.0; // 传输大小（字节）
-        int hot_cluster = -1; // 热点机架（全局校验所在集群）
+        int decision_id = -1;
+        int from_cluster = -1;
+        int to_cluster = -1;
+        std::string payload;
+        double duration = 0.0;
+        int alt_group = -1;
+        int alt_kind = 0;
+        std::string path_desc;
+        double transfer_size = 1.0;
+        int hot_cluster = -1;
       };
 
-      std::vector<RawTask> tasks; // 原始任务列表
-      std::vector<std::vector<int>> succ; // 后继任务列表，每个任务结束后哪些后续任务可以开始
-      std::vector<int> remaining_pred; // 剩余前驱任务数量，计数降为0时任务可以执行
-      auto add_task = [&](const RawTask &t) -> int // 添加任务
-      {
+      std::vector<RawTask> tasks;
+      std::vector<std::vector<int>> succ;
+      std::vector<int> remaining_pred;
+      auto add_task = [&](const RawTask &t) -> int {
         int id = static_cast<int>(tasks.size());
         tasks.push_back(t);
-        succ.emplace_back();  
+        succ.emplace_back();
         remaining_pred.push_back(0);
-        return id; // 返回任务ID
+        return id;
       };
 
-      std::vector<std::vector<int>> alt_group_tasks; // 备用组任务列表，每个组里是互斥的任务
+      std::vector<std::vector<int>> alt_group_tasks;
 
-      // 构建任务图：只有标记 depends_on_prev 的步骤才依赖前驱
+      // 构建任务图
       for (int d_id = 0; d_id < static_cast<int>(decisions.size()); d_id++)
       {
-        const auto &d = decisions[d_id]; // 当前决策
-        int alt_group_id = -1; // 备用组ID
+        const auto &d = decisions[d_id];
+        int alt_group_id = -1;
         if (d.has_direct_fallback)
         {
           alt_group_id = static_cast<int>(alt_group_tasks.size());
           alt_group_tasks.push_back({});
         }
-        int prev_task_id = -1; 
+        int prev_task_id = -1;
         for (const auto &s : d.steps)
         {
           double bw = estimate_bandwidth_between_clusters(s.from_cluster, s.to_cluster);
-          const double sz = std::max(1.0, s.transfer_size); // 传输大小（字节）
-          double duration = (bw > 1e-6) ? (sz / bw) : 1e6; 
+          const double sz = std::max(1.0, s.transfer_size);
+          double duration = (bw > 1e-6) ? (sz / bw) : 1e6;
           int alt_kind = 0;
           if (d.has_direct_fallback)
           {
             alt_kind = (prev_task_id < 0) ? 1 : 2;
           }
-          int cur_id = add_task({d_id, s.from_cluster, s.to_cluster, s.payload, duration, alt_group_id, alt_kind, s.path_desc, sz, d.hot_cluster}); // 添加任务
+          int cur_id = add_task({d_id, s.from_cluster, s.to_cluster, s.payload, duration, alt_group_id, alt_kind, s.path_desc, sz, d.hot_cluster});
           if (alt_group_id >= 0)
           {
-            alt_group_tasks[alt_group_id].push_back(cur_id); // 添加到备用组任务列表
+            alt_group_tasks[alt_group_id].push_back(cur_id);
           }
           if (s.depends_on_prev && prev_task_id >= 0)
           {
-            succ[prev_task_id].push_back(cur_id); // 添加后继任务
-            remaining_pred[cur_id]++; // 剩余前驱任务数量+1
+            succ[prev_task_id].push_back(cur_id);
+            remaining_pred[cur_id]++;
           }
-          prev_task_id = cur_id; // 更新前一个任务ID
+          prev_task_id = cur_id;
         }
-      //生成一个直传备选方案：如果需要直传备选，并且有直传备选的目标集群，则生成一个直传备选方案
+        // 生成直传备选方案
         if (d.has_direct_fallback && !d.steps.empty() && d.direct_fallback_dst >= 0)
         {
           int src = d.steps[0].from_cluster;
@@ -450,16 +337,14 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
       }
 
       // 计算 dp_after（关键路径后继长度）
-      std::vector<int> indeg = remaining_pred;// 入度计数（还有几个前驱没完成）
+      std::vector<int> indeg = remaining_pred;
       std::queue<int> q;
-      // 1. 找起点：把所有没有前驱（入度为0）的任务放进队列
       for (int i = 0; i < n; i++)
       {
         if (indeg[i] == 0)
           q.push(i);
       }
       std::vector<int> topo;
-      // 2. 排序：不断取出起点，并“砍掉”它指向后继者的线
       while (!q.empty())
       {
         int u = q.front();
@@ -471,7 +356,7 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
             q.push(v);
         }
       }
-      std::vector<double> dp_after(n, 0.0); 
+      std::vector<double> dp_after(n, 0.0);
       for (int i = static_cast<int>(topo.size()) - 1; i >= 0; i--)
       {
         int u = topo[i];
@@ -480,10 +365,9 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
         {
           best = std::max(best, tasks[v].duration + dp_after[v]);
         }
-        dp_after[u] = best; //衡量任务 u 的紧迫性。
+        dp_after[u] = best;
       }
 
-      // hot_bonus：指向“该决策 global parity 所在机架”的最高带宽入边 +1
       std::map<int, double> best_to_hot_by_decision;
       for (int i = 0; i < n; i++)
       {
@@ -519,7 +403,7 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
         score[i] = 100.0 * dp_after[i] + 10.0 * tasks[i].duration + hot_bonus;
       }
 
-      std::set<int> ready_set; //存放所有没有任何前置依赖、可以立即开始执行的任务 ID。
+      std::set<int> ready_set;
       for (int i = 0; i < n; i++)
       {
         if (remaining_pred[i] == 0)
@@ -533,9 +417,40 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
       double current_t = 0.0;
       std::priority_queue<RunningTask, std::vector<RunningTask>, std::greater<RunningTask>> running;
 
+      // ====== 调度循环开始 ======
       while (finished_cnt < n)
       {
-        std::vector<int> candidates; //模拟器首先查看 ready_set（那些前序依赖已经完成的任务），找出此时此刻网络资源空闲的任务。
+        // 先清理：互斥组已决议后，其余同组任务不应继续留在 ready_set 中等待调度。
+        // 若不清理，可能出现 candidates 非空但 selected 为空，且 next_t==current_t 的活锁。
+        std::vector<int> stale_ready_tasks;
+        for (int tid : ready_set)
+        {
+          const int g = tasks[tid].alt_group;
+          if (g >= 0 && g < static_cast<int>(alt_group_resolved.size()) && alt_group_resolved[g])
+          {
+            stale_ready_tasks.push_back(tid);
+          }
+        }
+        for (int tid : stale_ready_tasks)
+        {
+          ready_set.erase(tid);
+          if (!finished[tid])
+          {
+            canceled[tid] = true;
+            finished[tid] = true;
+            finished_cnt++;
+            std::cout << "[debug] purge stale alt_task from ready_set: " << tid << std::endl;
+          }
+        }
+
+        // ==== DEBUG: 输出当前ready_set和资源状态 ====
+        std::cout << "[debug] current_t=" << current_t << ", finished_cnt=" << finished_cnt
+                  << ", running-tasks=" << running.size() << ", ready_set={";
+        for (int tid : ready_set) std::cout << " " << tid;
+        std::cout << " }" << std::endl;
+
+        // ==== STEP 1: 搜集本轮可以立刻启动的 candidates ====
+        std::vector<int> candidates;
         for (int tid : ready_set)
         {
           if (canceled[tid] || finished[tid]) 
@@ -551,9 +466,16 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
           }
         }
 
+        // ==== DEBUG: 打印可调度(candidates)任务 ====
+        std::cout << "[debug] candidates:";
+        for (int tid : candidates)
+          std::cout << " " << tid;
+        std::cout << std::endl;
+
+        // ==== STEP 2: 如果有可调度的任务，选出优先启动的 ====
         if (!candidates.empty())
         {
-          // pair_best: 每个(src,dst)只留分最高一个
+          // pair_best: 每对(src,dst)只留分最高的一个
           std::map<std::pair<int, int>, int> pair_best;
           for (int tid : candidates)
           {
@@ -566,6 +488,12 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
           for (const auto &kv : pair_best)
             sorted.push_back(kv.second);
           std::sort(sorted.begin(), sorted.end(), [&](int a, int b) { return score[a] > score[b]; });
+
+          // ==== DEBUG: 输出调度排序 ====
+          std::cout << "[debug] sorted-tasks:";
+          for (int tid : sorted)
+            std::cout << " " << tid << "(" << score[tid] << ")";
+          std::cout << std::endl;
 
           std::set<int> used_src, used_dst;
           std::vector<int> selected;
@@ -583,6 +511,11 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
             selected.push_back(tid);
           }
 
+          // ==== DEBUG: 输出被选中启动的任务 ====
+          std::cout << "[debug] selected-tasks:";
+          for (int tid : selected) std::cout << " " << tid;
+          std::cout << std::endl;
+
           for (int tid : selected)
           {
             const auto &t = tasks[tid];
@@ -590,9 +523,7 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
             if (g >= 0 && g < static_cast<int>(alt_group_resolved.size()) && !alt_group_resolved[g])
             {
               alt_group_resolved[g] = true;
-              // 在线回退逻辑：
-              // 若本轮选中了直传(alt_kind=3)，取消中转两跳；
-              // 若选中中转首跳(alt_kind=1)，取消直传备选。
+              // 在线回退: 互斥任务取消
               for (int oid : alt_group_tasks[g])
               {
                 if (oid == tid || canceled[oid] || finished[oid])
@@ -609,6 +540,7 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
                   {
                     finished[oid] = true;
                     finished_cnt++;
+                    std::cout << "[debug] cancel alt_task: " << oid << std::endl;
                   }
                 }
               }
@@ -621,10 +553,13 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
             recv_next[t.to_cluster] = ed;
             running.push({ed, tid});
             scheduled.push_back({tid, t.decision_id, t.from_cluster, t.to_cluster, t.payload, t.duration, st, ed, t.path_desc});
+            std::cout << "[debug] start-task: " << tid << " at t=" << st << " ends t=" << ed
+                      << " : " << t.path_desc << std::endl;
           }
-          // 本轮已启动任务，下一步推进到最早结束事件
+          // 下一步推进到最早结束事件
         }
 
+        // ==== 检查卡住? 没有更多可运行任务 ====
         if (running.empty())
         {
           // 无运行任务但未完成：推进到最近可用时刻
@@ -639,13 +574,23 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
               next_t = std::min(next_t, std::max(send_next[t.from_cluster], recv_next[t.to_cluster]));
             }
           }
-          if (next_t == std::numeric_limits<double>::infinity())
+          // ==== DEBUG: 卡住可能，打印下一跳时刻 ====
+          if (next_t == std::numeric_limits<double>::infinity()) {
+            std::cout << "[debug] 卡住！ready_set剩余任务也等不到资源可用，可能死锁！" << std::endl;
             break;
+          }
+          if (next_t <= current_t + 1e-12)
+          {
+            std::cout << "[debug] 卡住！next_t 未前进 (next_t=" << next_t
+                      << ", current_t=" << current_t << ")，终止调度循环避免活锁。" << std::endl;
+            break;
+          }
+          std::cout << "[debug] 无可运行任务, 推进到 next_t=" << next_t << std::endl;
           current_t = next_t;
           continue;
         }
 
-        // 事件推进：处理最早结束的一批任务
+        // ==== STEP 3: 事件推进，处理最早结束的一批任务 ====
         double next_finish = running.top().end_time;
         current_t = next_finish;
         std::vector<int> finished_now;
@@ -658,6 +603,7 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
             finished[tid] = true;
             finished_cnt++;
             finished_now.push_back(tid);
+            std::cout << "[debug] finish-task: " << tid << " at t=" << current_t << std::endl;
           }
         }
 
@@ -669,10 +615,14 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
             if (remaining_pred[v] == 0)
             {
               ready_set.insert(v);
+              std::cout << "[debug] ready now: " << v << std::endl;
             }
           }
         }
       }
+
+      // == 调度循环结束 ==
+      std::cout << "[debug] 调度循环结束，共完成: " << finished_cnt << " / " << n << " 个任务" << std::endl;
 
       return scheduled;
     }
@@ -1538,7 +1488,10 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
       }
 
       log_append_route_decisions(decisions);
+      // debug
+      std::cout << "[debug] START schedule_transfer_steps" << std::endl;
       std::vector<ScheduledTask> schedule = schedule_transfer_steps(decisions);
+      std::cout << "[debug] END schedule_transfer_steps" << std::endl;
       log_append_schedule_visual(schedule);
       result.route_decisions = std::move(decisions);
       result.scheduled_tasks = std::move(schedule);
@@ -2476,19 +2429,9 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
     }
     const bool is_merge_parity = false;
 
-    std::cout << "[XUE_UPDATE_INPUT] client=" << client_id
-              << " stripe=" << stripe_id
-              << " ranges=" << request->ranges_size() << std::endl;
-    for (int rid = 0; rid < request->ranges_size(); rid++)
-    {
-      const auto &rg = request->ranges(rid);
-      std::cout << "  input_range#" << rid
-                << " logical=[" << rg.logical_offset_start() << "," << rg.logical_offset_end() << ")"
-                << std::endl;
-    }
-
-    std::cout << "[XUE_UPDATE_AFFECTED_BLOCKS] ";
-    std::cout << "data block slices:";
+    std::cout << "[XUE_UPDATE_SCOPE] stripe=" << stripe_id
+              << " | ranges=" << request->ranges_size() << std::endl;
+    std::cout << "  涉及数据块及区间:";
     for (const auto &kv : block_to_slices)
     {
       if (kv.first >= 0 && kv.first < stripe->k)
@@ -2499,66 +2442,23 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
           const int block_end = block_off + slice.first - 1;
           const int u0 = block_off / unit_size;
           const int u1 = block_end / unit_size;
-          std::cout << " block" << kv.first << "[+" << block_off << ".." << block_end
-                    << " len " << slice.first << " | unit " << u0 << ".." << u1 << "]";
+          std::cout << " block" << kv.first
+                    << "[+" << block_off << ".." << block_end
+                    << " len " << slice.first
+                    << " | unit " << u0 << ".." << u1 << "]";
         }
       }
     }
-    std::cout << " | parity sparse slices enabled" << std::endl;
-
+    std::cout << std::endl;
+    //debug
+    std::cout << "start xue_update_sparse" << std::endl;
     XueUpdateResult update_result = xue_update_sparse(stripe, block_to_slices, m_sys_config->CodeType);
     const std::map<int, int> &group_to_ingress_cluster = update_result.group_to_ingress_cluster;
-    const std::vector<TransferPlanDecision> &route_decisions = update_result.route_decisions;
     const std::vector<ScheduledTask> &scheduled_tasks = update_result.scheduled_tasks;
-
-    std::cout << "[XUE_UPDATE_TRANSMISSION_PLAN] route decisions: " << route_decisions.size() << std::endl;
-    for (size_t i = 0; i < route_decisions.size(); i++)
-    {
-      const auto &d = route_decisions[i];
-      std::cout << "  decision#" << i << " reason=" << d.reason << " blocks:";
-      for (int bid : d.block_ids)
-      {
-        std::cout << " " << bid;
-      }
-      std::cout << std::endl;
-      for (const auto &s : d.steps)
-      {
-        std::cout << "    path: " << s.path_desc << " | cluster " << s.from_cluster << " -> " << s.to_cluster
-                  << " payload=" << s.payload
-                  << " depends_on_prev=" << (s.depends_on_prev ? "true" : "false")
-                  << std::endl;
-      }
-    }
-
-    std::map<long long, std::vector<const ScheduledTask *>> phase_tasks;
-    double makespan = 0.0;
-    for (const auto &t : scheduled_tasks)
-    {
-      const long long slot = static_cast<long long>(std::llround(t.start_time * 1000000.0));
-      phase_tasks[slot].push_back(&t);
-      makespan = std::max(makespan, t.end_time);
-    }
-    std::cout << "[XUE_UPDATE_EXEC_ORDER] phases=" << phase_tasks.size()
-              << " makespan=" << makespan << std::endl;
-    int phase_id = 1;
-    for (const auto &entry : phase_tasks)
-    {
-      const double phase_start = static_cast<double>(entry.first) / 1000000.0;
-      std::cout << "  phase#" << phase_id
-                << " start=" << phase_start
-                << " parallel_tasks=" << entry.second.size() << std::endl;
-      for (const auto *pt : entry.second)
-      {
-        std::cout << "    - task#" << pt->task_id
-                  << " (" << pt->from_cluster << "->" << pt->to_cluster << ", " << pt->payload << ")"
-                  << " end=" << pt->end_time
-                  << " | " << pt->path_desc
-                  << " | transfer_content=" << pt->payload
-                  << std::endl;
-      }
-      phase_id++;
-    }
-
+    std::cout << "end xue_update_sparse" << std::endl;
+    // 在 uploadXueUpdate 入口处显式输出传输时间窗，避免依赖下层函数打印行为。
+    log_append_schedule_visual(scheduled_tasks);
+    std::cout << "end log_append_schedule_visual" << std::endl;
     std::vector<proxy_proto::AppendStripeDataPlacement> append_plans;
     for (int i = 0; i < stripe->z; i++)
     {
