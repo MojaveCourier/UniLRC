@@ -10,6 +10,7 @@ datanode_number_per_cluster = 30
 datanode_port_start = 17600
 cluster_id_start = 0
 iftest = False
+RUN_ENV = os.environ.get("UNILRC_ENV", "half-sim").strip().lower()
 
 proxy_ip_list = [
     ["10.10.1.3",50405],
@@ -43,6 +44,21 @@ def get_interface_with_ip_prefix(prefix="10.10.1"):
 
 
 cluster_informtion = {}
+
+
+def get_proxy_port_base():
+    ports = []
+    for info in cluster_informtion.values():
+        proxy = info.get("proxy", "")
+        if ":" not in proxy:
+            continue
+        try:
+            ports.append(int(proxy.rsplit(":", 1)[1]))
+        except ValueError:
+            continue
+    if ports:
+        return min(ports)
+    return proxy_ip_list[0][1]
 
 
 def load_cluster_information_xml(xml_path):
@@ -93,8 +109,45 @@ def generate_cluster_info_dict():
             datanode_list.append([proxy_ip_list[i][0], port])
         new_cluster["datanode"] = datanode_list
         cluster_informtion[i] = new_cluster
+
+
+def convert_cluster_info_to_local():
+    """将当前 cluster_informtion 转换为纯本地部署：127.0.0.1 + 全局唯一端口。"""
+    global cluster_informtion
+    local_cluster_information = {}
+    datanode_port = datanode_port_start
+    proxy_port_base = get_proxy_port_base()
+
+    for cluster_id in sorted(cluster_informtion.keys()):
+        local_cluster = {}
+        local_cluster["proxy"] = "127.0.0.1:" + str(proxy_port_base + cluster_id)
+        datanode_list = []
+        for _ in cluster_informtion[cluster_id]["datanode"]:
+            datanode_list.append(["127.0.0.1", datanode_port])
+            datanode_port += 1
+        local_cluster["datanode"] = datanode_list
+        local_cluster_information[cluster_id] = local_cluster
+    cluster_informtion = local_cluster_information
             
 def generate_run_proxy_datanode_file():
+    if RUN_ENV == "local":
+        file_name = parent_path + '/run_proxy_datanode.sh'
+        with open(file_name, 'w') as f:
+            f.write("pkill -9 run_datanode\n")
+            f.write("pkill -9 run_proxy\n")
+            f.write("\n")
+
+            for cluster_id in sorted(cluster_informtion.keys()):
+                for each_datanode in cluster_informtion[cluster_id]["datanode"]:
+                    f.write("./project/cmake/build/run_datanode " + str(each_datanode[0]) + ":" + str(each_datanode[1]) + " & \n")
+            f.write("\n")
+            f.write("sleep 5s\n")
+            f.write("\n")
+            for cluster_id in sorted(cluster_informtion.keys()):
+                f.write("./project/cmake/build/run_proxy " + str(cluster_informtion[cluster_id]["proxy"]) + " " + " & \n")
+            f.write("\n")
+        return
+
     local_ip = get_interface_with_ip_prefix(prefix="10.10.1")
     if isinstance(local_ip, tuple):
         local_ip = local_ip[0]
@@ -167,6 +220,8 @@ if __name__ == "__main__":
     else:
         print("Warning:", xml_path, "not found; falling back to generate_cluster_info_dict()")
         generate_cluster_info_dict()
+    if RUN_ENV == "local":
+        convert_cluster_info_to_local()
     # print(cluster_informtion)
     local_ip = get_interface_with_ip_prefix(prefix="10.10.1")
     if isinstance(local_ip, tuple):

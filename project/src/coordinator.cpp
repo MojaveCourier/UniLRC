@@ -428,7 +428,13 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
           const int g = tasks[tid].alt_group;
           if (g >= 0 && g < static_cast<int>(alt_group_resolved.size()) && alt_group_resolved[g])
           {
-            stale_ready_tasks.push_back(tid);
+            // alt_group 已决议后，只清理互斥入口任务；
+            // 不能清理已选链路上的后续任务（alt_kind=2），否则会吞掉“中继第二跳”。
+            const int kind = tasks[tid].alt_kind;
+            if (kind == 1 || kind == 3)
+            {
+              stale_ready_tasks.push_back(tid);
+            }
           }
         }
         for (int tid : stale_ready_tasks)
@@ -441,6 +447,10 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
             finished_cnt++;
             std::cout << "[debug] purge stale alt_task from ready_set: " << tid << std::endl;
           }
+        }
+        if (finished_cnt >= n)
+        {
+          break;
         }
 
         // ==== DEBUG: 输出当前ready_set和资源状态 ====
@@ -503,7 +513,12 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
             int dst = tasks[tid].to_cluster;
             int g = tasks[tid].alt_group;
             if (g >= 0 && g < static_cast<int>(alt_group_resolved.size()) && alt_group_resolved[g])
-              continue;
+            {
+              // alt_group 已决议后，只跳过互斥入口；保留已选路径的后续任务（alt_kind=2）。
+              const int kind = tasks[tid].alt_kind;
+              if (kind == 1 || kind == 3)
+                continue;
+            }
             if (used_src.count(src) || used_dst.count(dst))
               continue;
             used_src.insert(src);
@@ -562,6 +577,10 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
         // ==== 检查卡住? 没有更多可运行任务 ====
         if (running.empty())
         {
+          if (finished_cnt >= n)
+          {
+            break;
+          }
           // 无运行任务但未完成：推进到最近可用时刻
           double next_t = std::numeric_limits<double>::infinity();
           for (int tid : ready_set)

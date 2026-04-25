@@ -1,5 +1,13 @@
 #!/bin/bash
 
+RUN_ENV=${UNILRC_ENV:-half-sim}
+
+if [ "$RUN_ENV" = "local" ]; then
+  echo "Local mode detected, running run_proxy_datanode.sh on localhost..."
+  bash run_proxy_datanode.sh
+  exit $?
+fi
+
 HOSTS_FILE="proxy_hosts"
 
 USER="root"
