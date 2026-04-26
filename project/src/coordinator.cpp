@@ -6,12 +6,9 @@
 #include <sys/time.h>
 #include <chrono>
 #include <limits>
-#include <queue>
 #include <set>
 #include <cmath>
 #include <stdexcept>
-#include <iomanip>
-#include <sstream>
 #include <numeric>
 
 template <typename T>
@@ -43,1478 +40,9 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
 {
   namespace  // 匿名命名空间：里面的内容只在当前文件内可见（内部链接）
   {
-    bool is_azure_like_code(const std::string &code_type) // 辅助函数：判断是否为 Azure或xue类型的编码
+    bool is_azure_like_code(const std::string &code_type) // 辅助函数：判断是否为 Azure 系列分组规则编码
     {
-      return code_type == "AzureLRC" || code_type == "XueLRC";
-    }
-      // 强类型枚举：定义数据更新的分类
-    enum class DataUpdateClass
-    {
-      kLocalParitySameCluster,  // 第1类：数据块与本地校验块同cluster
-      kGlobalParitySameCluster, // 第2类：数据块与全局校验块同cluster
-      kDataOnlyCluster          // 第3类：仅与数据块同cluster
-    };
-
-    struct DataSliceUpdate
-    {
-      int block_id = -1; // 数据块ID
-      int group_id = -1; // 组ID
-      int offset = 0; // 偏移量 ：数据块中的偏移量
-      int size = 0; // 大小 ：数据块中的大小
-      int data_cluster = -1; // 数据集群 ：数据块所在的集群
-      int local_parity_cluster = -1; // 本地校验块集群 ：本地校验块所在的集群
-      int global_parity_cluster = -1; // 全局校验块集群 ：全局校验块所在的集群
-      DataUpdateClass klass = DataUpdateClass::kDataOnlyCluster; // 数据更新分类 ：数据更新分类
-    };
-
-    struct TransferStep  // 传输步骤
-    {
-      int from_cluster = -1; // 从哪个集群
-      int to_cluster = -1; // 到哪个集群
-      std::string payload; // data_delta / parity_delta ：数据/校验块的更新内容
-      bool depends_on_prev = false;   // 是否依赖前一个步骤
-      std::string path_desc;  //从哪个集群的哪类块更新内容传到哪个集群的哪类块
-      double transfer_size = 1.0; // 传输大小（字节）
-    };
-
-    struct TransferPlanDecision  // 传输计划决策
-    {
-      std::vector<int> block_ids; // 数据块ID列表
-      std::vector<TransferStep> steps; // 传输步骤列表 ：传输步骤列表
-      std::string reason; // 决策原因 ：决策原因
-      bool has_direct_fallback = false; // 是否 有 直接备选 ：是否有直接备选
-      int direct_fallback_dst = -1; // 直接备选的目标集群 ：直接备选的目标集群
-      int hot_cluster = -1; // 热点机架：该决策对应的全局校验所在集群
-    };
-
-    struct ScheduledTask  // 调度任务
-    {
-      int task_id = -1;   // 任务ID
-      int decision_id = -1; // 决策ID
-      int from_cluster = -1; // 从哪个集群
-      int to_cluster = -1; // 到哪个集群
-      std::string payload; // 更新内容
-      double duration = 0.0; // 持续时间
-      double start_time = 0.0; // 开始时间
-      double end_time = 0.0; // 结束时间
-      std::string path_desc; // 路径描述
-    };
-
-    struct XueUpdateResult  // Xue更新结果
-    {
-      std::map<int, int> group_to_ingress_cluster; // 组到入口集群的映射
-      std::vector<TransferPlanDecision> route_decisions; //所有路径决策
-      std::vector<ScheduledTask> scheduled_tasks; // 所有调度任务
-    };
-
-    struct RunningTask  // 运行任务
-    {
-      double end_time = 0.0; // 结束时间
-      int task_id = -1; // 任务ID
-      bool operator>(const RunningTask &other) const// 运算符重载：用于比较两个任务哪个先结束
-      // 这在优先队列（Priority Queue）中非常有用，可以按结束时间排序
-      {
-        return end_time > other.end_time;  // 如果当前任务的结束时间大于另一个任务的结束时间，则当前任务先结束
-      }
-    };
-
-    double estimate_bandwidth_between_clusters(int from_cluster, int to_cluster); // 估计两个集群之间的带宽
-
-    inline std::string fmt_cluster_id(int c) // 格式化集群ID
-    {
-      return "cluster-" + std::to_string(c); // 返回集群ID
-    }
-
-    inline std::string fmt_data_update_range(const DataSliceUpdate &u) // 格式化数据更新区间
-    {
-      const int end_exclusive = u.offset + u.size; // 结束位置(开区间)
-      return "数据块" + std::to_string(u.block_id) + "更新区间[" + std::to_string(u.offset) + "," + std::to_string(end_exclusive) + ")"; // 返回数据更新区间
-    }
-
-    // 同一数据块多切片：合并描述与总传输量（用于 class1/class2 及 xue_update_sparse 单决策批量步骤）
-    inline std::string fmt_block_multi_slice_ranges(int block_id, const std::vector<DataSliceUpdate> &slices)
-    {
-      std::vector<std::pair<int, int>> rng;
-      rng.reserve(slices.size());
-      for (const auto &u : slices)
-      {
-        rng.push_back({u.offset, u.offset + u.size});
-      }
-      std::sort(rng.begin(), rng.end());
-      std::string out = "数据块" + std::to_string(block_id) + "更新区间";
-      for (size_t i = 0; i < rng.size(); ++i)
-      {
-        if (i > 0)
-        {
-          out += ",";
-        }
-        out += "[" + std::to_string(rng[i].first) + "," + std::to_string(rng[i].second) + ")";
-      }
-      return out;
-    }
-
-    inline double sum_slice_transfer_bytes(const std::vector<DataSliceUpdate> &slices)
-    {
-      double t = 0.0;
-      for (const auto &u : slices)
-      {
-        t += static_cast<double>(u.size);
-      }
-      return std::max(1.0, t);
-    }
-
-    inline std::string fmt_global_parity_block(int block_id)  // 格式化全局校验块
-    {
-      return "全局校验块(block_id=" + std::to_string(block_id) + ")"; // 返回全局校验块
-    }
-
-    inline std::string fmt_local_parity_block(int block_id)  // 格式化本地校验块
-    {
-      return "本地校验块(block_id=" + std::to_string(block_id) + ")"; // 返回本地校验块
-    }
-
-    inline std::string fmt_sim_time(double t)
-    {
-      std::ostringstream os;
-      os << std::fixed << std::setprecision(3) << t;
-      return os.str();
-    }
-
-    inline std::string payload_content_cn(const std::string &payload)
-    {
-      if (payload == "data_delta")
-      {
-        return "数据增量(data_delta)";
-      }
-      if (payload == "parity_delta")
-      {
-        return "校验增量(parity_delta)";
-      }
-      return "载荷(" + payload + ")";
-    }
-
-    void log_append_route_decisions(const std::vector<TransferPlanDecision> &decisions)
-    {
-      (void)decisions;
-      return; // unfinished function
-    }
-
-    void log_append_schedule_visual(const std::vector<ScheduledTask> &schedule)
-    {
-      // debug
-      std::cout << "[log_append_schedule_visual] schedule:";
-      for (const auto &t : schedule)
-      {
-        std::cout << " " << t.task_id << " " << t.from_cluster << " " << t.to_cluster << " " << t.payload << " " << t.path_desc << " " << t.start_time << " " << t.end_time << " " << t.duration << std::endl;
-        std::cout << "  从 t=" << fmt_sim_time(t.start_time) << " 到 t=" << fmt_sim_time(t.end_time)
-                  << "，传输 " << payload_content_cn(t.payload)
-                  << "，从 " << fmt_cluster_id(t.from_cluster)
-                  << " 到 " << fmt_cluster_id(t.to_cluster)
-                  << "，内容: " << t.path_desc << std::endl;
-      }
-      // debug end
-      if (schedule.empty())
-      {
-        std::cout << "[XUE_UPDATE_TRANSMISSION] (无传输任务)\n";
-        return;
-      }
-      const int n = static_cast<int>(schedule.size());
-      std::cout << "[XUE_UPDATE_TRANSMISSION] 共 " << n
-                << " 条传输（时间为调度仿真相对时刻 t，与 duration 同单位）\n";
-
-      std::vector<int> order(n);
-      std::iota(order.begin(), order.end(), 0);
-      std::sort(order.begin(), order.end(), [&](int a, int b) {
-        if (schedule[a].start_time != schedule[b].start_time)
-        {
-          return schedule[a].start_time < schedule[b].start_time;
-        }
-        if (schedule[a].end_time != schedule[b].end_time)
-        {
-          return schedule[a].end_time < schedule[b].end_time;
-        }
-        return schedule[a].task_id < schedule[b].task_id;
-      });
-
-      for (int ii : order)
-      {
-        const auto &t = schedule[ii];
-        std::cout << "  从 t=" << fmt_sim_time(t.start_time) << " 到 t=" << fmt_sim_time(t.end_time)
-                  << "，传输 " << payload_content_cn(t.payload)
-                  << "，从 " << fmt_cluster_id(t.from_cluster)
-                  << " 到 " << fmt_cluster_id(t.to_cluster)
-                  << "，内容: " << t.path_desc << std::endl;
-      }
-      return;
-    }
-
-    std::vector<ScheduledTask> schedule_transfer_steps(const std::vector<TransferPlanDecision> &decisions) // 调度传输步骤
-    {
-      std::vector<ScheduledTask> scheduled; // 调度任务列表
-      if (decisions.empty())
-      {
-        return scheduled; // 如果决策列表为空，则返回空调度任务列表
-      }
-
-      struct RawTask
-      {
-        int decision_id = -1;
-        int from_cluster = -1;
-        int to_cluster = -1;
-        std::string payload;
-        double duration = 0.0;
-        int alt_group = -1;
-        int alt_kind = 0;
-        std::string path_desc;
-        double transfer_size = 1.0;
-        int hot_cluster = -1;
-      };
-
-      std::vector<RawTask> tasks;
-      std::vector<std::vector<int>> succ;
-      std::vector<int> remaining_pred;
-      auto add_task = [&](const RawTask &t) -> int {
-        int id = static_cast<int>(tasks.size());
-        tasks.push_back(t);
-        succ.emplace_back();
-        remaining_pred.push_back(0);
-        return id;
-      };
-
-      std::vector<std::vector<int>> alt_group_tasks;
-
-      // 构建任务图
-      for (int d_id = 0; d_id < static_cast<int>(decisions.size()); d_id++)
-      {
-        const auto &d = decisions[d_id];
-        int alt_group_id = -1;
-        if (d.has_direct_fallback)
-        {
-          alt_group_id = static_cast<int>(alt_group_tasks.size());
-          alt_group_tasks.push_back({});
-        }
-        int prev_task_id = -1;
-        for (const auto &s : d.steps)
-        {
-          double bw = estimate_bandwidth_between_clusters(s.from_cluster, s.to_cluster);
-          const double sz = std::max(1.0, s.transfer_size);
-          double duration = (bw > 1e-6) ? (sz / bw) : 1e6;
-          int alt_kind = 0;
-          if (d.has_direct_fallback)
-          {
-            alt_kind = (prev_task_id < 0) ? 1 : 2;
-          }
-          int cur_id = add_task({d_id, s.from_cluster, s.to_cluster, s.payload, duration, alt_group_id, alt_kind, s.path_desc, sz, d.hot_cluster});
-          if (alt_group_id >= 0)
-          {
-            alt_group_tasks[alt_group_id].push_back(cur_id);
-          }
-          if (s.depends_on_prev && prev_task_id >= 0)
-          {
-            succ[prev_task_id].push_back(cur_id);
-            remaining_pred[cur_id]++;
-          }
-          prev_task_id = cur_id;
-        }
-        // 生成直传备选方案
-        if (d.has_direct_fallback && !d.steps.empty() && d.direct_fallback_dst >= 0)
-        {
-          int src = d.steps[0].from_cluster;
-          int dst = d.direct_fallback_dst;
-          double bw = estimate_bandwidth_between_clusters(src, dst);
-          const double sz = std::max(1.0, d.steps[0].transfer_size);
-          double duration = (bw > 1e-6) ? (sz / bw) : 1e6;
-          int direct_id = add_task({d_id, src, dst, "data_delta", duration, alt_group_id, 3,
-                                    "直传备选 " + fmt_cluster_id(src) + " -> " + fmt_cluster_id(dst) + " (与中转路径二选一)", sz, d.hot_cluster});
-          alt_group_tasks[alt_group_id].push_back(direct_id);
-        }
-      }
-
-      const int n = static_cast<int>(tasks.size());
-      if (n == 0)
-      {
-        return scheduled;
-      }
-
-      // 计算 dp_after（关键路径后继长度）
-      std::vector<int> indeg = remaining_pred;
-      std::queue<int> q;
-      for (int i = 0; i < n; i++)
-      {
-        if (indeg[i] == 0)
-          q.push(i);
-      }
-      std::vector<int> topo;
-      while (!q.empty())
-      {
-        int u = q.front();
-        q.pop();
-        topo.push_back(u);
-        for (int v : succ[u])
-        {
-          if (--indeg[v] == 0)
-            q.push(v);
-        }
-      }
-      std::vector<double> dp_after(n, 0.0);
-      for (int i = static_cast<int>(topo.size()) - 1; i >= 0; i--)
-      {
-        int u = topo[i];
-        double best = 0.0;
-        for (int v : succ[u])
-        {
-          best = std::max(best, tasks[v].duration + dp_after[v]);
-        }
-        dp_after[u] = best;
-      }
-
-      std::map<int, double> best_to_hot_by_decision;
-      for (int i = 0; i < n; i++)
-      {
-        if (tasks[i].hot_cluster >= 0 && tasks[i].to_cluster == tasks[i].hot_cluster)
-        {
-          const double bw = estimate_bandwidth_between_clusters(tasks[i].from_cluster, tasks[i].hot_cluster);
-          auto it = best_to_hot_by_decision.find(tasks[i].decision_id);
-          if (it == best_to_hot_by_decision.end())
-          {
-            best_to_hot_by_decision[tasks[i].decision_id] = bw;
-          }
-          else
-          {
-            it->second = std::max(it->second, bw);
-          }
-        }
-      }
-
-      std::vector<double> score(n, 0.0);
-      for (int i = 0; i < n; i++)
-      {
-        double hot_bonus = 0.0;
-        auto hit = best_to_hot_by_decision.find(tasks[i].decision_id);
-        if (tasks[i].hot_cluster >= 0 &&
-            tasks[i].to_cluster == tasks[i].hot_cluster &&
-            hit != best_to_hot_by_decision.end() &&
-            hit->second > 0.0)
-        {
-          const double bw = estimate_bandwidth_between_clusters(tasks[i].from_cluster, tasks[i].hot_cluster);
-          if (std::abs(bw - hit->second) < 1e-9)
-            hot_bonus = 1.0;
-        }
-        score[i] = 100.0 * dp_after[i] + 10.0 * tasks[i].duration + hot_bonus;
-      }
-
-      std::set<int> ready_set;
-      for (int i = 0; i < n; i++)
-      {
-        if (remaining_pred[i] == 0)
-          ready_set.insert(i);
-      }
-      std::vector<double> send_next(64, 0.0), recv_next(64, 0.0);
-      std::vector<bool> finished(n, false);
-      std::vector<bool> canceled(n, false);
-      std::vector<bool> alt_group_resolved(alt_group_tasks.size(), false);
-      int finished_cnt = 0;
-      double current_t = 0.0;
-      std::priority_queue<RunningTask, std::vector<RunningTask>, std::greater<RunningTask>> running;
-
-      // ====== 调度循环开始 ======
-      while (finished_cnt < n)
-      {
-        // 先清理：互斥组已决议后，其余同组任务不应继续留在 ready_set 中等待调度。
-        // 若不清理，可能出现 candidates 非空但 selected 为空，且 next_t==current_t 的活锁。
-        std::vector<int> stale_ready_tasks;
-        for (int tid : ready_set)
-        {
-          const int g = tasks[tid].alt_group;
-          if (g >= 0 && g < static_cast<int>(alt_group_resolved.size()) && alt_group_resolved[g])
-          {
-            // alt_group 已决议后，只清理互斥入口任务；
-            // 不能清理已选链路上的后续任务（alt_kind=2），否则会吞掉“中继第二跳”。
-            const int kind = tasks[tid].alt_kind;
-            if (kind == 1 || kind == 3)
-            {
-              stale_ready_tasks.push_back(tid);
-            }
-          }
-        }
-        for (int tid : stale_ready_tasks)
-        {
-          ready_set.erase(tid);
-          if (!finished[tid])
-          {
-            canceled[tid] = true;
-            finished[tid] = true;
-            finished_cnt++;
-            std::cout << "[debug] purge stale alt_task from ready_set: " << tid << std::endl;
-          }
-        }
-        if (finished_cnt >= n)
-        {
-          break;
-        }
-
-        // ==== DEBUG: 输出当前ready_set和资源状态 ====
-        std::cout << "[debug] current_t=" << current_t << ", finished_cnt=" << finished_cnt
-                  << ", running-tasks=" << running.size() << ", ready_set={";
-        for (int tid : ready_set) std::cout << " " << tid;
-        std::cout << " }" << std::endl;
-
-        // ==== STEP 1: 搜集本轮可以立刻启动的 candidates ====
-        std::vector<int> candidates;
-        for (int tid : ready_set)
-        {
-          if (canceled[tid] || finished[tid]) 
-            continue;
-          const auto &t = tasks[tid];
-          if (t.from_cluster >= 0 && t.to_cluster >= 0 &&
-              t.from_cluster < static_cast<int>(send_next.size()) &&
-              t.to_cluster < static_cast<int>(recv_next.size()) &&
-              send_next[t.from_cluster] <= current_t &&
-              recv_next[t.to_cluster] <= current_t)
-          {
-            candidates.push_back(tid);
-          }
-        }
-
-        // ==== DEBUG: 打印可调度(candidates)任务 ====
-        std::cout << "[debug] candidates:";
-        for (int tid : candidates)
-          std::cout << " " << tid;
-        std::cout << std::endl;
-
-        // ==== STEP 2: 如果有可调度的任务，选出优先启动的 ====
-        if (!candidates.empty())
-        {
-          // pair_best: 每对(src,dst)只留分最高的一个
-          std::map<std::pair<int, int>, int> pair_best;
-          for (int tid : candidates)
-          {
-            auto key = std::make_pair(tasks[tid].from_cluster, tasks[tid].to_cluster);
-            if (!pair_best.count(key) || score[tid] > score[pair_best[key]])
-              pair_best[key] = tid;
-          }
-
-          std::vector<int> sorted;
-          for (const auto &kv : pair_best)
-            sorted.push_back(kv.second);
-          std::sort(sorted.begin(), sorted.end(), [&](int a, int b) { return score[a] > score[b]; });
-
-          // ==== DEBUG: 输出调度排序 ====
-          std::cout << "[debug] sorted-tasks:";
-          for (int tid : sorted)
-            std::cout << " " << tid << "(" << score[tid] << ")";
-          std::cout << std::endl;
-
-          std::set<int> used_src, used_dst;
-          std::vector<int> selected;
-          for (int tid : sorted)
-          {
-            int src = tasks[tid].from_cluster;
-            int dst = tasks[tid].to_cluster;
-            int g = tasks[tid].alt_group;
-            if (g >= 0 && g < static_cast<int>(alt_group_resolved.size()) && alt_group_resolved[g])
-            {
-              // alt_group 已决议后，只跳过互斥入口；保留已选路径的后续任务（alt_kind=2）。
-              const int kind = tasks[tid].alt_kind;
-              if (kind == 1 || kind == 3)
-                continue;
-            }
-            if (used_src.count(src) || used_dst.count(dst))
-              continue;
-            used_src.insert(src);
-            used_dst.insert(dst);
-            selected.push_back(tid);
-          }
-
-          // ==== DEBUG: 输出被选中启动的任务 ====
-          std::cout << "[debug] selected-tasks:";
-          for (int tid : selected) std::cout << " " << tid;
-          std::cout << std::endl;
-
-          for (int tid : selected)
-          {
-            const auto &t = tasks[tid];
-            int g = t.alt_group;
-            if (g >= 0 && g < static_cast<int>(alt_group_resolved.size()) && !alt_group_resolved[g])
-            {
-              alt_group_resolved[g] = true;
-              // 在线回退: 互斥任务取消
-              for (int oid : alt_group_tasks[g])
-              {
-                if (oid == tid || canceled[oid] || finished[oid])
-                  continue;
-                const int okind = tasks[oid].alt_kind;
-                const bool cancel_it =
-                    (t.alt_kind == 3 && (okind == 1 || okind == 2)) ||
-                    (t.alt_kind == 1 && okind == 3);
-                if (cancel_it)
-                {
-                  canceled[oid] = true;
-                  ready_set.erase(oid);
-                  if (!finished[oid])
-                  {
-                    finished[oid] = true;
-                    finished_cnt++;
-                    std::cout << "[debug] cancel alt_task: " << oid << std::endl;
-                  }
-                }
-              }
-            }
-
-            ready_set.erase(tid);
-            double st = current_t;
-            double ed = st + t.duration;
-            send_next[t.from_cluster] = ed;
-            recv_next[t.to_cluster] = ed;
-            running.push({ed, tid});
-            scheduled.push_back({tid, t.decision_id, t.from_cluster, t.to_cluster, t.payload, t.duration, st, ed, t.path_desc});
-            std::cout << "[debug] start-task: " << tid << " at t=" << st << " ends t=" << ed
-                      << " : " << t.path_desc << std::endl;
-          }
-          // 下一步推进到最早结束事件
-        }
-
-        // ==== 检查卡住? 没有更多可运行任务 ====
-        if (running.empty())
-        {
-          if (finished_cnt >= n)
-          {
-            break;
-          }
-          // 无运行任务但未完成：推进到最近可用时刻
-          double next_t = std::numeric_limits<double>::infinity();
-          for (int tid : ready_set)
-          {
-            const auto &t = tasks[tid];
-            if (t.from_cluster >= 0 && t.to_cluster >= 0 &&
-                t.from_cluster < static_cast<int>(send_next.size()) &&
-                t.to_cluster < static_cast<int>(recv_next.size()))
-            {
-              next_t = std::min(next_t, std::max(send_next[t.from_cluster], recv_next[t.to_cluster]));
-            }
-          }
-          // ==== DEBUG: 卡住可能，打印下一跳时刻 ====
-          if (next_t == std::numeric_limits<double>::infinity()) {
-            std::cout << "[debug] 卡住！ready_set剩余任务也等不到资源可用，可能死锁！" << std::endl;
-            break;
-          }
-          if (next_t <= current_t + 1e-12)
-          {
-            std::cout << "[debug] 卡住！next_t 未前进 (next_t=" << next_t
-                      << ", current_t=" << current_t << ")，终止调度循环避免活锁。" << std::endl;
-            break;
-          }
-          std::cout << "[debug] 无可运行任务, 推进到 next_t=" << next_t << std::endl;
-          current_t = next_t;
-          continue;
-        }
-
-        // ==== STEP 3: 事件推进，处理最早结束的一批任务 ====
-        double next_finish = running.top().end_time;
-        current_t = next_finish;
-        std::vector<int> finished_now;
-        while (!running.empty() && std::abs(running.top().end_time - next_finish) < 1e-12)
-        {
-          int tid = running.top().task_id;
-          running.pop();
-          if (!finished[tid])
-          {
-            finished[tid] = true;
-            finished_cnt++;
-            finished_now.push_back(tid);
-            std::cout << "[debug] finish-task: " << tid << " at t=" << current_t << std::endl;
-          }
-        }
-
-        for (int u : finished_now)
-        {
-          for (int v : succ[u])
-          {
-            remaining_pred[v]--;
-            if (remaining_pred[v] == 0)
-            {
-              ready_set.insert(v);
-              std::cout << "[debug] ready now: " << v << std::endl;
-            }
-          }
-        }
-      }
-
-      // == 调度循环结束 ==
-      std::cout << "[debug] 调度循环结束，共完成: " << finished_cnt << " / " << n << " 个任务" << std::endl;
-
-      return scheduled;
-    }
-
-    bool has_intersection(const DataSliceUpdate &a, const DataSliceUpdate &b)
-    {
-      const int a_end = a.offset + a.size;
-      const int b_end = b.offset + b.size;
-      return !(a_end <= b.offset || b_end <= a.offset);
-    }
-
-    std::vector<std::vector<DataSliceUpdate>> split_by_intersection(std::vector<DataSliceUpdate> updates)
-    {
-      std::vector<std::vector<DataSliceUpdate>> groups;
-      if (updates.empty())
-      {
-        return groups;
-      }
-      std::sort(updates.begin(), updates.end(), [](const DataSliceUpdate &a, const DataSliceUpdate &b) {
-        if (a.offset != b.offset)
-          return a.offset < b.offset;
-        return a.block_id < b.block_id;
-      });
-
-      std::vector<DataSliceUpdate> current_group;
-      current_group.push_back(updates[0]);
-      int current_end = updates[0].offset + updates[0].size;
-      for (size_t i = 1; i < updates.size(); i++)
-      {
-        if (updates[i].offset < current_end)
-        {
-          current_group.push_back(updates[i]);
-          current_end = std::max(current_end, updates[i].offset + updates[i].size);
-        }
-        else
-        {
-          groups.push_back(current_group);
-          current_group.clear();
-          current_group.push_back(updates[i]);
-          current_end = updates[i].offset + updates[i].size;
-        }
-      }
-      groups.push_back(current_group);
-      return groups;
-    }
-
-    double estimate_bandwidth_between_clusters(int from_cluster, int to_cluster)
-    {
-      // 带宽矩阵（区域顺序）：TYO, MEL, SG, SEO, JAK, HK
-      // 仅录入上三角与对角线；下三角通过对称性查询。
-      static const double bw_upper[6][6] = {
-          {43.62, 4.21, 4.69, 5.98, 4.69, 5.37},
-          {0.00, 51.33, 5.51, 3.23, 5.24, 4.96},
-          {0.00, 0.00, 39.68, 5.52, 7.41, 5.53},
-          {0.00, 0.00, 0.00, 32.54, 4.19, 5.19},
-          {0.00, 0.00, 0.00, 0.00, 46.82, 4.47},
-          {0.00, 0.00, 0.00, 0.00, 0.00, 35.87},
-      };
-
-      if (from_cluster < 0 || to_cluster < 0)
-      {
-        return 0.0;
-      }
-      if (from_cluster >= 6 || to_cluster >= 6)
-      {
-        // 当前矩阵只覆盖 6 个 cluster；超出范围时给一个保守默认值，避免崩溃。
-        return (from_cluster == to_cluster) ? 35.0 : 1.0;
-      }
-
-      int i = std::min(from_cluster, to_cluster);
-      int j = std::max(from_cluster, to_cluster);
-      return bw_upper[i][j];
-    }
-
-    int get_local_parity_block_id(const Stripe *stripe, int group_id)
-    {
-      // 不能依赖固定区间编号（不同placement可能不一致），优先按 group 找本地校验块。
-      for (const auto *block : stripe->blocks)
-      {
-        if (block->block_type == 'L' && block->map2group == group_id)
-        {
-          return block->block_id;
-        }
-      }
-      // 回退：返回任意本地校验块（至少保证有可用cluster代表）。
-      for (const auto *block : stripe->blocks)
-      {
-        if (block->block_type == 'L')
-        {
-          return block->block_id;
-        }
-      }
-      return -1;
-    }
-
-    int get_global_parity_block_id(const Stripe *stripe, int group_id, const std::string &code_type)
-    {
-      if (stripe == nullptr)
-      {
-        throw std::runtime_error("stripe is null while finding global parity");
-      }
-
-      // XueLRC 采用 stripe 级 global parity：选择一个确定性的锚点（最小 block_id 的 G 块）。
-      if (code_type == "XueLRC")
-      {
-        int best_gid = -1;
-        for (const auto *block : stripe->blocks)
-        {
-          if (block->block_type == 'G')
-          {
-            if (best_gid < 0 || block->block_id < best_gid)
-            {
-              best_gid = block->block_id;
-            }
-          }
-        }
-        if (best_gid >= 0)
-        {
-          return best_gid;
-        }
-        throw std::runtime_error("Global parity block not found for XueLRC stripe-level rule");
-      }
-
-      // 其他编码（如 Uni/Azure）维持按 group 严格匹配。
-      for (const auto *block : stripe->blocks)
-      {
-        if (block->block_type == 'G' && block->map2group == group_id)
-        {
-          return block->block_id;
-        }
-      }
-      throw std::runtime_error("Global parity block not found for group_id=" + std::to_string(group_id));
-    }
-
-    int get_group_id_for_data_block(const Stripe *stripe, int data_block_id)
-    {
-      for (const auto &entry : stripe->group_to_blocks)
-      {
-        const std::vector<int> &block_ids = entry.second;
-        if (std::find(block_ids.begin(), block_ids.end(), data_block_id) != block_ids.end())
-        {
-          return entry.first;
-        }
-      }
-      return -1;
-    }
-
-    const Block *find_block_by_id(const Stripe *stripe, int block_id)
-    {
-      for (const auto *block : stripe->blocks)
-      {
-        if (block->block_id == block_id)
-        {
-          return block;
-        }
-      }
-      return nullptr;
-    }
-
-    XueUpdateResult xue_update(
-        Stripe *stripe,
-        const std::map<int, std::pair<int, int>> &block_to_slice_sizes,
-        const std::string &code_type)
-    {
-      XueUpdateResult result;
-      std::map<int, int> &group_to_ingress_cluster = result.group_to_ingress_cluster;
-      if (stripe == nullptr)
-      {
-        return result;
-      }
-
-      std::vector<DataSliceUpdate> class2_updates;
-      std::vector<DataSliceUpdate> class1_updates;
-      std::map<std::pair<int, int>, std::vector<DataSliceUpdate>> class3_by_cluster_and_group;
-      std::vector<TransferPlanDecision> decisions;
-
-      // 1) 找到此次请求涉及的“数据块更新”
-      for (const auto &entry : block_to_slice_sizes)
-      {
-        int block_id = entry.first;
-        if (block_id < 0 || block_id >= stripe->k)
-        {
-          continue;
-        }
-        int group_id = get_group_id_for_data_block(stripe, block_id);
-        if (group_id < 0)
-        {
-          continue;
-        }
-        int local_parity_id = get_local_parity_block_id(stripe, group_id);
-        int global_parity_id = get_global_parity_block_id(stripe, group_id, code_type);
-        if (local_parity_id < 0 || global_parity_id < 0 ||
-            local_parity_id >= stripe->n || global_parity_id >= stripe->n)
-        {
-          continue;
-        }
-        const Block *data_block = find_block_by_id(stripe, block_id);
-        const Block *local_block = find_block_by_id(stripe, local_parity_id);
-        const Block *global_block = find_block_by_id(stripe, global_parity_id);
-        if (data_block == nullptr || local_block == nullptr || global_block == nullptr)
-        {
-          continue;
-        }
-
-        DataSliceUpdate u;
-        u.block_id = block_id;
-        u.group_id = group_id;
-        u.offset = entry.second.second;
-        u.size = entry.second.first;
-        u.data_cluster = data_block->map2cluster;
-        u.local_parity_cluster = local_block->map2cluster;
-        u.global_parity_cluster = global_block->map2cluster;
-
-        if (u.data_cluster == u.local_parity_cluster)
-        {
-          u.klass = DataUpdateClass::kLocalParitySameCluster;
-          class1_updates.push_back(u);
-          continue;
-        }
-        if (u.data_cluster == u.global_parity_cluster)
-        {
-          u.klass = DataUpdateClass::kGlobalParitySameCluster;
-          class2_updates.push_back(u);
-        }
-        else
-        {
-          u.klass = DataUpdateClass::kDataOnlyCluster;
-          class3_by_cluster_and_group[std::make_pair(u.data_cluster, u.group_id)].push_back(u);
-        }
-      }
-
-      // 1.5) 第1类：直传到全局校验cluster，或通过中转cluster两跳传输
-      // 规则：若存在中转cluster relay，使得 bw(data,global) < bw(relay,global)，则选中转；否则直传。
-      for (const auto &u : class1_updates)
-      {
-        const int gp_id = get_global_parity_block_id(stripe, u.group_id, code_type);
-        const double bw_direct = estimate_bandwidth_between_clusters(u.data_cluster, u.global_parity_cluster);
-        int best_relay = -1;
-        double best_relay_to_global_bw = -1.0;
-
-        // 候选中转cluster：遍历stripe内可见cluster（避免依赖固定cluster数量）
-        std::set<int> candidate_clusters(stripe->place2clusters.begin(), stripe->place2clusters.end());
-        candidate_clusters.insert(u.data_cluster);
-        candidate_clusters.insert(u.global_parity_cluster);
-        for (int relay : candidate_clusters)
-        {
-          if (relay == u.data_cluster || relay == u.global_parity_cluster)
-            continue;
-          const double bw_relay_to_global = estimate_bandwidth_between_clusters(relay, u.global_parity_cluster);
-          if (bw_relay_to_global > best_relay_to_global_bw)
-          {
-            best_relay_to_global_bw = bw_relay_to_global;
-            best_relay = relay;
-          }
-        }
-
-        TransferPlanDecision d;
-        d.hot_cluster = u.global_parity_cluster;
-        d.block_ids = {u.block_id};
-        if (best_relay >= 0 && bw_direct < best_relay_to_global_bw)
-        {
-          d.reason = "class1: choose relay to global parity cluster";
-          d.steps.push_back({u.data_cluster, best_relay, "data_delta", false,
-                             fmt_cluster_id(u.data_cluster) + " 上 " + fmt_data_update_range(u) + " -> " +
-                                 fmt_cluster_id(best_relay) + " (中继，暂存待二次转发)", static_cast<double>(u.size)});
-          d.steps.push_back({best_relay, u.global_parity_cluster, "parity_delta", true,
-                             fmt_cluster_id(best_relay) + " 基于 " + fmt_data_update_range(u) + " 的校验更新 -> " +
-                                 fmt_cluster_id(u.global_parity_cluster) + " " + fmt_global_parity_block(gp_id), static_cast<double>(u.size)});
-          d.has_direct_fallback = true;
-          d.direct_fallback_dst = u.global_parity_cluster;
-          group_to_ingress_cluster[u.group_id] = best_relay;
-        }
-        else
-        {
-          d.reason = "class1: direct transfer to global parity cluster";
-          d.steps.push_back({u.data_cluster, u.global_parity_cluster, "data_delta", false,
-                             fmt_cluster_id(u.data_cluster) + " 上 " + fmt_data_update_range(u) + " -> " +
-                                 fmt_cluster_id(u.global_parity_cluster) + " " + fmt_global_parity_block(gp_id), static_cast<double>(u.size)});
-          group_to_ingress_cluster[u.group_id] = u.global_parity_cluster;
-        }
-        decisions.push_back(d);
-      }
-
-      // 2) 第2类：同块多切片合并为单决策、单步批量传到本地校验块所在 cluster
-      std::sort(class2_updates.begin(), class2_updates.end(), [](const DataSliceUpdate &a, const DataSliceUpdate &b) {
-        if (a.block_id != b.block_id)
-        {
-          return a.block_id < b.block_id;
-        }
-        if (a.offset != b.offset)
-        {
-          return a.offset < b.offset;
-        }
-        return a.size < b.size;
-      });
-      for (size_t c2_i = 0; c2_i < class2_updates.size();)
-      {
-        size_t c2_j = c2_i + 1;
-        while (c2_j < class2_updates.size() &&
-               class2_updates[c2_j].block_id == class2_updates[c2_i].block_id)
-        {
-          ++c2_j;
-        }
-        std::vector<DataSliceUpdate> block_slices;
-        block_slices.reserve(c2_j - c2_i);
-        for (size_t t = c2_i; t < c2_j; ++t)
-        {
-          block_slices.push_back(class2_updates[t]);
-        }
-        const DataSliceUpdate &u = class2_updates[c2_i];
-        const int lp_id = get_local_parity_block_id(stripe, u.group_id);
-        group_to_ingress_cluster[u.group_id] = u.local_parity_cluster;
-        TransferPlanDecision d;
-        d.hot_cluster = u.global_parity_cluster;
-        d.block_ids = {u.block_id};
-        d.reason = "class2: data and global parity colocated, send update delta to local parity cluster";
-        const double batch_sz = sum_slice_transfer_bytes(block_slices);
-        const std::string batch_range = fmt_block_multi_slice_ranges(u.block_id, block_slices);
-        d.steps.push_back({u.data_cluster, u.local_parity_cluster, "data_delta", false,
-                           fmt_cluster_id(u.data_cluster) + " 上 " + batch_range + " -> " +
-                               fmt_cluster_id(u.local_parity_cluster) + " " + fmt_local_parity_block(lp_id), batch_sz});
-        decisions.push_back(d);
-        c2_i = c2_j;
-      }
-
-      // 3) 第3类：仅在“同一 data cluster 且同一本地组”内按 offset 相交分组
-      for (auto &kv : class3_by_cluster_and_group)
-      {
-        std::vector<DataSliceUpdate> updates = kv.second;
-        auto grouped = split_by_intersection(updates);
-        for (auto &g : grouped)
-        {
-          if (g.empty())
-          {
-            continue;
-          }
-          bool any_intersection = false;
-          for (size_t i = 0; i < g.size() && !any_intersection; i++)
-          {
-            for (size_t j = i + 1; j < g.size(); j++)
-            {
-              if (has_intersection(g[i], g[j]))
-              {
-                any_intersection = true;
-                break;
-              }
-            }
-          }
-
-          if (any_intersection)
-          {
-            // 第3类相交集合：
-            //   (a) 发送各数据块增量到全局校验块cluster
-            //   (b) 再在“到本地校验cluster”和“到全局校验cluster”中择高带宽目标发送校验增量
-            TransferPlanDecision d;
-            d.hot_cluster = g.front().global_parity_cluster;
-            d.reason = "class3-overlap: send data delta to global parity cluster, then choose parity path by max(data->local, global->local)";
-            for (const auto &u : g)
-            {
-              const int lp_id = get_local_parity_block_id(stripe, u.group_id);
-              const int gp_id = get_global_parity_block_id(stripe, u.group_id, code_type);
-              d.block_ids.push_back(u.block_id);
-              d.steps.push_back({u.data_cluster, u.global_parity_cluster, "data_delta", false,
-                                 fmt_cluster_id(u.data_cluster) + " 上 " + fmt_data_update_range(u) + " -> " +
-                                     fmt_cluster_id(u.global_parity_cluster) + " " + fmt_global_parity_block(gp_id), static_cast<double>(u.size)});
-              const double bw_data_to_local = estimate_bandwidth_between_clusters(u.data_cluster, u.local_parity_cluster);
-              const double bw_global_to_local = estimate_bandwidth_between_clusters(u.global_parity_cluster, u.local_parity_cluster);
-              if (bw_data_to_local >= bw_global_to_local)
-              {
-                // data->local 更优：由 data 所在 cluster 直接发送 parity_delta 到 local parity。
-                group_to_ingress_cluster[u.group_id] = u.local_parity_cluster;
-                d.steps.push_back({u.data_cluster, u.local_parity_cluster, "parity_delta", true,
-                                   fmt_cluster_id(u.data_cluster) + " 上 基于 " + fmt_data_update_range(u) + " 的校验更新 -> " +
-                                       fmt_cluster_id(u.local_parity_cluster) + " " + fmt_local_parity_block(lp_id),
-                                   static_cast<double>(u.size)});
-              }
-              else
-              {
-                // global->local 更优：由 global parity 所在 cluster 转发 parity_delta 到 local parity。
-                group_to_ingress_cluster[u.group_id] = u.global_parity_cluster;
-                d.steps.push_back({u.global_parity_cluster, u.local_parity_cluster, "parity_delta", true,
-                                   fmt_cluster_id(u.global_parity_cluster) + " " + fmt_global_parity_block(gp_id) +
-                                       " 侧校验衍生数据 -> " + fmt_cluster_id(u.local_parity_cluster) + " " + fmt_local_parity_block(lp_id),
-                                   static_cast<double>(u.size)});
-              }
-            }
-            decisions.push_back(d);
-          }
-          else
-          {
-            // 第3类不相交集合：
-            // 三种候选路径：
-            // 1) data->global 与 data->local（并行双发）
-            // 2) data->local -> global（串行）
-            // 3) data->global -> local（串行）
-            TransferPlanDecision d;
-            d.hot_cluster = g.front().global_parity_cluster;
-            d.reason = "class3-disjoint: choose best of three routes (parallel direct / local-first / global-first)";
-            for (const auto &u : g)
-            {
-              const int lp_id = get_local_parity_block_id(stripe, u.group_id);
-              const int gp_id = get_global_parity_block_id(stripe, u.group_id, code_type);
-              d.block_ids.push_back(u.block_id);
-
-              const double bw_d2g = estimate_bandwidth_between_clusters(u.data_cluster, u.global_parity_cluster);
-              const double bw_d2l = estimate_bandwidth_between_clusters(u.data_cluster, u.local_parity_cluster);
-              const double bw_g2l = estimate_bandwidth_between_clusters(u.global_parity_cluster, u.local_parity_cluster);
-              const double bw_l2g = estimate_bandwidth_between_clusters(u.local_parity_cluster, u.global_parity_cluster);
-
-              // 路径1：并行双发（data->global + data->local）
-              const double score_parallel_direct = bw_d2g + bw_d2l;
-              // 路径2：data->local -> global
-              const double score_local_first = bw_d2l + bw_l2g;
-              // 路径3：data->global -> local
-              const double score_global_first = bw_d2g + bw_g2l;
-
-              if (score_parallel_direct >= score_local_first && score_parallel_direct >= score_global_first)
-              {
-                // 路径1：并行双发到两个校验cluster
-                d.steps.push_back({u.data_cluster, u.global_parity_cluster, "data_delta", false,
-                                   fmt_cluster_id(u.data_cluster) + " 上 " + fmt_data_update_range(u) + " -> " +
-                                       fmt_cluster_id(u.global_parity_cluster) + " " + fmt_global_parity_block(gp_id)});
-                d.steps.push_back({u.data_cluster, u.local_parity_cluster, "data_delta", false,
-                                   fmt_cluster_id(u.data_cluster) + " 上 " + fmt_data_update_range(u) + " -> " +
-                                       fmt_cluster_id(u.local_parity_cluster) + " " + fmt_local_parity_block(lp_id)});
-                // 这里给客户端入口选 data->global / data->local 中带宽更高的一侧
-                group_to_ingress_cluster[u.group_id] = (bw_d2g >= bw_d2l) ? u.global_parity_cluster : u.local_parity_cluster;
-              }
-              else if (score_local_first >= score_global_first)
-              {
-                // 路径2：step1 data -> local, step2 local -> global（串行）
-                d.steps.push_back({u.data_cluster, u.local_parity_cluster, "data_delta", false,
-                                   fmt_cluster_id(u.data_cluster) + " 上 " + fmt_data_update_range(u) + " -> " +
-                                       fmt_cluster_id(u.local_parity_cluster) + " " + fmt_local_parity_block(lp_id)});
-                d.steps.push_back({u.local_parity_cluster, u.global_parity_cluster, "parity_delta", true,
-                                   fmt_cluster_id(u.local_parity_cluster) + " " + fmt_local_parity_block(lp_id) +
-                                       " 侧校验衍生数据 -> " + fmt_cluster_id(u.global_parity_cluster) + " " +
-                                       fmt_global_parity_block(gp_id)});
-                group_to_ingress_cluster[u.group_id] = u.local_parity_cluster;
-              }
-              else
-              {
-                // 路径3：step1 data -> global, step2 global -> local（串行）
-                d.steps.push_back({u.data_cluster, u.global_parity_cluster, "data_delta", false,
-                                   fmt_cluster_id(u.data_cluster) + " 上 " + fmt_data_update_range(u) + " -> " +
-                                       fmt_cluster_id(u.global_parity_cluster) + " " + fmt_global_parity_block(gp_id)});
-                d.steps.push_back({u.global_parity_cluster, u.local_parity_cluster, "parity_delta", true,
-                                   fmt_cluster_id(u.global_parity_cluster) + " " + fmt_global_parity_block(gp_id) +
-                                       " 侧校验衍生数据 -> " + fmt_cluster_id(u.local_parity_cluster) + " " +
-                                       fmt_local_parity_block(lp_id)});
-                group_to_ingress_cluster[u.group_id] = u.global_parity_cluster;
-              }
-            }
-            decisions.push_back(d);
-          }
-        }
-      }
-
-      log_append_route_decisions(decisions);
-
-      // 根据依赖 + 机架端口约束做时间调度，输出“谁先谁后、谁可并发”
-      std::vector<ScheduledTask> schedule = schedule_transfer_steps(decisions);
-      log_append_schedule_visual(schedule);
-      result.route_decisions = std::move(decisions);
-      result.scheduled_tasks = std::move(schedule);
-      return result;
-    }
-
-    XueUpdateResult xue_update_sparse(
-        Stripe *stripe,
-        const std::map<int, std::vector<std::pair<int, int>>> &block_to_slices,
-        const std::string &code_type)
-    {
-      XueUpdateResult result;
-      std::map<int, int> &group_to_ingress_cluster = result.group_to_ingress_cluster;
-      if (stripe == nullptr)
-      {
-        return result;
-      }
-
-      std::vector<DataSliceUpdate> class2_updates;
-      std::vector<DataSliceUpdate> class1_updates;
-      std::map<std::pair<int, int>, std::vector<DataSliceUpdate>> class3_by_cluster_and_group;
-      std::vector<TransferPlanDecision> decisions;
-
-      for (const auto &entry : block_to_slices)
-      {
-        int block_id = entry.first;
-        if (block_id < 0 || block_id >= stripe->k)
-        {
-          continue;
-        }
-        int group_id = get_group_id_for_data_block(stripe, block_id);
-        if (group_id < 0)
-        {
-          continue;
-        }
-        int local_parity_id = get_local_parity_block_id(stripe, group_id);
-        int global_parity_id = get_global_parity_block_id(stripe, group_id, code_type);
-        if (local_parity_id < 0 || global_parity_id < 0 ||
-            local_parity_id >= stripe->n || global_parity_id >= stripe->n)
-        {
-          continue;
-        }
-        const Block *data_block = find_block_by_id(stripe, block_id);
-        const Block *local_block = find_block_by_id(stripe, local_parity_id);
-        const Block *global_block = find_block_by_id(stripe, global_parity_id);
-        if (data_block == nullptr || local_block == nullptr || global_block == nullptr)
-        {
-          continue;
-        }
-
-        for (const auto &slice : entry.second)
-        {
-          DataSliceUpdate u;
-          u.block_id = block_id;
-          u.group_id = group_id;
-          u.size = slice.first;
-          u.offset = slice.second;
-          u.data_cluster = data_block->map2cluster;
-          u.local_parity_cluster = local_block->map2cluster;
-          u.global_parity_cluster = global_block->map2cluster;
-          if (u.data_cluster == u.local_parity_cluster)
-          {
-            u.klass = DataUpdateClass::kLocalParitySameCluster;
-            class1_updates.push_back(u);
-          }
-          else if (u.data_cluster == u.global_parity_cluster)
-          {
-            u.klass = DataUpdateClass::kGlobalParitySameCluster;
-            class2_updates.push_back(u);
-          }
-          else
-          {
-            u.klass = DataUpdateClass::kDataOnlyCluster;
-            class3_by_cluster_and_group[std::make_pair(u.data_cluster, u.group_id)].push_back(u);
-          }
-        }
-      }
-
-      // 同一数据块多切片合并为单个决策与单步批量传输（sparse）
-      std::sort(class1_updates.begin(), class1_updates.end(), [](const DataSliceUpdate &a, const DataSliceUpdate &b) {
-        if (a.block_id != b.block_id)
-        {
-          return a.block_id < b.block_id;
-        }
-        if (a.offset != b.offset)
-        {
-          return a.offset < b.offset;
-        }
-        return a.size < b.size;
-      });
-      for (size_t class1_i = 0; class1_i < class1_updates.size();)
-      {
-        size_t class1_j = class1_i + 1;
-        while (class1_j < class1_updates.size() &&
-               class1_updates[class1_j].block_id == class1_updates[class1_i].block_id)
-        {
-          ++class1_j;
-        }
-        std::vector<DataSliceUpdate> block_slices;
-        block_slices.reserve(class1_j - class1_i);
-        for (size_t t = class1_i; t < class1_j; ++t)
-        {
-          block_slices.push_back(class1_updates[t]);
-        }
-        const DataSliceUpdate &u = class1_updates[class1_i];
-        const int gp_id = get_global_parity_block_id(stripe, u.group_id, code_type);
-        const double bw_direct = estimate_bandwidth_between_clusters(u.data_cluster, u.global_parity_cluster);
-        int best_relay = -1;
-        double best_relay_to_global_bw = -1.0;
-        std::set<int> candidate_clusters(stripe->place2clusters.begin(), stripe->place2clusters.end());
-        candidate_clusters.insert(u.data_cluster);
-        candidate_clusters.insert(u.global_parity_cluster);
-        for (int relay : candidate_clusters)
-        {
-          if (relay == u.data_cluster || relay == u.global_parity_cluster)
-            continue;
-          const double bw_relay_to_global = estimate_bandwidth_between_clusters(relay, u.global_parity_cluster);
-          if (bw_relay_to_global > best_relay_to_global_bw)
-          {
-            best_relay_to_global_bw = bw_relay_to_global;
-            best_relay = relay;
-          }
-        }
-        TransferPlanDecision d;
-        d.hot_cluster = u.global_parity_cluster;
-        d.block_ids = {u.block_id};
-        const double batch_sz = sum_slice_transfer_bytes(block_slices);
-        const std::string batch_range = fmt_block_multi_slice_ranges(u.block_id, block_slices);
-        if (best_relay >= 0 && bw_direct < best_relay_to_global_bw)
-        {
-          d.reason = "class1: choose relay to global parity cluster";
-          d.steps.push_back({u.data_cluster, best_relay, "data_delta", false,
-                             fmt_cluster_id(u.data_cluster) + " 上 " + batch_range + " -> " +
-                                 fmt_cluster_id(best_relay) + " (中继，暂存待二次转发)", batch_sz});
-          d.steps.push_back({best_relay, u.global_parity_cluster, "parity_delta", true,
-                             fmt_cluster_id(best_relay) + " 基于 " + batch_range + " 的校验更新 -> " +
-                                 fmt_cluster_id(u.global_parity_cluster) + " " + fmt_global_parity_block(gp_id), batch_sz});
-          d.has_direct_fallback = true;
-          d.direct_fallback_dst = u.global_parity_cluster;
-          group_to_ingress_cluster[u.group_id] = best_relay;
-        }
-        else
-        {
-          d.reason = "class1: direct transfer to global parity cluster";
-          d.steps.push_back({u.data_cluster, u.global_parity_cluster, "data_delta", false,
-                             fmt_cluster_id(u.data_cluster) + " 上 " + batch_range + " -> " +
-                                 fmt_cluster_id(u.global_parity_cluster) + " " + fmt_global_parity_block(gp_id), batch_sz});
-          group_to_ingress_cluster[u.group_id] = u.global_parity_cluster;
-        }
-        decisions.push_back(d);
-        class1_i = class1_j;
-      }
-      // 第2类：同块多切片合并为单决策、单步批量传输（sparse）
-      std::sort(class2_updates.begin(), class2_updates.end(), [](const DataSliceUpdate &a, const DataSliceUpdate &b) {
-        if (a.block_id != b.block_id)
-        {
-          return a.block_id < b.block_id;
-        }
-        if (a.offset != b.offset)
-        {
-          return a.offset < b.offset;
-        }
-        return a.size < b.size;
-      });
-      for (size_t c2_i = 0; c2_i < class2_updates.size();)
-      {
-        size_t c2_j = c2_i + 1;
-        while (c2_j < class2_updates.size() &&
-               class2_updates[c2_j].block_id == class2_updates[c2_i].block_id)
-        {
-          ++c2_j;
-        }
-        std::vector<DataSliceUpdate> block_slices;
-        block_slices.reserve(c2_j - c2_i);
-        for (size_t t = c2_i; t < c2_j; ++t)
-        {
-          block_slices.push_back(class2_updates[t]);
-        }
-        const DataSliceUpdate &u = class2_updates[c2_i];
-        const int lp_id = get_local_parity_block_id(stripe, u.group_id);
-        group_to_ingress_cluster[u.group_id] = u.local_parity_cluster;
-        TransferPlanDecision d;
-        d.hot_cluster = u.global_parity_cluster;
-        d.block_ids = {u.block_id};
-        d.reason = "class2: data and global parity colocated, send update delta to local parity cluster";
-        const double batch_sz = sum_slice_transfer_bytes(block_slices);
-        const std::string batch_range = fmt_block_multi_slice_ranges(u.block_id, block_slices);
-        d.steps.push_back({u.data_cluster, u.local_parity_cluster, "data_delta", false,
-                           fmt_cluster_id(u.data_cluster) + " 上 " + batch_range + " -> " +
-                               fmt_cluster_id(u.local_parity_cluster) + " " + fmt_local_parity_block(lp_id), batch_sz});
-        decisions.push_back(d);
-        c2_i = c2_j;
-      }
-      for (auto &kv : class3_by_cluster_and_group)
-      {
-        std::vector<DataSliceUpdate> updates = kv.second;
-        auto grouped = split_by_intersection(updates);
-        for (auto &g : grouped)
-        {
-          if (g.empty()) continue;
-          bool any_intersection = false;
-          for (size_t i = 0; i < g.size() && !any_intersection; i++)
-          {
-            for (size_t j = i + 1; j < g.size(); j++)
-            {
-              if (has_intersection(g[i], g[j])) { any_intersection = true; break; }
-            }
-          }
-          TransferPlanDecision d;
-          d.hot_cluster = g.front().global_parity_cluster;
-          if (any_intersection)
-          {
-            d.reason = "class3-overlap: send data delta to global parity cluster, then choose parity path by max(data->local, global->local)";
-            std::map<int, std::vector<DataSliceUpdate>> by_block_overlap;
-            for (const auto &u : g)
-            {
-              by_block_overlap[u.block_id].push_back(u);
-            }
-            for (const auto &kv : by_block_overlap)
-            {
-              d.block_ids.push_back(kv.first);
-            }
-            for (const auto &kv : by_block_overlap)
-            {
-              const int bid = kv.first;
-              const std::vector<DataSliceUpdate> &sls = kv.second;
-              const DataSliceUpdate &u0 = sls.front();
-              const int gp_id = get_global_parity_block_id(stripe, u0.group_id, code_type);
-              const double batch_sz = sum_slice_transfer_bytes(sls);
-              d.steps.push_back({u0.data_cluster, u0.global_parity_cluster, "data_delta", false,
-                                 fmt_cluster_id(u0.data_cluster) + " 上 " + fmt_block_multi_slice_ranges(bid, sls) + " -> " +
-                                     fmt_cluster_id(u0.global_parity_cluster) + " " + fmt_global_parity_block(gp_id), batch_sz});
-            }
-            // 相交集合的 parity 传输采用“先并集后发送”：例如 [1,3] 与 [2,5] 合并为 [1,5]。
-            bool same_group = true;
-            const int base_group = g.front().group_id;
-            const int base_local = g.front().local_parity_cluster;
-            const int base_global = g.front().global_parity_cluster;
-            for (const auto &u : g)
-            {
-              if (u.group_id != base_group ||
-                  u.local_parity_cluster != base_local ||
-                  u.global_parity_cluster != base_global)
-              {
-                same_group = false;
-                break;
-              }
-            }
-            if (same_group)
-            {
-              std::vector<std::pair<int, int>> merged_ranges; // [start, end] (闭区间，仅内部合并用)
-              for (const auto &u : g)
-              {
-                merged_ranges.push_back({u.offset, u.offset + u.size - 1});
-              }
-              std::sort(merged_ranges.begin(), merged_ranges.end());
-              std::vector<std::pair<int, int>> compact;
-              for (const auto &rg : merged_ranges)
-              {
-                if (compact.empty() || rg.first > compact.back().second + 1)
-                {
-                  compact.push_back(rg);
-                }
-                else
-                {
-                  compact.back().second = std::max(compact.back().second, rg.second);
-                }
-              }
-
-              const double bw_data_to_local = estimate_bandwidth_between_clusters(g.front().data_cluster, base_local);
-              const double bw_global_to_local = estimate_bandwidth_between_clusters(base_global, base_local);
-              const int lp_id = get_local_parity_block_id(stripe, base_group);
-              const int gp_id = get_global_parity_block_id(stripe, base_group, code_type);
-              for (const auto &rg : compact)
-              {
-                if (bw_data_to_local >= bw_global_to_local)
-                {
-                  // data->local 更优：由 data 所在 cluster 直接发送 parity_delta 到 local parity。
-                  group_to_ingress_cluster[base_group] = base_local;
-                  d.steps.push_back({g.front().data_cluster, base_local, "parity_delta", true,
-                                     fmt_cluster_id(g.front().data_cluster) + " 上 基于 相交集合合并区间[" +
-                                         std::to_string(rg.first) + "," + std::to_string(rg.second + 1) + ") 的校验更新 -> " +
-                                         fmt_cluster_id(base_local) + " " + fmt_local_parity_block(lp_id),
-                                     static_cast<double>(rg.second - rg.first + 1)});
-                }
-                else
-                {
-                  // global->local 更优：由 global parity 所在 cluster 转发 parity_delta 到 local parity。
-                  group_to_ingress_cluster[base_group] = base_global;
-                  d.steps.push_back({base_global, base_local, "parity_delta", true,
-                                     fmt_cluster_id(base_global) + " " + fmt_global_parity_block(gp_id) +
-                                         " 侧基于 相交集合合并区间[" + std::to_string(rg.first) + "," + std::to_string(rg.second + 1) +
-                                         ") 的校验衍生数据 -> " + fmt_cluster_id(base_local) + " " + fmt_local_parity_block(lp_id),
-                                     static_cast<double>(rg.second - rg.first + 1)});
-                }
-              }
-            }
-            else
-            {
-              // 兜底：跨组/跨 parity 时按数据块合并多切片为单步 parity_delta。
-              for (const auto &kv : by_block_overlap)
-              {
-                const int bid = kv.first;
-                const std::vector<DataSliceUpdate> &sls = kv.second;
-                const DataSliceUpdate &u = sls.front();
-                const int lp_id = get_local_parity_block_id(stripe, u.group_id);
-                const int gp_id = get_global_parity_block_id(stripe, u.group_id, code_type);
-                const double bw_data_to_local = estimate_bandwidth_between_clusters(u.data_cluster, u.local_parity_cluster);
-                const double bw_global_to_local = estimate_bandwidth_between_clusters(u.global_parity_cluster, u.local_parity_cluster);
-                const double batch_sz = sum_slice_transfer_bytes(sls);
-                const std::string batch_desc = fmt_block_multi_slice_ranges(bid, sls);
-                if (bw_data_to_local >= bw_global_to_local)
-                {
-                  group_to_ingress_cluster[u.group_id] = u.local_parity_cluster;
-                  d.steps.push_back({u.data_cluster, u.local_parity_cluster, "parity_delta", true,
-                                     fmt_cluster_id(u.data_cluster) + " 上 基于 " + batch_desc + " 的校验更新 -> " +
-                                         fmt_cluster_id(u.local_parity_cluster) + " " + fmt_local_parity_block(lp_id), batch_sz});
-                }
-                else
-                {
-                  group_to_ingress_cluster[u.group_id] = u.global_parity_cluster;
-                  d.steps.push_back({u.global_parity_cluster, u.local_parity_cluster, "parity_delta", true,
-                                     fmt_cluster_id(u.global_parity_cluster) + " " + fmt_global_parity_block(gp_id) +
-                                         " 侧基于 " + batch_desc + " 的校验衍生数据 -> " + fmt_cluster_id(u.local_parity_cluster) + " " +
-                                         fmt_local_parity_block(lp_id), batch_sz});
-                }
-              }
-            }
-          }
-          else
-          {
-            d.reason = "class3-disjoint: choose best of three routes (parallel direct / local-first / global-first)";
-            std::map<int, std::vector<DataSliceUpdate>> by_block_disjoint;
-            for (const auto &u : g)
-            {
-              by_block_disjoint[u.block_id].push_back(u);
-            }
-            for (auto &kv : by_block_disjoint)
-            {
-              std::sort(kv.second.begin(), kv.second.end(), [](const DataSliceUpdate &a, const DataSliceUpdate &b) {
-                if (a.offset != b.offset)
-                {
-                  return a.offset < b.offset;
-                }
-                return a.size < b.size;
-              });
-            }
-            for (const auto &kv : by_block_disjoint)
-            {
-              const int bid = kv.first;
-              const std::vector<DataSliceUpdate> &sls = kv.second;
-              const DataSliceUpdate &u = sls.front();
-              d.block_ids.push_back(bid);
-              const int lp_id = get_local_parity_block_id(stripe, u.group_id);
-              const int gp_id = get_global_parity_block_id(stripe, u.group_id, code_type);
-              const double batch_sz = sum_slice_transfer_bytes(sls);
-              const std::string batch_desc = fmt_block_multi_slice_ranges(bid, sls);
-              const double bw_d2g = estimate_bandwidth_between_clusters(u.data_cluster, u.global_parity_cluster);
-              const double bw_d2l = estimate_bandwidth_between_clusters(u.data_cluster, u.local_parity_cluster);
-              const double bw_g2l = estimate_bandwidth_between_clusters(u.global_parity_cluster, u.local_parity_cluster);
-              const double bw_l2g = estimate_bandwidth_between_clusters(u.local_parity_cluster, u.global_parity_cluster);
-              const double score_parallel_direct = bw_d2g + bw_d2l;
-              const double score_local_first = bw_d2l + bw_l2g;
-              const double score_global_first = bw_d2g + bw_g2l;
-              if (score_parallel_direct >= score_local_first && score_parallel_direct >= score_global_first)
-              {
-                d.steps.push_back({u.data_cluster, u.global_parity_cluster, "data_delta", false,
-                                   fmt_cluster_id(u.data_cluster) + " 上 " + batch_desc + " -> " +
-                                       fmt_cluster_id(u.global_parity_cluster) + " " + fmt_global_parity_block(gp_id), batch_sz});
-                d.steps.push_back({u.data_cluster, u.local_parity_cluster, "data_delta", false,
-                                   fmt_cluster_id(u.data_cluster) + " 上 " + batch_desc + " -> " +
-                                       fmt_cluster_id(u.local_parity_cluster) + " " + fmt_local_parity_block(lp_id), batch_sz});
-                group_to_ingress_cluster[u.group_id] = (bw_d2g >= bw_d2l) ? u.global_parity_cluster : u.local_parity_cluster;
-              }
-              else if (score_local_first >= score_global_first)
-              {
-                d.steps.push_back({u.data_cluster, u.local_parity_cluster, "data_delta", false,
-                                   fmt_cluster_id(u.data_cluster) + " 上 " + batch_desc + " -> " +
-                                       fmt_cluster_id(u.local_parity_cluster) + " " + fmt_local_parity_block(lp_id), batch_sz});
-                d.steps.push_back({u.local_parity_cluster, u.global_parity_cluster, "parity_delta", true,
-                                   fmt_cluster_id(u.local_parity_cluster) + " " + fmt_local_parity_block(lp_id) +
-                                       " 侧校验衍生数据 -> " + fmt_cluster_id(u.global_parity_cluster) + " " +
-                                       fmt_global_parity_block(gp_id), batch_sz});
-                group_to_ingress_cluster[u.group_id] = u.local_parity_cluster;
-              }
-              else
-              {
-                d.steps.push_back({u.data_cluster, u.global_parity_cluster, "data_delta", false,
-                                   fmt_cluster_id(u.data_cluster) + " 上 " + batch_desc + " -> " +
-                                       fmt_cluster_id(u.global_parity_cluster) + " " + fmt_global_parity_block(gp_id), batch_sz});
-                d.steps.push_back({u.global_parity_cluster, u.local_parity_cluster, "parity_delta", true,
-                                   fmt_cluster_id(u.global_parity_cluster) + " " + fmt_global_parity_block(gp_id) +
-                                       " 侧校验衍生数据 -> " + fmt_cluster_id(u.local_parity_cluster) + " " +
-                                       fmt_local_parity_block(lp_id), batch_sz});
-                group_to_ingress_cluster[u.group_id] = u.global_parity_cluster;
-              }
-            }
-          }
-          decisions.push_back(d);
-        }
-      }
-
-      log_append_route_decisions(decisions);
-      // debug
-      std::cout << "[debug] START schedule_transfer_steps" << std::endl;
-      std::vector<ScheduledTask> schedule = schedule_transfer_steps(decisions);
-      std::cout << "[debug] END schedule_transfer_steps" << std::endl;
-      log_append_schedule_visual(schedule);
-      result.route_decisions = std::move(decisions);
-      result.scheduled_tasks = std::move(schedule);
-      return result;
+      return code_type == "AzureLRC" || code_type == "RandomLRC";
     }
   } // namespace
 
@@ -1856,54 +384,46 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
 
   void CoordinatorImpl::initialize_xue_tripe_placement(Stripe *stripe)
   {
-    // Xue placement definition:
-    // k: data blocks, r: local parity blocks (and local groups), z: global parity blocks.
+    (void)stripe;
+    throw std::runtime_error("XueLRC placement strategy has been removed");
+  }
+
+  void CoordinatorImpl::initialize_random_lrc_stripe_placement(Stripe *stripe)
+  {
+    // Random placement:
+    // 1) 从条带全部块中随机顺序投放
+    // 2) 仅在 4 个随机 cluster 中放置（若总 cluster < 4，则使用全部）
+    // 3) 约束：同一 cluster 块数 <= r + l，l 为该 cluster 中“去除全局校验组后的跨 group 数”
     Block *blocks_info = new Block[stripe->n];
     assert(stripe->object_keys.size() == 1);
-    assert(stripe->r > 0 && stripe->z > 0);
-    assert(stripe->k % stripe->r == 0 && "Xue placement requires k % r == 0");
 
-    const int k = stripe->k;
-    const int r = stripe->r; // local group number == local parity number
-    const int z = stripe->z; // global parity number
-    const int h = k / r;
     const int cluster_num = m_sys_config->ClusterNum;
-    const int global_cluster_id = stripe->stripe_id % cluster_num;
-    int cluster_cursor = (global_cluster_id + 1) % cluster_num;
-
-    auto next_cluster = [&](bool avoid_global) -> int
+    if (cluster_num <= 0)
     {
-      int cid = cluster_cursor % cluster_num;
-      cluster_cursor++;
-      if (avoid_global && cluster_num > 1 && cid == global_cluster_id)
-      {
-        cid = cluster_cursor % cluster_num;
-        cluster_cursor++;
-      }
-      return cid;
-    };
+      throw std::runtime_error("ClusterNum must be positive for RandomLRC placement");
+    }
 
-    auto place_block = [&](int block_idx, int cluster_id)
+    const int target_cluster_num = std::min(4, cluster_num);
+    std::vector<int> selected_clusters;
+    selected_clusters.reserve(target_cluster_num);
+    // 轮询选择紧邻 cluster：以 stripe_id 为起点，按环形连续取 4 个。
+    const int start_cluster = stripe->stripe_id % cluster_num;
+    for (int i = 0; i < target_cluster_num; ++i)
     {
-      int t_node_id = randomly_select_a_node(cluster_id, stripe->stripe_id);
-      blocks_info[block_idx].map2cluster = cluster_id;
-      blocks_info[block_idx].map2node = t_node_id;
-      update_stripe_info_in_node(t_node_id, stripe->stripe_id, block_idx);
-      m_cluster_table[cluster_id].blocks.push_back(&blocks_info[block_idx]);
-      m_cluster_table[cluster_id].stripes.insert(stripe->stripe_id);
-      stripe->blocks.push_back(&blocks_info[block_idx]);
-      stripe->place2clusters.insert(cluster_id);
-      add_to_map(stripe->group_to_blocks, blocks_info[block_idx].map2group, block_idx);
-    };
+      selected_clusters.push_back((start_cluster + i) % cluster_num);
+    }
 
-    // Build block metadata with Xue numbering:
-    // [0, k): data, [k, k + r): local parity, [k + r, k + r + z): global parity.
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    // 按 Azure 风格构建 group：数据组 0..z-1，全局校验组 z，本地校验组 0..z-1。
+    const int global_parity_group_id = stripe->z;
     for (int i = 0; i < stripe->n; i++)
     {
       blocks_info[i].block_size = m_sys_config->BlockSize;
       blocks_info[i].map2stripe = stripe->stripe_id;
       blocks_info[i].map2key = stripe->object_keys[0];
-      if (i < k)
+      if (i < stripe->k)
       {
         std::string tmp = "_D";
         if (i < 10)
@@ -1911,117 +431,98 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
         blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i);
         blocks_info[i].block_id = i;
         blocks_info[i].block_type = 'D';
-        blocks_info[i].map2group = i / h;
+        blocks_info[i].map2group = int(i / (stripe->k / stripe->z));
       }
-      else if (i < k + r)
+      else if (i < stripe->k + stripe->r)
       {
-        const int local_idx = i - k;
-        std::string tmp = "_L";
-        if (local_idx < 10)
-          tmp = "_L0";
-        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(local_idx);
-        blocks_info[i].block_id = i;
-        blocks_info[i].block_type = 'L';
-        blocks_info[i].map2group = local_idx;
-      }
-      else
-      {
-        const int global_idx = i - k - r;
         std::string tmp = "_G";
-        if (global_idx < 10)
+        if (i - stripe->k < 10)
           tmp = "_G0";
-        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(global_idx);
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k);
         blocks_info[i].block_id = i;
         blocks_info[i].block_type = 'G';
-        blocks_info[i].map2group = r;
-      }
-    }
-
-    // Step 1: place all global parity blocks in one rotating cluster.
-    for (int i = 0; i < z; i++)
-    {
-      place_block(k + r + i, global_cluster_id);
-    }
-
-    // Track remaining data range per local group after Steps 2-4.
-    std::vector<int> remain_start(r, 0);
-    std::vector<int> remain_count(r, 0);
-
-    // Step 2-4 per local group.
-    for (int g = 0; g < r; g++)
-    {
-      int group_data_begin = g * h;
-      int consumed = 0;
-
-      // Step 2: place z data + local parity in one cluster for this local group.
-      int primary_cluster_id = next_cluster(true);
-      int first_data_num = std::min(z, h);
-      for (int t = 0; t < first_data_num; t++)
-      {
-        place_block(group_data_begin + t, primary_cluster_id);
-      }
-      place_block(k + g, primary_cluster_id);
-      consumed += first_data_num;
-
-      if (consumed >= h)
-      {
-        continue;
-      }
-
-      // Step 3: place one data block with global parity cluster.
-      place_block(group_data_begin + consumed, global_cluster_id);
-      consumed++;
-
-      // Step 4: place each z+1 data blocks into one cluster.
-      while (consumed + (z + 1) <= h)
-      {
-        int chunk_cluster_id = next_cluster(true);
-        for (int t = 0; t < z + 1; t++)
-        {
-          place_block(group_data_begin + consumed + t, chunk_cluster_id);
-        }
-        consumed += z + 1;
-      }
-
-      remain_start[g] = group_data_begin + consumed;
-      remain_count[g] = h - consumed;
-    }
-
-    // Step 5: m = (h - z - 1) mod (z + 1), aggregate leftovers from theta groups.
-    int m = 0;
-    for (int g = 0; g < r; g++)
-    {
-      if (remain_count[g] > 0)
-      {
-        m = remain_count[g];
-        break;
-      }
-    }
-    if (m > 0)
-    {
-      int theta = 1;
-      if (m > 1)
-      {
-        theta = std::max(1, z / (m - 1));
+        blocks_info[i].map2group = global_parity_group_id;
       }
       else
       {
-        theta = r;
+        std::string tmp = "_L";
+        if (i - stripe->k - stripe->r < 10)
+          tmp = "_L0";
+        blocks_info[i].block_key = std::to_string(stripe->stripe_id) + tmp + std::to_string(i - stripe->k - stripe->r);
+        blocks_info[i].block_id = i;
+        blocks_info[i].block_type = 'L';
+        blocks_info[i].map2group = i - stripe->k - stripe->r;
       }
-      for (int g = 0; g < r;)
+    }
+
+    std::vector<int> block_order(stripe->n);
+    std::iota(block_order.begin(), block_order.end(), 0);
+    const int max_attempts = 256;
+    bool placed = false;
+    std::vector<int> assigned_cluster(stripe->n, -1);
+
+    for (int attempt = 0; attempt < max_attempts && !placed; ++attempt)
+    {
+      std::shuffle(block_order.begin(), block_order.end(), gen);
+      std::fill(assigned_cluster.begin(), assigned_cluster.end(), -1);
+      std::map<int, int> cluster_block_count;
+      std::map<int, std::set<int>> cluster_groups_excluding_global;
+      bool ok = true;
+
+      for (int block_idx : block_order)
       {
-        int batch_cluster_id = next_cluster(true);
-        int grouped = 0;
-        while (g < r && grouped < theta)
+        std::vector<int> candidate_clusters = selected_clusters;
+        std::shuffle(candidate_clusters.begin(), candidate_clusters.end(), gen);
+        bool assigned = false;
+        const int block_group = blocks_info[block_idx].map2group;
+
+        for (int cid : candidate_clusters)
         {
-          for (int t = 0; t < remain_count[g]; t++)
+          int next_block_count = cluster_block_count[cid] + 1;
+          int next_group_count = static_cast<int>(cluster_groups_excluding_global[cid].size());
+          if (block_group != global_parity_group_id &&
+              cluster_groups_excluding_global[cid].find(block_group) == cluster_groups_excluding_global[cid].end())
           {
-            place_block(remain_start[g] + t, batch_cluster_id);
+            next_group_count++;
           }
-          g++;
-          grouped++;
+          if (next_block_count <= stripe->r + next_group_count)
+          {
+            assigned_cluster[block_idx] = cid;
+            cluster_block_count[cid] = next_block_count;
+            if (block_group != global_parity_group_id)
+            {
+              cluster_groups_excluding_global[cid].insert(block_group);
+            }
+            assigned = true;
+            break;
+          }
+        }
+
+        if (!assigned)
+        {
+          ok = false;
+          break;
         }
       }
+      placed = ok;
+    }
+
+    if (!placed)
+    {
+      throw std::runtime_error("RandomLRC placement failed to satisfy cluster constraints");
+    }
+
+    for (int i = 0; i < stripe->n; i++)
+    {
+      blocks_info[i].map2cluster = assigned_cluster[i];
+      int t_node_id = randomly_select_a_node(blocks_info[i].map2cluster, stripe->stripe_id);
+      blocks_info[i].map2node = t_node_id;
+      update_stripe_info_in_node(t_node_id, stripe->stripe_id, i);
+      m_cluster_table[blocks_info[i].map2cluster].blocks.push_back(&blocks_info[i]);
+      m_cluster_table[blocks_info[i].map2cluster].stripes.insert(stripe->stripe_id);
+      stripe->blocks.push_back(&blocks_info[i]);
+      stripe->place2clusters.insert(blocks_info[i].map2cluster);
+      add_to_map(stripe->group_to_blocks, blocks_info[i].map2group, i);
     }
 
     stripe->num_groups = stripe->group_to_blocks.size();
@@ -2152,10 +653,6 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
       return append_plans;
     }
 
-    // xue_update: 统一封装“传输路径选择 + 时间调度”
-    XueUpdateResult update_result = xue_update(stripe, block_to_slice_sizes, m_sys_config->CodeType);
-    const std::map<int, int> &group_to_ingress_cluster = update_result.group_to_ingress_cluster;
-
     for (int i = 0; i < stripe->z; i++)
     {
       proxy_proto::AppendStripeDataPlacement plan;
@@ -2163,15 +660,7 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
       plan.set_stripe_id(stripe->stripe_id);
       plan.set_append_size(getClusterAppendSize(stripe, block_to_slice_sizes, i, parity_slice_size));
       plan.set_is_merge_parity(is_merge_parity);
-      auto ingress_it = group_to_ingress_cluster.find(i);
-      if (ingress_it != group_to_ingress_cluster.end())
-      {
-        plan.set_cluster_id(ingress_it->second);
-      }
-      else
-      {
-        plan.set_cluster_id(stripe->blocks[stripe->group_to_blocks[i][0]]->map2cluster);
-      }
+      plan.set_cluster_id(stripe->blocks[stripe->group_to_blocks[i][0]]->map2cluster);
       plan.set_append_mode(append_mode);
       if (curr_logical_offset == 0 && append_size == m_sys_config->BlockSize * stripe->k)
       {
@@ -2283,9 +772,9 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
       {
         initialize_uniform_lrc_stripe_placement(&t_stripe);
       }
-      else if (code_type == "XueLRC")
+      else if (code_type == "RandomLRC")
       {
-        initialize_xue_tripe_placement(&t_stripe);
+        initialize_random_lrc_stripe_placement(&t_stripe);
       }
       else
       {
@@ -2349,224 +838,9 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
       coordinator_proto::ReplyProxyIPsPorts *proxyIPPort)
   {
     (void)context;
-    const std::string &client_id = request->client_id();
-    const int stripe_id = request->stripe_id();
-
-    auto stripe_it = m_stripe_table.find(stripe_id);
-    if (stripe_it == m_stripe_table.end())
-    {
-      return grpc::Status(grpc::StatusCode::NOT_FOUND, "stripe_id not found");
-    }
-    Stripe *stripe = &stripe_it->second;
-    if (request->ranges_size() <= 0)
-    {
-      return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "empty ranges");
-    }
-    // 将多个不连续区间视为“同一时刻的一次联合更新”，并保留块内离散切片（稀疏更新）。
-    std::map<int, std::vector<std::pair<int, int>>> block_to_slices;
-    const int unit_size = static_cast<int>(m_sys_config->UnitSize);
-    const int block_size = static_cast<int>(m_sys_config->BlockSize);
-    auto add_sparse_slice = [](std::map<int, std::vector<std::pair<int, int>>> &dst,
-                               int block_id, int len, int off) {
-      if (len <= 0) return;
-      auto &vec = dst[block_id];
-      vec.push_back(std::make_pair(len, off));
-      std::sort(vec.begin(), vec.end(), [](const auto &a, const auto &b) { return a.second < b.second; });
-      std::vector<std::pair<int, int>> merged;
-      for (const auto &s : vec)
-      {
-        const int cur_l = s.second;
-        const int cur_r = s.second + s.first - 1;
-        if (merged.empty())
-        {
-          merged.push_back(s);
-          continue;
-        }
-        int prev_l = merged.back().second;
-        int prev_r = merged.back().second + merged.back().first - 1;
-        if (cur_l <= prev_r + 1)
-        {
-          const int new_r = std::max(prev_r, cur_r);
-          merged.back().second = prev_l;
-          merged.back().first = new_r - prev_l + 1;
-        }
-        else
-        {
-          merged.push_back(s);
-        }
-      }
-      vec.swap(merged);
-    };
-    for (int rid = 0; rid < request->ranges_size(); rid++)
-    {
-      const auto &rg = request->ranges(rid);
-      const int logical_offset_start = rg.logical_offset_start();
-      const int logical_offset_end = rg.logical_offset_end();
-      if (logical_offset_end <= logical_offset_start)
-      {
-        return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "range must satisfy start < end for [start,end)");
-      }
-
-      int pos = logical_offset_start;
-      while (pos < logical_offset_end)
-      {
-        const int block_id = pos / block_size;
-        const int block_offset = pos % block_size;
-        const int take = std::min(block_size - block_offset, logical_offset_end - pos);
-        add_sparse_slice(block_to_slices, block_id, take, block_offset);
-        pos += take;
-      }
-    }
-
-    if (block_to_slices.empty())
-    {
-      return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "no effective ranges");
-    }
-
-    // parity 按受影响 unit 生成离散切片，避免扩成整块。
-    for (const auto &kv : block_to_slices)
-    {
-      const int block_id = kv.first;
-      if (block_id < 0 || block_id >= stripe->k)
-      {
-        continue;
-      }
-      for (const auto &slice : kv.second)
-      {
-        const int block_off = slice.second;
-        const int block_end = block_off + slice.first - 1;
-        const int u0 = block_off / unit_size;
-        const int u1 = block_end / unit_size;
-        const int parity_off = u0 * unit_size;
-        const int parity_end = std::min(block_size - 1, (u1 + 1) * unit_size - 1);
-        const int parity_len = parity_end - parity_off + 1;
-        for (int i = stripe->k; i < stripe->n; i++)
-        {
-          add_sparse_slice(block_to_slices, i, parity_len, parity_off);
-        }
-      }
-    }
-    const bool is_merge_parity = false;
-
-    std::cout << "[XUE_UPDATE_SCOPE] stripe=" << stripe_id
-              << " | ranges=" << request->ranges_size() << std::endl;
-    std::cout << "  涉及数据块及区间:";
-    for (const auto &kv : block_to_slices)
-    {
-      if (kv.first >= 0 && kv.first < stripe->k)
-      {
-        for (const auto &slice : kv.second)
-        {
-          const int block_off = slice.second;
-          const int block_end = block_off + slice.first - 1;
-          const int u0 = block_off / unit_size;
-          const int u1 = block_end / unit_size;
-          std::cout << " block" << kv.first
-                    << "[+" << block_off << ".." << block_end
-                    << " len " << slice.first
-                    << " | unit " << u0 << ".." << u1 << "]";
-        }
-      }
-    }
-    std::cout << std::endl;
-    //debug
-    std::cout << "start xue_update_sparse" << std::endl;
-    XueUpdateResult update_result = xue_update_sparse(stripe, block_to_slices, m_sys_config->CodeType);
-    const std::map<int, int> &group_to_ingress_cluster = update_result.group_to_ingress_cluster;
-    const std::vector<ScheduledTask> &scheduled_tasks = update_result.scheduled_tasks;
-    std::cout << "end xue_update_sparse" << std::endl;
-    // 在 uploadXueUpdate 入口处显式输出传输时间窗，避免依赖下层函数打印行为。
-    log_append_schedule_visual(scheduled_tasks);
-    std::cout << "end log_append_schedule_visual" << std::endl;
-    std::vector<proxy_proto::AppendStripeDataPlacement> append_plans;
-    for (int i = 0; i < stripe->z; i++)
-    {
-      proxy_proto::AppendStripeDataPlacement plan;
-      plan.set_key(m_toolbox->gen_append_key(stripe->stripe_id, i));
-      plan.set_stripe_id(stripe->stripe_id);
-      plan.set_is_merge_parity(is_merge_parity);
-      auto ingress_it = group_to_ingress_cluster.find(i);
-      if (ingress_it != group_to_ingress_cluster.end())
-      {
-        plan.set_cluster_id(ingress_it->second);
-      }
-      else
-      {
-        plan.set_cluster_id(stripe->blocks[stripe->group_to_blocks[i][0]]->map2cluster);
-      }
-      plan.set_append_mode("XUE_UPDATE");
-      plan.set_is_serialized(true);
-      int plan_append_size = 0;
-
-      for (int j = i * stripe->k / stripe->z;
-           j < (i + 1) * stripe->k / stripe->z; j++)
-      {
-        auto it = block_to_slices.find(j);
-        if (it != block_to_slices.end())
-        {
-          for (const auto &slice : it->second)
-          {
-            addBlockToAppendPlan(plan, stripe->blocks[j],
-                                 m_node_table[stripe->blocks[j]->map2node], slice);
-            plan_append_size += slice.first;
-          }
-        }
-      }
-      for (int j = stripe->k + i * stripe->r / stripe->z;
-           j < stripe->k + (i + 1) * stripe->r / stripe->z; j++)
-      {
-        auto it = block_to_slices.find(j);
-        if (it == block_to_slices.end()) continue;
-        for (const auto &slice : it->second)
-        {
-          addBlockToAppendPlan(plan, stripe->blocks[j],
-                               m_node_table[stripe->blocks[j]->map2node], slice);
-          plan_append_size += slice.first;
-        }
-      }
-      for (int j = stripe->k + stripe->r + i * stripe->z / stripe->z;
-           j < stripe->k + stripe->r + (i + 1) * stripe->z / stripe->z; j++)
-      {
-        auto it = block_to_slices.find(j);
-        if (it == block_to_slices.end()) continue;
-        for (const auto &slice : it->second)
-        {
-          addBlockToAppendPlan(plan, stripe->blocks[j],
-                               m_node_table[stripe->blocks[j]->map2node], slice);
-          plan_append_size += slice.first;
-        }
-      }
-      plan.set_append_size(plan_append_size);
-      append_plans.push_back(plan);
-    }
-
-    for (const auto &plan : append_plans)
-    {
-      m_mutex.lock();
-      m_object_commit_table.erase(plan.key());
-      m_mutex.unlock();
-    }
-
-    std::vector<std::thread> threads;
-    int sum_append_size = 0;
-    for (const auto &plan : append_plans)
-    {
-      threads.push_back(std::thread(&CoordinatorImpl::notify_proxies_ready, this, plan));
-      proxyIPPort->add_append_keys(plan.key());
-      proxyIPPort->add_proxyips(m_cluster_table[plan.cluster_id()].proxy_ip);
-      proxyIPPort->add_proxyports(m_cluster_table[plan.cluster_id()].proxy_port + ECProject::PROXY_PORT_SHIFT);
-      proxyIPPort->add_cluster_slice_sizes(plan.append_size());
-      sum_append_size += plan.append_size();
-    }
-    for (auto &thread : threads)
-    {
-      thread.join();
-    }
-    proxyIPPort->set_sum_append_size(sum_append_size);
-
-    std::cout << "[XUE_UPDATE] client=" << client_id << " stripe=" << stripe_id
-              << " merged_ranges=" << request->ranges_size() << std::endl;
-    return grpc::Status::OK;
+    (void)request;
+    (void)proxyIPPort;
+    return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "XueLRC update strategy has been removed");
   }
 
   std::vector<proxy_proto::AppendStripeDataPlacement> CoordinatorImpl::generate_add_plans(Stripe *stripe)
@@ -2601,8 +875,6 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
   {
     int data_block_num = subset_size / m_sys_config->BlockSize;
     int k = m_sys_config->k;
-    int r = m_sys_config->r;
-    int z = m_sys_config->z;
     std::vector<proxy_proto::AppendStripeDataPlacement> add_plans;
     for (int i = 0; i < stripe->num_groups; i++)
     {
@@ -2700,7 +972,7 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
     size_t setSizeBytes = keyValueSize->valuesizebytes();
     std::string code_type = m_sys_config->CodeType;
     assert(setSizeBytes == static_cast<size_t>(m_sys_config->BlockSize) * static_cast<size_t>(m_sys_config->k) && "set size is not equal to the block stripe size!");
-    assert((code_type == "UniLRC" || code_type == "AzureLRC" || code_type == "OptimalLRC" || code_type == "UniformLRC" || code_type == "XueLRC") && "Error: code type must be UniLRC, AzureLRC, OptimalLRC, UniformLRC, or XueLRC!");
+    assert((code_type == "UniLRC" || code_type == "AzureLRC" || code_type == "OptimalLRC" || code_type == "UniformLRC" || code_type == "RandomLRC") && "Error: code type must be UniLRC, AzureLRC, OptimalLRC, UniformLRC, or RandomLRC!");
 
     Stripe t_stripe;
     t_stripe.stripe_id = m_cur_stripe_id++;
@@ -2721,11 +993,10 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
     {
       initialize_uniform_lrc_stripe_placement(&t_stripe);
     }
-    else if (code_type == "XueLRC")
+    else if (code_type == "RandomLRC")
     {
-      initialize_xue_tripe_placement(&t_stripe);
+      initialize_random_lrc_stripe_placement(&t_stripe);
     }
-
     print_stripe_data_placement(t_stripe);
 
     std::vector<proxy_proto::AppendStripeDataPlacement> add_plans = generate_add_plans(&t_stripe);
@@ -2768,7 +1039,7 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
     size_t setSizeBytes = keyValueSize->valuesizebytes();
     std::string code_type = m_sys_config->CodeType;
     assert(setSizeBytes <= static_cast<size_t>(m_sys_config->BlockSize) * static_cast<size_t>(m_sys_config->k) && "subset size is larger than the block size!");
-    assert((code_type == "UniLRC" || code_type == "AzureLRC" || code_type == "OptimalLRC" || code_type == "UniformLRC" || code_type == "XueLRC") && "Error: code type must be UniLRC, AzureLRC, OptimalLRC, UniformLRC, or XueLRC!");
+    assert((code_type == "UniLRC" || code_type == "AzureLRC" || code_type == "OptimalLRC" || code_type == "UniformLRC" || code_type == "RandomLRC") && "Error: code type must be UniLRC, AzureLRC, OptimalLRC, UniformLRC, or RandomLRC!");
 
     Stripe t_stripe;
     t_stripe.stripe_id = m_cur_stripe_id++;
@@ -2789,11 +1060,10 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
     {
       initialize_uniform_lrc_stripe_placement(&t_stripe);
     }
-    else if (code_type == "XueLRC")
+    else if (code_type == "RandomLRC")
     {
-      initialize_xue_tripe_placement(&t_stripe);
+      initialize_random_lrc_stripe_placement(&t_stripe);
     }
-
     print_stripe_data_placement(t_stripe);
 
     std::vector<proxy_proto::AppendStripeDataPlacement> add_plans = generate_sub_add_plans(&t_stripe, setSizeBytes);
@@ -3198,7 +1468,7 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
     }
     std::vector<std::thread> get_threads;
     for(int i = 0; i < unique_cluster_ids.size(); i++){
-      get_threads.push_back(std::thread([this, &stripe_block_ids, &client_ip, &client_port, &proxyIPPort, &unique_cluster_ids, i](){
+      get_threads.push_back(std::thread([this, &stripe_block_ids, &client_ip, &client_port, &unique_cluster_ids, i](){
         grpc::ClientContext cont;
         proxy_proto::GetReply stripe_reply;
         stripe_block_ids[i].set_clientip(client_ip);
@@ -3946,7 +2216,7 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
 
       }
       int cross_rack_num = recovery_group_ids.size() - 1;
-      threads.push_back(std::thread([this, &t_stripe, cross_rack_num, dest_group_id, dest_cluster_id, dest_proxy_ip, dest_proxy_port, stripe_id, failed_block_id, client_ip, client_port, 
+      threads.push_back(std::thread([this, &t_stripe, cross_rack_num, dest_group_id, dest_proxy_ip, dest_proxy_port, stripe_id, failed_block_id, client_ip, client_port, 
         &disk_io_start_time, &disk_io_end_time, &decode_start_time, &decode_end_time, &network_start_time, &network_end_time, &cross_rack_network_time, &cross_rack_xor_time,
         &grpc_notify_time, &grpc_start_time, &data_node_grpc_notify_time, &data_node_grpc_start_time](){
         grpc::ClientContext recovery_context;
@@ -4106,7 +2376,7 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
 
       }
       int cross_rack_num = recovery_group_ids.size() - 1;
-      threads.push_back(std::thread([this, &t_stripe, cross_rack_num, dest_group_id, dest_cluster_id, dest_proxy_ip, dest_proxy_port, stripe_id, failed_block_id, client_ip, client_port](){
+      threads.push_back(std::thread([this, &t_stripe, cross_rack_num, dest_group_id, dest_proxy_ip, dest_proxy_port, stripe_id, failed_block_id, client_ip, client_port](){
         grpc::ClientContext recovery_context;
         proxy_proto::RecoveryRequest recovery_request;
         proxy_proto::DegradedReadReply recovery_reply;
@@ -4253,7 +2523,7 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
 
       }
       int cross_rack_num = recovery_group_ids.size() - 1;
-      threads.push_back(std::thread([this, &t_stripe, cross_rack_num, dest_group_id, dest_cluster_id, dest_proxy_ip, dest_proxy_port, stripe_id, failed_block_id, client_ip, client_port, block_id](){
+      threads.push_back(std::thread([this, &t_stripe, cross_rack_num, dest_group_id, dest_proxy_ip, dest_proxy_port, stripe_id, failed_block_id, client_ip, client_port, block_id](){
         grpc::ClientContext recovery_context;
         proxy_proto::RecoveryRequest recovery_request;
         proxy_proto::DegradedReadReply recovery_reply;
@@ -4361,7 +2631,6 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
     std::string client_ip = keyClient->clientip();
     int client_port = keyClient->clientport();
 
-    double dest_proxy_network_time;
     bool if_success = degraded_read_one_block(stripe_id, failed_block_id, client_ip, client_port);
     if (if_success)
     {
@@ -4380,7 +2649,6 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
   {
     int node_id = request->node_id();
     std::string node_ip = m_node_table[node_id].node_ip;
-    int node_port = m_node_table[node_id].node_port;
     std::vector<int> stripe_ids;
     std::vector<int> block_ids;
     for (auto it = m_stripe_table.begin(); it != m_stripe_table.end(); it++)
