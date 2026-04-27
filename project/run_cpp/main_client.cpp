@@ -98,7 +98,32 @@ int main(int argc, char **argv)
             std::cout << "Calling xue's update function..." << std::endl;
             const bool ok = client.xue_update(stripe_id, logical_ranges);
             std::cout << "xue_update result: " << (ok ? "success" : "failed") << std::endl;
-        } 
+        }
+        else if (method == "rackcu")
+        {
+            int stripe_id = 0;
+            int range_cnt = 0;
+            std::cout << "Input stripe_id range_count: " << std::endl;
+            std::cin >> stripe_id >> range_cnt;
+            if (range_cnt <= 0)
+            {
+                std::cout << "Invalid range_count: " << range_cnt << std::endl;
+                return 1;
+            }
+            std::vector<std::pair<int, int>> logical_ranges;
+            logical_ranges.reserve(static_cast<size_t>(range_cnt));
+            std::cout << "Input each logical range as [start, end): logical_offset_start logical_offset_end_exclusive" << std::endl;
+            for (int i = 0; i < range_cnt; i++)
+            {
+                int logical_offset_start = 0;
+                int logical_offset_end = 0;
+                std::cin >> logical_offset_start >> logical_offset_end;
+                logical_ranges.emplace_back(logical_offset_start, logical_offset_end);
+            }
+            std::cout << "Calling rackcu_update..." << std::endl;
+            const bool ok = client.rackcu_update(stripe_id, logical_ranges);
+            std::cout << "rackcu_update result: " << (ok ? "success" : "failed") << std::endl;
+        }
         else 
         {
             std::cout << "Unknown method: " << method << std::endl;

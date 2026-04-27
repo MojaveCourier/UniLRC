@@ -72,6 +72,9 @@ extern NodeIdFromClientDefaultTypeInternal _NodeIdFromClient_default_instance_;
 class Parameter;
 struct ParameterDefaultTypeInternal;
 extern ParameterDefaultTypeInternal _Parameter_default_instance_;
+class RackCuUpdateRequest;
+struct RackCuUpdateRequestDefaultTypeInternal;
+extern RackCuUpdateRequestDefaultTypeInternal _RackCuUpdateRequest_default_instance_;
 class RecoveryReply;
 struct RecoveryReplyDefaultTypeInternal;
 extern RecoveryReplyDefaultTypeInternal _RecoveryReply_default_instance_;
@@ -128,6 +131,7 @@ template<> ::coordinator_proto::KeyFromClient* Arena::CreateMaybeMessage<::coord
 template<> ::coordinator_proto::LogicalRange* Arena::CreateMaybeMessage<::coordinator_proto::LogicalRange>(Arena*);
 template<> ::coordinator_proto::NodeIdFromClient* Arena::CreateMaybeMessage<::coordinator_proto::NodeIdFromClient>(Arena*);
 template<> ::coordinator_proto::Parameter* Arena::CreateMaybeMessage<::coordinator_proto::Parameter>(Arena*);
+template<> ::coordinator_proto::RackCuUpdateRequest* Arena::CreateMaybeMessage<::coordinator_proto::RackCuUpdateRequest>(Arena*);
 template<> ::coordinator_proto::RecoveryReply* Arena::CreateMaybeMessage<::coordinator_proto::RecoveryReply>(Arena*);
 template<> ::coordinator_proto::RepBlockNum* Arena::CreateMaybeMessage<::coordinator_proto::RepBlockNum>(Arena*);
 template<> ::coordinator_proto::RepIfDeling* Arena::CreateMaybeMessage<::coordinator_proto::RepIfDeling>(Arena*);
@@ -1494,6 +1498,7 @@ class ReplyProxyIPsPorts final :
     kProxyportsFieldNumber = 4,
     kClusterSliceSizesFieldNumber = 5,
     kGroupIdsFieldNumber = 6,
+    kAppendPlansFieldNumber = 7,
     kSumAppendSizeFieldNumber = 1,
   };
   // repeated string append_keys = 2;
@@ -1610,6 +1615,30 @@ class ReplyProxyIPsPorts final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
       mutable_group_ids();
 
+  // repeated bytes append_plans = 7;
+  int append_plans_size() const;
+  private:
+  int _internal_append_plans_size() const;
+  public:
+  void clear_append_plans();
+  const std::string& append_plans(int index) const;
+  std::string* mutable_append_plans(int index);
+  void set_append_plans(int index, const std::string& value);
+  void set_append_plans(int index, std::string&& value);
+  void set_append_plans(int index, const char* value);
+  void set_append_plans(int index, const void* value, size_t size);
+  std::string* add_append_plans();
+  void add_append_plans(const std::string& value);
+  void add_append_plans(std::string&& value);
+  void add_append_plans(const char* value);
+  void add_append_plans(const void* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& append_plans() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_append_plans();
+  private:
+  const std::string& _internal_append_plans(int index) const;
+  std::string* _internal_add_append_plans();
+  public:
+
   // uint64 sum_append_size = 1;
   void clear_sum_append_size();
   uint64_t sum_append_size() const;
@@ -1635,6 +1664,7 @@ class ReplyProxyIPsPorts final :
     mutable std::atomic<int> _cluster_slice_sizes_cached_byte_size_;
     ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > group_ids_;
     mutable std::atomic<int> _group_ids_cached_byte_size_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> append_plans_;
     uint64_t sum_append_size_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -2845,6 +2875,190 @@ class XueUpdateRequest final :
 };
 // -------------------------------------------------------------------
 
+class RackCuUpdateRequest final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:coordinator_proto.RackCuUpdateRequest) */ {
+ public:
+  inline RackCuUpdateRequest() : RackCuUpdateRequest(nullptr) {}
+  ~RackCuUpdateRequest() override;
+  explicit PROTOBUF_CONSTEXPR RackCuUpdateRequest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  RackCuUpdateRequest(const RackCuUpdateRequest& from);
+  RackCuUpdateRequest(RackCuUpdateRequest&& from) noexcept
+    : RackCuUpdateRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline RackCuUpdateRequest& operator=(const RackCuUpdateRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline RackCuUpdateRequest& operator=(RackCuUpdateRequest&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const RackCuUpdateRequest& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const RackCuUpdateRequest* internal_default_instance() {
+    return reinterpret_cast<const RackCuUpdateRequest*>(
+               &_RackCuUpdateRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    15;
+
+  friend void swap(RackCuUpdateRequest& a, RackCuUpdateRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(RackCuUpdateRequest* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(RackCuUpdateRequest* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  RackCuUpdateRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<RackCuUpdateRequest>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const RackCuUpdateRequest& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const RackCuUpdateRequest& from) {
+    RackCuUpdateRequest::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(RackCuUpdateRequest* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "coordinator_proto.RackCuUpdateRequest";
+  }
+  protected:
+  explicit RackCuUpdateRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kRangesFieldNumber = 3,
+    kClientIdFieldNumber = 1,
+    kStripeIdFieldNumber = 2,
+  };
+  // repeated .coordinator_proto.LogicalRange ranges = 3;
+  int ranges_size() const;
+  private:
+  int _internal_ranges_size() const;
+  public:
+  void clear_ranges();
+  ::coordinator_proto::LogicalRange* mutable_ranges(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::coordinator_proto::LogicalRange >*
+      mutable_ranges();
+  private:
+  const ::coordinator_proto::LogicalRange& _internal_ranges(int index) const;
+  ::coordinator_proto::LogicalRange* _internal_add_ranges();
+  public:
+  const ::coordinator_proto::LogicalRange& ranges(int index) const;
+  ::coordinator_proto::LogicalRange* add_ranges();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::coordinator_proto::LogicalRange >&
+      ranges() const;
+
+  // string client_id = 1;
+  void clear_client_id();
+  const std::string& client_id() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_client_id(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_client_id();
+  PROTOBUF_NODISCARD std::string* release_client_id();
+  void set_allocated_client_id(std::string* client_id);
+  private:
+  const std::string& _internal_client_id() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_client_id(const std::string& value);
+  std::string* _internal_mutable_client_id();
+  public:
+
+  // int32 stripe_id = 2;
+  void clear_stripe_id();
+  int32_t stripe_id() const;
+  void set_stripe_id(int32_t value);
+  private:
+  int32_t _internal_stripe_id() const;
+  void _internal_set_stripe_id(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:coordinator_proto.RackCuUpdateRequest)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::coordinator_proto::LogicalRange > ranges_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr client_id_;
+    int32_t stripe_id_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_coordinator_2eproto;
+};
+// -------------------------------------------------------------------
+
 class KeyFromClient final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:coordinator_proto.KeyFromClient) */ {
  public:
@@ -2893,7 +3107,7 @@ class KeyFromClient final :
                &_KeyFromClient_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    15;
+    16;
 
   friend void swap(KeyFromClient& a, KeyFromClient& b) {
     a.Swap(&b);
@@ -3046,7 +3260,7 @@ class StripeIdFromClient final :
                &_StripeIdFromClient_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    16;
+    17;
 
   friend void swap(StripeIdFromClient& a, StripeIdFromClient& b) {
     a.Swap(&b);
@@ -3194,7 +3408,7 @@ class StripeIdAndBlockIDsFromClient final :
                &_StripeIdAndBlockIDsFromClient_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    17;
+    18;
 
   friend void swap(StripeIdAndBlockIDsFromClient& a, StripeIdAndBlockIDsFromClient& b) {
     a.Swap(&b);
@@ -3367,7 +3581,7 @@ class NodeIdFromClient final :
                &_NodeIdFromClient_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    18;
+    19;
 
   friend void swap(NodeIdFromClient& a, NodeIdFromClient& b) {
     a.Swap(&b);
@@ -3515,7 +3729,7 @@ class RepIfDeling final :
                &_RepIfDeling_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    19;
+    20;
 
   friend void swap(RepIfDeling& a, RepIfDeling& b) {
     a.Swap(&b);
@@ -3663,7 +3877,7 @@ class RepStripeIds final :
                &_RepStripeIds_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    20;
+    21;
 
   friend void swap(RepStripeIds& a, RepStripeIds& b) {
     a.Swap(&b);
@@ -3825,7 +4039,7 @@ class RepBlockNum final :
                &_RepBlockNum_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    21;
+    22;
 
   friend void swap(RepBlockNum& a, RepBlockNum& b) {
     a.Swap(&b);
@@ -3973,7 +4187,7 @@ class DegradedReadReply final :
                &_DegradedReadReply_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    22;
+    23;
 
   friend void swap(DegradedReadReply& a, DegradedReadReply& b) {
     a.Swap(&b);
@@ -4154,7 +4368,7 @@ class RecoveryReply final :
                &_RecoveryReply_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    23;
+    24;
 
   friend void swap(RecoveryReply& a, RecoveryReply& b) {
     a.Swap(&b);
@@ -5246,6 +5460,81 @@ ReplyProxyIPsPorts::mutable_group_ids() {
   return _internal_mutable_group_ids();
 }
 
+// repeated bytes append_plans = 7;
+inline int ReplyProxyIPsPorts::_internal_append_plans_size() const {
+  return _impl_.append_plans_.size();
+}
+inline int ReplyProxyIPsPorts::append_plans_size() const {
+  return _internal_append_plans_size();
+}
+inline void ReplyProxyIPsPorts::clear_append_plans() {
+  _impl_.append_plans_.Clear();
+}
+inline std::string* ReplyProxyIPsPorts::add_append_plans() {
+  std::string* _s = _internal_add_append_plans();
+  // @@protoc_insertion_point(field_add_mutable:coordinator_proto.ReplyProxyIPsPorts.append_plans)
+  return _s;
+}
+inline const std::string& ReplyProxyIPsPorts::_internal_append_plans(int index) const {
+  return _impl_.append_plans_.Get(index);
+}
+inline const std::string& ReplyProxyIPsPorts::append_plans(int index) const {
+  // @@protoc_insertion_point(field_get:coordinator_proto.ReplyProxyIPsPorts.append_plans)
+  return _internal_append_plans(index);
+}
+inline std::string* ReplyProxyIPsPorts::mutable_append_plans(int index) {
+  // @@protoc_insertion_point(field_mutable:coordinator_proto.ReplyProxyIPsPorts.append_plans)
+  return _impl_.append_plans_.Mutable(index);
+}
+inline void ReplyProxyIPsPorts::set_append_plans(int index, const std::string& value) {
+  _impl_.append_plans_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set:coordinator_proto.ReplyProxyIPsPorts.append_plans)
+}
+inline void ReplyProxyIPsPorts::set_append_plans(int index, std::string&& value) {
+  _impl_.append_plans_.Mutable(index)->assign(std::move(value));
+  // @@protoc_insertion_point(field_set:coordinator_proto.ReplyProxyIPsPorts.append_plans)
+}
+inline void ReplyProxyIPsPorts::set_append_plans(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.append_plans_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:coordinator_proto.ReplyProxyIPsPorts.append_plans)
+}
+inline void ReplyProxyIPsPorts::set_append_plans(int index, const void* value, size_t size) {
+  _impl_.append_plans_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:coordinator_proto.ReplyProxyIPsPorts.append_plans)
+}
+inline std::string* ReplyProxyIPsPorts::_internal_add_append_plans() {
+  return _impl_.append_plans_.Add();
+}
+inline void ReplyProxyIPsPorts::add_append_plans(const std::string& value) {
+  _impl_.append_plans_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:coordinator_proto.ReplyProxyIPsPorts.append_plans)
+}
+inline void ReplyProxyIPsPorts::add_append_plans(std::string&& value) {
+  _impl_.append_plans_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:coordinator_proto.ReplyProxyIPsPorts.append_plans)
+}
+inline void ReplyProxyIPsPorts::add_append_plans(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.append_plans_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:coordinator_proto.ReplyProxyIPsPorts.append_plans)
+}
+inline void ReplyProxyIPsPorts::add_append_plans(const void* value, size_t size) {
+  _impl_.append_plans_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:coordinator_proto.ReplyProxyIPsPorts.append_plans)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+ReplyProxyIPsPorts::append_plans() const {
+  // @@protoc_insertion_point(field_list:coordinator_proto.ReplyProxyIPsPorts.append_plans)
+  return _impl_.append_plans_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+ReplyProxyIPsPorts::mutable_append_plans() {
+  // @@protoc_insertion_point(field_mutable_list:coordinator_proto.ReplyProxyIPsPorts.append_plans)
+  return &_impl_.append_plans_;
+}
+
 // -------------------------------------------------------------------
 
 // AskIfSuccess
@@ -5826,6 +6115,120 @@ XueUpdateRequest::ranges() const {
 
 // -------------------------------------------------------------------
 
+// RackCuUpdateRequest
+
+// string client_id = 1;
+inline void RackCuUpdateRequest::clear_client_id() {
+  _impl_.client_id_.ClearToEmpty();
+}
+inline const std::string& RackCuUpdateRequest::client_id() const {
+  // @@protoc_insertion_point(field_get:coordinator_proto.RackCuUpdateRequest.client_id)
+  return _internal_client_id();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void RackCuUpdateRequest::set_client_id(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.client_id_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:coordinator_proto.RackCuUpdateRequest.client_id)
+}
+inline std::string* RackCuUpdateRequest::mutable_client_id() {
+  std::string* _s = _internal_mutable_client_id();
+  // @@protoc_insertion_point(field_mutable:coordinator_proto.RackCuUpdateRequest.client_id)
+  return _s;
+}
+inline const std::string& RackCuUpdateRequest::_internal_client_id() const {
+  return _impl_.client_id_.Get();
+}
+inline void RackCuUpdateRequest::_internal_set_client_id(const std::string& value) {
+  
+  _impl_.client_id_.Set(value, GetArenaForAllocation());
+}
+inline std::string* RackCuUpdateRequest::_internal_mutable_client_id() {
+  
+  return _impl_.client_id_.Mutable(GetArenaForAllocation());
+}
+inline std::string* RackCuUpdateRequest::release_client_id() {
+  // @@protoc_insertion_point(field_release:coordinator_proto.RackCuUpdateRequest.client_id)
+  return _impl_.client_id_.Release();
+}
+inline void RackCuUpdateRequest::set_allocated_client_id(std::string* client_id) {
+  if (client_id != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.client_id_.SetAllocated(client_id, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.client_id_.IsDefault()) {
+    _impl_.client_id_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:coordinator_proto.RackCuUpdateRequest.client_id)
+}
+
+// int32 stripe_id = 2;
+inline void RackCuUpdateRequest::clear_stripe_id() {
+  _impl_.stripe_id_ = 0;
+}
+inline int32_t RackCuUpdateRequest::_internal_stripe_id() const {
+  return _impl_.stripe_id_;
+}
+inline int32_t RackCuUpdateRequest::stripe_id() const {
+  // @@protoc_insertion_point(field_get:coordinator_proto.RackCuUpdateRequest.stripe_id)
+  return _internal_stripe_id();
+}
+inline void RackCuUpdateRequest::_internal_set_stripe_id(int32_t value) {
+  
+  _impl_.stripe_id_ = value;
+}
+inline void RackCuUpdateRequest::set_stripe_id(int32_t value) {
+  _internal_set_stripe_id(value);
+  // @@protoc_insertion_point(field_set:coordinator_proto.RackCuUpdateRequest.stripe_id)
+}
+
+// repeated .coordinator_proto.LogicalRange ranges = 3;
+inline int RackCuUpdateRequest::_internal_ranges_size() const {
+  return _impl_.ranges_.size();
+}
+inline int RackCuUpdateRequest::ranges_size() const {
+  return _internal_ranges_size();
+}
+inline void RackCuUpdateRequest::clear_ranges() {
+  _impl_.ranges_.Clear();
+}
+inline ::coordinator_proto::LogicalRange* RackCuUpdateRequest::mutable_ranges(int index) {
+  // @@protoc_insertion_point(field_mutable:coordinator_proto.RackCuUpdateRequest.ranges)
+  return _impl_.ranges_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::coordinator_proto::LogicalRange >*
+RackCuUpdateRequest::mutable_ranges() {
+  // @@protoc_insertion_point(field_mutable_list:coordinator_proto.RackCuUpdateRequest.ranges)
+  return &_impl_.ranges_;
+}
+inline const ::coordinator_proto::LogicalRange& RackCuUpdateRequest::_internal_ranges(int index) const {
+  return _impl_.ranges_.Get(index);
+}
+inline const ::coordinator_proto::LogicalRange& RackCuUpdateRequest::ranges(int index) const {
+  // @@protoc_insertion_point(field_get:coordinator_proto.RackCuUpdateRequest.ranges)
+  return _internal_ranges(index);
+}
+inline ::coordinator_proto::LogicalRange* RackCuUpdateRequest::_internal_add_ranges() {
+  return _impl_.ranges_.Add();
+}
+inline ::coordinator_proto::LogicalRange* RackCuUpdateRequest::add_ranges() {
+  ::coordinator_proto::LogicalRange* _add = _internal_add_ranges();
+  // @@protoc_insertion_point(field_add:coordinator_proto.RackCuUpdateRequest.ranges)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::coordinator_proto::LogicalRange >&
+RackCuUpdateRequest::ranges() const {
+  // @@protoc_insertion_point(field_list:coordinator_proto.RackCuUpdateRequest.ranges)
+  return _impl_.ranges_;
+}
+
+// -------------------------------------------------------------------
+
 // KeyFromClient
 
 // string key = 1;
@@ -6287,6 +6690,8 @@ inline void RecoveryReply::set_grpc_start_time(double value) {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

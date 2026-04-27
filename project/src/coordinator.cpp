@@ -7,9 +7,12 @@
 #include <chrono>
 #include <limits>
 #include <set>
+#include <unordered_map>
+#include <unordered_set>
 #include <cmath>
 #include <stdexcept>
 #include <numeric>
+#include <sstream>
 
 template <typename T>
 inline T ceil(T const &A, T const &B)
@@ -44,6 +47,121 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
     {
       return code_type == "AzureLRC" || code_type == "RandomLRC";
     }
+
+    void merge_interval_in_map(std::map<int, std::vector<std::pair<int, int>>> *m, int key, int lo, int hi)
+    {
+      if (m == nullptr || hi <= lo)
+      {
+        return;
+      }
+      std::vector<std::pair<int, int>> &vec = (*m)[key];
+      vec.push_back(std::make_pair(lo, hi));
+      std::sort(vec.begin(), vec.end());
+      std::vector<std::pair<int, int>> merged;
+      for (const auto &p : vec)
+      {
+        if (merged.empty() || p.first > merged.back().second)
+        {
+          merged.push_back(p);
+        }
+        else
+        {
+          merged.back().second = std::max(merged.back().second, p.second);
+        }
+      }
+      vec.swap(merged);
+    }
+
+    // RackCU：各数据块在「块内字节坐标」上与校验列对齐；合并所有块上的更新区间（重叠已合并），再按 UnitSize 对齐。
+    // 返回若干互不相交的 [offset, size)，size>0，且均在 [0, block_size) 内。
+    std::vector<std::pair<int, int>> build_rackcu_parity_slices(
+        const std::map<int, std::vector<std::pair<int, int>>> &block_intervals,
+        int unit_size,
+        int block_size)
+    {
+      std::vector<std::pair<int, int>> expanded;
+      expanded.reserve(32);
+      for (const auto &bp : block_intervals)
+      {
+        (void)bp.first;
+        for (const auto &seg : bp.second)
+        {
+          const int lo = seg.first;
+          const int hi = seg.second;
+          if (hi <= lo || lo < 0 || hi > block_size)
+          {
+            continue;
+          }
+          const int lo_a = (lo / unit_size) * unit_size;
+          int hi_a = ((hi + unit_size - 1) / unit_size) * unit_size;
+          if (hi_a > block_size)
+          {
+            hi_a = block_size;
+          }
+          if (hi_a <= lo_a)
+          {
+            continue;
+          }
+          expanded.emplace_back(lo_a, hi_a);
+        }
+      }
+      if (expanded.empty())
+      {
+        return {};
+      }
+      std::sort(expanded.begin(), expanded.end());
+      std::vector<std::pair<int, int>> merged;
+      for (const auto &p : expanded)
+      {
+        if (merged.empty() || p.first > merged.back().second)
+        {
+          merged.push_back(p);
+        }
+        else
+        {
+          merged.back().second = std::max(merged.back().second, p.second);
+        }
+      }
+      std::vector<std::pair<int, int>> out;
+      for (const auto &m : merged)
+      {
+        const int off = m.first;
+        const int sz = m.second - m.first;
+        if (sz > 0 && off >= 0 && off + sz <= block_size)
+        {
+          out.emplace_back(off, sz);
+        }
+      }
+      return out;
+    }
+
+    const Block *find_block_const(const Stripe &stripe, int block_id)
+    {
+      for (const Block *b : stripe.blocks)
+      {
+        if (b != nullptr && b->block_id == block_id)
+        {
+          return b;
+        }
+      }
+      return nullptr;
+    }
+
+    std::string gen_rackcu_append_key(int stripe_id, int seq)
+    {
+      // 与 ToolBox::gen_append_key 格式一致，但使用大基数避免与常规 group id 冲突
+      return std::to_string(stripe_id) + "_" + std::to_string(900000 + seq);
+    }
+
+    // ReplyProxyIPsPorts.group_ids：与 append_keys 对齐，供 Client::rackcu_update 解析步骤语义
+    enum RackCuClientStep : int32_t
+    {
+      RACKCU_STEP_DATA_HOME = 1,
+      RACKCU_STEP_DATA_TO_COLLECTOR = 2,
+      RACKCU_STEP_PARITY_GLOBAL = 3,
+      RACKCU_STEP_PARITY_GLOBAL_FROM_DATA = 4,
+      RACKCU_STEP_LOCAL_PARITY = 5,
+    };
   } // namespace
 
   grpc::Status CoordinatorImpl::setParameter(
@@ -391,9 +509,10 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
   void CoordinatorImpl::initialize_random_lrc_stripe_placement(Stripe *stripe)
   {
     // Random placement:
-    // 1) 从条带全部块中随机顺序投放
-    // 2) 仅在 4 个随机 cluster 中放置（若总 cluster < 4，则使用全部）
-    // 3) 约束：同一 cluster 块数 <= r + l，l 为该 cluster 中“去除全局校验组后的跨 group 数”
+    // 1) 每条带使用 6 个紧邻 cluster（轮询起点，环形取连续 6 个）。
+    // 2) 所有本地校验块放到 1 个专用 cluster，所有全局校验块放到另 1 个专用 cluster。
+    // 3) 这两个专用 cluster 不放该条带数据块；数据块仅在剩余 4 个 cluster 随机放置。
+    // 4) 数据放置约束：每个数据 cluster 的数据块数 <= r + 1。
     Block *blocks_info = new Block[stripe->n];
     assert(stripe->object_keys.size() == 1);
 
@@ -403,15 +522,22 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
       throw std::runtime_error("ClusterNum must be positive for RandomLRC placement");
     }
 
-    const int target_cluster_num = std::min(4, cluster_num);
+    const int target_cluster_num = 6;
+    if (cluster_num < target_cluster_num)
+    {
+      throw std::runtime_error("RandomLRC placement requires at least 6 clusters");
+    }
     std::vector<int> selected_clusters;
     selected_clusters.reserve(target_cluster_num);
-    // 轮询选择紧邻 cluster：以 stripe_id 为起点，按环形连续取 4 个。
+    // 轮询选择紧邻 cluster：以 stripe_id 为起点，按环形连续取 5 个。
     const int start_cluster = stripe->stripe_id % cluster_num;
     for (int i = 0; i < target_cluster_num; ++i)
     {
       selected_clusters.push_back((start_cluster + i) % cluster_num);
     }
+    const int local_parity_cluster = selected_clusters[0];
+    const int global_parity_cluster = selected_clusters[1];
+    std::vector<int> data_clusters = {selected_clusters[2], selected_clusters[3], selected_clusters[4], selected_clusters[5]};
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -455,44 +581,42 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
       }
     }
 
-    std::vector<int> block_order(stripe->n);
-    std::iota(block_order.begin(), block_order.end(), 0);
+    std::vector<int> data_block_order(stripe->k);
+    std::iota(data_block_order.begin(), data_block_order.end(), 0);
     const int max_attempts = 256;
     bool placed = false;
     std::vector<int> assigned_cluster(stripe->n, -1);
 
     for (int attempt = 0; attempt < max_attempts && !placed; ++attempt)
     {
-      std::shuffle(block_order.begin(), block_order.end(), gen);
+      std::shuffle(data_block_order.begin(), data_block_order.end(), gen);
       std::fill(assigned_cluster.begin(), assigned_cluster.end(), -1);
-      std::map<int, int> cluster_block_count;
-      std::map<int, std::set<int>> cluster_groups_excluding_global;
+      std::map<int, int> cluster_data_block_count;
       bool ok = true;
 
-      for (int block_idx : block_order)
+      // 先固定校验块专用 cluster。
+      for (int i = stripe->k; i < stripe->k + stripe->r; ++i)
       {
-        std::vector<int> candidate_clusters = selected_clusters;
+        assigned_cluster[i] = global_parity_cluster;
+      }
+      for (int i = stripe->k + stripe->r; i < stripe->n; ++i)
+      {
+        assigned_cluster[i] = local_parity_cluster;
+      }
+
+      // 数据块仅在 4 个数据 cluster 内随机放置。
+      for (int block_idx : data_block_order)
+      {
+        std::vector<int> candidate_clusters = data_clusters;
         std::shuffle(candidate_clusters.begin(), candidate_clusters.end(), gen);
         bool assigned = false;
-        const int block_group = blocks_info[block_idx].map2group;
-
         for (int cid : candidate_clusters)
         {
-          int next_block_count = cluster_block_count[cid] + 1;
-          int next_group_count = static_cast<int>(cluster_groups_excluding_global[cid].size());
-          if (block_group != global_parity_group_id &&
-              cluster_groups_excluding_global[cid].find(block_group) == cluster_groups_excluding_global[cid].end())
-          {
-            next_group_count++;
-          }
-          if (next_block_count <= stripe->r + next_group_count)
+          int next_data_cnt = cluster_data_block_count[cid] + 1;
+          if (next_data_cnt <= stripe->r + 1)
           {
             assigned_cluster[block_idx] = cid;
-            cluster_block_count[cid] = next_block_count;
-            if (block_group != global_parity_group_id)
-            {
-              cluster_groups_excluding_global[cid].insert(block_group);
-            }
+            cluster_data_block_count[cid] = next_data_cnt;
             assigned = true;
             break;
           }
@@ -841,6 +965,572 @@ namespace ECProject  //定义一个名为 ECProject 的命名空间，防止命�
     (void)request;
     (void)proxyIPPort;
     return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "XueLRC update strategy has been removed");
+  }
+
+  grpc::Status CoordinatorImpl::uploadRackCuUpdate(
+      grpc::ServerContext *context,
+      const coordinator_proto::RackCuUpdateRequest *request,
+      coordinator_proto::ReplyProxyIPsPorts *proxyIPPort)
+  {
+    (void)context;
+    if (request == nullptr || proxyIPPort == nullptr)
+    {
+      return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "null request/response");
+    }
+    const std::string code_type = m_sys_config->CodeType;
+    if (!is_azure_like_code(code_type))
+    {
+      return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "RackCU only supports AzureLRC / RandomLRC (Azure grouping)");
+    }
+
+    const int stripe_id = request->stripe_id();
+    auto it_stripe = m_stripe_table.find(stripe_id);
+    if (it_stripe == m_stripe_table.end())
+    {
+      return grpc::Status(grpc::StatusCode::NOT_FOUND, "stripe_id not found");
+    }
+    Stripe *stripe = &it_stripe->second;
+
+    if (request->ranges_size() == 0)
+    {
+      return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "empty ranges");
+    }
+
+    const int k = stripe->k;
+    const int r = stripe->r;
+    const int block_size = static_cast<int>(m_sys_config->BlockSize);
+    const int unit_size = static_cast<int>(m_sys_config->UnitSize);
+    const int stripe_data_bytes = k * block_size;
+
+    std::map<int, std::vector<std::pair<int, int>>> block_intervals;
+    for (int ri = 0; ri < request->ranges_size(); ri++)
+    {
+      const auto &rg = request->ranges(ri);
+      const int lo = rg.logical_offset_start();
+      const int hi = rg.logical_offset_end();
+      if (hi <= lo)
+      {
+        return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "invalid logical range (require start < end)");
+      }
+      if (lo < 0 || hi > stripe_data_bytes)
+      {
+        return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "logical range out of stripe data address space");
+      }
+      int pos = lo;
+      const int logical_end = hi - 1;
+      while (pos <= logical_end)
+      {
+        const int bid = pos / block_size;
+        const int off = pos % block_size;
+        const int tail = block_size - off;
+        const int len = std::min(tail, logical_end - pos + 1);
+        merge_interval_in_map(&block_intervals, bid, off, off + len);
+        pos += len;
+      }
+    }
+
+    if (block_intervals.empty())
+    {
+      return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "no data blocks affected");
+    }
+
+    std::cout << "[RackCU] stripe " << stripe_id << " updated blocks/segments:";
+    for (const auto &bp : block_intervals)
+    {
+      std::cout << " b" << bp.first << "{";
+      for (size_t si = 0; si < bp.second.size(); si++)
+      {
+        std::cout << "[" << bp.second[si].first << "," << bp.second[si].second << ")";
+        if (si + 1 < bp.second.size())
+        {
+          std::cout << ",";
+        }
+      }
+      std::cout << "}";
+    }
+    std::cout << std::endl;
+
+    const std::vector<std::pair<int, int>> parity_slices = build_rackcu_parity_slices(block_intervals, unit_size, block_size);
+    if (parity_slices.empty())
+    {
+      return grpc::Status(grpc::StatusCode::INTERNAL, "invalid parity slice derived from ranges");
+    }
+
+    std::vector<int> touched_data_blocks;
+    touched_data_blocks.reserve(block_intervals.size());
+    for (const auto &bp : block_intervals)
+    {
+      touched_data_blocks.push_back(bp.first);
+    }
+    std::sort(touched_data_blocks.begin(), touched_data_blocks.end());
+
+    auto count_updated_data_blocks_for_cluster = [&](int cluster_id) -> int
+    {
+      int cnt = 0;
+      for (int dbid : touched_data_blocks)
+      {
+        const Block *db = find_block_const(*stripe, dbid);
+        if (db != nullptr && db->map2cluster == cluster_id)
+        {
+          cnt++;
+        }
+      }
+      return cnt;
+    };
+
+    std::unordered_set<int> local_parity_clusters;
+    for (int g = 0; g < stripe->num_groups; g++)
+    {
+      const int lbid = k + r + g;
+      const Block *lb = find_block_const(*stripe, lbid);
+      if (lb != nullptr)
+      {
+        local_parity_clusters.insert(lb->map2cluster);
+      }
+    }
+    auto has_touched_data_block_on_cluster = [&](int cluster_id) -> bool
+    {
+      for (int dbid : touched_data_blocks)
+      {
+        const Block *db = find_block_const(*stripe, dbid);
+        if (db != nullptr && db->map2cluster == cluster_id)
+        {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    std::vector<int> collector_candidates;
+    collector_candidates.reserve(stripe->place2clusters.size());
+    for (int cid : stripe->place2clusters)
+    {
+      if (local_parity_clusters.count(cid) == 0)
+      {
+        collector_candidates.push_back(cid);
+      }
+    }
+    // 极端情况下（本地校验覆盖了全部 cluster），回退到原全集，避免无候选。
+    if (collector_candidates.empty())
+    {
+      collector_candidates.assign(stripe->place2clusters.begin(), stripe->place2clusters.end());
+    }
+
+    int best_cluster = -1;
+    int best_cnt = -1;
+    for (int cid : collector_candidates)
+    {
+      const int c = count_updated_data_blocks_for_cluster(cid);
+      if (c > best_cnt)
+      {
+        best_cnt = c;
+        best_cluster = cid;
+        continue;
+      }
+      if (c == best_cnt)
+      {
+        const bool curr_has_data = has_touched_data_block_on_cluster(cid);
+        const bool best_has_data = has_touched_data_block_on_cluster(best_cluster);
+        if ((curr_has_data && !best_has_data) || (curr_has_data == best_has_data && (best_cluster < 0 || cid < best_cluster)))
+        {
+          best_cluster = cid;
+        }
+      }
+    }
+    if (best_cluster < 0)
+    {
+      return grpc::Status(grpc::StatusCode::INTERNAL, "failed to select collector cluster");
+    }
+
+    std::cout << "[RackCU] stripe=" << stripe_id << " collector_cluster=" << best_cluster
+              << " collector_update_blocks=" << best_cnt << " parity_slice_components=" << parity_slices.size();
+    for (size_t psi = 0; psi < parity_slices.size(); psi++)
+    {
+      std::cout << " [" << parity_slices[psi].first << "," << (parity_slices[psi].first + parity_slices[psi].second) << ")";
+    }
+    std::cout << std::endl;
+
+    std::vector<proxy_proto::AppendStripeDataPlacement> plans;
+    std::vector<int32_t> plan_steps;
+    plans.reserve(16);
+    plan_steps.reserve(16);
+    int append_seq = 0;
+
+    auto emit_plan = [&](proxy_proto::AppendStripeDataPlacement plan, int32_t step) {
+      if (plan.append_mode().empty())
+      {
+        plan.set_append_mode(m_sys_config->AppendMode);
+      }
+      plans.push_back(std::move(plan));
+      plan_steps.push_back(step);
+    };
+    auto describe_data_slices = [&](const std::vector<int> &dbids) -> std::string
+    {
+      std::ostringstream oss;
+      bool first_block = true;
+      for (int dbid : dbids)
+      {
+        auto it = block_intervals.find(dbid);
+        if (it == block_intervals.end())
+        {
+          continue;
+        }
+        if (!first_block)
+        {
+          oss << ";";
+        }
+        first_block = false;
+        oss << "b" << dbid << ":";
+        bool first_seg = true;
+        for (const auto &seg : it->second)
+        {
+          if (!first_seg)
+          {
+            oss << ",";
+          }
+          first_seg = false;
+          oss << "[" << seg.first << "," << seg.second << ")";
+        }
+      }
+      if (first_block)
+      {
+        return "none";
+      }
+      return oss.str();
+    };
+
+    // 1) 各数据块所在 cluster 写入本次更新增量
+    std::map<int, std::vector<int>> data_blocks_by_cluster;
+    for (int dbid : touched_data_blocks)
+    {
+      const Block *db = find_block_const(*stripe, dbid);
+      if (db == nullptr)
+      {
+        return grpc::Status(grpc::StatusCode::INTERNAL, "missing data block metadata");
+      }
+      data_blocks_by_cluster[db->map2cluster].push_back(dbid);
+    }
+    for (auto &kv : data_blocks_by_cluster)
+    {
+      std::sort(kv.second.begin(), kv.second.end());
+    }
+
+    for (const auto &kv : data_blocks_by_cluster)
+    {
+      const int cluster_id = kv.first;
+      std::cout << "[RackCU][Transfer] client -> c" << cluster_id
+                << " content=data_deltas"
+                << " blocks=" << kv.second.size()
+                << " detail=" << describe_data_slices(kv.second) << std::endl;
+      proxy_proto::AppendStripeDataPlacement plan;
+      plan.set_key(gen_rackcu_append_key(stripe_id, append_seq++));
+      plan.set_stripe_id(stripe_id);
+      plan.set_cluster_id(cluster_id);
+      plan.set_is_merge_parity(false);
+      plan.set_is_serialized(true);
+      size_t append_size = 0;
+      for (int dbid : kv.second)
+      {
+        const Block *db = find_block_const(*stripe, dbid);
+        const Node &node = m_node_table[db->map2node];
+        for (const auto &seg : block_intervals[dbid])
+        {
+          const int len = seg.second - seg.first;
+          append_size += static_cast<size_t>(len);
+          addBlockToAppendPlan(plan, db, node, std::make_pair(len, seg.first));
+        }
+      }
+      plan.set_append_size(append_size);
+      emit_plan(std::move(plan), RACKCU_STEP_DATA_HOME);
+    }
+
+    // 2) 将不在 collector 所在 cluster 的更新数据块增量发往 collector（顺序与 touched_data_blocks 一致）
+    {
+      std::vector<int> remote_touched_data_blocks;
+      remote_touched_data_blocks.reserve(touched_data_blocks.size());
+      for (int dbid : touched_data_blocks)
+      {
+        const Block *db = find_block_const(*stripe, dbid);
+        if (db != nullptr && db->map2cluster != best_cluster)
+        {
+          remote_touched_data_blocks.push_back(dbid);
+        }
+      }
+      if (!remote_touched_data_blocks.empty())
+      {
+      std::cout << "[RackCU][Transfer] data-clusters -> collector c" << best_cluster
+                << " content=data_deltas"
+                << " blocks=" << remote_touched_data_blocks.size()
+                << " detail=" << describe_data_slices(remote_touched_data_blocks) << std::endl;
+      proxy_proto::AppendStripeDataPlacement plan;
+      plan.set_key(gen_rackcu_append_key(stripe_id, append_seq++));
+      plan.set_stripe_id(stripe_id);
+      plan.set_cluster_id(best_cluster);
+      plan.set_is_merge_parity(false);
+      plan.set_is_serialized(true);
+      size_t append_size = 0;
+      for (int dbid : remote_touched_data_blocks)
+      {
+        const Block *db = find_block_const(*stripe, dbid);
+        const Node &node = m_node_table[db->map2node];
+        for (const auto &seg : block_intervals[dbid])
+        {
+          const int len = seg.second - seg.first;
+          append_size += static_cast<size_t>(len);
+          addBlockToAppendPlan(plan, db, node, std::make_pair(len, seg.first));
+        }
+      }
+      plan.set_append_size(append_size);
+      emit_plan(std::move(plan), RACKCU_STEP_DATA_TO_COLLECTOR);
+      }
+    }
+
+    for (size_t ps_idx = 0; ps_idx < parity_slices.size(); ps_idx++)
+    {
+      const int parity_slice_offset = parity_slices[ps_idx].first;
+      const int parity_slice_size = parity_slices[ps_idx].second;
+
+      // 3) 全局校验：按 cluster 比较 collector 与 global parity cluster 的“待更新块数”
+      for (int pj = 0; pj < r; pj++)
+      {
+        const int pbid = k + pj;
+        const Block *pb = find_block_const(*stripe, pbid);
+        if (pb == nullptr)
+        {
+          return grpc::Status(grpc::StatusCode::INTERNAL, "missing global parity block metadata");
+        }
+        const int g_cluster = pb->map2cluster;
+        int global_parity_cnt_on_gcluster = 0;
+        for (int gp = 0; gp < r; gp++)
+        {
+          const Block *gb = find_block_const(*stripe, k + gp);
+          if (gb != nullptr && gb->map2cluster == g_cluster)
+          {
+            global_parity_cnt_on_gcluster++;
+          }
+        }
+        const bool send_parity_from_collector = (best_cnt >= global_parity_cnt_on_gcluster);
+
+        if (send_parity_from_collector)
+        {
+          std::cout << "[RackCU][Transfer] collector c" << best_cluster << " -> global-parity-cluster c"
+                    << g_cluster
+                    << " content=global_parity_delta"
+                    << " target_block=g" << pj
+                    << " parity_comp=" << ps_idx << "/" << parity_slices.size()
+                    << " slice=[" << parity_slice_offset << "," << (parity_slice_offset + parity_slice_size) << ")"
+                    << " data_detail=" << describe_data_slices(touched_data_blocks)
+                    << " parity_delta_bytes=" << parity_slice_size
+                    << std::endl;
+          proxy_proto::AppendStripeDataPlacement plan;
+          plan.set_key(gen_rackcu_append_key(stripe_id, append_seq++));
+          plan.set_stripe_id(stripe_id);
+          // 由 collector proxy 先计算全局校验增量，再跨 cluster 写入目标全局校验块。
+          plan.set_cluster_id(best_cluster);
+          plan.set_is_merge_parity(true);
+          plan.set_is_serialized(true);
+          plan.set_append_mode("RACKCU_PARITY_GLOBAL_BY_COLLECTOR");
+          size_t append_size = 0;
+          for (int dbid : touched_data_blocks)
+          {
+            const Block *db = find_block_const(*stripe, dbid);
+            const Node &dnode = m_node_table[db->map2node];
+            for (const auto &seg : block_intervals[dbid])
+            {
+              const int len = seg.second - seg.first;
+              append_size += static_cast<size_t>(len);
+              addBlockToAppendPlan(plan, db, dnode, std::make_pair(len, seg.first));
+            }
+          }
+          const Node &node = m_node_table[pb->map2node];
+          // 尾部附带目标全局校验块的元信息，客户端发送对应占位字节。
+          addBlockToAppendPlan(plan, pb, node, std::make_pair(parity_slice_size, parity_slice_offset));
+          append_size += static_cast<size_t>(parity_slice_size);
+          plan.set_append_size(append_size);
+          emit_plan(std::move(plan), RACKCU_STEP_PARITY_GLOBAL);
+        }
+        else
+        {
+          std::cout << "[RackCU][Transfer] data-clusters -> global-parity-cluster c" << g_cluster
+                    << " content=data_deltas(+parity_target_meta)"
+                    << " target_block=g" << pj
+                    << " data_blocks=" << touched_data_blocks.size()
+                    << " parity_comp=" << ps_idx << "/" << parity_slices.size()
+                    << " parity_slice=[" << parity_slice_offset << "," << (parity_slice_offset + parity_slice_size) << ")"
+                    << " data_detail=" << describe_data_slices(touched_data_blocks)
+                    << " parity_meta_bytes=" << parity_slice_size
+                    << std::endl;
+          proxy_proto::AppendStripeDataPlacement plan;
+          plan.set_key(gen_rackcu_append_key(stripe_id, append_seq++));
+          plan.set_stripe_id(stripe_id);
+          plan.set_cluster_id(g_cluster);
+          // 发送数据增量到全局校验块所在 cluster，由目标 proxy 完成全局校验增量合并。
+          plan.set_is_merge_parity(true);
+          plan.set_is_serialized(true);
+          plan.set_append_mode("RACKCU_GLOBAL_FROM_DATA");
+          size_t append_size = 0;
+          const Node &pnode = m_node_table[pb->map2node];
+          for (int dbid : touched_data_blocks)
+          {
+            const Block *db = find_block_const(*stripe, dbid);
+            const Node &dnode = m_node_table[db->map2node];
+            for (const auto &seg : block_intervals[dbid])
+            {
+              const int len = seg.second - seg.first;
+              append_size += static_cast<size_t>(len);
+              addBlockToAppendPlan(plan, db, dnode, std::make_pair(len, seg.first));
+            }
+          }
+          // 尾部附带 parity 目标块元信息（offset/size），客户端发送对应占位字节。
+          addBlockToAppendPlan(plan, pb, pnode, std::make_pair(parity_slice_size, parity_slice_offset));
+          append_size += static_cast<size_t>(parity_slice_size);
+          plan.set_append_size(append_size);
+          emit_plan(std::move(plan), RACKCU_STEP_PARITY_GLOBAL_FROM_DATA);
+        }
+      }
+
+    }
+
+    // 4) 本地校验：按“本地组独立 parity slice”生成计划；同组同 cluster 合并，不同组分开发送。
+    std::unordered_set<int> local_groups;
+    for (int dbid : touched_data_blocks)
+    {
+      const Block *db = find_block_const(*stripe, dbid);
+      local_groups.insert(db->map2group);
+    }
+    std::vector<int> local_groups_sorted(local_groups.begin(), local_groups.end());
+    std::sort(local_groups_sorted.begin(), local_groups_sorted.end());
+    for (int g : local_groups_sorted)
+    {
+      std::vector<int> group_data_blocks;
+      std::map<int, std::vector<std::pair<int, int>>> group_block_intervals;
+      for (int dbid : touched_data_blocks)
+      {
+        const Block *db = find_block_const(*stripe, dbid);
+        if (db != nullptr && db->map2group == g)
+        {
+          group_data_blocks.push_back(dbid);
+          group_block_intervals[dbid] = block_intervals[dbid];
+        }
+      }
+      if (group_data_blocks.empty())
+      {
+        continue;
+      }
+      std::sort(group_data_blocks.begin(), group_data_blocks.end());
+      const std::vector<std::pair<int, int>> group_parity_slices = build_rackcu_parity_slices(group_block_intervals, unit_size, block_size);
+      if (group_parity_slices.empty())
+      {
+        return grpc::Status(grpc::StatusCode::INTERNAL, "invalid local parity slice derived from group ranges");
+      }
+
+      const int lbid = k + r + g;
+      const Block *lp = find_block_const(*stripe, lbid);
+      if (lp == nullptr)
+      {
+        return grpc::Status(grpc::StatusCode::INTERNAL, "missing local parity block metadata");
+      }
+      const int target_cluster = lp->map2cluster;
+      std::map<int, std::vector<int>> group_data_blocks_by_cluster;
+      for (int dbid : group_data_blocks)
+      {
+        const Block *db = find_block_const(*stripe, dbid);
+        if (db == nullptr)
+        {
+          return grpc::Status(grpc::StatusCode::INTERNAL, "missing local-group data block metadata");
+        }
+        group_data_blocks_by_cluster[db->map2cluster].push_back(dbid);
+      }
+      for (auto &kv : group_data_blocks_by_cluster)
+      {
+        std::sort(kv.second.begin(), kv.second.end());
+      }
+
+      for (size_t gsi = 0; gsi < group_parity_slices.size(); gsi++)
+      {
+        const int parity_slice_offset = group_parity_slices[gsi].first;
+        const int parity_slice_size = group_parity_slices[gsi].second;
+        for (const auto &kv : group_data_blocks_by_cluster)
+        {
+          const int source_cluster = kv.first;
+          const std::vector<int> &src_group_blocks = kv.second;
+          std::cout << "[RackCU][Transfer] local-group " << g << " source-cluster c" << source_cluster
+                    << " -> local-parity-cluster c" << target_cluster
+                    << " content=local_data_deltas(+parity_target_meta)"
+                    << " target_block=l" << g
+                    << " group_parity_comp=" << gsi << "/" << group_parity_slices.size()
+                    << " slice=[" << parity_slice_offset << "," << (parity_slice_offset + parity_slice_size) << ")"
+                    << " data_detail=" << describe_data_slices(src_group_blocks)
+                    << " parity_meta_bytes=" << parity_slice_size
+                    << std::endl;
+
+          proxy_proto::AppendStripeDataPlacement plan;
+          plan.set_key(gen_rackcu_append_key(stripe_id, append_seq++));
+          plan.set_stripe_id(stripe_id);
+          plan.set_cluster_id(source_cluster);
+          plan.set_is_merge_parity(true);
+          plan.set_is_serialized(true);
+          plan.set_append_mode("RACKCU_LOCAL_FROM_DATA");
+          size_t append_size = 0;
+          const Node &pnode = m_node_table[lp->map2node];
+
+          for (int dbid : src_group_blocks)
+          {
+            const Block *db = find_block_const(*stripe, dbid);
+            const Node &dnode = m_node_table[db->map2node];
+            for (const auto &seg : block_intervals[dbid])
+            {
+              const int len = seg.second - seg.first;
+              append_size += static_cast<size_t>(len);
+              addBlockToAppendPlan(plan, db, dnode, std::make_pair(len, seg.first));
+            }
+          }
+          addBlockToAppendPlan(plan, lp, pnode, std::make_pair(parity_slice_size, parity_slice_offset));
+          append_size += static_cast<size_t>(parity_slice_size);
+          plan.set_append_size(append_size);
+          emit_plan(std::move(plan), RACKCU_STEP_LOCAL_PARITY);
+        }
+      }
+    }
+
+    if (plans.size() != plan_steps.size())
+    {
+      return grpc::Status(grpc::StatusCode::INTERNAL, "RackCU internal plan/step mismatch");
+    }
+
+    for (const auto &plan : plans)
+    {
+      m_mutex.lock();
+      m_object_commit_table.erase(plan.key());
+      m_mutex.unlock();
+    }
+
+    uint64_t sum_append_size = 0;
+    std::vector<std::thread> threads;
+    threads.reserve(plans.size());
+    for (size_t i = 0; i < plans.size(); i++)
+    {
+      threads.emplace_back(&CoordinatorImpl::notify_proxies_ready, this, plans[i]);
+      proxyIPPort->add_append_keys(plans[i].key());
+      proxyIPPort->add_proxyips(m_cluster_table[plans[i].cluster_id()].proxy_ip);
+      proxyIPPort->add_proxyports(m_cluster_table[plans[i].cluster_id()].proxy_port + ECProject::PROXY_PORT_SHIFT);
+      proxyIPPort->add_cluster_slice_sizes(plans[i].append_size());
+      proxyIPPort->add_group_ids(plan_steps[i]);
+      std::string serialized;
+      if (!plans[i].SerializeToString(&serialized))
+      {
+        return grpc::Status(grpc::StatusCode::INTERNAL, "failed to serialize RackCU append plan");
+      }
+      proxyIPPort->add_append_plans(serialized);
+      sum_append_size += plans[i].append_size();
+    }
+    for (auto &t : threads)
+    {
+      t.join();
+    }
+    proxyIPPort->set_sum_append_size(sum_append_size);
+
+    return grpc::Status::OK;
   }
 
   std::vector<proxy_proto::AppendStripeDataPlacement> CoordinatorImpl::generate_add_plans(Stripe *stripe)

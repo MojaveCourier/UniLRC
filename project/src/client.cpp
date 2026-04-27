@@ -1,10 +1,14 @@
 #include "client.h"
 #include "coordinator.grpc.pb.h"
+#include "proxy.pb.h"
 
 #include <asio.hpp>
 #include <thread>
 #include <assert.h>
 #include <chrono>
+#include <algorithm>
+#include <cstring>
+#include <map>
 #include "unilrc_encoder.h"
 namespace ECProject
 {
@@ -14,6 +18,41 @@ namespace ECProject
     {
       return code_type == "AzureLRC" || code_type == "RandomLRC";
     }
+
+    // 必须与 coordinator.cpp 匿名命名空间中的 RackCuClientStep 取值一致
+    enum RackCuClientStep : int32_t
+    {
+      RACKCU_STEP_DATA_HOME = 1,
+      RACKCU_STEP_DATA_TO_COLLECTOR = 2,
+      RACKCU_STEP_PARITY_GLOBAL = 3,
+      RACKCU_STEP_PARITY_GLOBAL_FROM_DATA = 4,
+      RACKCU_STEP_LOCAL_PARITY = 5,
+    };
+
+    void merge_interval_in_map(std::map<int, std::vector<std::pair<int, int>>> *m, int key, int lo, int hi)
+    {
+      if (m == nullptr || hi <= lo)
+      {
+        return;
+      }
+      std::vector<std::pair<int, int>> &vec = (*m)[key];
+      vec.push_back(std::make_pair(lo, hi));
+      std::sort(vec.begin(), vec.end());
+      std::vector<std::pair<int, int>> merged;
+      for (const auto &p : vec)
+      {
+        if (merged.empty() || p.first > merged.back().second)
+        {
+          merged.push_back(p);
+        }
+        else
+        {
+          merged.back().second = std::max(merged.back().second, p.second);
+        }
+      }
+      vec.swap(merged);
+    }
+
   }
 
   std::string Client::sayHelloToCoordinatorByGrpc(std::string hello)
@@ -838,6 +877,314 @@ namespace ECProject
       std::cout << "[XUE_UPDATE] commit check failed for at least one cluster slice." << std::endl;
     }
     return all_true;
+  }
+
+  bool Client::rackcu_update(int stripe_id, const std::vector<std::pair<int, int>> &logical_ranges)
+  {
+    if (logical_ranges.empty())
+    {
+      std::cout << "[RACKCU] Empty logical ranges." << std::endl;
+      return false;
+    }
+    if (!is_azure_like_code(m_sys_config->CodeType))
+    {
+      std::cout << "[RACKCU] unsupported CodeType: " << m_sys_config->CodeType << std::endl;
+      return false;
+    }
+
+    const int k = m_sys_config->k;
+    const int r = m_sys_config->r;
+    const int z = m_sys_config->z;
+    const int block_size = static_cast<int>(m_sys_config->BlockSize);
+    const int stripe_data_bytes = k * block_size;
+
+    std::map<int, std::vector<std::pair<int, int>>> block_intervals;
+    for (const auto &r : logical_ranges)
+    {
+      if (r.second <= r.first)
+      {
+        std::cout << "[RACKCU] Invalid logical range: [" << r.first << ", " << r.second << ")" << std::endl;
+        return false;
+      }
+      if (r.first < 0 || r.second > stripe_data_bytes)
+      {
+        std::cout << "[RACKCU] logical range out of data stripe range" << std::endl;
+        return false;
+      }
+      int pos = r.first;
+      const int logical_end = r.second - 1;
+      while (pos <= logical_end)
+      {
+        const int bid = pos / block_size;
+        const int off = pos % block_size;
+        const int tail = block_size - off;
+        const int len = std::min(tail, logical_end - pos + 1);
+        merge_interval_in_map(&block_intervals, bid, off, off + len);
+        pos += len;
+      }
+    }
+    if (block_intervals.empty())
+    {
+      std::cout << "[RACKCU] no affected data blocks" << std::endl;
+      return false;
+    }
+
+    std::vector<int> touched;
+    touched.reserve(block_intervals.size());
+    for (const auto &bp : block_intervals)
+    {
+      touched.push_back(bp.first);
+    }
+    std::sort(touched.begin(), touched.end());
+
+    grpc::ClientContext ctx;
+    coordinator_proto::RackCuUpdateRequest request;
+    coordinator_proto::ReplyProxyIPsPorts reply;
+    request.set_client_id(m_clientID);
+    request.set_stripe_id(stripe_id);
+    for (const auto &r : logical_ranges)
+    {
+      auto *range = request.add_ranges();
+      range->set_logical_offset_start(r.first);
+      range->set_logical_offset_end(r.second);
+    }
+
+    grpc::Status status = m_coordinator_ptr->uploadRackCuUpdate(&ctx, request, &reply);
+    if (!status.ok())
+    {
+      std::cout << "[RACKCU] upload failed: " << status.error_message() << std::endl;
+      return false;
+    }
+    const int nsteps = reply.append_keys_size();
+    if (nsteps != reply.cluster_slice_sizes_size() || nsteps != reply.proxyips_size() || nsteps != reply.proxyports_size() ||
+        nsteps != reply.append_plans_size() || nsteps != reply.group_ids_size())
+    {
+      std::cout << "[RACKCU] malformed reply from coordinator" << std::endl;
+      return false;
+    }
+
+    auto ptr_for_block = [&](int block_id) -> unsigned char * {
+      return reinterpret_cast<unsigned char *>(m_pre_allocated_buffer + static_cast<size_t>(block_id) * static_cast<size_t>(block_size));
+    };
+
+    auto pack_slices_in_plan_order = [&](const proxy_proto::AppendStripeDataPlacement &plan, char *dst) -> size_t {
+      size_t w = 0;
+      for (int j = 0; j < plan.blockids_size(); j++)
+      {
+        const int bid = plan.blockids(j);
+        const int off = static_cast<int>(plan.offsets(j));
+        const int len = static_cast<int>(plan.sizes(j));
+        if (len < 0 || off < 0 || off + len > block_size)
+        {
+          return 0;
+        }
+        std::memcpy(dst + w, ptr_for_block(bid) + off, static_cast<size_t>(len));
+        w += static_cast<size_t>(len);
+      }
+      return w;
+    };
+
+    for (int i = 0; i < nsteps; i++)
+    {
+      proxy_proto::AppendStripeDataPlacement plan;
+      if (!plan.ParseFromString(reply.append_plans(i)))
+      {
+        std::cout << "[RACKCU] failed to parse append plan" << std::endl;
+        return false;
+      }
+
+      const size_t slice_size = static_cast<size_t>(reply.cluster_slice_sizes(i));
+      std::vector<char> buf(slice_size);
+      char *p = buf.data();
+
+      const int32_t step = reply.group_ids(i);
+      // 串行发送：比“同一 cluster 同时最多一收/一发”更严格，天然满足该约束。
+      std::cout << "[RACKCU][Dispatch] step=" << step
+                << " to cluster c" << plan.cluster_id()
+                << " bytes=" << slice_size << std::endl;
+      switch (step)
+      {
+      case RACKCU_STEP_DATA_HOME:
+      case RACKCU_STEP_DATA_TO_COLLECTOR:
+      {
+        const size_t w = pack_slices_in_plan_order(plan, p);
+        if (w != slice_size)
+        {
+          std::cout << "[RACKCU] packed size mismatch for step " << step << std::endl;
+          return false;
+        }
+        break;
+      }
+      case RACKCU_STEP_PARITY_GLOBAL_FROM_DATA:
+      {
+        if (plan.blockids_size() < 2)
+        {
+          std::cout << "[RACKCU] invalid PARITY_GLOBAL_FROM_DATA plan" << std::endl;
+          return false;
+        }
+        size_t w = 0;
+        for (int j = 0; j + 1 < plan.blockids_size(); j++)
+        {
+          const int bid = plan.blockids(j);
+          const int off = static_cast<int>(plan.offsets(j));
+          const int len = static_cast<int>(plan.sizes(j));
+          std::memcpy(p + w, ptr_for_block(bid) + off, static_cast<size_t>(len));
+          w += static_cast<size_t>(len);
+        }
+        const int off_last = static_cast<int>(plan.offsets(plan.blockids_size() - 1));
+        const int len_last = static_cast<int>(plan.sizes(plan.blockids_size() - 1));
+        if (off_last < 0 || len_last < 0 || off_last + len_last > block_size)
+        {
+          std::cout << "[RACKCU] invalid tail parity slice in PARITY_GLOBAL_FROM_DATA plan" << std::endl;
+          return false;
+        }
+        std::memset(p + w, 0, static_cast<size_t>(len_last));
+        w += static_cast<size_t>(len_last);
+        if (w != slice_size)
+        {
+          std::cout << "[RACKCU] packed size mismatch for PARITY_GLOBAL_FROM_DATA step" << std::endl;
+          return false;
+        }
+        break;
+      }
+      case RACKCU_STEP_PARITY_GLOBAL:
+      {
+        if (!plan.is_merge_parity() || plan.blockids_size() < 2)
+        {
+          std::cout << "[RACKCU] invalid PARITY_GLOBAL plan" << std::endl;
+          return false;
+        }
+        const int pbid = plan.blockids(plan.blockids_size() - 1);
+        if (pbid < k || pbid >= k + r)
+        {
+          std::cout << "[RACKCU] PARITY_GLOBAL plan block id invalid" << std::endl;
+          return false;
+        }
+        size_t w = 0;
+        for (int j = 0; j + 1 < plan.blockids_size(); j++)
+        {
+          const int bid = plan.blockids(j);
+          const int off = static_cast<int>(plan.offsets(j));
+          const int len = static_cast<int>(plan.sizes(j));
+          std::memcpy(p + w, ptr_for_block(bid) + off, static_cast<size_t>(len));
+          w += static_cast<size_t>(len);
+        }
+        const int off_last = static_cast<int>(plan.offsets(plan.blockids_size() - 1));
+        const int len_last = static_cast<int>(plan.sizes(plan.blockids_size() - 1));
+        if (off_last < 0 || len_last < 0 || off_last + len_last > block_size)
+        {
+          std::cout << "[RACKCU] invalid tail parity slice in PARITY_GLOBAL plan" << std::endl;
+          return false;
+        }
+        std::memset(p + w, 0, static_cast<size_t>(len_last));
+        w += static_cast<size_t>(len_last);
+        if (w != slice_size)
+        {
+          std::cout << "[RACKCU] PARITY_GLOBAL packed size mismatch" << std::endl;
+          return false;
+        }
+        break;
+      }
+      case RACKCU_STEP_LOCAL_PARITY:
+      {
+        if (!plan.is_merge_parity() || plan.blockids_size() < 2)
+        {
+          std::cout << "[RACKCU] invalid LOCAL_PARITY plan" << std::endl;
+          return false;
+        }
+        const int tail_id = plan.blockids(plan.blockids_size() - 1);
+        if (tail_id < k + r || tail_id >= k + r + z)
+        {
+          std::cout << "[RACKCU] LOCAL_PARITY tail block id invalid" << std::endl;
+          return false;
+        }
+        const int poff = static_cast<int>(plan.offsets(plan.blockids_size() - 1));
+        const int plen = static_cast<int>(plan.sizes(plan.blockids_size() - 1));
+        if (poff < 0 || plen < 0 || poff + plen > block_size)
+        {
+          std::cout << "[RACKCU] LOCAL_PARITY tail slice bounds invalid" << std::endl;
+          return false;
+        }
+        if (plan.append_mode() == "RACKCU_LOCAL_FROM_DATA")
+        {
+          size_t w = 0;
+          for (int j = 0; j + 1 < plan.blockids_size(); j++)
+          {
+            const int bid = plan.blockids(j);
+            const int off = static_cast<int>(plan.offsets(j));
+            const int len = static_cast<int>(plan.sizes(j));
+            if (len < 0 || off < 0 || off + len > block_size)
+            {
+              std::cout << "[RACKCU] invalid local data slice in LOCAL_FROM_DATA plan" << std::endl;
+              return false;
+            }
+            std::memcpy(p + w, ptr_for_block(bid) + off, static_cast<size_t>(len));
+            w += static_cast<size_t>(len);
+          }
+          std::memset(p + w, 0, static_cast<size_t>(plen));
+          w += static_cast<size_t>(plen);
+          if (w != slice_size)
+          {
+            std::cout << "[RACKCU] LOCAL_FROM_DATA packed size mismatch" << std::endl;
+            return false;
+          }
+          break;
+        }
+
+        // 兼容旧路径：客户端本地计算 local parity delta 后发送
+        const int group = tail_id - k - r;
+        std::vector<int> local_touched;
+        for (int j = 0; j + 1 < plan.blockids_size(); j++)
+        {
+          local_touched.push_back(plan.blockids(j));
+        }
+        std::sort(local_touched.begin(), local_touched.end());
+        std::vector<unsigned char *> dptrs;
+        dptrs.reserve(local_touched.size());
+        std::vector<std::vector<unsigned char>> tmp_blocks(static_cast<size_t>(local_touched.size()),
+                                                          std::vector<unsigned char>(static_cast<size_t>(block_size), 0));
+        for (size_t t = 0; t < local_touched.size(); t++)
+        {
+          const int dbid = local_touched[t];
+          unsigned char *row = tmp_blocks[t].data();
+          std::memset(row, 0, static_cast<size_t>(block_size));
+          for (const auto &seg : block_intervals[dbid])
+          {
+            std::memcpy(row + seg.first, ptr_for_block(dbid) + seg.first, static_cast<size_t>(seg.second - seg.first));
+          }
+          dptrs.push_back(row);
+        }
+        std::vector<std::vector<unsigned char>> parity_out(static_cast<size_t>(r + z), std::vector<unsigned char>(static_cast<size_t>(block_size), 0));
+        std::vector<unsigned char *> pptrs;
+        pptrs.reserve(static_cast<size_t>(r + z));
+        for (int j = 0; j < r + z; j++)
+        {
+          pptrs.push_back(parity_out[static_cast<size_t>(j)].data());
+        }
+        ECProject::partial_encode_azure_lrc(k, r, z, static_cast<int>(dptrs.size()), dptrs.data(), pptrs.data(), block_size);
+        const int local_idx = r + group;
+        std::memcpy(p, parity_out[static_cast<size_t>(local_idx)].data() + poff, static_cast<size_t>(plen));
+        if (slice_size != static_cast<size_t>(plen))
+        {
+          std::cout << "[RACKCU] LOCAL_PARITY slice size mismatch" << std::endl;
+          return false;
+        }
+        break;
+      }
+      default:
+        std::cout << "[RACKCU] unknown step tag: " << step << std::endl;
+        return false;
+      }
+
+      bool ok = true;
+      async_append_to_proxies(p, reply.append_keys(i), static_cast<int>(slice_size), reply.proxyips(i), reply.proxyports(i), i, &ok);
+      if (!ok)
+      {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   std::shared_ptr<char[]> Client::get_degraded_read_block_breakdown(int stripe_id, int failed_block_id, double &total_time,double &disk_io_time, double &network_time, double &decode_time)

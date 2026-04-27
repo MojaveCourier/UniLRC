@@ -71,6 +71,10 @@ namespace ECProject
         grpc::ServerContext *context,
         const coordinator_proto::XueUpdateRequest *request,
         coordinator_proto::ReplyProxyIPsPorts *proxyIPPort) override;
+    grpc::Status uploadRackCuUpdate(
+        grpc::ServerContext *context,
+        const coordinator_proto::RackCuUpdateRequest *request,
+        coordinator_proto::ReplyProxyIPsPorts *proxyIPPort) override;
     // get
     grpc::Status getValue(
         grpc::ServerContext *context,

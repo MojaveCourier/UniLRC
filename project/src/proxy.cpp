@@ -7,6 +7,7 @@
 #include <thread>
 #include <cassert>
 #include <string>
+#include <cstring>
 #include <fstream>
 #include <sys/mman.h>
 #include "unilrc_encoder.h"
@@ -608,6 +609,162 @@ namespace ECProject
         socket_data.close(ignore_ec);
 
         std::vector<char *> slices = m_toolbox->splitCharPointer(append_buf.data(), placement_copy);
+
+        if (placement_copy->append_mode() == "RACKCU_GLOBAL_FROM_DATA" ||
+            placement_copy->append_mode() == "RACKCU_PARITY_GLOBAL_BY_COLLECTOR" ||
+            placement_copy->append_mode() == "RACKCU_LOCAL_FROM_DATA")
+        {
+          const int k = m_sys_config->k;
+          const int r = m_sys_config->r;
+          const int z = m_sys_config->z;
+          const int block_size = static_cast<int>(m_sys_config->BlockSize);
+          const int slice_num_local = placement_copy->blockids_size();
+          if (slice_num_local < 2)
+          {
+            throw std::runtime_error("RACKCU_GLOBAL_FROM_DATA: invalid slice num");
+          }
+
+          const int tail_idx = slice_num_local - 1;
+          const int parity_block_id = placement_copy->blockids(tail_idx);
+          const int gidx = parity_block_id - k;
+          const int poff = static_cast<int>(placement_copy->offsets(tail_idx));
+          const int plen = static_cast<int>(placement_copy->sizes(tail_idx));
+          if (poff < 0 || plen < 0 || poff + plen > block_size)
+          {
+            throw std::runtime_error("RACKCU_GLOBAL_FROM_DATA: invalid parity tail range");
+          }
+
+          std::vector<std::vector<unsigned char>> parity_rows(static_cast<size_t>(r + z), std::vector<unsigned char>(static_cast<size_t>(block_size), 0));
+          if (placement_copy->append_mode() == "RACKCU_LOCAL_FROM_DATA")
+          {
+            if (parity_block_id < k + r || parity_block_id >= k + r + z)
+            {
+              throw std::runtime_error("RACKCU_LOCAL_FROM_DATA: invalid local parity block id");
+            }
+            const int local_group = parity_block_id - k - r;
+            const int group_data_num = k / z;
+            std::map<int, std::vector<std::pair<int, int>>> data_segs;
+            for (int j = 0; j < tail_idx; j++)
+            {
+              const int bid = placement_copy->blockids(j);
+              if (bid < 0 || bid >= k)
+              {
+                throw std::runtime_error("RACKCU_LOCAL_FROM_DATA: non-data block appears before parity tail");
+              }
+              if (group_data_num > 0 && (bid / group_data_num) != local_group)
+              {
+                throw std::runtime_error("RACKCU_LOCAL_FROM_DATA: data block group mismatch");
+              }
+              const int off = static_cast<int>(placement_copy->offsets(j));
+              const int len = static_cast<int>(placement_copy->sizes(j));
+              if (off < 0 || len < 0 || off + len > block_size)
+              {
+                throw std::runtime_error("RACKCU_LOCAL_FROM_DATA: invalid data slice range");
+              }
+              data_segs[bid].push_back(std::make_pair(off, j));
+            }
+
+            std::vector<int> touched_ids;
+            touched_ids.reserve(data_segs.size());
+            for (const auto &it : data_segs)
+            {
+              touched_ids.push_back(it.first);
+            }
+            std::sort(touched_ids.begin(), touched_ids.end());
+
+            std::vector<std::vector<unsigned char>> touched_rows(static_cast<size_t>(touched_ids.size()),
+                                                                 std::vector<unsigned char>(static_cast<size_t>(block_size), 0));
+            std::vector<unsigned char *> dptrs;
+            dptrs.reserve(touched_ids.size());
+            for (size_t ti = 0; ti < touched_ids.size(); ti++)
+            {
+              const int bid = touched_ids[ti];
+              unsigned char *row = touched_rows[ti].data();
+              for (const auto &off_j : data_segs[bid])
+              {
+                const int off = off_j.first;
+                const int j = off_j.second;
+                const int len = static_cast<int>(placement_copy->sizes(j));
+                std::memcpy(row + off, slices[j], static_cast<size_t>(len));
+              }
+              dptrs.push_back(row);
+            }
+
+            std::vector<unsigned char *> parity_ptrs;
+            parity_ptrs.reserve(static_cast<size_t>(r + z));
+            for (int pid = 0; pid < r + z; pid++)
+            {
+              parity_ptrs.push_back(parity_rows[static_cast<size_t>(pid)].data());
+            }
+            ECProject::partial_encode_azure_lrc(k, r, z, static_cast<int>(dptrs.size()), dptrs.data(), parity_ptrs.data(), block_size);
+          }
+          else
+          {
+            if (parity_block_id < k || parity_block_id >= k + r)
+            {
+              throw std::runtime_error("RACKCU_GLOBAL_FROM_DATA: invalid global parity block id");
+            }
+            // build k-row sparse delta data blocks, then full azure encode to get parity deltas
+            std::vector<std::vector<unsigned char>> delta_rows(static_cast<size_t>(k), std::vector<unsigned char>(static_cast<size_t>(block_size), 0));
+            for (int j = 0; j < tail_idx; j++)
+            {
+              const int bid = placement_copy->blockids(j);
+              if (bid < 0 || bid >= k)
+              {
+                throw std::runtime_error("RACKCU_GLOBAL_FROM_DATA: non-data block appears before parity tail");
+              }
+              const int off = static_cast<int>(placement_copy->offsets(j));
+              const int len = static_cast<int>(placement_copy->sizes(j));
+              if (off < 0 || len < 0 || off + len > block_size)
+              {
+                throw std::runtime_error("RACKCU_GLOBAL_FROM_DATA: invalid data slice range");
+              }
+              std::memcpy(delta_rows[static_cast<size_t>(bid)].data() + off, slices[j], static_cast<size_t>(len));
+            }
+            std::vector<unsigned char *> data_ptrs;
+            data_ptrs.reserve(static_cast<size_t>(k));
+            for (int bid = 0; bid < k; bid++)
+            {
+              data_ptrs.push_back(delta_rows[static_cast<size_t>(bid)].data());
+            }
+            std::vector<unsigned char *> parity_ptrs;
+            parity_ptrs.reserve(static_cast<size_t>(r + z));
+            for (int pid = 0; pid < r + z; pid++)
+            {
+              parity_ptrs.push_back(parity_rows[static_cast<size_t>(pid)].data());
+            }
+            ECProject::encode_azure_lrc(k, r, z, data_ptrs.data(), parity_ptrs.data(), block_size);
+          }
+
+          AppendToDatanode(placement_copy->blockkeys(tail_idx).c_str(),
+                           parity_block_id,
+                           static_cast<size_t>(plen),
+                           reinterpret_cast<const char *>(parity_rows[static_cast<size_t>(gidx)].data() + poff),
+                           poff,
+                           placement_copy->datanodeip(tail_idx).c_str(),
+                           placement_copy->datanodeport(tail_idx),
+                           true);
+          MergeParityOnDatanode(placement_copy->blockkeys(tail_idx).c_str(),
+                                parity_block_id,
+                                placement_copy->datanodeip(tail_idx).c_str(),
+                                placement_copy->datanodeport(tail_idx),
+                                "UNILRC_MODE");
+
+          coordinator_proto::CommitAbortKey commit_abort_key;
+          coordinator_proto::ReplyFromCoordinator result;
+          grpc::ClientContext context2;
+          ECProject::OpperateType opp = APPEND;
+          commit_abort_key.set_opp(opp);
+          commit_abort_key.set_key(placement_copy->key());
+          commit_abort_key.set_stripe_id(stripe_id);
+          commit_abort_key.set_ifcommitmetadata(true);
+          grpc::Status status = m_coordinator_ptr->reportCommitAbort(&context2, commit_abort_key, &result);
+          if (!status.ok() && IF_DEBUG)
+          {
+            std::cout << "[Proxy][RACKCU] report commit failed!" << std::endl;
+          }
+          return;
+        }
 
         auto append_to_datanode = [this](const char *block_key, int block_id, size_t slice_size, const char *slice_buf, int slice_offset, const char *ip, int port, bool is_serialized)
         {
